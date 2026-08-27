@@ -47,10 +47,10 @@ const FormTemplatesPanel = ({
       >
         <Flex justify="space-between" align="center" mb="2">
           <Text as="h4" fontSize="sm">
-            Forms
+فرم‌ها
           </Text>
           <GreyButton size="xs" leftIcon={<AddIcon />} onClick={onOpenUpload}>
-            New
+            جدید
           </GreyButton>
         </Flex>
 
@@ -87,7 +87,7 @@ const FormTemplatesPanel = ({
             borderRadius="sm"
           >
             <Text color="overlay0" fontSize="sm">
-              Select a template or upload a new PDF
+              یک قالب انتخاب کنید یا PDF جدیدی بارگذاری کنید
             </Text>
           </Box>
         )}
@@ -100,7 +100,7 @@ const FormTemplatesPanel = ({
         borderRadius="sm"
         className="panels-bg"
       >
-        {/* New field controls */}
+        {/* کنترل‌های فیلد */}
         {selectedTemplate && (
           <Box
             mb="3"
@@ -113,7 +113,7 @@ const FormTemplatesPanel = ({
                 <HStack gap="1">
                   <Box color="primaryButton" fontSize="0.7em" asChild><FaPencilAlt /></Box>
                   <Text fontSize="xs" fontWeight="bold">
-                    Drawing mode
+                    حالت ترسیم
                   </Text>
                 </HStack>
                 <NativeSelect.Root>
@@ -122,10 +122,10 @@ const FormTemplatesPanel = ({
                     value={activeFieldType}
                     onChange={(e) => onSetFieldType(e.target.value)}
                     className="input-style">
-                    <option value="text">Text</option>
-                    <option value="checkbox">Checkbox</option>
-                    <option value="date">Date</option>
-                    <option value="number">Number</option>
+                    <option value="text">متن</option>
+                    <option value="checkbox">چک‌باکس</option>
+                    <option value="date">تاریخ</option>
+                    <option value="number">عدد</option>
                   </NativeSelect.Field>
                   <NativeSelect.Indicator />
                 </NativeSelect.Root>
@@ -134,7 +134,7 @@ const FormTemplatesPanel = ({
                   width="100%"
                   onClick={() => onSetDrawingMode(false)}
                 >
-                  Done
+                  انجام شد
                 </GreyButton>
               </VStack>
             ) : (
@@ -145,7 +145,7 @@ const FormTemplatesPanel = ({
                   leftIcon={<AddIcon />}
                   onClick={() => onSetDrawingMode(true)}
                 >
-                  New Field
+                  فیلد جدید
                 </GreyButton>
                 {visionCapable && (
                   <GreyButton
@@ -154,9 +154,9 @@ const FormTemplatesPanel = ({
                     leftIcon={<FaMagic />}
                     onClick={onAutoDetect}
                     loading={detecting}
-                    loadingText="Detecting..."
+                    loadingText="در حال شناسایی..."
                   >
-                    Auto-detect
+                    تشخیص خودکار
                   </GreyButton>
                 )}
               </VStack>
@@ -177,10 +177,10 @@ const FormTemplatesPanel = ({
               width="100%"
               onClick={onSaveFields}
               loading={saving}
-              loadingText="Saving"
+              loadingText="در حال ذخیره..."
               leftIcon={saving ? null : <FaSave />}
             >
-              {saving ? "Saving..." : "Save Fields"}
+              {saving ? "در حال ذخیره..." : "ذخیره فیلدها"}
             </GreenButton>
           </Box>
         )}

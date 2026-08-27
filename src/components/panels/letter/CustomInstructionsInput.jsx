@@ -11,7 +11,7 @@ const CustomInstructionsInput = ({
                 Custom Instructions:
             </Text>
             <Textarea
-                placeholder="Enter custom instructions for letter generation..."
+                placeholder="دستورهای سفارشی برای تولید نامه را وارد کنید..."
                 size="sm"
                 rows={2}
                 value={additionalInstructions}

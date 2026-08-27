@@ -26,8 +26,8 @@ const DemographicsForm = ({
     onSave,
     onSaved,
     onCancel,
-    saveLabel = "Save",
-    cancelLabel = "Cancel",
+    saveLabel = "ذخیره",
+    cancelLabel = "لغو",
     cancelIcon = null,
 }) => {
     const [form, setForm] = useState(() => patient
@@ -173,8 +173,8 @@ const DemographicsForm = ({
                     <Icon asChild><FaFileUpload /></Icon>
                     <Text>
                         {isExtracting
-                            ? "Reading document…"
-                            : "Drop a document to auto-fill, or click to browse"}
+                            ? "در حال خواندن سند…"
+                            : "سند را برای تکمیل خودکار رها کنید یا برای مرور کلیک کنید"}
                     </Text>
                     {isExtracting && <Spinner size="xs" />}
                 </HStack>
@@ -185,28 +185,28 @@ const DemographicsForm = ({
                 )}
             </Box>
             <HStack gap={3} align="flex-start">
-                <Field label="First name" required>
+                <Field label="نام" required>
                     <Input
                         className="input-style"
                         size="sm"
-                        placeholder="First name"
+                        placeholder="نام"
                         autoFocus
                         value={form.first_name || ""}
                         onChange={(e) => set("first_name", e.target.value)}
                     />
                 </Field>
-                <Field label="Last name" required>
+                <Field label="نام خانوادگی" required>
                     <Input
                         className="input-style"
                         size="sm"
-                        placeholder="Last name"
+                        placeholder="نام خانوادگی"
                         value={form.last_name || ""}
                         onChange={(e) => set("last_name", e.target.value)}
                     />
                 </Field>
             </HStack>
             <HStack gap={3} align="flex-start">
-                <Field label="Date of birth" required>
+                <Field label="تاریخ تولد" required>
                     <Input
                         type="date"
                         className="input-style"
@@ -215,46 +215,46 @@ const DemographicsForm = ({
                         onChange={(e) => set("dob", e.target.value)}
                     />
                 </Field>
-                <Field label="Gender">
+                <Field label="جنسیت">
                     <NativeSelect.Root>
                         <NativeSelect.Field
                             className="input-style"
                             size="sm"
                             value={form.gender || ""}
                             onChange={(e) => set("gender", e.target.value)}>
-                            <option value="">M/F</option>
-                            <option value="M">M</option>
-                            <option value="F">F</option>
+                            <option value="">مرد/زن</option>
+                            <option value="M">مرد</option>
+                            <option value="F">زن</option>
                         </NativeSelect.Field>
                         <NativeSelect.Indicator />
                     </NativeSelect.Root>
                 </Field>
             </HStack>
             <HStack gap={3} align="flex-start">
-                <Field label="UR number" required>
+                <Field label="شماره پرونده" required>
                     <Input
                         className="input-style"
                         size="sm"
-                        placeholder="UR number"
+                        placeholder="شماره پرونده"
                         value={form.ur_number || ""}
                         onChange={(e) => set("ur_number", e.target.value)}
                     />
                 </Field>
-                <Field label="Phone">
+                <Field label="تلفن">
                     <Input
                         className="input-style"
                         size="sm"
-                        placeholder="Phone"
+                        placeholder="تلفن"
                         value={form.phone || ""}
                         onChange={(e) => set("phone", e.target.value)}
                     />
                 </Field>
             </HStack>
-            <Field label="Address">
+            <Field label="نشانی">
                 <Input
                     className="input-style"
                     size="sm"
-                    placeholder="Address"
+                    placeholder="نشانی"
                     value={form.address || ""}
                     onChange={(e) => set("address", e.target.value)}
                 />

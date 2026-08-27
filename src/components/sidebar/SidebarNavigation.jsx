@@ -133,13 +133,13 @@ const SidebarNavigation = ({
     return (
         <VStack gap="1" align="stretch" w="100%" py="1">
             <Tooltip
-                content="Start a new clinical note"
+                content="شروع یادداشت بالینی جدید"
                 positioning={{ placement: isCollapsed ? "right" : "top" }} openDelay={700}
             >
                 <Box>
                     <NavButton
                         icon={FaNotesMedical}
-                        label="New Note"
+                        label="یادداشت جدید"
                         onClick={onNewPatient}
                         isCollapsed={isCollapsed}
                         accent={colors.dark.brand}
@@ -149,13 +149,13 @@ const SidebarNavigation = ({
             </Tooltip>
 
             <Tooltip
-                content="Outstanding clinic jobs"
+                content="کارهای باقی‌مانده درمانگاه"
                 positioning={{ placement: isCollapsed ? "right" : "top" }} openDelay={700}
             >
                 <Box>
                     <NavButton
                         icon={FaTasks}
-                        label="All Jobs"
+                        label="همه کارها"
                         onClick={() => handleNavigation("/outstanding-jobs")}
                         isCollapsed={isCollapsed}
                         badge={
@@ -168,13 +168,13 @@ const SidebarNavigation = ({
 
             {isRagEnabled() && (
                 <Tooltip
-                    content="Knowledge base & uploaded documents"
+                    content="پایگاه دانش و اسناد بارگذاری‌شده"
                     positioning={{ placement: isCollapsed ? "right" : "top" }} openDelay={700}
                 >
                     <Box mb={isCollapsed ? "1px" : "0px"}>
                         <NavButton
                             icon={FaBrain}
-                            label="Documents"
+                            label="اسناد"
                             onClick={() => handleNavigation("/rag")}
                             isCollapsed={isCollapsed}
                             isActive={isActive("/rag")}
@@ -184,13 +184,13 @@ const SidebarNavigation = ({
             )}
 
             <Tooltip
-                content="Models, templates & preferences"
+                content="مدل‌ها، قالب‌ها و ترجیحات"
                 positioning={{ placement: isCollapsed ? "right" : "top" }} openDelay={700}
             >
                 <Box>
                     <NavButton
                         icon={FaCog}
-                        label="Settings"
+                        label="تنظیمات"
                         onClick={() => handleNavigation("/settings")}
                         isCollapsed={isCollapsed}
                         isActive={isActive("/settings")}

@@ -18,7 +18,7 @@ const ReplacePdfModal = ({ isOpen, onClose, template, onReplaced }) => {
     const selected = e.target.files?.[0];
     if (selected && !selected.name.toLowerCase().endsWith(".pdf")) {
       toaster.create({
-        title: "Invalid file",
+        title: "فایل نامعتبر است",
         description: "Please select a PDF file",
         type: "error",
         duration: 2000,
@@ -67,7 +67,7 @@ const ReplacePdfModal = ({ isOpen, onClose, template, onReplaced }) => {
         formData,
       );
       toaster.create({
-        title: "PDF replaced",
+        title: "PDF جایگزین شد",
         description: "Field definitions kept",
         type: "success",
         duration: 2000,
@@ -76,7 +76,7 @@ const ReplacePdfModal = ({ isOpen, onClose, template, onReplaced }) => {
       handleClose();
     } catch (error) {
       toaster.create({
-        title: "Replace failed",
+        title: "جایگزینی ناموفق بود",
         description: error.message,
         type: "error",
         duration: 3000,
@@ -101,13 +101,13 @@ const ReplacePdfModal = ({ isOpen, onClose, template, onReplaced }) => {
         <Dialog.Positioner>
           <Dialog.Content>
             <Dialog.Header>
-              <Text as="h3">Replace PDF</Text>
+              <Text as="h3">جایگزینی PDF</Text>
             </Dialog.Header>
             <Dialog.Body>
               <VStack gap="4">
                 <Box w="100%">
                   <Text fontSize="sm" fontWeight="bold" mb="2">
-                    New PDF for &ldquo;{template?.name}&rdquo;
+                    PDF جدید برای «{template?.name}»
                   </Text>
                   <input
                     ref={fileInputRef}
@@ -118,8 +118,7 @@ const ReplacePdfModal = ({ isOpen, onClose, template, onReplaced }) => {
                   />
                 </Box>
                 <Text fontSize="xs" color="overlay0">
-                  Field definitions are kept. The new PDF must have{" "}
-                  {expectedPages} page(s) with matching dimensions.
+                  تعریف فیلدها حفظ می‌شود. PDF جدید باید {expectedPages} صفحه با ابعاد یکسان داشته باشد.
                 </Text>
               </VStack>
             </Dialog.Body>

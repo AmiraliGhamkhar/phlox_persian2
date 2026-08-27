@@ -11,9 +11,9 @@ import { InfoIcon } from "../../icons";
 import { calculateLLMPerformance } from "../../../../utils/performanceUtils";
 
 const getMachineLabel = (os) => {
-  if (os === "macos") return "Your Mac";
-  if (os === "windows") return "Your PC";
-  return "Your system";
+  if (os === "macos") return "مک شما";
+  if (os === "windows") return "رایانه شما";
+  return "سیستم شما";
 };
 
 // Performance info popover — info icon is the trigger
@@ -53,7 +53,7 @@ export const PerformancePopover = ({ model, systemSpecs }) => {
               <VStack gap={1} align="stretch">
                 <HStack justify="space-between">
                   <Text fontSize="xs" className="pill-box-icons">
-                    Size
+                    اندازه
                   </Text>
                   <Text fontSize="xs" fontWeight="bold">
                     {model.size_mb}MB
@@ -63,7 +63,7 @@ export const PerformancePopover = ({ model, systemSpecs }) => {
                   model.parameters_billions) && (
                   <HStack justify="space-between">
                     <Text fontSize="xs" className="pill-box-icons">
-                      Parameters
+                      پارامترها
                     </Text>
                     <Text fontSize="xs" fontWeight="bold">
                       {model.active_parameters_billions
@@ -75,7 +75,7 @@ export const PerformancePopover = ({ model, systemSpecs }) => {
                 {model.recommended_ram_gb && (
                   <HStack justify="space-between">
                     <Text fontSize="xs" className="pill-box-icons">
-                      RAM needed
+                      RAM موردنیاز
                     </Text>
                     <Text fontSize="xs" fontWeight="bold">
                       {model.recommended_ram_gb}GB
@@ -103,7 +103,7 @@ export const PerformancePopover = ({ model, systemSpecs }) => {
                 )}
                 {perf && (
                   <Tooltip
-                    content="Estimated processing time for a 10-minute consultation"
+                    content="زمان تقریبی پردازش یک ویزیت ۱۰ دقیقه‌ای"
                     showArrow
                   >
                     <HStack justify="space-between">

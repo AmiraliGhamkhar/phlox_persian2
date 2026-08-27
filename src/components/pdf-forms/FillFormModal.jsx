@@ -39,15 +39,15 @@ const FillFormModal = ({ isOpen, onClose, template }) => {
       URL.revokeObjectURL(url);
 
       toaster.create({
-        title: "Form filled",
-        description: "PDF downloaded successfully",
+        title: "فرم تکمیل شد",
+        description: "PDF با موفقیت دانلود شد",
         type: "success",
         duration: 2000,
       });
       handleClose();
     } catch (error) {
       toaster.create({
-        title: "Error",
+        title: "خطا",
         description: `Failed to fill form: ${error.message}`,
         type: "error",
         duration: 3000,
@@ -74,7 +74,7 @@ const FillFormModal = ({ isOpen, onClose, template }) => {
         <Dialog.Positioner>
           <Dialog.Content>
             <Dialog.Header>
-              <Text as="h3">Fill: {template?.name}</Text>
+              <Text as="h3">تکمیل: {template?.name}</Text>
             </Dialog.Header>
             <Dialog.Body>
               {fields.length === 0 ? (

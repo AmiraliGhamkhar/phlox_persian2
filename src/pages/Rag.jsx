@@ -69,13 +69,13 @@ const Rag = () => {
                 <Tabs.Trigger className="tab-style" value="0">
                   <HStack gap="1">
                     <FaBook size="0.85em" />
-                    <Text>Knowledge Base</Text>
+                    <Text>پایگاه دانش</Text>
                   </HStack>
                 </Tabs.Trigger>
                 <Tabs.Trigger className="tab-style" value="1">
                   <HStack gap="1">
                     <FaFileAlt size="0.85em" />
-                    <Text>Form Templates</Text>
+                    <Text>قالب‌های فرم</Text>
                   </HStack>
                 </Tabs.Trigger>
               </Tabs.List>

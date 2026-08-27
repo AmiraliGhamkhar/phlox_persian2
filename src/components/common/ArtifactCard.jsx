@@ -42,12 +42,12 @@ const ArtifactCard = ({ artifact }) => {
                 <HStack gap={1}>
                     {mime_type === "application/pdf" && (
                         <Link href={url} target='_blank' rel='noopener noreferrer'>
-                            <Button size="xs" variant="ghost" colorPalette="blue" aria-label="View file"><ExternalLinkIcon />View
+                            <Button size="xs" variant="ghost" colorPalette="blue" aria-label="مشاهده فایل"><ExternalLinkIcon />مشاهده
                                                             </Button>
                         </Link>
                     )}
                     <Link href={url} download>
-                        <Button size="xs" variant="ghost" colorPalette="blue" aria-label="Download file"><DownloadIcon />Save
+                        <Button size="xs" variant="ghost" colorPalette="blue" aria-label="دانلود فایل"><DownloadIcon />دانلود
                                                     </Button>
                     </Link>
                 </HStack>

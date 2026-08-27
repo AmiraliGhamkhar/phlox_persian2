@@ -39,9 +39,9 @@ import { RemoteModeForm } from "./RemoteModeForm";
 const MODELS_PER_PAGE = 3;
 
 const RECOMMENDED_WHISPER = {
-  id: "omi-med-stt-v1-q8_0",
-  name: "Omi Med STT",
-  size_mb: 886,
+  id: "whisper-large-v3-turbo-q5_0",
+  name: "Whisper large-v3-turbo (Q5_0)",
+  size_mb: 574,
 };
 
 const RECOMMENDED_EMBEDDING = {
@@ -78,6 +78,12 @@ export const AIModelsStep = ({ llm, transcription }) => {
     setWhisperBaseUrl,
     whisperModel,
     setWhisperModel,
+    asrLanguage,
+    setAsrLanguage,
+    asrProvider,
+    setAsrProvider,
+    asrApiKey,
+    setAsrApiKey,
     availableWhisperModels,
     whisperModelListAvailable,
     isFetchingWhisperModels,
@@ -210,7 +216,7 @@ export const AIModelsStep = ({ llm, transcription }) => {
               onClick={() => setInferenceMode("remote")}
             >
               <FaCloud />
-              Use external API
+              استفاده external API
             </Button>
           </Flex>
         </Flex>
@@ -231,13 +237,27 @@ export const AIModelsStep = ({ llm, transcription }) => {
               {/* Intro text */}
               <VStack align="start" gap={0.5} w="100%">
                 <Text fontSize="sm" fontWeight="bold" color="textPrimary">
-                  Choose your AI model
+                  مدل هوش مصنوعی خود را انتخاب کنید
                 </Text>
                 <Text fontSize="xs" className="pill-box-icons">
                   Powers your clinical notes, chat, and medical queries.
                   Smaller = faster; larger = smarter.
                 </Text>
               </VStack>
+
+              <Box
+                w="100%"
+                px={3}
+                py={2}
+                borderRadius="md"
+                className="pill-box-icons"
+              >
+                <Text fontSize="xs">
+                  مدل ASR داخلی Omi Med فقط انگلیسی را پشتیبانی می‌کند. برای
+                  پیاده‌سازی فارسی یا ترکیبی فارسی و انگلیسی، حالت «استفاده از
+                  API خارجی» و یک ASR چندزبانه را انتخاب کنید.
+                </Text>
+              </Box>
 
               {/* Model carousel */}
               <HStack w="100%" align="stretch" gap={2}>
@@ -360,17 +380,17 @@ export const AIModelsStep = ({ llm, transcription }) => {
                           <FaMicrophone size="12" />
                         </Box>
                         <Text fontSize="xs" fontWeight="bold">
-                          Transcription
+                          تشخیص گفتار (ASR)
                         </Text>
                         <Badge
                           colorPalette="red"
                           fontSize="2xs"
                           variant="solid"
                         >
-                          Required
+                          الزامی
                         </Badge>
                         <Tooltip
-                          content={`Required for speech-to-text. Omi Med STT is the bundled medical model. (${RECOMMENDED_WHISPER.size_mb}MB)`}
+                          content={`برای تشخیص گفتار الزامی است. Omi Med ASR مدل پزشکی داخلی برنامه است. (${RECOMMENDED_WHISPER.size_mb}MB)`}
                           showArrow
                         >
                           <InfoIcon boxSize={3} color="textSecondary" />
@@ -402,7 +422,7 @@ export const AIModelsStep = ({ llm, transcription }) => {
                         <IconButton
                           size="xs"
                           variant="ghost"
-                          aria-label="Download transcription model"
+                          aria-label="دانلود مدل تشخیص گفتار"
                           onClick={() =>
                             downloadWhisperModel(RECOMMENDED_WHISPER.id)
                           }
@@ -495,7 +515,7 @@ export const AIModelsStep = ({ llm, transcription }) => {
                         <IconButton
                           size="xs"
                           variant="ghost"
-                          aria-label="Download embedding model"
+                          aria-label="دانلود مدل بردارسازی"
                           onClick={handleDownloadEmbedding}
                         >
                           <DownloadIcon boxSize={3.5} />
@@ -525,6 +545,12 @@ export const AIModelsStep = ({ llm, transcription }) => {
           setWhisperBaseUrl={setWhisperBaseUrl}
           whisperModel={whisperModel}
           setWhisperModel={setWhisperModel}
+          asrLanguage={asrLanguage}
+          setAsrLanguage={setAsrLanguage}
+          asrProvider={asrProvider}
+          setAsrProvider={setAsrProvider}
+          asrApiKey={asrApiKey}
+          setAsrApiKey={setAsrApiKey}
           availableWhisperModels={availableWhisperModels}
           whisperModelListAvailable={whisperModelListAvailable}
           isFetchingWhisperModels={isFetchingWhisperModels}

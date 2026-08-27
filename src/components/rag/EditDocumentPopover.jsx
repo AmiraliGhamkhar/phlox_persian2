@@ -48,7 +48,7 @@ export const EditDocumentPopover = ({ collectionName, file, onSaved }) => {
             setOpen(false);
         } catch {
             toaster.create({
-                title: "Error",
+                title: "خطا",
                 description: "Failed to update document",
                 type: "error",
                 duration: 3000,
@@ -67,7 +67,7 @@ export const EditDocumentPopover = ({ collectionName, file, onSaved }) => {
         >
             <Popover.Trigger asChild>
                 <IconButton
-                    aria-label="Edit document"
+                    aria-label="ویرایش سند"
                     size="xs"
                     variant="ghost"
                     colorPalette="blue"
@@ -107,7 +107,7 @@ export const EditDocumentPopover = ({ collectionName, file, onSaved }) => {
                             color="textSecondary"
                             opacity={0.6}
                             _hover={{ opacity: 1 }}
-                            aria-label="Close"
+                            aria-label="بستن"
                             flexShrink={0}
                             display="flex"
                             alignItems="center"
@@ -131,7 +131,7 @@ export const EditDocumentPopover = ({ collectionName, file, onSaved }) => {
                                     className="input-style"
                                     value={title}
                                     onChange={(e) => setTitle(e.target.value)}
-                                    placeholder="Document title"
+                                    placeholder="عنوان سند"
                                 />
                             </Box>
                             <Box>
@@ -147,7 +147,7 @@ export const EditDocumentPopover = ({ collectionName, file, onSaved }) => {
                                     className="input-style"
                                     value={source}
                                     onChange={(e) => setSource(e.target.value)}
-                                    placeholder="Publishing source"
+                                    placeholder="منبع انتشار"
                                 />
                             </Box>
                             <Box>
@@ -165,7 +165,7 @@ export const EditDocumentPopover = ({ collectionName, file, onSaved }) => {
                                     onChange={(e) =>
                                         setFocusArea(e.target.value)
                                     }
-                                    placeholder="Focus area"
+                                    placeholder="حوزه تمرکز"
                                     list="focus-area-options"
                                 />
                                 <datalist id="focus-area-options">

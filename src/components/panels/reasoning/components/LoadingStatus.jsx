@@ -7,6 +7,7 @@ import {
     FaDatabase,
     FaCog,
 } from "react-icons/fa";
+import { translatePersian } from "../../../../i18n/fa";
 
 const getStatusIcon = (status) => {
     const lower = status.toLowerCase();
@@ -25,6 +26,7 @@ export const LoadingStatus = ({ status, colorMode }) => {
     if (!status) return null;
 
     const icon = getStatusIcon(status);
+    const localizedStatus = translatePersian(status);
 
     return (
         <Flex
@@ -54,7 +56,7 @@ export const LoadingStatus = ({ status, colorMode }) => {
                         color="textPrimary"
                         _dark={{ color: "textTertiary" }}
                     >
-                        {status}
+                        {localizedStatus}
                     </Text>
                 </Flex>
             </VStack>

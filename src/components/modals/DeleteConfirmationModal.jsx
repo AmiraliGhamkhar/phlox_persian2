@@ -5,7 +5,7 @@ const DeleteConfirmationModal = ({
   onClose,
   onConfirm,
   itemName,
-  title = "Delete",
+  title = "حذف",
 }) => {
   return (
     <Dialog.Root open={isOpen} size='md' onOpenChange={e => {
@@ -24,17 +24,17 @@ const DeleteConfirmationModal = ({
             <Dialog.CloseTrigger />
             <Dialog.Body>
               <Text>
-                Are you sure you want to delete "{itemName}"? This action cannot be
-                undone.
+                آیا مطمئنید می‌خواهید «{itemName}» را حذف کنید؟ این عملیات قابل
+                بازگشت نیست.
               </Text>
             </Dialog.Body>
             <Dialog.Footer>
               <HStack justify="flex-end" width="100%">
                 <Button className="red-button" mr={3} onClick={onClose}>
-                  Cancel
+                  انصراف
                 </Button>
                 <Button className="green-button" onClick={onConfirm}>
-                  Delete
+                  حذف
                 </Button>
               </HStack>
             </Dialog.Footer>

@@ -28,13 +28,23 @@ def _get_llm_status_url(config: dict) -> str | None:
 
 def _get_whisper_status_url(config: dict) -> str | None:
     """Determine the Whisper status check URL based on configuration."""
-    whisper_base_url = config.get("WHISPER_BASE_URL")
+    whisper_base_url = config.get("ASR_BASE_URL") or config.get("WHISPER_BASE_URL")
 
-    # Check if using local whisper server (when LLM_PROVIDER is "local" and no external URL configured)
-    if config.get("LLM_PROVIDER") == "local" and not whisper_base_url:
+    # A local Shenava model runs in the Python ASR adapter and has no HTTP
+    # sidecar; Whisper.cpp models expose the local health endpoint.
+    if (
+        config.get("ASR_PROVIDER") == "local"
+        and str(config.get("ASR_MODEL") or "").startswith("shenava-")
+    ):
+        return None
+
+    # Check if using a local Whisper.cpp model (when no external endpoint is configured).
+    # ASR provider selection is independent from the LLM provider.
+    asr_provider = str(config.get("ASR_PROVIDER") or "").strip().lower()
+    if asr_provider == "local" and not whisper_base_url:
         from server.utils.allocated_ports import get_whisper_port
 
-        # parakeet.cpp server exposes /health (not the OpenAI /v1/models list)
+        # Whisper.cpp exposes /health (not the OpenAI /v1/models list)
         return f"http://127.0.0.1:{get_whisper_port()}/health"
 
     if whisper_base_url:

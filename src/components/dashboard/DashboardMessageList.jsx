@@ -124,7 +124,7 @@ const DashboardMessageList = ({
                                                 fontWeight="semibold"
                                                 color="overlay0"
                                             >
-                                                Phlox Assistant
+                                                دستیار فلوکس
                                             </Text>
                                         </HStack>
                                     )}

@@ -60,7 +60,7 @@ export const CompactModelCard = ({
       <HStack w="full" justify="space-between">
         <HStack gap={1}>
           {model.recommendedType === "recommended" && (
-            <Tooltip content="Recommended for your Mac" showArrow>
+            <Tooltip content="پیشنهادشده برای مک شما" showArrow>
               <Box color="secondaryButton" display="flex" alignItems="center" cursor="default">
                 <FaStar size="12" />
               </Box>
@@ -110,13 +110,13 @@ export const CompactModelCard = ({
       )}
       {!isDownloading && isDownloaded && !isSelected && (
         <Button size="sm" w="full" variant="outline" onClick={onSelect}>
-          Select
+          انتخاب
         </Button>
       )}
       {!isDownloading && !isDownloaded && (
         <NavButton size="sm" w="full" onClick={onDownload}>
           <DownloadIcon />
-          Download
+          دانلود
         </NavButton>
       )}
     </Box>

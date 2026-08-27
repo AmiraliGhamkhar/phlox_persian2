@@ -46,30 +46,24 @@ modules:
         commit: ad9184e76a66b1001c29db9b0a3e87f646c64de0
 
 
-  - name: parakeet_cpp
+  - name: whisper_cpp
     buildsystem: cmake-ninja
     builddir: true
     config-opts:
       - -DCMAKE_BUILD_TYPE=Release
       - -DBUILD_SHARED_LIBS=OFF
-      - -DPARAKEET_BUILD_SERVER=ON
-      - -DPARAKEET_BUILD_CLI=OFF
-      - -DPARAKEET_BUILD_TESTS=OFF
-      - -DPARAKEET_GGML_VULKAN=ON
+      - -DWHISPER_BUILD_SERVER=ON
+      - -DWHISPER_BUILD_EXAMPLES=ON
+      - -DWHISPER_BUILD_TESTS=OFF
+      - -DWHISPER_BUILD_BENCHMARKS=OFF
+      - -DGGML_VULKAN=ON
       - -DGGML_NATIVE=OFF
     sources:
       - type: git
-        url: https://github.com/mudler/parakeet.cpp.git
-        commit: e8acc6172a94e20a952cf1843decace5d771a94b
-      - type: file
-        path: ../src-tauri/parakeet-cpp-omi-adapter.patch
-        dest-filename: omi-adapter.patch
-      - type: shell
-        commands:
-          - git submodule update --init --recursive
-          - git apply --recount omi-adapter.patch
+        url: https://github.com/ggml-org/whisper.cpp.git
+        commit: 978113305b2ead22249b881deafa131dc8884911
     post-install:
-      - install -Dm755 examples/server/parakeet-server
+      - install -Dm755 build/bin/whisper-server
           /app/bin/phlox-whisper-server-x86_64-unknown-linux-gnu
 
   - name: llama_cpp

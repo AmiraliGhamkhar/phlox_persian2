@@ -34,48 +34,46 @@ async def generate_template_from_note(example_note: str) -> ClinicalTemplate:
         _model_name = config["PRIMARY_MODEL"].lower()
 
         system_prompt = """
-        You are a medical documentation expert that analyzes clinical notes and creates structured templates.
-        For each section:
-        1. Determine the format style (bullets, numbered, narrative, etc)
-        2. Identify the exact bullet/numbering pattern used (-, 1., •, *, #, etc), if any
-        3. Create an appropriate section starter that matches the format (include heading and initial format marker if any)
-        4. Extract the section text from the example note verbatim to serve as a style example
-        5. Create a specific, actionable system prompt that instructs how to generate similar content for this section
+        تو متخصص مستندسازی پزشکی هستی و یادداشت‌های بالینی را تحلیل می‌کنی تا قالبی ساختاریافته بسازی. همه متن‌های توضیحی، نام بخش‌ها، نام پیشنهادی قالب و دستورهای تولید را به فارسی برگردان؛ نام داروها، اختصارات، شناسه‌ها و محتوای نمونه را دقیق حفظ کن.
+        برای هر بخش:
+        ۱. نوع قالب را تعیین کن (گلوله‌ای، شماره‌دار، روایی و مانند آن).
+        ۲. الگوی دقیق گلوله‌گذاری یا شماره‌گذاری را پیدا کن (-، ۱.، •، *، # و مانند آن).
+        ۳. آغازگر بخشی متناسب با قالب بساز و عنوان و نشانگر ابتدایی را در صورت وجود حفظ کن.
+        ۴. متن بخش را از یادداشت نمونه، برای استفاده به‌عنوان نمونه سبک، استخراج کن.
+        ۵. یک دستور سیستم مشخص و قابل اقدام برای تولید محتوای مشابه بساز.
 
-        Each section should clearly indicate:
-        - field_name (e.g., "History of Present Illness")
-        - format_style (one of: bullets, numbered, narrative, heading_with_bullets, lab_values)
-        - bullet_type (e.g., "-", "•", "*") if format uses bullets
-        - section_starter (e.g., "HPI:\n-")
-        - example_text (the actual text from the note for this section)
-        - system_prompt (specific instructions for generating similar content, based on the example's style, tone, and content requirements)
+        هر بخش باید این موارد را داشته باشد:
+        - field_name: نام فارسی بخش
+        - format_style: یکی از bullets، numbered، narrative، heading_with_bullets یا lab_values
+        - bullet_type: مانند -، • یا *، در صورت استفاده از گلوله
+        - section_starter: آغازگر بخش، مانند «شرح‌حال:\n-»
+        - example_text: متن واقعی همان بخش از یادداشت
+        - system_prompt: دستور فارسی مشخص برای تولید محتوای مشابه با همان سبک و لحن
 
-        The system_prompt should be specific and actionable. For example:
-        - Instead of "Provide information for Behavior using narrative format", use "Document observable behaviors in a concise, objective narrative style. Focus on specific actions, duration, and frequency. Include contextual triggers and observable impacts on functioning."
-        - Instead of "Provide information for Intervention using narrative format", use "Document interventions implemented during the session. Describe the specific technique or approach, the rationale for its use, and any client response or observed effects."
+        اگر بخشی مربوط به برنامه یا Plan است، نام آن را «برنامه» بگذار و format_style آن را numbered قرار بده. فقط JSON معتبر خروجی بده.
         """
 
         json_schema_instruction = (
-            "Return ONLY valid JSON with top-level keys "
-            '"sections" (array), "suggested_name" (string), "note_type" (string). '
-            "Example: "
+            "فقط JSON معتبر با کلیدهای سطح بالا شامل "
+            '\"sections\" (آرایه)، \"suggested_name\" (رشته) و \"note_type\" (رشته) برگردان. نمونه: '
             + json.dumps(
                 {
                     "sections": [
                         {
-                            "field_name": "History of Present Illness",
+                            "field_name": "شرح‌حال اصلی",
                             "format_style": "bullets",
                             "bullet_type": "-",
-                            "section_starter": "HPI:\n-",
+                            "section_starter": "شرح‌حال:\n-",
                             "example_text": "...",
-                            "system_prompt": "Document the patient's primary complaint and symptom timeline in concise bullet points. Include onset, duration, severity, aggravating/alleviating factors, and associated symptoms.",
+                            "system_prompt": "شکایت اصلی و خط زمانی علائم را در نکات گلوله‌ای کوتاه ثبت کن و شروع، مدت، شدت، عوامل تشدیدکننده یا تسکین‌دهنده و علائم همراه را در صورت وجود بیاور.",
                             "persistent": False,
                             "required": False,
                         }
                     ],
-                    "suggested_name": "...",
-                    "note_type": "...",
-                }
+                    "suggested_name": "قالب بالینی",
+                    "note_type": "یادداشت بالینی",
+                },
+                ensure_ascii=False,
             )
         )
 
@@ -83,11 +81,11 @@ async def generate_template_from_note(example_note: str) -> ClinicalTemplate:
             {"role": "system", "content": system_prompt},
             {
                 "role": "user",
-                "content": f"""Analyze this clinical note and extract template sections with their format patterns.
+                "content": f"""این یادداشت بالینی را تحلیل کن و بخش‌های قالب را همراه با الگوهای قالب‌بندی آن استخراج کن.
 
 {json_schema_instruction}
 
-Do not include any tab characters, extra whitespace, markdown, code fences, or formatting characters. Your response should be compact JSON without pretty-printing.
+هیچ تب، فاصله اضافی، Markdown، کدبلاک یا نویسه قالب‌بندی اضافه نکن. پاسخ باید JSON فشرده و بدون قالب‌بندی زیبا باشد.
 
 {example_note}""",
             },
@@ -118,7 +116,7 @@ Do not include any tab characters, extra whitespace, markdown, code fences, or f
         # Add all extracted sections except plan
         for section in extracted.sections:
             field_key = generate_field_key(section.field_name)
-            if field_key != "plan":
+            if not _is_plan_field(section.field_name):
                 # Create format_schema based on format_style
                 format_schema = None
                 if section.format_style == FormatStyle.BULLETS:
@@ -149,7 +147,7 @@ Do not include any tab characters, extra whitespace, markdown, code fences, or f
 
         # Update plan field's style example
         plan_section = next(
-            (s for s in extracted.sections if generate_field_key(s.field_name) == "plan"),
+            (s for s in extracted.sections if _is_plan_field(s.field_name)),
             None,
         )
 
@@ -159,7 +157,7 @@ Do not include any tab characters, extra whitespace, markdown, code fences, or f
             plan_example = plan_section.example_text
 
             # Check if the example is already in a numbered format
-            if not re.match(r"^\s*\d+\.", plan_example.lstrip()):
+            if not re.match(r"^\s*[\d۰-۹]+\.", plan_example.lstrip()):
                 # Convert to numbered format if it's not already
                 lines = [line.strip() for line in plan_example.split("\n") if line.strip()]
                 plan_example = "\n".join(
@@ -192,6 +190,11 @@ Do not include any tab characters, extra whitespace, markdown, code fences, or f
 def generate_field_key(field_name: str) -> str:
     """Generate a standardized field key from a field name."""
     return field_name.lower().strip().replace(" ", "_")
+
+
+def _is_plan_field(field_name: str) -> bool:
+    """Recognize the plan section in both Persian and legacy English output."""
+    return generate_field_key(field_name) in {"plan", "برنامه", "برنامه_مدیریت"}
 
 
 def generate_unique_template_key(base_name: str) -> str:

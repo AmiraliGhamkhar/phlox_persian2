@@ -49,8 +49,8 @@ const DocumentPanel = ({
   const handleUpload = async () => {
     if (!file) {
       toaster.create({
-        title: "No file selected",
-        description: "Please select a file to upload",
+        title: "فایلی انتخاب نشده است",
+        description: "لطفاً فایلی برای بارگذاری انتخاب کنید",
         type: "error",
         duration: 3000,
       });
@@ -150,8 +150,8 @@ const DocumentPanel = ({
       !droppedFile.name.match(/\.(pdf|doc|docx|txt)$/i)
     ) {
       toaster.create({
-        title: "Invalid file type",
-        description: "Please upload a PDF, Word document, or text file.",
+        title: "نوع فایل نامعتبر است",
+        description: "لطفاً PDF، سند Word یا فایل متنی بارگذاری کنید.",
         type: "error",
         duration: 3000,
       });
@@ -203,7 +203,7 @@ const DocumentPanel = ({
       >
         <Flex align="center">
           <FaFileUpload size="1em" style={{ marginRight: "8px" }} />
-          <Text fontWeight="bold">Document Upload</Text>
+          <Text fontWeight="bold">بارگذاری سند</Text>
         </Flex>
       </Flex>
       {/* Content */}
@@ -228,7 +228,7 @@ const DocumentPanel = ({
           >
             <Flex mb={2}>
               <Alert.Indicator mr={2} asChild><FaExclamationTriangle /></Alert.Indicator>
-              <Alert.Title>Processing Error</Alert.Title>
+              <Alert.Title>خطای پردازش</Alert.Title>
             </Flex>
             <Alert.Description maxWidth="lg">
               {processingError.message}
@@ -239,22 +239,22 @@ const DocumentPanel = ({
                 className="green-button"
                 disabled={isProcessing}
                 size="sm"><FaRedoAlt />{isProcessing ? <Spinner size="sm" mr={2} /> : null}
-                Resend
+                ارسال دوباره
               </Button>
-              <Button onClick={startNewUpload} className="orange-button" size="sm"><FaRedo />New Document
+              <Button onClick={startNewUpload} className="orange-button" size="sm"><FaRedo />سند جدید
                               </Button>
             </ButtonGroup>
           </Alert.Root>
         ) : isProcessing || isTranscribing ? (
           <Flex justify="center" align="center" py={8} direction="column">
             <Spinner size="xl" mb={4} />
-            <Text>Processing document...</Text>
+            <Text>در حال پردازش سند...</Text>
           </Flex>
         ) : !extractedDocData ? (
           // Upload UI
           (<VStack gap={4} width="full" align="stretch">
             <Text textAlign="center" fontSize="sm">
-              Upload a referral letter or other document to extract information.
+              برای استخراج اطلاعات، نامه ارجاع یا سند دیگری را بارگذاری کنید.
             </Text>
             <VStack width="full" align="center">
               <Input
@@ -272,7 +272,7 @@ const DocumentPanel = ({
                 }
                 size="sm"
               >
-                Choose Document
+                انتخاب سند
               </GreyButton>
               {docFileName && <Text fontSize="sm">{docFileName}</Text>}
             </VStack>
@@ -284,7 +284,7 @@ const DocumentPanel = ({
                   className="green-button"
                   size="sm"
                 >
-                  Process Document
+                  پردازش سند
                 </Button>
               </Flex>
             )}
@@ -296,7 +296,7 @@ const DocumentPanel = ({
               <Text fontWeight="bold" fontSize="sm">
                 {docFileName}
               </Text>
-              <Button onClick={startNewUpload} size="xs" className="orange-button"><FaFileUpload />New
+              <Button onClick={startNewUpload} size="xs" className="orange-button"><FaFileUpload />جدید
                               </Button>
             </Flex>
             <Separator my={2} />
@@ -346,7 +346,7 @@ const DocumentPanel = ({
                           minWidth="70px"
                           fontSize="xs">{
                             isReplaced ? <CheckIcon boxSize="2" /> : null
-                          }{isReplaced ? "Using" : "Use"}</Button>
+                          }{isReplaced ? "استفاده از" : "استفاده"}</Button>
                       )}
                     </Flex>
                   </Box>

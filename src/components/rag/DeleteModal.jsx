@@ -17,7 +17,7 @@ const DeleteModal = ({ isOpen, onClose, onDelete, item }) => {
                 <Dialog.Positioner>
                     <Dialog.Content className="modal-style">
                         <Dialog.Header>
-                            {item.type === "file" ? "Delete File" : "Delete Collection"}
+                            {item.type === "file" ? "حذف فایل" : "حذف مجموعه"}
                         </Dialog.Header>
                         <Dialog.CloseTrigger />
                         <Dialog.Body>
@@ -41,7 +41,7 @@ const DeleteModal = ({ isOpen, onClose, onDelete, item }) => {
                                 onClick={onDelete}
                                 disabled={isDeleting}
                             >
-                                {isDeleting ? "Deleting..." : "Delete"}
+                                {isDeleting ? "در حال حذف..." : "حذف"}
                             </Button>
                             <Button
                                 className="green-button"

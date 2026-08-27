@@ -54,17 +54,17 @@ const SplashScreen = ({ onComplete }) => {
   const getValidationMessage = () => {
     switch (currentStep) {
       case SPLASH_STEPS.ABOUT_YOU:
-        return "Please enter your name and select your specialty.";
+        return "لطفاً نام خود را وارد و تخصصتان را انتخاب کنید.";
       case SPLASH_STEPS.AI_MODELS:
         if (llm.inferenceMode === "local") {
-          if (!llm.validate()) return "Please download and select a model.";
-          return "Please download the transcription model.";
+          if (!llm.validate()) return "لطفاً یک مدل را دانلود و انتخاب کنید.";
+          return "لطفاً مدل تشخیص گفتار را دانلود کنید.";
         }
-        return "Please select a primary model.";
+        return "لطفاً مدل اصلی را انتخاب کنید.";
       case SPLASH_STEPS.TEMPLATES:
-        return "Please select a default template.";
+        return "لطفاً قالب پیش‌فرض را انتخاب کنید.";
       default:
-        return "Please complete all required fields.";
+        return "لطفاً همه فیلدهای الزامی را تکمیل کنید.";
     }
   };
 
@@ -123,8 +123,16 @@ const SplashScreen = ({ onComplete }) => {
         LLM_BASE_URL: llmData.llmBaseUrl,
         LLM_API_KEY: llmData.llmApiKey || "",
         PRIMARY_MODEL: llmData.primaryModel,
+        ASR_PROVIDER: transcriptionData.asrProvider || "local",
+        ASR_BASE_URL: transcriptionData.whisperBaseUrl,
+        ASR_MODEL: transcriptionData.whisperModel,
+        ASR_LANGUAGE: transcriptionData.asrLanguage || "auto",
+        ASR_KEY: transcriptionData.asrApiKey || "",
+        // Keep the legacy keys synchronized for older bundled components.
         WHISPER_BASE_URL: transcriptionData.whisperBaseUrl,
         WHISPER_MODEL: transcriptionData.whisperModel,
+        WHISPER_LANGUAGE: transcriptionData.asrLanguage || "auto",
+        WHISPER_KEY: transcriptionData.asrApiKey || "",
       };
 
       await settingsApi.saveConfig(configToSave);
@@ -135,15 +143,15 @@ const SplashScreen = ({ onComplete }) => {
 
       await settingsApi.markSplashCompleted();
       toaster.create({
-        title: "Setup Complete!",
-        description: "You're ready to start using Phlox.",
+        title: "راه‌اندازی کامل شد!",
+        description: "فلوکس آماده استفاده است.",
         type: "success",
         duration: 5000,
       });
       onComplete();
     } catch (error) {
       toaster.create({
-        title: "Error Saving Settings",
+        title: "خطا در ذخیره تنظیمات",
         description: error.message || "An unexpected error occurred.",
         type: "error",
         duration: 5000,
@@ -276,7 +284,7 @@ const SplashScreen = ({ onComplete }) => {
             borderRadius="2xl"
             className="switch-mode"
           >
-            <FaArrowLeft />Back
+            <FaArrowLeft />بازگشت
           </Button>
 
           <Button
@@ -284,8 +292,8 @@ const SplashScreen = ({ onComplete }) => {
             loading={isLoading}
             loadingText={
               currentStepIndex === totalSteps - 1
-                ? "Completing setup..."
-                : "Processing..."
+                ? "در حال تکمیل راه‌اندازی..."
+                : "در حال پردازش..."
             }
             disabled={!canProceedToNext()}
             size="md"
@@ -296,7 +304,7 @@ const SplashScreen = ({ onComplete }) => {
               fontWeight: "600",
             }}
           >
-            {currentStepIndex === totalSteps - 1 ? "Start Using Phlox" : "Continue"}
+            {currentStepIndex === totalSteps - 1 ? "شروع استفاده از فلوکس" : "ادامه"}
             {currentStepIndex !== totalSteps - 1 && <FaArrowRight />}
           </Button>
         </Flex>

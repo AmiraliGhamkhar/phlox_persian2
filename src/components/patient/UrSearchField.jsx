@@ -9,7 +9,7 @@ const UrSearchField = ({
     isLoading = false,
     size = "sm",
     autoFocus = false,
-    placeholder = "UR Number",
+    placeholder = "شماره پرونده",
 }) => (
     <>
         <Input
@@ -26,12 +26,12 @@ const UrSearchField = ({
                 borderBottomRightRadius: "0 !important"
             }}
         />
-        <Tooltip content="Find existing patient by UR number" positioning={{
+        <Tooltip content="یافتن بیمار موجود با شماره پرونده" positioning={{
             placement: "top"
         }}>
             <IconButton
                 type="button"
-                aria-label="Find existing patient by UR number"
+                aria-label="یافتن بیمار موجود با شماره پرونده"
                 size={size}
                 loading={isLoading}
                 onClick={onSearch}

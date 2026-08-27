@@ -174,7 +174,7 @@ const DashboardChatInput = ({
                         {pendingImage.type.startsWith("image/") ? (
                             <Image
                                 src={URL.createObjectURL(pendingImage)}
-                                alt="Preview"
+                                alt="پیش‌نمایش"
                                 boxSize="20px"
                                 borderRadius="sm"
                                 objectFit="cover"
@@ -199,7 +199,7 @@ const DashboardChatInput = ({
                         <IconButton
                             size="xs"
                             variant="ghost"
-                            aria-label="Remove file"
+                            aria-label="حذف فایل"
                             onClick={onImageRemove}
                             disabled={isProcessingImage}
                             flexShrink={0}
@@ -241,7 +241,7 @@ const DashboardChatInput = ({
                         <IconButton
                             onClick={() => fileInputRef.current?.click()}
                             disabled={isLoading || isProcessingImage}
-                            aria-label="Attach image or PDF"
+                            aria-label="پیوست تصویر یا PDF"
                             size="sm"
                             variant="ghost"
                             color="textQuaternary"
@@ -264,7 +264,7 @@ const DashboardChatInput = ({
                         onClick={onSend}
                         disabled={!canSend}
                         loading={isLoading}
-                        aria-label="Send message"
+                        aria-label="ارسال پیام"
                         size="sm"
                         alignSelf="center"
                         borderRadius="full"

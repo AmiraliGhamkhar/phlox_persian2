@@ -15,32 +15,32 @@ import { useToolServers } from "../../utils/hooks/useToolServers";
 const BUILT_IN_TOOLS = [
     {
         name: "transcript_search",
-        label: "Transcript Search",
-        description: "Search patient transcripts",
+        label: "جست‌وجوی متن‌های پیاده‌سازی‌شده",
+        description: "جست‌وجوی متن‌های پیاده‌سازی‌شده بیماران",
         external: false,
     },
     {
         name: "get_relevant_literature",
-        label: "Literature Search",
-        description: "Local literature database",
+        label: "جست‌وجوی منابع علمی",
+        description: "پایگاه داده محلی منابع علمی",
         external: false,
     },
     {
         name: "pubmed_search",
-        label: "PubMed Search",
-        description: "PubMed API (may expose PHI)",
+        label: "جست‌وجوی PubMed",
+        description: "API پاب‌مد (ممکن است PHI را افشا کند)",
         external: true,
     },
     {
         name: "wiki_search",
-        label: "Wikipedia Search",
-        description: "Wikipedia API (may expose PHI)",
+        label: "جست‌وجوی ویکی‌پدیا",
+        description: "API ویکی‌پدیا (ممکن است PHI را افشا کند)",
         external: true,
     },
     {
         name: "get_previous_encounter",
-        label: "Previous Encounters",
-        description: "Patient history lookup",
+        label: "ویزیت‌های قبلی",
+        description: "جست‌وجوی سابقه بیمار",
         external: false,
     },
 ];
@@ -72,18 +72,18 @@ const ToolsSettingsTab = ({ className }) => {
         setUrlError("");
 
         if (!serverName.trim()) {
-            setNameError("Server name is required");
+            setNameError("نام سرور الزامی است");
             isValid = false;
         }
 
         if (!serverUrl.trim()) {
-            setUrlError("Server URL is required");
+            setUrlError("نشانی سرور الزامی است");
             isValid = false;
         } else {
             try {
                 new URL(serverUrl);
             } catch {
-                setUrlError("Please enter a valid URL");
+                setUrlError("لطفاً یک نشانی معتبر وارد کنید");
                 isValid = false;
             }
         }
@@ -112,26 +112,24 @@ const ToolsSettingsTab = ({ className }) => {
             <Alert.Root status="warning" borderRadius="md">
                 <Alert.Indicator color="secondaryButton" />
                 <Alert.Description fontSize="sm">
-                    Tool servers may receive sensitive patient information
-                    (PHI). Only add servers you trust that comply with your
-                    privacy requirements.
+                    سرورهای ابزار ممکن است اطلاعات حساس بیمار (PHI) را دریافت کنند.
+                    فقط سرورهای مورد اعتماد و سازگار با الزامات حریم خصوصی خود را اضافه کنید.
                 </Alert.Description>
             </Alert.Root>
-            {/* Built-in Tools Section */}
+            {/* ابزارهای داخلی Section */}
             <Box>
                 <Flex align="center" mb={2}>
                     <HStack>
                         <FaPuzzlePiece style={{ opacity: 0.7 }} />
                         <Text fontSize="sm" fontWeight="semibold">
-                            Built-in Tools
+                            ابزارهای داخلی
                         </Text>
                     </HStack>
                 </Flex>
 
                 <Text fontSize="xs" className="pill-box-icons" mb={2}>
-                    Enable or disable built-in tools. External tools (PubMed,
-                    Wikipedia) are disabled by default to protect patient
-                    privacy.
+                    ابزارهای داخلی را فعال یا غیرفعال کنید. ابزارهای خارجی (PubMed و
+                    Wikipedia) برای حفاظت از حریم خصوصی بیمار به‌صورت پیش‌فرض غیرفعال‌اند.
                 </Text>
 
                 <VStack gap={1} align="stretch">
@@ -153,7 +151,7 @@ const ToolsSettingsTab = ({ className }) => {
                                                 {tool.label}
                                             </Text>
                                             {tool.external && (
-                                                <Tooltip content="External API - may expose PHI">
+                                                <Tooltip content="API خارجی — ممکن است PHI را افشا کند">
                                                     <Box>
                                                         <FaLock
                                                             style={{
@@ -191,22 +189,22 @@ const ToolsSettingsTab = ({ className }) => {
                     ))}
                 </VStack>
             </Box>
-            {/* Tool Servers Header */}
+            {/* سرورهای ابزار Header */}
             <Flex align="center">
                 <HStack>
                     <FaPuzzlePiece style={{ opacity: 0.7 }} />
                     <Text fontSize="sm" fontWeight="semibold">
-                        Tool Servers
+                        سرورهای ابزار
                     </Text>
                 </HStack>
                 <Spacer />
                 <Badge colorPalette="purple" fontSize="xs">
-                    Streamable HTTP
+                    HTTP جریانی
                 </Badge>
             </Flex>
             <Text fontSize="xs" className="pill-box-icons">
                 External tool servers provide additional tools for chat and
-                chart insights. Servers must implement the Streamable HTTP
+                chart insights. Servers must implement the HTTP جریانی
                 transport.
             </Text>
             {/* Add Server Button */}
@@ -215,18 +213,18 @@ const ToolsSettingsTab = ({ className }) => {
                 variant="outline"
                 size="sm"
                 className="nav-button"
-                alignSelf="flex-start"><FaPlus />Add Server
+                alignSelf="flex-start"><FaPlus />افزودن سرور
                             </Button>
             {/* Add Server Form */}
             {showAddForm && (
                 <Box p={4} borderRadius="md" className="floating-main">
                     <VStack gap={3}>
                         <Field.Root invalid={!!nameError}>
-                            <Field.Label fontSize="xs">Server Name</Field.Label>
+                            <Field.Label fontSize="xs">نام سرور</Field.Label>
                             <Input
                                 value={serverName}
                                 onChange={(e) => setServerName(e.target.value)}
-                                placeholder="My MCP Server"
+                                placeholder="سرور MCP من"
                                 size="sm"
                                 className="input-style"
                             />
@@ -236,7 +234,7 @@ const ToolsSettingsTab = ({ className }) => {
                         </Field.Root>
 
                         <Field.Root invalid={!!urlError}>
-                            <Field.Label fontSize="xs">Server URL</Field.Label>
+                            <Field.Label fontSize="xs">نشانی سرور</Field.Label>
                             <Input
                                 value={serverUrl}
                                 onChange={(e) => setServerUrl(e.target.value)}
@@ -257,16 +255,16 @@ const ToolsSettingsTab = ({ className }) => {
                                     size="sm"
                                     checked={allowSensitiveData}
                                 ><Checkbox.HiddenInput /><Checkbox.Control><Checkbox.Indicator /></Checkbox.Control><Checkbox.Label>
-                                    <Text fontSize="xs">Allow sensitive data (PHI)</Text>
+                                    <Text fontSize="xs">اجازه ارسال داده‌های حساس (PHI)</Text>
                                 </Checkbox.Label></Checkbox.Root>
-                                <Tooltip content="When enabled, patient data will be sent to this server without sanitization. Only enable for fully trusted servers.">
+                                <Tooltip content="در صورت فعال بودن، داده‌های بیمار بدون پاک‌سازی به این سرور ارسال می‌شود. فقط برای سرور کاملاً مورد اعتماد فعال کنید.">
                                     <Box>
                                         <FaLock style={{ opacity: 0.6, color: "var(--chakra-colors-secondary-button)" }} />
                                     </Box>
                                 </Tooltip>
                             </HStack>
                             <Text fontSize="xs" className="pill-box-icons" mt={1}>
-                                Default: sanitized. Enable only for trusted servers.
+                                Default: sanitized. فعال‌سازی only for trusted servers.
                             </Text>
                         </Field.Root>
 
@@ -334,11 +332,11 @@ const ToolsSettingsTab = ({ className }) => {
                                                 fontSize="xs"
                                             >
                                                 {server.enabled
-                                                    ? "Active"
-                                                    : "Disabled"}
+                                                    ? "فعال"
+                                                    : "غیرفعال"}
                                             </Badge>
                                             {server.allow_sensitive_data && (
-                                                <Tooltip content="PHI allowed - data sent without sanitization">
+                                                <Tooltip content="PHI مجاز است — داده‌ها بدون پاک‌سازی ارسال می‌شوند">
                                                     <Badge
                                                         size="sm"
                                                         colorPalette="red"
@@ -369,7 +367,7 @@ const ToolsSettingsTab = ({ className }) => {
                                 </HStack>
 
                                 <HStack gap={1}>
-                                    <Tooltip content="Test connection">
+                                    <Tooltip content="آزمایش اتصال">
                                         <IconButton
                                             size="sm"
                                             variant="ghost"
@@ -379,14 +377,14 @@ const ToolsSettingsTab = ({ className }) => {
                                             loading={
                                                 testingServerId === server.id
                                             }
-                                            aria-label="Test connection"><FaCheck /></IconButton>
+                                            aria-label="آزمایش اتصال"><FaCheck /></IconButton>
                                     </Tooltip>
 
                                     <Tooltip
                                         content={
                                             server.allow_sensitive_data
-                                                ? "PHI allowed - click to sanitize"
-                                                : "PHI sanitized - click to allow"
+                                                ? "PHI مجاز است — برای پاک‌سازی کلیک کنید"
+                                                : "PHI پاک‌سازی شده است — برای اجازه ارسال کلیک کنید"
                                         }
                                     >
                                         <IconButton
@@ -400,14 +398,14 @@ const ToolsSettingsTab = ({ className }) => {
                                                     !server.allow_sensitive_data,
                                                 )
                                             }
-                                            aria-label="Toggle PHI sanitization"><FaLock /></IconButton>
+                                            aria-label="تغییر وضعیت پاک‌سازی PHI"><FaLock /></IconButton>
                                     </Tooltip>
 
                                     <Tooltip
                                         content={
                                             server.enabled
-                                                ? "Disable"
-                                                : "Enable"
+                                                ? "غیرفعال‌سازی"
+                                                : "فعال‌سازی"
                                         }
                                     >
                                         <Switch.Root
@@ -424,7 +422,7 @@ const ToolsSettingsTab = ({ className }) => {
                                         </Switch.Root>
                                     </Tooltip>
 
-                                    <Tooltip content="Delete">
+                                    <Tooltip content="حذف">
                                         <IconButton
                                             size="sm"
                                             colorPalette="red"
@@ -432,7 +430,7 @@ const ToolsSettingsTab = ({ className }) => {
                                             onClick={() =>
                                                 deleteServer(server.id)
                                             }
-                                            aria-label="Delete server"><DeleteIcon /></IconButton>
+                                            aria-label="حذف سرور"><DeleteIcon /></IconButton>
                                     </Tooltip>
                                 </HStack>
                             </Flex>

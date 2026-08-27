@@ -13,6 +13,7 @@ from collections.abc import AsyncGenerator
 from typing import Any, Union
 
 from server.database.config.manager import config_manager
+from server.locale import add_persian_output_instruction
 from server.utils.url_utils import normalize_openai_base_url
 
 from .providers.openai import openai_compatible_chat
@@ -123,6 +124,11 @@ class AsyncLLMClient:
         from .utils import ensure_system_messages_first
 
         messages = ensure_system_messages_first(messages)
+        # Enforce the product language for every generation path (chat,
+        # summaries, letters, reasoning, templates and transcription cleanup).
+        # The instruction explicitly preserves English medical terms in mixed
+        # Persian/English input and never changes JSON keys or identifiers.
+        messages = add_persian_output_instruction(messages)
 
         return await openai_compatible_chat(
             self._client,

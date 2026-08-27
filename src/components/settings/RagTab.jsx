@@ -69,7 +69,7 @@ const RagTab = ({
                 </Box>
 
                 <Box>
-                    <Tooltip content="Model used for generating embeddings for RAG - changing this will re-embed all documents">
+                    <Tooltip content="مدل تولیدکننده بردارهای RAG؛ تغییر آن همه اسناد را دوباره بردارسازی می‌کند">
                         <Text fontSize="sm" mb="2" fontWeight={"bold"}>
                             Embedding Model
                         </Text>
@@ -89,7 +89,7 @@ const RagTab = ({
                                 onChange={(e) =>
                                     handleEmbeddingModelChange(e.target.value)
                                 }
-                                placeholder="Select embedding model"
+                                placeholder="مدل بردارسازی را انتخاب کنید"
                                 className="input-style"
                             >
                                 {embeddingModelOptions.map((model) => (
@@ -136,7 +136,7 @@ const RagTab = ({
                     <Dialog.Backdrop />
                     <Dialog.Positioner>
                         <Dialog.Content className="modal-style">
-                            <Dialog.Header>Re-embed Documents</Dialog.Header>
+                            <Dialog.Header>بردارسازی دوباره اسناد</Dialog.Header>
                             <Dialog.Body>
                                 {isReEmbedding ? (
                                     <VStack gap={4} align="stretch">

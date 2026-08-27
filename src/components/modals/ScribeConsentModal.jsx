@@ -3,7 +3,7 @@ import { Button, HStack, Heading, Text, Dialog, Portal } from "@chakra-ui/react"
 const formatDate = (iso) => {
     if (!iso) return "";
     const d = new Date(iso);
-    return Number.isNaN(d.getTime()) ? iso : d.toLocaleDateString();
+    return Number.isNaN(d.getTime()) ? iso : d.toLocaleDateString("fa-IR");
 };
 
 const ScribeConsentModal = ({
@@ -15,7 +15,7 @@ const ScribeConsentModal = ({
     declinedDate = null,
     patientName = "",
 }) => {
-    const name = patientName || "This patient";
+    const name = patientName || "این بیمار";
     return (
         <Dialog.Root
             open={isOpen}
@@ -35,28 +35,23 @@ const ScribeConsentModal = ({
                         <Dialog.Header>
                             <Heading as="h2" size="md" fontFamily="heading">
                                 {hasDeclined
-                                    ? "Previously declined"
-                                    : "Ambient scribe consent"}
+                                    ? "رضایت قبلاً رد شده است"
+                                    : "رضایت برای دستیار محیطی"}
                             </Heading>
                         </Dialog.Header>
                         <Dialog.CloseTrigger />
                         <Dialog.Body>
                             {hasDeclined ? (
-                                <Text>
-                                    {name} previously declined consent for ambient
-                                    scribing
-                                    {declinedDate
-                                        ? ` on ${formatDate(declinedDate)}`
-                                        : ""}
-                                    . Would you like to re-request consent before
-                                    recording?
+                                <Text dir="auto">
+                                    {name} قبلاً با ثبت محیطی صدا موافقت نکرده است
+                                    {declinedDate ? ` در تاریخ ${formatDate(declinedDate)}` : ""}.
+                                    آیا می‌خواهید پیش از ضبط دوباره درخواست رضایت کنید؟
                                 </Text>
                             ) : (
-                                <Text>
-                                    {name} hasn&apos;t yet consented to ambient
-                                    scribing. Ambient mode records the consultation
-                                    &mdash; please confirm the patient has consented
-                                    before recording.
+                                <Text dir="auto">
+                                    {name} هنوز با ثبت محیطی صدا موافقت نکرده است. حالت محیطی
+                                    مشاوره را ضبط می‌کند — لطفاً پیش از شروع ضبط، رضایت بیمار
+                                    را تأیید کنید.
                                 </Text>
                             )}
                         </Dialog.Body>
@@ -68,7 +63,7 @@ const ScribeConsentModal = ({
                                         mr={3}
                                         onClick={onClose}
                                     >
-                                        Cancel
+                                        انصراف
                                     </Button>
                                 ) : (
                                     <Button
@@ -80,7 +75,7 @@ const ScribeConsentModal = ({
                                     </Button>
                                 )}
                                 <Button className="green-button" onClick={onConsent}>
-                                    {hasDeclined ? "Re-request consent" : "Consent"}
+                                    {hasDeclined ? "درخواست دوباره رضایت" : "موافقت"}
                                 </Button>
                             </HStack>
                         </Dialog.Footer>

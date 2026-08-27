@@ -142,7 +142,7 @@ const WrapUpModal = ({ isOpen, onClose, onConfirm, planText, submitting }) => {
                             <HStack>
                                 <FaCheckDouble />
                                 <Heading as="h3" size="xl" fontFamily="heading">
-                                    Wrap Up
+                                    جمع‌بندی
                                 </Heading>
                             </HStack>
                         </Dialog.Header>
@@ -153,7 +153,7 @@ const WrapUpModal = ({ isOpen, onClose, onConfirm, planText, submitting }) => {
                             className="custom-scrollbar"
                         >
                             <VStack align="stretch" gap={4}>
-                                <Section title="Jobs to action">
+                                <Section title="کارهای قابل انجام">
                                     {extracting ? (
                                         <Center py={6}>
                                             <Spinner size="sm" />
@@ -174,7 +174,7 @@ const WrapUpModal = ({ isOpen, onClose, onConfirm, planText, submitting }) => {
                                             fontSize="sm"
                                             color={"textSecondary"}
                                         >
-                                            No tasks extracted — add any below.
+                                            کاری استخراج نشد — می‌توانید کارها را در زیر اضافه کنید.
                                         </Text>
                                     ) : null}
 
@@ -227,7 +227,7 @@ const WrapUpModal = ({ isOpen, onClose, onConfirm, planText, submitting }) => {
                                                     }}
                                                 />
                                                 <IconButton
-                                                    aria-label="Remove task"
+                                                    aria-label="حذف کار"
                                                     size="xs"
                                                     variant="ghost"
                                                     onClick={() =>
@@ -242,7 +242,7 @@ const WrapUpModal = ({ isOpen, onClose, onConfirm, planText, submitting }) => {
 
                                     <HStack mt={2}>
                                         <Input
-                                            placeholder="Add a task..."
+                                            placeholder="افزودن کار..."
                                             value={newTaskText}
                                             onChange={(e) =>
                                                 setNewTaskText(e.target.value)
@@ -257,7 +257,7 @@ const WrapUpModal = ({ isOpen, onClose, onConfirm, planText, submitting }) => {
                                             className="input-style"
                                         />
                                         <IconButton
-                                            aria-label="Add task"
+                                            aria-label="افزودن کار"
                                             size="sm"
                                             onClick={addTask}
                                         >
@@ -305,7 +305,7 @@ const WrapUpModal = ({ isOpen, onClose, onConfirm, planText, submitting }) => {
                                                                     {item.text}
                                                                 </Text>
                                                                 <IconButton
-                                                                    aria-label="Promote to task"
+                                                                    aria-label="تبدیل به کار"
                                                                     size="xs"
                                                                     variant="ghost"
                                                                     onClick={() =>
@@ -328,8 +328,7 @@ const WrapUpModal = ({ isOpen, onClose, onConfirm, planText, submitting }) => {
                                 {fallback === "empty" && (
                                     <Alert.Root status="info" borderRadius="md">
                                         <Alert.Indicator />
-                                        No plan text to extract tasks from. Add
-                                        any tasks above.
+                                        متن برنامه‌ای برای استخراج کار وجود ندارد. کارهای موردنظر را در بالا اضافه کنید.
                                     </Alert.Root>
                                 )}
                                 {fallback === "heuristic" && (
@@ -338,8 +337,7 @@ const WrapUpModal = ({ isOpen, onClose, onConfirm, planText, submitting }) => {
                                         borderRadius="md"
                                     >
                                         <Alert.Indicator />
-                                        Smart extraction unavailable — showing
-                                        basic tasks. Edit freely.
+                                        استخراج هوشمند در دسترس نیست — کارهای پایه نمایش داده می‌شوند. آزادانه ویرایش کنید.
                                     </Alert.Root>
                                 )}
 
@@ -361,15 +359,15 @@ const WrapUpModal = ({ isOpen, onClose, onConfirm, planText, submitting }) => {
                                     mr={3}
                                     disabled={submitting}
                                 >
-                                    Cancel
+                                    انصراف
                                 </Button>
                                 <GreenButton
                                     onClick={handleConfirm}
                                     loading={submitting}
-                                    loadingText="Saving"
+                                    loadingText="در حال ذخیره..."
                                     disabled={!canConfirm}
                                 >
-                                    Confirm &amp; Finish
+                                    تأیید و پایان
                                 </GreenButton>
                             </HStack>
                         </Dialog.Footer>

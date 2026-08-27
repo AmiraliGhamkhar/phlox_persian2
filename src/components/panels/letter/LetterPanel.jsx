@@ -64,16 +64,16 @@ const LetterPanel = ({
         >
           <Flex align="center">
             <FaEnvelope size="1em" style={{ marginRight: "8px" }} />
-            <Text>Patient Letter</Text>
+            <Text>نامه بیمار</Text>
           </Flex>
 
           <Tooltip
             content={
               isDictateMode
                 ? "Dictate: speak your letter and we'll turn it into a polished letter."
-                : "Draft: choose a template and have AI draft the letter for you."
+                : "پیش‌نویس: قالبی انتخاب کنید تا هوش مصنوعی نامه را برای شما آماده کند."
             }
-            aria-label="Letter mode tooltip"
+            aria-label="حالت نامه"
           >
             <Box>
               <Flex alignItems="center">
@@ -95,8 +95,8 @@ const LetterPanel = ({
                     size="sm"
                     width={["110px", "140px", "160px"]}
                     className="input-style">
-                    <option value="draft">Draft</option>
-                    <option value="dictate">Dictate</option>
+                    <option value="draft">پیش‌نویس</option>
+                    <option value="dictate">دیکته</option>
                   </NativeSelect.Field>
                   <NativeSelect.Indicator />
                 </NativeSelect.Root>

@@ -33,10 +33,10 @@ const SidebarPatientList = ({
 
     return (
         <Box w="100%" h="100%" display="flex" flexDirection="column" minH="0">
-            {/* Patient List heading — whole row toggles the section */}
+            {/* فهرست بیماران heading — whole row toggles the section */}
             {!isCollapsed && (
                 <Tooltip
-                    content="Toggle patient list"
+                    content="تغییر وضعیت فهرست بیماران"
                     positioning={{ placement: "top" }} openDelay={700}
                 >
                 <Flex
@@ -72,7 +72,7 @@ const SidebarPatientList = ({
                         color={labelColor}
                         whiteSpace="nowrap"
                     >
-                        Patient List
+فهرست بیماران
                     </Text>
                     <IconButton
                         variant="ghost"
@@ -84,8 +84,8 @@ const SidebarPatientList = ({
                         _hover={{ bg: "rgba(184, 192, 224, 0.1)" }}
                         aria-label={
                             isPatientsCollapsed
-                                ? "Expand patients"
-                                : "Collapse patients"
+                                ? "باز کردن فهرست بیماران"
+                                : "بستن فهرست بیماران"
                         }
                         pointerEvents="none"
                     >
@@ -114,7 +114,7 @@ const SidebarPatientList = ({
                     {/* Clinic date — pinned at the top of the section */}
                     {!isCollapsed && (
                         <Tooltip
-                            content="Clinic date — filters the patient list"
+                            content="تاریخ درمانگاه — فهرست بیماران را فیلتر می‌کند"
                             positioning={{ placement: "top" }} openDelay={700}
                         >
                             <Input
@@ -279,7 +279,7 @@ const SidebarPatientList = ({
 
                                                 {!isCollapsed && isHovered && (
                                                     <Tooltip
-                                                        content="Remove patient"
+                                                        content="حذف بیمار"
                                                         positioning={{
                                                             placement: "top",
                                                         }}
@@ -287,7 +287,7 @@ const SidebarPatientList = ({
                                                     >
                                                         <IconButton
                                                             size="xs"
-                                                            aria-label="Delete patient"
+                                                            aria-label="حذف بیمار"
                                                             variant="ghost"
                                                             colorPalette="red"
                                                             onClick={(e) => {
@@ -315,15 +315,15 @@ const SidebarPatientList = ({
                                 mt={2}
                             >
                                 {isCollapsed
-                                    ? "No pts"
-                                    : "No patients available"}
+                                    ? "بیماری وجود ندارد"
+                                    : "بیماری موجود نیست"}
                             </Text>
                         )}
                     </Box>
-                    {/* Day Summary — pinned at the bottom of the section */}
+                    {/* خلاصه روز — pinned at the bottom of the section */}
                     {!isCollapsed && patients.length > 0 && (
                         <Tooltip
-                            content="Open the selected day's summary"
+                            content="باز کردن خلاصه روز انتخاب‌شده"
                             positioning={{ placement: "top" }} openDelay={700}
                         >
                         <Flex
@@ -363,7 +363,7 @@ const SidebarPatientList = ({
                                 fontWeight="medium"
                                 whiteSpace="nowrap"
                             >
-                                Day Summary
+خلاصه روز
                             </Text>
                         </Flex>
                         </Tooltip>

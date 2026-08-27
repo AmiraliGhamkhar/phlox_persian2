@@ -9,10 +9,10 @@ const RefinementPanel = ({
     loading,
     setIsRefining,
     suggestions = [
-        "More formal",
-        "More concise",
-        "Add detail",
-        "Improve clarity",
+        "رسمی‌تر",
+        "مختصرتر",
+        "افزودن جزئیات",
+        "بهبود وضوح",
     ],
 }) => (
     <Box
@@ -51,7 +51,7 @@ const RefinementPanel = ({
             </Flex>
             <IconButton
                 onClick={() => setIsRefining(false)}
-                aria-label="Close refinement"
+                aria-label="بستن پنل بهبود"
                 variant="ghost"
                 size="sm"
                 className="collapse-toggle"><CloseIcon boxSize="12px" /></IconButton>
@@ -72,7 +72,7 @@ const RefinementPanel = ({
             </Flex>
 
             <Textarea
-                placeholder="How would you like to improve the letter?"
+                placeholder="مایلید نامه چگونه بهبود پیدا کند؟"
                 value={refinementInput}
                 onChange={(e) => setRefinementInput(e.target.value)}
                 size="sm"
@@ -87,9 +87,9 @@ const RefinementPanel = ({
                 <Button
                     onClick={handleRefinement}
                     loading={loading}
-                    loadingText="Refining..."
+                    loadingText="در حال بهبود..."
                     size="sm"
-                    className="refinement-submit-button"><EditIcon />Refine
+                    className="refinement-submit-button"><EditIcon />بهبود
                                     </Button>
             </Flex>
         </Box>

@@ -474,7 +474,7 @@ const FormBuilder = ({
                             setCurrentPage((p) => Math.max(1, p - 1))
                         }
                         disabled={currentPage <= 1}
-                        aria-label="Previous page"><ChevronLeftIcon /></IconButton>
+                        aria-label="صفحه قبل"><ChevronLeftIcon /></IconButton>
                     <Text fontSize="sm">
                         {currentPage} / {template?.page_count || 1}
                     </Text>
@@ -487,7 +487,7 @@ const FormBuilder = ({
                             )
                         }
                         disabled={currentPage >= (template?.page_count || 1)}
-                        aria-label="Next page"><ChevronRightIcon /></IconButton>
+                        aria-label="صفحه بعد"><ChevronRightIcon /></IconButton>
                 </HStack>
             </HStack>
             {/* Canvas area */}

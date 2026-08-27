@@ -18,6 +18,7 @@ import { useAppBootstrap } from "./utils/hooks/useAppBootstrap";
 import { useNavigationGuard } from "./utils/hooks/useNavigationGuard";
 import { useSidebarState } from "./utils/hooks/useSidebarState";
 import { useNewNoteFlow } from "./utils/hooks/useNewNoteFlow";
+import { usePersianLocale } from "./i18n/fa";
 
 function AppContent({ setIsInitializing }) {
     const [isModified, setIsModified] = useState(false);
@@ -156,6 +157,7 @@ function AppContent({ setIsInitializing }) {
 }
 
 function App() {
+    usePersianLocale();
     const [isInitializing, setIsInitializing] = useState(true);
 
     return (

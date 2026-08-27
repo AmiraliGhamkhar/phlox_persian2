@@ -1,7 +1,7 @@
 import { Flex, Text } from "@chakra-ui/react";
 import { ChatIcon } from "../../common/icons";
 
-const ChatHeader = ({ title = "Chat With Phlox", _onClose }) => {
+const ChatHeader = ({ title = "گفت‌وگو با فلوکس", _onClose }) => {
     return (
         <Flex
             align="center"

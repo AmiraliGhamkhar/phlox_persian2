@@ -27,7 +27,7 @@ const DemographicsModal = ({
                         <HStack>
                             <FaUserEdit />
                             <ModalTitle>
-                                Patient details
+                                جزئیات بیمار
                             </ModalTitle>
                         </HStack>
                     </Dialog.Header>

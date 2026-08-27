@@ -3,7 +3,7 @@ import { Box, Flex } from "@chakra-ui/react";
 
 /**
  * Shared PillBox container component with consistent styling
- * Used by both ScribePillBox and FloatingActionMenu
+ * استفادهd by both ScribePillBox and FloatingActionMenu
  */
 const PillBox = ({
   children,

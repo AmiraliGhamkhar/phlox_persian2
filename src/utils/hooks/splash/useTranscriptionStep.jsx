@@ -10,10 +10,22 @@ import { useDebounce } from "../useDebounce";
 import { KEYS } from "../../cache/keys";
 
 export const useTranscriptionStep = (currentStep, inferenceMode = "remote") => {
+    // Auto-detect is the default so Persian speech and Persian/English medical
+    // terminology can be transcribed in the same recording.
+    const [asrLanguage, setAsrLanguage] = useState(
+        import.meta.env.VITE_ASR_LANGUAGE || "auto",
+    );
+    const [asrProvider, setAsrProvider] = useState(
+        import.meta.env.VITE_ASR_PROVIDER || "openai_compatible",
+    );
+    // Never hydrate API keys from Vite variables: they are embedded in the
+    // browser bundle. Keys are entered here and persisted only by the
+    // encrypted backend configuration endpoint.
+    const [asrApiKey, setAsrApiKey] = useState("");
 
     // Remote mode state
     const [whisperBaseUrl, setWhisperBaseUrl] = useState(
-        import.meta.env.VITE_WHISPER_BASE_URL || "http://localhost:8080",
+        import.meta.env.VITE_ASR_BASE_URL || import.meta.env.VITE_WHISPER_BASE_URL || "",
     );
     const [whisperModel, setWhisperModel] = useState("");
 
@@ -22,6 +34,7 @@ export const useTranscriptionStep = (currentStep, inferenceMode = "remote") => {
     const shouldFetchRemote =
         currentStep === SPLASH_STEPS.AI_MODELS &&
         inferenceMode === "remote" &&
+        asrProvider === "openai_compatible" &&
         !!debouncedWhisperBaseUrl;
 
     const {
@@ -80,7 +93,7 @@ export const useTranscriptionStep = (currentStep, inferenceMode = "remote") => {
     const [localWhisperModels, setLocalWhisperModels] = useState([]);
     const [downloadedWhisperModels, setDownloadedWhisperModels] = useState([]);
     const [localWhisperModel, setLocalWhisperModel] = useState(
-        "omi-med-stt-v1-q8_0",
+        "whisper-large-v3-turbo-q5_0",
     );
     const [isDownloadingWhisper, setIsDownloadingWhisper] = useState(false);
     const [downloadingWhisperModelId, setDownloadingWhisperModelId] =
@@ -164,6 +177,8 @@ export const useTranscriptionStep = (currentStep, inferenceMode = "remote") => {
                 whisperModelListAvailable,
                 availableWhisperModels,
                 whisperModel,
+                asrProvider,
+                asrApiKey,
             );
         }
     }, [
@@ -174,6 +189,8 @@ export const useTranscriptionStep = (currentStep, inferenceMode = "remote") => {
         whisperModelListAvailable,
         availableWhisperModels,
         whisperModel,
+        asrProvider,
+        asrApiKey,
     ]);
 
     // Get data based on current mode
@@ -182,14 +199,28 @@ export const useTranscriptionStep = (currentStep, inferenceMode = "remote") => {
             return {
                 whisperBaseUrl: "", // Empty for local
                 whisperModel: localWhisperModel,
+                asrLanguage,
+                asrProvider: "local",
+                asrApiKey: "",
             };
         } else {
             return {
                 whisperBaseUrl,
                 whisperModel,
+                asrLanguage,
+                asrProvider,
+                asrApiKey,
             };
         }
-    }, [inferenceMode, localWhisperModel, whisperBaseUrl, whisperModel]);
+    }, [
+        inferenceMode,
+        localWhisperModel,
+        whisperBaseUrl,
+        whisperModel,
+        asrLanguage,
+        asrProvider,
+        asrApiKey,
+    ]);
 
     // Local-mode fetch on step/mode change (remote is handled by useSWR)
     useEffect(() => {
@@ -207,6 +238,12 @@ export const useTranscriptionStep = (currentStep, inferenceMode = "remote") => {
         setWhisperBaseUrl,
         whisperModel,
         setWhisperModel,
+        asrLanguage,
+        setAsrLanguage,
+        asrProvider,
+        setAsrProvider,
+        asrApiKey,
+        setAsrApiKey,
         availableWhisperModels,
         whisperModelListAvailable,
         isFetchingWhisperModels,

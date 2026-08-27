@@ -145,7 +145,7 @@ const PatientTable = ({
                                 {formatName(patient.name)}
                             </Text>
                             <Tooltip
-                                content="Go to Encounter"
+                                content="رفتن به ویزیت"
                                 showArrow
                                 positioning={{
                                     placement: "right",
@@ -154,7 +154,7 @@ const PatientTable = ({
                                 <IconButton
                                     size="xs"
                                     variant="ghost"
-                                    aria-label="Go to Encounter"
+                                    aria-label="رفتن به ویزیت"
                                     onClick={() => handleSelectPatient(patient)}
                                 >
                                     <Icon asChild>
@@ -180,7 +180,7 @@ const PatientTable = ({
                     <VStack align="stretch" gap={2}>
                         <Tooltip
                             content={`${patient.name}, DOB: ${patient.dob}, UR Number: ${patient.ur_number}`}
-                            aria-label="Patient Details"
+                            aria-label="جزئیات بیمار"
                         >
                             <PatientDetails patient={patient} />
                         </Tooltip>
@@ -216,7 +216,7 @@ const PatientTable = ({
                                     {
                                         section: "summary",
                                         icon: FaFileAlt,
-                                        tooltip: "Summary",
+                                        tooltip: "خلاصه",
                                     },
                                     {
                                         section: "differentials",
@@ -372,7 +372,7 @@ const PatientTable = ({
 
             <Table.Cell width="30%" verticalAlign="top">
                 <HStack gap={2} alignItems="flex-start">
-                    <Tooltip content="Reset jobs" aria-label="Reset jobs">
+                    <Tooltip content="بازنشانی کارها" aria-label="بازنشانی کارها">
                         <IconButton
                             size="sm"
                             variant="ghost"
@@ -515,7 +515,7 @@ const PatientTable = ({
                     .map(([date, patients]) => (
                         <Box key={date} mb={8}>
                             <Text as="h3" mb={2}>
-                                {new Date(date).toLocaleDateString()}
+                                {new Date(date).toLocaleDateString("fa-IR")}
                             </Text>
                             <Box
                                 overflowX="auto"

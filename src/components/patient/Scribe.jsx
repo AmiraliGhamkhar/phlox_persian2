@@ -99,7 +99,7 @@ export const useScribe = ({
             } catch (error) {
                 console.error("Transcription failed:", error);
                 lastFailedRef.current = { blob, meta: { ...meta }, isAmbient };
-                const message = error?.message || "Transcription failed";
+                const message = error?.message || "پیاده‌سازی ناموفق بود";
                 setSendError({ message });
                 return false;
             }
@@ -116,7 +116,7 @@ export const useScribe = ({
             return true;
         } catch (error) {
             console.error("Transcription retry failed:", error);
-            const message = error?.message || "Transcription failed";
+            const message = error?.message || "پیاده‌سازی ناموفق بود";
             setSendError({ message });
             return false;
         }
@@ -157,7 +157,7 @@ export const useScribe = ({
             setTimer(0);
         } catch (error) {
             console.error("Error starting recording:", error);
-            alert("Could not access microphone. Please check your permissions.");
+            alert("دسترسی به میکروفون ممکن نبود. لطفاً مجوزها را بررسی کنید.");
         }
     }, []);
 

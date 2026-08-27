@@ -17,19 +17,19 @@ const DeleteConfirmationModal = ({
                 <Dialog.Backdrop />
                 <Dialog.Positioner>
                     <Dialog.Content className="modal-style">
-                        <Dialog.Header>Delete Patient</Dialog.Header>
+                        <Dialog.Header>حذف بیمار</Dialog.Header>
                         <Dialog.CloseTrigger />
                         <Dialog.Body>
                             {patientName
                                 ? `Are you sure you want to delete ${patientName}?`
-                                : "Are you sure you want to delete this patient?"}
+                                : "آیا مطمئنید می‌خواهید این بیمار را حذف کنید؟"}
                         </Dialog.Body>
                         <Dialog.Footer>
                             <Button className="red-button" mr={3} onClick={onDelete}>
-                                Delete
+                                حذف
                             </Button>
                             <Button className="green-button" onClick={onClose}>
-                                Cancel
+                                انصراف
                             </Button>
                         </Dialog.Footer>
                     </Dialog.Content>

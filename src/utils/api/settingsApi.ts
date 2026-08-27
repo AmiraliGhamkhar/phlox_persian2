@@ -73,13 +73,13 @@ export const settingsApi = {
         if (!whisperBaseUrl) {
             return Promise.resolve({ models: [], listAvailable: false });
         }
-        const endpoint = `/api/config/whisper/models?whisperEndpoint=${encodeURIComponent(whisperBaseUrl)}`;
+        const endpoint = `/api/config/asr/models?asrEndpoint=${encodeURIComponent(whisperBaseUrl)}`;
         return handleApiRequest({
             apiCall: async (signal) => {
                 const url = await buildApiUrl(endpoint);
                 return universalFetch(url, { signal });
             },
-            errorMessage: "Failed to fetch models",
+            errorMessage: "Failed to fetch ASR models",
         });
     },
 

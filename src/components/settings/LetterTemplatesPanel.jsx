@@ -28,10 +28,10 @@ const LetterTemplatesPanel = () => {
             const response = await settingsService.fetchLetterTemplates();
             setLetterTemplates(response.templates || []);
         } catch (error) {
-            console.error("Failed to fetch letter templates", error);
+            console.error("دریافت قالب‌های نامه ناموفق بود", error);
             toaster.create({
-                title: "Error",
-                description: "Failed to fetch letter templates",
+                title: "خطا",
+                description: "دریافت قالب‌های نامه ناموفق بود",
                 type: "error",
                 duration: 3000,
             });
@@ -46,7 +46,7 @@ const LetterTemplatesPanel = () => {
         try {
             await settingsService.saveLetterTemplate(template);
             toaster.create({
-                title: "Success",
+                title: "موفق",
                 description: `Letter template ${template?.id ? "updated" : "created"} successfully`,
                 type: "success",
                 duration: 3000,
@@ -57,10 +57,10 @@ const LetterTemplatesPanel = () => {
             setIsEditing(false);
             setEditTemplate(null);
         } catch (error) {
-            console.error("Failed to save letter template", error);
+            console.error("ذخیره قالب نامه ناموفق بود", error);
             toaster.create({
-                title: "Error",
-                description: "Failed to save letter template",
+                title: "خطا",
+                description: "ذخیره قالب نامه ناموفق بود",
                 type: "error",
                 duration: 3000,
             });
@@ -71,17 +71,17 @@ const LetterTemplatesPanel = () => {
         try {
             await settingsService.deleteLetterTemplate(templateId);
             toaster.create({
-                title: "Success",
-                description: "Letter template deleted successfully",
+                title: "موفق",
+                description: "قالب نامه با موفقیت حذف شد",
                 type: "success",
                 duration: 3000,
             });
             fetchTemplates();
         } catch (error) {
-            console.error("Failed to delete letter template", error);
+            console.error("حذف قالب نامه ناموفق بود", error);
             toaster.create({
-                title: "Error",
-                description: "Failed to delete letter template",
+                title: "خطا",
+                description: "حذف قالب نامه ناموفق بود",
                 type: "error",
                 duration: 3000,
             });
@@ -110,7 +110,7 @@ const LetterTemplatesPanel = () => {
                         size="sm"
                         className="red-button"
                     >
-                        Reset to Defaults
+                        بازنشانی به پیش‌فرض‌ها
                     </Button>
                     <Button
                         onClick={() => {
@@ -120,7 +120,7 @@ const LetterTemplatesPanel = () => {
                         variant="outline"
                         size="sm"
                         className="nav-button"
-                    ><AddIcon />New Template
+                    ><AddIcon />قالب جدید
                     </Button>
                 </HStack>
             </Flex>
@@ -181,8 +181,8 @@ const LetterTemplatesPanel = () => {
                                                     fontSize="xs"
                                                 >
                                                     {isDefault
-                                                        ? "Default"
-                                                        : "Custom"}
+                                                        ? "پیش‌فرض"
+                                                        : "سفارشی"}
                                                 </Badge>
                                             </HStack>
                                             {template.instructions && (
@@ -197,11 +197,11 @@ const LetterTemplatesPanel = () => {
                                         </Box>
                                     </HStack>
                                     <HStack gap={1}>
-                                        <Tooltip content="Edit template">
+                                        <Tooltip content="ویرایش قالب">
                                             <IconButton
                                                 variant="ghost"
                                                 size="sm"
-                                                aria-label="Edit template"
+                                                aria-label="ویرایش قالب"
                                                 onClick={() => {
                                                     setEditTemplate(template);
                                                     setIsEditing(true);
@@ -209,12 +209,12 @@ const LetterTemplatesPanel = () => {
                                             ><EditIcon /></IconButton>
                                         </Tooltip>
                                         {!isDefault && (
-                                            <Tooltip content="Delete template">
+                                            <Tooltip content="حذف قالب">
                                                 <IconButton
                                                     variant="ghost"
                                                     size="sm"
                                                     colorPalette="red"
-                                                    aria-label="Delete template"
+                                                    aria-label="حذف قالب"
                                                     onClick={() =>
                                                         handleDelete(
                                                             template.id,

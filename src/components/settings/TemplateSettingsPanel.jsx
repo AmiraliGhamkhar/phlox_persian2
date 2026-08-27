@@ -56,16 +56,16 @@ const TemplateSettingsPanel = ({ templates, setTemplates }) => {
             setTemplates(freshTemplates);
 
             toaster.create({
-                title: "Success",
-                description: "Template saved successfully",
+                title: "موفق",
+                description: "قالب با موفقیت ذخیره شد",
                 type: "success",
                 duration: 3000,
             });
         } catch (error) {
             console.error("Failed to save template:", error);
             toaster.create({
-                title: "Error",
-                description: "Failed to save template",
+                title: "خطا",
+                description: "ذخیره قالب ناموفق بود",
                 type: "error",
                 duration: 3000,
             });
@@ -87,8 +87,8 @@ const TemplateSettingsPanel = ({ templates, setTemplates }) => {
         } catch (error) {
             console.error("Error deleting template:", error);
             toaster.create({
-                title: "Error",
-                description: error.message || "Failed to delete template",
+                title: "خطا",
+                description: error.message || "حذف قالب ناموفق بود",
                 type: "error",
                 duration: 3000,
             });
@@ -111,8 +111,8 @@ const TemplateSettingsPanel = ({ templates, setTemplates }) => {
         } catch (error) {
             console.error("Error generating template from example:", error);
             toaster.create({
-                title: "Error",
-                description: "Failed to generate template from example",
+                title: "خطا",
+                description: "تولید قالب از نمونه ناموفق بود",
                 type: "error",
                 duration: 3000,
             });
@@ -144,7 +144,7 @@ const TemplateSettingsPanel = ({ templates, setTemplates }) => {
                     variant="outline"
                     size="sm"
                     className="nav-button"
-                ><AddIcon />New Template
+                ><AddIcon />قالب جدید
                 </Button>
             </Flex>
 
@@ -195,15 +195,15 @@ const TemplateSettingsPanel = ({ templates, setTemplates }) => {
                                             }
                                             fontSize="xs"
                                         >
-                                            {isDefault ? "Default" : "Custom"}
+                                            {isDefault ? "پیش‌فرض" : "سفارشی"}
                                         </Badge>
                                     </HStack>
                                     <HStack gap={1}>
-                                        <Tooltip content="Edit template">
+                                        <Tooltip content="ویرایش قالب">
                                             <IconButton
                                                 variant="ghost"
                                                 size="sm"
-                                                aria-label="Edit template"
+                                                aria-label="ویرایش قالب"
                                                 onClick={() =>
                                                     handleEditTemplate(
                                                         template.template_key,
@@ -212,12 +212,12 @@ const TemplateSettingsPanel = ({ templates, setTemplates }) => {
                                             ><EditIcon /></IconButton>
                                         </Tooltip>
                                         {!isDefault && (
-                                            <Tooltip content="Delete template">
+                                            <Tooltip content="حذف قالب">
                                                 <IconButton
                                                     variant="ghost"
                                                     size="sm"
                                                     colorPalette="red"
-                                                    aria-label="Delete template"
+                                                    aria-label="حذف قالب"
                                                     onClick={() => {
                                                         setTemplateToDelete({
                                                             key: template.template_key,
@@ -263,7 +263,7 @@ const TemplateSettingsPanel = ({ templates, setTemplates }) => {
                 }}
                 onConfirm={() => handleDeleteTemplate(templateToDelete?.key)}
                 itemName={templateToDelete?.name}
-                title="Delete Template"
+                title="حذف قالب"
             />
         </VStack>
     );

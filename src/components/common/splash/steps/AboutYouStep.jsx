@@ -29,13 +29,13 @@ export const AboutYouStep = ({
   <VStack key="about-you" className="anim-fade-slide-right" gap={4} w="100%">
     <Field.Root required>
       <HStack>
-        <Field.Label fontSize="sm" color="textSecondary">Your Name</Field.Label>
-        <Tooltip content="Used to personalize your experience and generated documents" showArrow>
+        <Field.Label fontSize="sm" color="textSecondary">نام شما</Field.Label>
+        <Tooltip content="برای شخصی‌سازی تجربه شما و اسناد تولیدشده استفاده می‌شود" showArrow>
           <InfoIcon boxSize={3} color="textSecondary" />
         </Tooltip>
       </HStack>
       <Input
-        placeholder="Ada Lovelace"
+        placeholder="آدا لاولیس"
         value={name}
         onChange={(e) => setName(e.target.value)}
         className="input-style"
@@ -45,14 +45,14 @@ export const AboutYouStep = ({
 
     <Field.Root required>
       <HStack>
-        <Field.Label fontSize="sm" color="textSecondary">Your Specialty</Field.Label>
-        <Tooltip content="Your medical specialty helps Phlox provide more relevant assistance" showArrow>
+        <Field.Label fontSize="sm" color="textSecondary">تخصص شما</Field.Label>
+        <Tooltip content="تخصص پزشکی شما به فلوکس کمک می‌کند راهنمایی مرتبط‌تری ارائه دهد" showArrow>
           <InfoIcon boxSize={3} color="textSecondary" />
         </Tooltip>
       </HStack>
       <NativeSelect.Root>
         <NativeSelect.Field
-          placeholder="Select your specialty"
+          placeholder="تخصص خود را انتخاب کنید"
           value={specialty}
           onChange={(e) => setSpecialty(e.target.value)}
           className="input-style"
@@ -70,14 +70,14 @@ export const AboutYouStep = ({
     {letters && letters.availableLetterTemplates.length > 0 && (
       <Field.Root>
         <HStack>
-          <Field.Label fontSize="sm" color="textSecondary">Default Letter Template</Field.Label>
-          <Tooltip content="Used when generating letters. Optional — you can set this later." showArrow>
+          <Field.Label fontSize="sm" color="textSecondary">قالب پیش‌فرض نامه</Field.Label>
+          <Tooltip content="هنگام تولید نامه استفاده می‌شود. اختیاری است و بعداً می‌توانید آن را تنظیم کنید." showArrow>
             <InfoIcon boxSize={3} color="textSecondary" />
           </Tooltip>
         </HStack>
         <NativeSelect.Root>
           <NativeSelect.Field
-            placeholder="Select a letter template"
+            placeholder="قالب نامه را انتخاب کنید"
             value={letters.selectedLetterTemplate}
             onChange={(e) => letters.setSelectedLetterTemplate(e.target.value)}
             className="input-style"

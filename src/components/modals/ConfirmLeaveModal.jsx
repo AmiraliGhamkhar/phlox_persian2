@@ -12,7 +12,7 @@ const ConfirmLeaveModal = ({ isOpen, onClose, confirmNavigation }) => (
             <Dialog.Backdrop />
             <Dialog.Positioner>
                 <Dialog.Content className="modal-style">
-                    <Dialog.Header><Heading as="h2" size="md" fontFamily="heading">Confirm Navigation</Heading></Dialog.Header>
+                    <Dialog.Header><Heading as="h2" size="md" fontFamily="heading">تأیید جابه‌جایی</Heading></Dialog.Header>
                     <Dialog.Body>
                         Are you sure you want to leave this page? Unsaved changes will
                         be lost.
@@ -26,7 +26,7 @@ const ConfirmLeaveModal = ({ isOpen, onClose, confirmNavigation }) => (
                             Leave
                         </Button>
                         <Button className="green-button" onClick={onClose}>
-                            Cancel
+                            انصراف
                         </Button>
                     </Dialog.Footer>
                 </Dialog.Content>

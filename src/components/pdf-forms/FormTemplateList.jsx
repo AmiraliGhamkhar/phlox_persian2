@@ -21,7 +21,7 @@ const FormTemplateList = ({ templates, loading, onSelect, onDelete, onReplace, s
       onDelete(id);
     } catch (error) {
       toaster.create({
-        title: "Error",
+        title: "خطا",
         description: error.message,
         type: "error",
         duration: 3000,
@@ -80,8 +80,8 @@ const FormTemplateList = ({ templates, loading, onSelect, onDelete, onReplace, s
                 <IconButton
                   variant="ghost"
                   size="sm"
-                  aria-label="Replace PDF"
-                  title="Replace PDF (keep fields)"
+                  aria-label="جایگزینی PDF"
+                  title="جایگزینی PDF (حفظ فیلدها)"
                   onClick={(e) => {
                     e.stopPropagation();
                     onReplace(tmpl);
@@ -91,7 +91,7 @@ const FormTemplateList = ({ templates, loading, onSelect, onDelete, onReplace, s
                   variant="ghost"
                   size="sm"
                   colorPalette="red"
-                  aria-label="Delete template"
+                  aria-label="حذف قالب"
                   onClick={(e) => handleDelete(e, tmpl.id, tmpl.name)}><DeleteIcon /></IconButton>
               </HStack>
             </HStack>

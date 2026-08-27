@@ -34,7 +34,7 @@ export const TemplatesStep = ({
     {isFetchingTemplates ? (
       <Flex align="center" justify="center" py={8}>
         <Spinner size="lg" color="primaryButton" />
-        <Text ml={4} color="textSecondary">Loading templates...</Text>
+        <Text ml={4} color="textSecondary">در حال بارگذاری قالب‌ها...</Text>
       </Flex>
     ) : (
       <SimpleGrid columns={{ base: 1, md: 2 }} gap={3} w="100%">

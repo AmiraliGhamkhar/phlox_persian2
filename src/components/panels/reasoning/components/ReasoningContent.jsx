@@ -19,7 +19,7 @@ const renderItems = (section, reasoning, colorMode) => {
     if (!items || items.length === 0) {
         return (
             <Text fontSize="sm" color="overlay0">
-                No items available
+                موردی موجود نیست
             </Text>
         );
     }
@@ -49,45 +49,45 @@ const parseThinkingTrace = (thinking = "") => {
         .filter(Boolean);
 
     if (parts.length <= 1) {
-        return [{ type: "note", title: "Thinking", content: thinking.trim() }];
+        return [{ type: "note", title: "استدلال", content: thinking.trim() }];
     }
 
     return parts.map((part, index) => {
         if (part.startsWith("Iteration ")) {
-            return { type: "iteration", title: "Iteration", content: part };
+            return { type: "iteration", title: "تکرار", content: part };
         }
         if (part.startsWith("Tool call:")) {
             return {
                 type: "tool_call",
-                title: "Tool Call",
+                title: "فراخوانی ابزار",
                 content: part.replace("Tool call:", "").trim(),
             };
         }
         if (part.startsWith("Tool result:")) {
             return {
                 type: "tool_result",
-                title: "Tool Result",
+                title: "نتیجه ابزار",
                 content: part.replace("Tool result:", "").trim(),
             };
         }
         if (part.startsWith("Pre-tool reasoning:")) {
             return {
                 type: "reasoning_snapshot",
-                title: "Pre-Tool Reasoning",
+                title: "استدلال پیش از ابزار",
                 content: part.replace("Pre-tool reasoning:", "").trim(),
             };
         }
         if (part.startsWith("Pre-tool assistant note:")) {
             return {
                 type: "reasoning_snapshot",
-                title: "Pre-Tool Reasoning",
+                title: "استدلال پیش از ابزار",
                 content: part.replace("Pre-tool assistant note:", "").trim(),
             };
         }
         if (part.startsWith("Final non-tool reasoning:")) {
             return {
                 type: "final_reasoning",
-                title: "Final Reasoning",
+                title: "استدلال نهایی",
                 content: part.replace("Final non-tool reasoning:", "").trim(),
             };
         }
@@ -115,17 +115,17 @@ const getCardAccent = (type) => {
 const getCardBadge = (type) => {
     switch (type) {
         case "iteration":
-            return "Iteration";
+            return "تکرار";
         case "tool_call":
             return "Tool";
         case "tool_result":
             return "Result";
         case "reasoning_snapshot":
-            return "Reasoning";
+            return "استدلال";
         case "final_reasoning":
-            return "Reasoning";
+            return "استدلال";
         default:
-            return "Note";
+            return "یادداشت";
     }
 };
 
@@ -169,7 +169,7 @@ const ThinkingCard = ({ step, index }) => {
                     variant="outline"
                     onClick={() => setIsResultCollapsed((prev) => !prev)}
                 >
-                    {isResultCollapsed ? "Expand result" : "Collapse result"}
+                    {isResultCollapsed ? "باز کردن نتیجه" : "بستن نتیجه"}
                 </Button>
             )}
         </Box>
@@ -256,7 +256,7 @@ export const ReasoningContent = ({
                     Considerations
                 </Tabs.Trigger>
                 <Tabs.Trigger className="tab-style" value="4">
-                    Thinking
+                    استدلال
                 </Tabs.Trigger>
             </Tabs.List>
             {/* Summary Tab */}
@@ -310,7 +310,7 @@ export const ReasoningContent = ({
                 {renderItems("considerations", reasoning, colorMode)}
             </Tabs.Content>
 
-            {/* Thinking Tab */}
+            {/* استدلال Tab */}
             <Tabs.Content
                 className="floating-main"
                 flex="1"

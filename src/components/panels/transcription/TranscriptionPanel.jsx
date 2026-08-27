@@ -114,7 +114,7 @@ const TranscriptionPanel = ({
               {/* Stats */}
               {transcriptionDuration && (
                 <HStack fontSize="10px" color="overlay0" gap={2}>
-                  <Tooltip content="Transcription time" showArrow positioning={{
+                  <Tooltip content="زمان پیاده‌سازی" showArrow positioning={{
                     placement: "top"
                   }}>
                     <HStack gap={1}>
@@ -122,7 +122,7 @@ const TranscriptionPanel = ({
                       <Text>{transcriptionDuration}s</Text>
                     </HStack>
                   </Tooltip>
-                  <Tooltip content="Processing time" showArrow positioning={{
+                  <Tooltip content="زمان پردازش" showArrow positioning={{
                     placement: "top"
                   }}>
                     <HStack gap={1}>
@@ -134,13 +134,13 @@ const TranscriptionPanel = ({
               )}
 
               {/* Reprocess button */}
-              <Tooltip content="Reprocess" showArrow positioning={{
+              <Tooltip content="پردازش دوباره" showArrow positioning={{
                 placement: "top"
               }}>
                 <IconButton
                   onClick={handleReprocess}
                   disabled={isTranscribing}
-                  aria-label="Reprocess"
+                  aria-label="پردازش دوباره"
                   size="xs"
                   variant="ghost"
                   opacity={0.5}

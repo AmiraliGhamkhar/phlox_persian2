@@ -8,6 +8,7 @@ import {
   calculatePassphraseStrength,
 } from "../../utils/api/encryptionApi";
 import { resetApiConfig, isTauri } from "../../utils/helpers/apiConfig";
+import { settingsApi } from "../../utils/api/settingsApi";
 import {
   SPLASH_STEPS,
   STEP_TITLES,
@@ -43,7 +44,7 @@ const EncryptionSetup = ({ onComplete }) => {
   const handleSubmit = useCallback(async () => {
     if (!isValid()) {
       toaster.create({
-        title: "Invalid Passphrase",
+        title: "عبارت عبور نامعتبر است",
         description:
           passphrase.length < 12
             ? "Passphrase must be at least 12 characters"
@@ -68,29 +69,39 @@ const EncryptionSetup = ({ onComplete }) => {
         // Reset cached port so we get the new server port
         resetApiConfig();
 
-        // Start llama and whisper services after server is up
-        // They will use the ports allocated by the Python server
-        try {
-          await invoke("start_llama_service");
-        } catch (llamaError) {
-          console.warn("Llama service did not start (no model downloaded yet):", llamaError);
+        // Start only the local inference sidecars selected by the user. Remote
+        // LLM/ASR providers, including Speechmatics, must not spawn local servers.
+        const runtimeConfig = await settingsApi.fetchConfig().catch(() => ({}));
+        const llmProvider = runtimeConfig.LLM_PROVIDER || "local";
+        const asrProvider = runtimeConfig.ASR_PROVIDER || runtimeConfig.WHISPER_PROVIDER || "local";
+
+        if (llmProvider === "local") {
+          try {
+            await invoke("start_llama_service");
+          } catch (llamaError) {
+            console.warn("سرویس مدل زبانی محلی راه‌اندازی نشد (هنوز مدلی دانلود نشده است):", llamaError);
+          }
         }
 
-        try {
-          await invoke("start_whisper_service");
-        } catch (whisperError) {
-          console.warn("Whisper service did not start (no model downloaded yet):", whisperError);
+        if (asrProvider === "local") {
+          try {
+            await invoke("start_whisper_service");
+          } catch (whisperError) {
+            console.warn("سرویس ASR محلی راه‌اندازی نشد (هنوز مدلی دانلود نشده است):", whisperError);
+          }
         }
 
+        // Embeddings are local-only and may be absent until the user downloads
+        // the optional model; failure remains non-fatal during onboarding.
         try {
           await invoke("start_embedding_service");
         } catch (embeddingError) {
-          console.warn("Embedding service did not start (no model downloaded yet):", embeddingError);
+          console.warn("سرویس بردارسازی راه‌اندازی نشد (هنوز مدلی دانلود نشده است):", embeddingError);
         }
       } catch (serverError) {
         console.error("Server start failed:", serverError);
         toaster.create({
-          title: "Server Warning",
+          title: "هشدار سرور",
           description: serverError.toString(),
           type: "warning",
           duration: 5000,
@@ -228,7 +239,7 @@ const EncryptionSetup = ({ onComplete }) => {
               <HStack>
                 <Input
                   type={showPassword ? "text" : "password"}
-                  placeholder="Enter a secure passphrase (min 12 characters)"
+                  placeholder="عبارت عبور امن را وارد کنید (حداقل ۱۲ نویسه)"
                   value={passphrase}
                   onChange={(e) => setPassphrase(e.target.value)}
                   size="sm"
@@ -238,7 +249,7 @@ const EncryptionSetup = ({ onComplete }) => {
                   size="sm"
                   variant="ghost"
                   onClick={() => setShowPassword(!showPassword)}
-                  aria-label="Toggle password visibility"
+                  aria-label="نمایش یا پنهان کردن رمز عبور"
                 >
                   <Icon asChild>{showPassword ? <FaEyeSlash /> : <FaEye />}</Icon>
                 </Button>
@@ -279,7 +290,7 @@ const EncryptionSetup = ({ onComplete }) => {
               <HStack>
                 <Input
                   type={showConfirmPassword ? "text" : "password"}
-                  placeholder="Confirm your passphrase"
+                  placeholder="عبارت عبور خود را تأیید کنید"
                   value={confirmPassphrase}
                   onChange={(e) => setConfirmPassphrase(e.target.value)}
                   size="sm"
@@ -294,7 +305,7 @@ const EncryptionSetup = ({ onComplete }) => {
                   size="sm"
                   variant="ghost"
                   onClick={() => setShowConfirmPassword(!showConfirmPassword)}
-                  aria-label="Toggle confirm password visibility"
+                  aria-label="نمایش یا پنهان کردن تأیید رمز عبور"
                 >
                   <Icon asChild>
                     {showConfirmPassword ? <FaEyeSlash /> : <FaEye />}
@@ -324,7 +335,7 @@ const EncryptionSetup = ({ onComplete }) => {
           <Button
             onClick={handleSubmit}
             loading={isSubmitting}
-            loadingText="Setting up encryption..."
+            loadingText="در حال راه‌اندازی رمزگذاری..."
             disabled={!isValid()}
             size="md"
             borderRadius="2xl"
@@ -334,7 +345,7 @@ const EncryptionSetup = ({ onComplete }) => {
               fontWeight: "600",
             }}
           >
-            Continue
+            ادامه
           </Button>
         </Flex>
       </Box>

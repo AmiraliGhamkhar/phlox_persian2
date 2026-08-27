@@ -1,10 +1,70 @@
-/* Global styles for Phlox. */
+/* Global Persian/RTL styles for Phlox. */
+
+:root,
+body,
+#root {
+    direction: rtl;
+}
+
+html {
+    min-width: 320px;
+    background: #24273a;
+}
 
 body {
     margin: 0;
+    font-family: "Vazirmatn", Tahoma, Arial, sans-serif;
+    text-align: right;
+    font-feature-settings: "kern" 1, "ss01" 1;
 }
 
-code {
-    font-family: source-code-pro, Menlo, Monaco, Consolas, "Courier New",
-        monospace;
+*,
+*::before,
+*::after {
+    box-sizing: border-box;
+}
+
+button,
+input,
+textarea,
+select {
+    font-family: inherit;
+}
+
+input,
+textarea,
+select {
+    direction: rtl;
+    unicode-bidi: plaintext;
+}
+
+/* URLs, identifiers, API keys and model names remain readable left-to-right. */
+input[type="url"],
+input[type="password"],
+input[data-ltr="true"],
+.ltr-content,
+[data-ltr="true"] {
+    direction: ltr;
+    text-align: left;
+    unicode-bidi: isolate;
+}
+
+/* Mixed Persian/English clinical content must be laid out by the first strong
+   character instead of reversing Latin drug names and abbreviations. */
+[dir="auto"],
+.bidi-content {
+    unicode-bidi: plaintext;
+    text-align: start;
+}
+
+code,
+pre {
+    direction: ltr;
+    text-align: left;
+    unicode-bidi: isolate;
+    font-family: source-code-pro, Menlo, Monaco, Consolas, "Courier New", monospace;
+}
+
+::selection {
+    background: rgba(139, 213, 202, 0.35);
 }

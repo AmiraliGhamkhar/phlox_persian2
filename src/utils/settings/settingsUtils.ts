@@ -73,7 +73,7 @@ export const settingsService = {
             }
             return response;
         } catch (error) {
-            console.error("Error fetching whisper models:", error);
+            console.error("Error fetching ASR models:", error);
             return { models: [], listAvailable: false };
         }
     },

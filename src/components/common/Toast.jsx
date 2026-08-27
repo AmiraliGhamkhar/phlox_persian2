@@ -8,9 +8,13 @@ import {
     WarningIcon,
     WarningTwoIcon,
 } from "./icons";
+import { translatePersian } from "../../i18n/fa";
 
 export function CustomToast(props) {
     const { status, title, description, onClose } = props;
+    const localizedTitle = typeof title === "string" ? translatePersian(title) : title;
+    const localizedDescription =
+        typeof description === "string" ? translatePersian(description) : description;
 
     const { colorMode } = useColorMode();
     const c = colors[colorMode];
@@ -55,7 +59,7 @@ export function CustomToast(props) {
                             fontSize="md"
                             css={{ fontFamily: '"Roboto", sans-serif' }}
                         >
-                            {title}
+                            {localizedTitle}
                         </Box>
                     )}
                     {description && (
@@ -64,7 +68,7 @@ export function CustomToast(props) {
                             fontSize="sm"
                             css={{ fontFamily: '"Roboto", sans-serif' }}
                         >
-                            {description}
+                            {localizedDescription}
                         </Box>
                     )}
                 </Box>
@@ -82,7 +86,7 @@ export function CustomToast(props) {
                 color={c.textSecondary}
                 opacity={0.6}
                 _hover={{ opacity: 1 }}
-                aria-label="Close"
+                aria-label="بستن"
             >
                 <FaTimes size={12} />
             </Box>

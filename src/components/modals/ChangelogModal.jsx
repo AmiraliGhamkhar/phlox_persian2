@@ -41,7 +41,7 @@ const ChangelogModal = ({ isOpen, onClose, version, changelog }) => {
                                     alt="Phlox Logo"
                                     width="30px"
                                 />
-                                <ModalTitle>Changelog v{version}</ModalTitle>
+                                <ModalTitle>تغییرات نسخه {version}</ModalTitle>
                             </HStack>
                         </Dialog.Header>
                         <Dialog.CloseTrigger />
@@ -63,7 +63,7 @@ const ChangelogModal = ({ isOpen, onClose, version, changelog }) => {
                                     ))
                                 ) : (
                                     <Text color={"textPrimary"}>
-                                        Loading changelog...
+                                        در حال بارگذاری تغییرات نسخه...
                                     </Text>
                                 )}
                             </VStack>
@@ -81,7 +81,7 @@ const ChangelogModal = ({ isOpen, onClose, version, changelog }) => {
                                         fontWeight: "600",
                                     }}
                                 >
-                                    Close
+                                    بستن
                                 </Button>
                             </HStack>
                         </Dialog.Footer>

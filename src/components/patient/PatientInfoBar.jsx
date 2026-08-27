@@ -4,7 +4,7 @@ import { FaEdit } from "react-icons/fa";
 import { getAvatarColor, getInitials } from "../sidebar/SidebarHelpers";
 
 const PatientInfoBar = ({ patient, onEdit }) => {
-    const name = patient.name || "New patient";
+    const name = patient.name || "بیمار جدید";
     const meta = [
         patient.gender,
         patient.dob,
@@ -61,13 +61,13 @@ const PatientInfoBar = ({ patient, onEdit }) => {
                     >
                         {meta.length
                             ? meta.join("  ·  ")
-                            : "No demographics yet"}
+                            : "هنوز اطلاعات جمعیتی ثبت نشده است"}
                     </Text>
                 </HStack>
 
-                <Tooltip content="Edit patient details">
+                <Tooltip content="ویرایش جزئیات بیمار">
                     <IconButton
-                        aria-label="Edit patient details"
+                        aria-label="ویرایش جزئیات بیمار"
                         size="sm"
                         variant="ghost"
                         color={"textSecondary"}

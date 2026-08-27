@@ -137,9 +137,9 @@ const CitationTag = ({ index, citation, displayLabel }) => {
 
     const isInternal = url && url.startsWith("/");
     const footerLabel = isInternal
-        ? "⬇ Download PDF"
+        ? "⬇ دانلود PDF"
         : url
-          ? "Open source ↗"
+          ? "باز کردن منبع ↗"
           : null;
 
     const openUrl = (e) => {
@@ -221,7 +221,7 @@ const CitationTag = ({ index, citation, displayLabel }) => {
                             color="textSecondary"
                             opacity={0.6}
                             _hover={{ opacity: 1 }}
-                            aria-label="Close"
+                            aria-label="بستن"
                             flexShrink={0}
                             display="flex"
                             alignItems="center"
@@ -242,7 +242,7 @@ const CitationTag = ({ index, citation, displayLabel }) => {
                             </Text>
                         ) : (
                             <Text fontSize="xs" color="textSecondary">
-                                No excerpt available.
+                                گزیده‌ای موجود نیست.
                             </Text>
                         )}
                     </Popover.Body>
@@ -303,7 +303,7 @@ const MarkdownRenderer = ({ children, citations, citationRemap, ...props }) => {
                         );
                     }
 
-                    let domain = "external link";
+                    let domain = "پیوند خارجی";
                     if (href) {
                         try {
                             const url = new URL(href);
