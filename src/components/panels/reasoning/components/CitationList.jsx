@@ -95,7 +95,7 @@ export const CitationList = ({ citations, citedOriginals, inline = false }) => {
                         const isString = c.type === "string";
                         const title = isString
                             ? c.label
-                            : c.title || c.source || "Source";
+                            : c.title || c.source || "منبع";
                         const isDownload = !!c.url && c.url.startsWith("/");
                         return (
                             <HStack key={key} gap={2} align="start">

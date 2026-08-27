@@ -1,44 +1,34 @@
 class DefaultLetters:
-    """Default letter templates for Phlox."""
+    """قالب‌های پیش‌فرض نامه پزشکی فلوکس."""
 
-    # Dictation template instructions
+    # دستورهای قالب دیکته: محتوا حفظ می‌شود و فقط به شکل نامه حرفه‌ای درمی‌آید.
     DICTATION_INSTRUCTIONS = (
-        "I'm going to dictate a letter to you. Please adjust the punctuation "
-        "and wording where required to make it a polished letter; the substance, "
-        "overall structure MUST remain as dictated. Even the wording should be "
-        "largely the same. You are not to rephrase the letter in any substantial way.\n\n"
-        "IMPORTANT: Please adhere to any instructions that may appear in the transcript; "
-        "for example 'remove that' or 'insert a summary of the patients blood results'. "
-        "Execute these instructions instead of transcribing them."
+        "من نامه را دیکته می‌کنم. لطفاً نشانه‌گذاری و عبارت‌بندی را در صورت نیاز "
+        "برای تبدیل آن به نامه‌ای حرفه‌ای اصلاح کن؛ اما محتوا، ساختار کلی و معنای "
+        "نامه باید دقیقاً مانند دیکته باقی بماند و بازنویسی اساسی انجام نشود.\n\n"
+        "مهم: دستورهایی را که در متن دیکته می‌آیند اجرا کن؛ برای مثال «آن بخش را حذف کن» "
+        "یا «خلاصه نتایج آزمایش بیمار را اضافه کن». این دستورها را به‌عنوان متن نامه ننویس."
     )
 
     @staticmethod
     def get_default_letter_templates():
-        """Get default letter templates for initial database setup.
-
-        Returns:
-            List of tuples (id, name, instructions)
-        """
+        """قالب‌های نامه پیش‌فرض برای راه‌اندازی اولیه پایگاه داده."""
         return [
             (
                 1,
-                "GP Letter",
-                "Write a brief letter to the patient's general practitioner...",
+                "نامه به پزشک عمومی",
+                "یک نامه کوتاه و حرفه‌ای برای پزشک عمومی بیمار بنویس...",
             ),
-            (2, "Specialist Referral", "Write a detailed referral letter..."),
+            (2, "ارجاع به متخصص", "یک نامه ارجاع دقیق و حرفه‌ای بنویس..."),
             (
                 3,
-                "Discharge Summary",
-                "Write a comprehensive discharge summary...",
+                "خلاصه ترخیص",
+                "یک خلاصه ترخیص جامع و حرفه‌ای بنویس...",
             ),
-            (4, "Brief Update", "Write a short update letter..."),
+            (4, "به‌روزرسانی کوتاه", "یک نامه کوتاه برای به‌روزرسانی وضعیت بیمار بنویس..."),
         ]
 
     @staticmethod
     def get_dictation_template():
-        """Get the Dictation letter template.
-
-        Returns:
-            Tuple of (name, instructions)
-        """
-        return ("Dictation", DefaultLetters.DICTATION_INSTRUCTIONS)
+        """قالب نامه دیکته را برمی‌گرداند."""
+        return ("دیکته", DefaultLetters.DICTATION_INSTRUCTIONS)

@@ -65,6 +65,8 @@ export default defineConfig({
     host: "0.0.0.0",
     port: 3000,
     strictPort: true,
+    // Arena's proxied preview hostname is dynamic; let Vite accept it.
+    allowedHosts: true,
     // Proxy API calls to the backend
     proxy: {
       "/api": {
@@ -78,7 +80,7 @@ export default defineConfig({
         "**/build-dir/**",
         "**/.flatpak-builder/**",
         "**/src-tauri/llama.cpp/**",
-        "**/src-tauri/parakeet.cpp/**",
+        "**/src-tauri/whisper.cpp/**",
         "**/src-tauri/target/**",
       ],
     },

@@ -38,7 +38,7 @@ const FormFillArtifact = ({ artifact }) => {
             URL.revokeObjectURL(url);
         } catch (error) {
             toaster.create({
-                title: "Error",
+                title: "خطا",
                 description: `Failed to generate PDF: ${error.message}`,
                 type: "error",
                 duration: 3000,
@@ -71,9 +71,9 @@ const FormFillArtifact = ({ artifact }) => {
                     size="xs"
                     variant="ghost"
                     colorPalette="blue"
-                    aria-label="Download filled PDF"
+                    aria-label="دانلود PDF تکمیل‌شده"
                     onClick={handleDownload}
-                    loading={loading}><DownloadIcon />Save
+                    loading={loading}><DownloadIcon />ذخیره
                                     </Button>
             </HStack>
         </Box>

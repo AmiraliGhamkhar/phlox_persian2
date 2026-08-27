@@ -23,6 +23,12 @@ export const RemoteModeForm = ({
   setWhisperBaseUrl,
   whisperModel,
   setWhisperModel,
+  asrLanguage,
+  setAsrLanguage,
+  asrProvider,
+  setAsrProvider,
+  asrApiKey,
+  setAsrApiKey,
   availableWhisperModels,
   whisperModelListAvailable,
   isFetchingWhisperModels,
@@ -35,14 +41,14 @@ export const RemoteModeForm = ({
             API URL
           </Field.Label>
           <Tooltip
-            content="OpenAI/Ollama-compatible endpoint (usually http://localhost:11434 for local Ollama)"
+            content="نقطه پایانی سازگار با OpenAI/Ollama؛ معمولاً برای Ollama از نشانی سرویس استفاده می‌شود."
             showArrow
           >
             <InfoIcon boxSize={3} color="textSecondary" />
           </Tooltip>
         </HStack>
         <Input
-          placeholder="http://localhost:11434"
+          placeholder="https://api.example.com"
           value={llmBaseUrl}
           onChange={(e) => setLlmBaseUrl(e.target.value)}
           className="input-style"
@@ -56,7 +62,7 @@ export const RemoteModeForm = ({
             API Key
           </Field.Label>
           <Tooltip
-            content="API key for authenticating with the service. Leave empty for local servers like Ollama."
+            content="کلید API برای احراز هویت سرویس؛ برای سرویس‌های محلی بدون احراز هویت خالی بگذارید."
             showArrow
           >
             <InfoIcon boxSize={3} color="textSecondary" />
@@ -64,7 +70,7 @@ export const RemoteModeForm = ({
         </HStack>
         <Input
           type="password"
-          placeholder="sk-..."
+          placeholder="کلید API، در صورت نیاز"
           value={llmApiKey}
           onChange={(e) => setLlmApiKey(e.target.value)}
           className="input-style"
@@ -75,10 +81,10 @@ export const RemoteModeForm = ({
       <Field.Root required={availableModels.length > 0}>
         <HStack>
           <Field.Label fontSize="sm" color="textSecondary">
-            Primary Model
+            مدل اصلی
           </Field.Label>
           <Tooltip
-            content="The main AI model for medical queries. We recommend llama3.1:8b or gpt-4."
+            content="مدل اصلی هوش مصنوعی برای پرسش‌های پزشکی؛ llama3.1:8b یا gpt-4 پیشنهاد می‌شود."
             showArrow
           >
             <InfoIcon boxSize={3} color="textSecondary" />
@@ -88,8 +94,8 @@ export const RemoteModeForm = ({
           <NativeSelect.Field
             placeholder={
               availableModels.length === 0 && !isFetchingLLMModels
-                ? "No models found — check URL"
-                : "Select model"
+                ? "مدلی پیدا نشد — نشانی را بررسی کنید"
+                : "انتخاب مدل"
             }
             value={primaryModel}
             onChange={(e) => setPrimaryModel(e.target.value)}
@@ -109,7 +115,7 @@ export const RemoteModeForm = ({
           <HStack gap={2} mt={2}>
             <Spinner size="xs" color="primaryButton" />
             <Text fontSize="sm" color="textSecondary">
-              Loading models...
+              در حال دریافت مدل‌ها...
             </Text>
           </HStack>
         )}
@@ -118,30 +124,97 @@ export const RemoteModeForm = ({
       {/* Transcription settings — always visible */}
       <VStack gap={2} w="100%" align="stretch">
         <Text fontSize="xs" fontWeight="bold" className="pill-box-icons">
-          Transcription
+          تشخیص گفتار (ASR)
         </Text>
         <Field.Root>
           <Field.Label fontSize="sm" color="textSecondary">
-            Whisper URL
+            ارائه‌دهنده ASR
           </Field.Label>
-          <Input
-            placeholder="http://localhost:8080"
-            value={whisperBaseUrl}
-            onChange={(e) => setWhisperBaseUrl(e.target.value)}
-            className="input-style"
-            size="sm"
-          />
+          <NativeSelect.Root>
+            <NativeSelect.Field
+              value={asrProvider}
+              onChange={(e) => setAsrProvider(e.target.value)}
+              className="input-style"
+              size="sm"
+            >
+              <option value="openai_compatible">سرویس سازگار با OpenAI</option>
+              <option value="speechmatics">Speechmatics؛ بلادرنگ</option>
+            </NativeSelect.Field>
+            <NativeSelect.Indicator />
+          </NativeSelect.Root>
         </Field.Root>
-        {whisperBaseUrl.trim() && (
+        <Field.Root>
+          <Field.Label fontSize="sm" color="textSecondary">
+            زبان گفتار
+          </Field.Label>
+          <NativeSelect.Root>
+            <NativeSelect.Field
+              value={asrLanguage}
+              onChange={(e) => setAsrLanguage(e.target.value)}
+              className="input-style"
+              size="sm"
+            >
+              <option value="auto">تشخیص خودکار (فارسی و انگلیسی ترکیبی)</option>
+              <option value="fa">فارسی</option>
+              <option value="en">انگلیسی</option>
+            </NativeSelect.Field>
+            <NativeSelect.Indicator />
+          </NativeSelect.Root>
+        </Field.Root>
+
+        {asrProvider === "openai_compatible" && (
           <Field.Root>
             <Field.Label fontSize="sm" color="textSecondary">
-              Whisper Model
+              نشانی سرویس ASR
             </Field.Label>
-            {whisperModelListAvailable &&
-            availableWhisperModels.length > 0 ? (
+            <Input
+              type="url"
+              data-ltr="true"
+              placeholder="https://asr.example.com"
+              value={whisperBaseUrl}
+              onChange={(e) => setWhisperBaseUrl(e.target.value)}
+              className="input-style"
+              size="sm"
+            />
+          </Field.Root>
+        )}
+        {asrProvider === "speechmatics" && (
+          <Field.Root>
+            <Field.Label fontSize="sm" color="textSecondary">
+              کلید API سرویس Speechmatics
+            </Field.Label>
+            <Input
+              type="password"
+              placeholder="کلید در این دستگاه ذخیره می‌شود"
+              value={asrApiKey}
+              onChange={(e) => setAsrApiKey(e.target.value)}
+              className="input-style"
+              size="sm"
+            />
+          </Field.Root>
+        )}
+        {(asrProvider === "speechmatics" || whisperBaseUrl.trim()) && (
+          <Field.Root>
+            <Field.Label fontSize="sm" color="textSecondary">
+              مدل ASR
+            </Field.Label>
+            {asrProvider === "speechmatics" ? (
               <NativeSelect.Root>
                 <NativeSelect.Field
-                  placeholder="Select model"
+                  value={whisperModel || "enhanced"}
+                  onChange={(e) => setWhisperModel(e.target.value)}
+                  className="input-style"
+                  size="sm"
+                >
+                  <option value="enhanced">حالت پیشرفته؛ دقت بالاتر</option>
+                  <option value="standard">حالت استاندارد؛ سرعت بالاتر</option>
+                </NativeSelect.Field>
+                <NativeSelect.Indicator />
+              </NativeSelect.Root>
+            ) : whisperModelListAvailable && availableWhisperModels.length > 0 ? (
+              <NativeSelect.Root>
+                <NativeSelect.Field
+                  placeholder="انتخاب مدل"
                   value={whisperModel}
                   onChange={(e) => setWhisperModel(e.target.value)}
                   disabled={isFetchingWhisperModels}
@@ -158,7 +231,7 @@ export const RemoteModeForm = ({
               </NativeSelect.Root>
             ) : (
               <Input
-                placeholder="e.g., whisper-1, base, small"
+                placeholder="مثلاً whisper-1، base یا small"
                 value={whisperModel}
                 onChange={(e) => setWhisperModel(e.target.value)}
                 disabled={isFetchingWhisperModels}
@@ -170,7 +243,7 @@ export const RemoteModeForm = ({
               <HStack gap={2} mt={2}>
                 <Spinner size="xs" color="primaryButton" />
                 <Text fontSize="sm" color="textSecondary">
-                  Loading...
+                  در حال بارگذاری...
                 </Text>
               </HStack>
             )}

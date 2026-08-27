@@ -29,15 +29,15 @@ const StatusIcon = ({ serverStatus, isCollapsed }) => {
     (!embeddingApplicable || serverStatus.embedding);
 
   const embeddingLine = embeddingApplicable
-    ? `, ${serverStatus.embedding ? "✓" : "✗"} Embedding`
+    ? `، ${serverStatus.embedding ? "✓" : "✗"} بردارسازی`
     : "";
 
   return (
     <Tooltip
       content={
         allServicesUp
-          ? "All services connected"
-          : `Services: ${serverStatus.llm ? "✓" : "✗"} LLM, ${serverStatus.whisper ? "✓" : "✗"} Transcription${embeddingLine}`
+          ? "همه سرویس‌ها متصل هستند"
+          : `سرویس‌ها: ${serverStatus.llm ? "✓" : "✗"} مدل زبانی، ${serverStatus.whisper ? "✓" : "✗"} تشخیص گفتار${embeddingLine}`
       }
       positioning={{
         placement: isCollapsed ? "right" : "top",
@@ -92,7 +92,7 @@ const VersionInfo = ({ isCollapsed, colorMode, toggleColorMode }) => {
       <Box position="relative" width="100%">
         <VStack gap={2} align="center" width="100%">
           <Tooltip
-            content="View Version Info"
+            content="مشاهده اطلاعات نسخه"
             positioning={{
               placement: "right",
             }}
@@ -109,7 +109,7 @@ const VersionInfo = ({ isCollapsed, colorMode, toggleColorMode }) => {
           </Tooltip>
 
           <Tooltip
-            content="GitHub Repository"
+            content="مخزن گیت‌هاب"
             positioning={{
               placement: "right",
             }}
@@ -129,8 +129,8 @@ const VersionInfo = ({ isCollapsed, colorMode, toggleColorMode }) => {
           <Tooltip
             content={
               colorMode === "light"
-                ? "Switch to Dark Mode"
-                : "Switch to Light Mode"
+                ? "تغییر به حالت تاریک"
+                : "تغییر به حالت روشن"
             }
             positioning={{
               placement: "right",
@@ -165,7 +165,7 @@ const VersionInfo = ({ isCollapsed, colorMode, toggleColorMode }) => {
       {/* Center the version, GitHub icon, and status icon */}
       <Center width="100%">
         <HStack gap={4}>
-          <Tooltip content="View Changelog">
+          <Tooltip content="مشاهده تغییرات نسخه">
             <Text
               fontSize="md"
               onClick={onOpen}
@@ -180,7 +180,7 @@ const VersionInfo = ({ isCollapsed, colorMode, toggleColorMode }) => {
             </Text>
           </Tooltip>
 
-          <Tooltip content="GitHub Repository">
+          <Tooltip content="مخزن گیت‌هاب">
             <Link
               href="https://github.com/bloodworks-io/phlox"
               target="_blank"
@@ -196,8 +196,8 @@ const VersionInfo = ({ isCollapsed, colorMode, toggleColorMode }) => {
           <Tooltip
             content={
               colorMode === "light"
-                ? "Switch to Dark Mode"
-                : "Switch to Light Mode"
+                ? "تغییر به حالت تاریک"
+                : "تغییر به حالت روشن"
             }
           >
             <Box

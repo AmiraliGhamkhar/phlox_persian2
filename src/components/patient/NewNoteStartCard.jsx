@@ -121,7 +121,7 @@ export const CandidateRow = ({
                         color="textPrimary"
                         lineClamp={1}
                     >
-                        {candidate.name || "Unnamed patient"}
+                        {candidate.name || "بیمار بدون نام"}
                     </Text>
                     <Text
                         fontSize="xs"
@@ -129,7 +129,7 @@ export const CandidateRow = ({
                         lineClamp={1}
                     >
                         {candidateMeta(candidate) ||
-                            "No demographics on file"}
+                            "اطلاعات جمعیتی ثبت نشده است"}
                     </Text>
                     {candidate.encounter_date && (
                         <Text fontSize="xs" color="textSecondary">
@@ -177,7 +177,7 @@ const NewNoteStartCard = ({ onFind, onNewPatient, onConfirmCandidate, isSearchLo
             setView("results");
         } else {
             toaster.create({
-                title: "No patient found",
+                title: "بیماری پیدا نشد",
                 description: `No patient matches "${q}". Fill in their details to create a new record.`,
                 type: "info",
                 ...DEFAULT_TOAST_CONFIG,
@@ -227,7 +227,7 @@ const NewNoteStartCard = ({ onFind, onNewPatient, onConfirmCandidate, isSearchLo
                             fontFamily: '"Space Grotesk", sans-serif',
                         }}
                     >
-                        New encounter
+                        ویزیت جدید
                     </Heading>
                     <Text
                         fontSize="sm"
@@ -245,16 +245,16 @@ const NewNoteStartCard = ({ onFind, onNewPatient, onConfirmCandidate, isSearchLo
                         <Flex gap={3}>
                             <PathHalf
                                 icon={FaUserPlus}
-                                title="New patient"
-                                subtitle="Create a new record"
+                                title="بیمار جدید"
+                                subtitle="ایجاد پرونده جدید"
                                 accent="primaryButton"
                                 tileBg="tile"
                                 onClick={onNewPatient}
                             />
                             <PathHalf
                                 icon={FaSearch}
-                                title="Search"
-                                subtitle="Existing patient"
+                                title="جست‌وجو"
+                                subtitle="بیمار موجود"
                                 accent="secondaryButton"
                                 tileBg="tile"
                                 onClick={() => setView("search")}
@@ -302,7 +302,7 @@ const NewNoteStartCard = ({ onFind, onNewPatient, onConfirmCandidate, isSearchLo
                                         onSearch={handleFind}
                                         isLoading={isSearchLoading}
                                         autoFocus
-                                        placeholder="UR number or name"
+                                        placeholder="شماره پرونده یا نام"
                                     />
                                 </form>
                             </Flex>

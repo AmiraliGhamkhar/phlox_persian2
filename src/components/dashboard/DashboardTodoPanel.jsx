@@ -49,7 +49,7 @@ const DashboardTodoPanel = ({
                         fontWeight="medium"
                         fontSize="sm"
                         textDecoration="none"
-                        _hover={{ color: "textPrimary", textDecoration: "none" }}>Todo list
+                        _hover={{ color: "textPrimary", textDecoration: "none" }}>فهرست کارها
                                             {
                             isCollapsed ? (
                                 <ChevronDownIcon />
@@ -81,7 +81,7 @@ const DashboardTodoPanel = ({
                                         textDecoration: "none",
                                     }}
                                 >
-                                    {showAllTodos ? "Show active" : "Show all"}
+                                    {showAllTodos ? "نمایش فعال‌ها" : "نمایش همه"}
                                 </Button>
                             </Flex>
 
@@ -90,7 +90,7 @@ const DashboardTodoPanel = ({
                                     value={newTodo}
                                     onChange={(e) => setNewTodo?.(e.target.value)}
                                     onKeyDown={handleTodoKeyDown}
-                                    placeholder="Add a task..."
+                                    placeholder="افزودن کار..."
                                     size="sm"
                                     variant="flushed"
                                     disabled={isSaving}
@@ -98,7 +98,7 @@ const DashboardTodoPanel = ({
                                 <IconButton
                                     onClick={addTodo}
                                     size="xs"
-                                    aria-label="Add todo"
+                                    aria-label="افزودن کار"
                                     variant="ghost"
                                     disabled={isSaving}>{isSaving ? (
                                         <Spinner size="xs" />
@@ -157,7 +157,7 @@ const DashboardTodoPanel = ({
                                                 }
                                                 size="xs"
                                                 variant="ghost"
-                                                aria-label="Delete todo"
+                                                aria-label="حذف کار"
                                                 disabled={isSaving}
                                                 color="overlay0"
                                                 _hover={{

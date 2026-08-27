@@ -19,7 +19,7 @@ const NewTemplateFromExampleModal = ({
                 <Dialog.Backdrop />
                 <Dialog.Positioner>
                     <Dialog.Content className="modal-style">
-                        <Dialog.Header><Heading as="h2" size="md" fontFamily="heading">New Template from Example</Heading></Dialog.Header>
+                        <Dialog.Header><Heading as="h2" size="md" fontFamily="heading">قالب جدید از روی نمونه</Heading></Dialog.Header>
                         <Dialog.CloseTrigger />
                         <Dialog.Body
                             maxH="50vh"
@@ -41,15 +41,15 @@ const NewTemplateFromExampleModal = ({
                                             fontWeight="600"
                                             fontSize="sm"
                                         >
-                                            Create a Template from an Existing Note
+                                            ساخت قالب از یک یادداشت موجود
                                         </Text>
                                         <Text
                                             color="textSecondary"
                                             fontSize="sm"
                                         >
-                                            Paste an example clinical note below. The AI
-                                            will analyze its structure and automatically
-                                            create a template with matching fields.
+                                            یک یادداشت بالینی نمونه را در زیر جای‌گذاری کنید.
+                                            هوش مصنوعی ساختار آن را تحلیل می‌کند و به‌صورت
+                                            خودکار قالبی با فیلدهای متناظر می‌سازد.
                                         </Text>
                                     </VStack>
                                 </Box>
@@ -62,42 +62,39 @@ const NewTemplateFromExampleModal = ({
                                         fontWeight="600"
                                         mb={2}
                                     >
-                                        TIPS FOR BEST RESULTS:
+                                        نکات برای بهترین نتیجه:
                                     </Text>
                                     <VStack align="start" gap={1} pl={2}>
                                         <Text
                                             color="textSecondary"
                                             fontSize="sm"
                                         >
-                                            • Use a complete, well-formatted note as
-                                            your example
+                                            • یک یادداشت کامل و منظم را به‌عنوان نمونه انتخاب کنید
                                         </Text>
                                         <Text
                                             color="textSecondary"
                                             fontSize="sm"
                                         >
-                                            • Include typical sections like Subjective,
-                                            Objective, Assessment, Plan
+                                            • بخش‌های معمول مانند ذهنی، عینی، ارزیابی و برنامه را وارد کنید
                                         </Text>
                                         <Text
                                             color="textSecondary"
                                             fontSize="sm"
                                         >
-                                            • The AI will identify field names and their
-                                            relationships
+                                            • هوش مصنوعی نام فیلدها و ارتباط میان آن‌ها را شناسایی می‌کند
                                         </Text>
                                     </VStack>
                                 </Box>
 
                                 {/* Textarea */}
                                 <Textarea
-                                    placeholder={`Paste your example note here...
+                                    placeholder={`یادداشت نمونه خود را اینجا جای‌گذاری کنید...
 
-        Example:
-        Subjective: Patient presents with...
-        Objective: Vitals normal, physical exam reveals...
-        Assessment: Likely diagnosis of...
-        Plan: 1. Prescribe medication 2. Follow up in 2 weeks`}
+        نمونه:
+        ذهنی: بیمار با ... مراجعه کرده است
+        عینی: علائم حیاتی طبیعی است و معاینه نشان می‌دهد...
+        ارزیابی: تشخیص محتمل ...
+        برنامه: ۱. تجویز دارو ۲. پیگیری طی ۲ هفته`}
                                     value={exampleNote}
                                     onChange={(e) => setExampleNote(e.target.value)}
                                     className="input-style"
@@ -119,12 +116,12 @@ const NewTemplateFromExampleModal = ({
                                     }}
                                     mr={3}
                                 >
-                                    Cancel
+                                    انصراف
                                 </Button>
                                 <Button
                                     onClick={onCreate}
                                     loading={isLoading}
-                                    loadingText="Creating..."
+                                    loadingText="در حال ایجاد..."
                                     size="md"
                                     borderRadius="2xl"
                                     className="green-button"
@@ -133,7 +130,7 @@ const NewTemplateFromExampleModal = ({
                                         fontWeight: "600"
                                     }}
                                 >
-                                    Create Template
+ساخت قالب
                                 </Button>
                             </HStack>
                         </Dialog.Footer>

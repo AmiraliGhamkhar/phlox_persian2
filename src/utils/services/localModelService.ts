@@ -68,7 +68,17 @@ export async function downloadWhisperModel(modelId, { onProgress, onStart }) {
       } else if (event.type === "progress") {
         onProgress?.(event);
       } else if (event.type === "complete") {
-        // Restart whisper server to use the new model
+        // Shenava runs in the Python ASR adapter and intentionally has no
+        // whisper.cpp sidecar to restart. Whisper.cpp GGML models do.
+        if (modelId.startsWith("shenava-")) {
+          toaster.create({
+            title: "مدل ASR دانلود شد",
+            description: "برای استفاده از Shenava آن را در فهرست مدل‌های محلی فعال کنید.",
+            type: "success",
+            duration: 3000,
+          });
+          continue;
+        }
         try {
           await localModelApi.restartWhisperServer();
           toaster.create({

@@ -2,7 +2,7 @@ import { useState, useEffect, useMemo, useCallback } from "react";
 import {
   Box, VStack, HStack, Text, Button, Badge, Alert,
   Progress, Grid, Icon, Spinner,
-  Popover, Portal, Dialog,
+  Popover, Portal, Dialog, NativeSelect,
 } from "@chakra-ui/react";
 import { Tooltip } from "@/components/ui/tooltip";
 import {
@@ -29,9 +29,9 @@ const RECOMMENDED_EMBEDDING = {
 };
 
 const getMachineLabel = (os) => {
-  if (os === "macos") return "Your Mac";
-  if (os === "windows") return "Your PC";
-  return "Your system";
+  if (os === "macos") return "مک شما";
+  if (os === "windows") return "رایانه شما";
+  return "سیستم شما";
 };
 
 const PerformancePopover = ({ model, systemSpecs }) => {
@@ -59,12 +59,12 @@ const PerformancePopover = ({ model, systemSpecs }) => {
             <Popover.Body p={3}>
               <VStack gap={1} align="stretch">
                 <HStack justify="space-between">
-                  <Text fontSize="xs" className="pill-box-icons">Size</Text>
+                  <Text fontSize="xs" className="pill-box-icons">اندازه</Text>
                   <Text fontSize="xs" fontWeight="bold">{model.size_mb}MB</Text>
                 </HStack>
                 {(model.active_parameters_billions || model.parameters_billions) && (
                   <HStack justify="space-between">
-                    <Text fontSize="xs" className="pill-box-icons">Parameters</Text>
+                    <Text fontSize="xs" className="pill-box-icons">پارامترها</Text>
                     <Text fontSize="xs" fontWeight="bold">
                       {model.active_parameters_billions ? `${model.active_parameters_billions}B` : `${model.parameters_billions}B`}
                     </Text>
@@ -72,7 +72,7 @@ const PerformancePopover = ({ model, systemSpecs }) => {
                 )}
                 {model.recommended_ram_gb && (
                   <HStack justify="space-between">
-                    <Text fontSize="xs" className="pill-box-icons">RAM needed</Text>
+                    <Text fontSize="xs" className="pill-box-icons">RAM موردنیاز</Text>
                     <Text fontSize="xs" fontWeight="bold">{model.recommended_ram_gb}GB</Text>
                   </HStack>
                 )}
@@ -85,9 +85,9 @@ const PerformancePopover = ({ model, systemSpecs }) => {
                   </HStack>
                 )}
                 {perf && (
-                  <Tooltip content="Estimated processing time for a 10-minute consultation" showArrow>
+                  <Tooltip content="زمان تقریبی پردازش یک ویزیت ۱۰ دقیقه‌ای" showArrow>
                     <HStack justify="space-between">
-                      <Text fontSize="xs" className="pill-box-icons">Est. time</Text>
+                      <Text fontSize="xs" className="pill-box-icons">زمان تقریبی</Text>
                       <Text fontSize="xs" fontWeight="bold">~{Math.round(perf.estimatedTime)}s</Text>
                     </HStack>
                   </Tooltip>
@@ -124,7 +124,7 @@ const ModelCard = ({ model, isDownloaded, isDownloading, downloadProgress, onDow
       <HStack w="full" justify="space-between">
         <HStack gap={1}>
           {model.recommendedType === "recommended" && (
-            <Tooltip content="Recommended for your Mac" showArrow>
+            <Tooltip content="پیشنهادشده برای مک شما" showArrow>
               <Box color="secondaryButton" display="flex" alignItems="center" cursor="default"><FaStar size="12" /></Box>
             </Tooltip>
           )}
@@ -144,10 +144,10 @@ const ModelCard = ({ model, isDownloaded, isDownloading, downloadProgress, onDow
           <Text fontSize="2xs" className="pill-box-icons" textAlign="right">{(downloadProgress?.percentage || 0).toFixed(0)}%</Text>
         </Box>
       ) : isDownloaded ? (
-        <GreenButton size="sm" w="full" disabled leftIcon={<CheckIcon />}>Downloaded</GreenButton>
+        <GreenButton size="sm" w="full" disabled leftIcon={<CheckIcon />}>دانلودشده</GreenButton>
       ) : (
         <NavButton size="sm" w="full" onClick={onDownload}>
-          <DownloadIcon />Download
+          <DownloadIcon />دانلود
         </NavButton>
       )}
     </Box>
@@ -175,7 +175,7 @@ const SupportingModelRow = ({ icon, iconColor, label, required, isReady, isDownl
         <Box color={iconColor} display="flex" alignItems="center">{icon}</Box>
         <Text fontSize="xs" fontWeight="bold">{label}</Text>
         <Badge colorPalette={required ? "red" : "gray"} fontSize="2xs" variant={required ? "solid" : "outline"}>
-          {required ? "Required" : "Optional"}
+          {required ? "الزامی" : "اختیاری"}
         </Badge>
         <Tooltip content={tooltipContent} showArrow>
           <InfoIcon boxSize={3} color="textSecondary" />
@@ -205,12 +205,14 @@ const LocalModelManager = ({ className }) => {
     downloadProgress, isDownloading, downloadingModelId,
     downloadLlmModel, deleteLlmModel, refreshData,
     whisperModels, whisperRecommendations,
-    downloadWhisperModel, deleteWhisperModel,
+    downloadWhisperModel, selectWhisperModel, deleteWhisperModel,
   } = useLocalModels();
 
   const [isResetOpen, setIsResetOpen] = useState(false);
   const [isResetting, setIsResetting] = useState(false);
   const [startIndex, setStartIndex] = useState(0);
+  const [selectedWhisperId, setSelectedWhisperId] = useState("");
+  const [isSelectingWhisper, setIsSelectingWhisper] = useState(false);
 
   const [embeddingDownloaded, setEmbeddingDownloaded] = useState(false);
   const [isDownloadingEmbedding, setIsDownloadingEmbedding] = useState(false);
@@ -258,6 +260,22 @@ const LocalModelManager = ({ className }) => {
   const llmDownloadProgress = isDownloading.llm ? downloadProgress.llm : null;
   const whisperDownloading = isDownloading.whisper && downloadingModelId.whisper;
 
+  useEffect(() => {
+    const selected = whisperModels.find((model) => model.is_selected);
+    setSelectedWhisperId(selected?.id || whisperModels[0]?.id || "");
+  }, [whisperModels]);
+
+  const handleSelectWhisper = useCallback(async () => {
+    if (!selectedWhisperId) return;
+    setIsSelectingWhisper(true);
+    try {
+      await selectWhisperModel(selectedWhisperId);
+      await refreshData();
+    } finally {
+      setIsSelectingWhisper(false);
+    }
+  }, [selectedWhisperId, selectWhisperModel, refreshData]);
+
   const handleDownloadEmbedding = useCallback(async () => {
     setIsDownloadingEmbedding(true);
     setEmbeddingProgress(0);
@@ -294,7 +312,7 @@ const LocalModelManager = ({ className }) => {
     return (
       <HStack gap={2} py={4}>
         <Spinner size="sm" animationDuration="0.65s" />
-        <Text fontSize="sm" color="textSecondary">Loading...</Text>
+        <Text fontSize="sm" color="textSecondary">در حال بارگذاری...</Text>
       </HStack>
     );
   }
@@ -304,8 +322,8 @@ const LocalModelManager = ({ className }) => {
       <Alert.Root status="warning" borderRadius="md">
         <Alert.Indicator asChild><FaExclamationTriangle /></Alert.Indicator>
         <Box>
-          <Alert.Title fontSize="sm">Local Models Not Available</Alert.Title>
-          <Alert.Description fontSize="xs">Local models are only available in Tauri builds.</Alert.Description>
+          <Alert.Title fontSize="sm">مدل‌های محلی در دسترس نیستند</Alert.Title>
+          <Alert.Description fontSize="xs">مدل‌های محلی فقط در نسخه‌های Tauri در دسترس هستند.</Alert.Description>
         </Box>
       </Alert.Root>
     );
@@ -324,14 +342,14 @@ const LocalModelManager = ({ className }) => {
           </HStack>
           <HStack gap={1}>
             <Icon className="blue-icon" asChild><FaMicrochip /></Icon>
-            <Text>{systemSpecs.cpu_count} cores</Text>
+            <Text>{systemSpecs.cpu_count} هسته</Text>
           </HStack>
         </HStack>
       )}
 
       {/* AI Model carousel */}
       <VStack align="start" gap={2} w="100%">
-        <Text fontSize="sm" fontWeight="bold">AI Model</Text>
+        <Text fontSize="sm" fontWeight="bold">مدل هوش مصنوعی</Text>
         {smartRecommendations.length > 0 ? (
           <HStack w="100%" align="stretch" gap={2}>
             {smartRecommendations.length > MODELS_PER_PAGE && (
@@ -393,26 +411,61 @@ const LocalModelManager = ({ className }) => {
             )}
           </HStack>
         ) : (
-          <Text fontSize="xs" className="pill-box-icons">No models available for your system.</Text>
+          <Text fontSize="xs" className="pill-box-icons">مدلی برای سیستم شما موجود نیست.</Text>
         )}
 
         {models.length > 0 && (
           <HStack fontSize="xs" className="pill-box-icons">
-            <Text>Current:</Text>
+            <Text>فعلی:</Text>
             <Text fontWeight="bold">{models[0].filename}</Text>
-            {models[0].is_selected && <Badge colorPalette="green" size="xs">Active</Badge>}
+            {models[0].is_selected && <Badge colorPalette="green" size="xs">فعال</Badge>}
           </HStack>
         )}
       </VStack>
 
+      {/* Local ASR model switcher */}
+      {whisperModels.length > 0 && (
+        <VStack align="stretch" gap={2}>
+          <Text fontSize="sm" fontWeight="bold">انتخاب مدل ASR محلی</Text>
+          <HStack align="stretch">
+            <NativeSelect.Root flex={1}>
+              <NativeSelect.Field
+                value={selectedWhisperId}
+                onChange={(event) => setSelectedWhisperId(event.target.value)}
+                className="input-style"
+                size="sm"
+              >
+                {whisperModels.map((model) => (
+                  <option key={model.id} value={model.id}>
+                    {model.name || model.id} — {model.languages?.join("/") || "ASR"}
+                  </option>
+                ))}
+              </NativeSelect.Field>
+              <NativeSelect.Indicator />
+            </NativeSelect.Root>
+            <Button
+              size="sm"
+              onClick={handleSelectWhisper}
+              loading={isSelectingWhisper}
+              disabled={!selectedWhisperId}
+            >
+              فعال‌سازی
+            </Button>
+          </HStack>
+          <Text fontSize="xs" className="pill-box-icons">
+            مدل‌های Whisper برای فارسی و گفتار فارسی/انگلیسی ترکیبی مناسب‌اند؛ Shenava برای فارسیِ محلی و کم‌حجم طراحی شده است.
+          </Text>
+        </VStack>
+      )}
+
       {/* Supporting Models */}
       <VStack align="start" gap={1} w="100%">
-        <Text fontSize="xs" fontWeight="bold" className="pill-box-icons">Supporting Models</Text>
+        <Text fontSize="xs" fontWeight="bold" className="pill-box-icons">مدل‌های پشتیبان</Text>
         <HStack w="100%" gap={3} align="stretch">
           <SupportingModelRow
             icon={<FaMicrophone size="12" />}
             iconColor="secondaryButton"
-            label="Transcription"
+            label="تشخیص گفتار"
             required
             isReady={whisperReady}
             isDownloading={whisperDownloading}
@@ -423,7 +476,7 @@ const LocalModelManager = ({ className }) => {
           <SupportingModelRow
             icon={<FaDatabase size="12" />}
             iconColor="neutralButton"
-            label="Embeddings"
+            label="بردارسازی"
             required={false}
             isReady={embeddingDownloaded}
             isDownloading={isDownloadingEmbedding}
@@ -438,7 +491,7 @@ const LocalModelManager = ({ className }) => {
       {hasAnyModels && (
         <Box mt={2}>
           <Button variant="outline" size="sm" colorPalette="red" borderRadius="lg" onClick={() => setIsResetOpen(true)}>
-            <FaExclamationTriangle /> Reset All Models
+            <FaExclamationTriangle /> بازنشانی همه مدل‌ها
           </Button>
         </Box>
       )}
@@ -452,28 +505,28 @@ const LocalModelManager = ({ className }) => {
               <Dialog.Header>
                 <HStack>
                   <Box display="flex" alignItems="center"><FaExclamationTriangle /></Box>
-                  <ModalTitle>Reset All Models?</ModalTitle>
+                  <ModalTitle>همه مدل‌ها بازنشانی شوند؟</ModalTitle>
                 </HStack>
               </Dialog.Header>
               <Dialog.CloseTrigger />
               <Dialog.Body>
                 <VStack gap={3} align="stretch">
-                  <Text fontSize="sm">This will permanently delete:</Text>
+                  <Text fontSize="sm">موارد زیر برای همیشه حذف می‌شوند:</Text>
                   <VStack gap={1} align="start" pl={4}>
                     {models.length > 0 && (
-                      <Text fontSize="sm" className="pill-box-icons">• LLM model — clinical notes and chat will stop working</Text>
+                      <Text fontSize="sm" className="pill-box-icons">• مدل زبانی — یادداشت‌های بالینی و گفت‌وگو کار نخواهند کرد</Text>
                     )}
                     {whisperReady && (
-                      <Text fontSize="sm" className="pill-box-icons">• Transcription model — voice transcription will stop</Text>
+                      <Text fontSize="sm" className="pill-box-icons">• مدل تشخیص گفتار — پیاده‌سازی صدا متوقف خواهد شد</Text>
                     )}
                     {embeddingDownloaded && (
-                      <Text fontSize="sm" className="pill-box-icons">• Embedding model — document search will stop</Text>
+                      <Text fontSize="sm" className="pill-box-icons">• مدل بردارسازی — جست‌وجوی اسناد متوقف خواهد شد</Text>
                     )}
                   </VStack>
                   <Text fontSize="sm" color="successButton">
-                    Your patient data, notes, and settings are NOT affected.
+                    داده‌های بیمار، یادداشت‌ها و تنظیمات شما تحت تأثیر قرار نمی‌گیرند.
                   </Text>
-                  <Text fontSize="sm">You'll need to re-download models to use AI features again.</Text>
+                  <Text fontSize="sm">برای استفاده دوباره از قابلیت‌های هوش مصنوعی باید مدل‌ها را مجدداً دانلود کنید.</Text>
                 </VStack>
               </Dialog.Body>
               <Dialog.Footer>
@@ -481,8 +534,8 @@ const LocalModelManager = ({ className }) => {
                   <Button className="red-button" mr={3} onClick={() => setIsResetOpen(false)}>
                     Cancel
                   </Button>
-                  <Button className="green-button" onClick={handleResetAll} loading={isResetting} loadingText="Deleting...">
-                    Delete All Models
+                  <Button className="green-button" onClick={handleResetAll} loading={isResetting} loadingText="در حال حذف...">
+                    حذف همه مدل‌ها
                   </Button>
                 </HStack>
               </Dialog.Footer>

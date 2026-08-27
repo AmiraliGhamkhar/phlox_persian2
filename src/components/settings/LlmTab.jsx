@@ -99,7 +99,7 @@ const LlmTab = ({
 
             <VStack gap={3} align="stretch">
                 <Box>
-                    <Tooltip content="Base URL for your OpenAI/Ollama-compatible LLM API endpoint">
+                    <Tooltip content="نشانی پایه نقطه پایانی API مدل زبانی سازگار با OpenAI/Ollama">
                         <Text fontSize="sm" mb="1" fontWeight={"bold"}>
                             OpenAI/Ollama API Base URL
                         </Text>
@@ -108,7 +108,7 @@ const LlmTab = ({
                         size="sm"
                         endElement={
                             urlStatus.llm ? (
-                                <Tooltip content="Connection successful">
+                                <Tooltip content="اتصال موفق بود">
                                     <CheckCircleIcon color="successButton" />
                                 </Tooltip>
                             ) : undefined
@@ -122,14 +122,14 @@ const LlmTab = ({
                                     e.target.value,
                                 )
                             }
-                            placeholder="http://localhost:11434"
+                            placeholder="https://api.example.com"
                             className="input-style"
                         />
                     </InputGroup>
                 </Box>
 
                 <Box>
-                    <Tooltip content="API key for authenticating with the OpenAI/Ollama-compatible service">
+                    <Tooltip content="کلید API برای احراز هویت سرویس سازگار با OpenAI/Ollama">
                         <Text fontSize="sm" mb="1" fontWeight={"bold"}>
                             API Key
                         </Text>
@@ -147,7 +147,7 @@ const LlmTab = ({
                 </Box>
 
                 <Box>
-                    <Tooltip content="Primary model for generating responses and clinical notes">
+                    <Tooltip content="مدل اصلی برای تولید پاسخ‌ها و یادداشت‌های بالینی">
                         <Text fontSize="sm" mb="1" fontWeight={"bold"}>
                             Primary Model
                         </Text>
@@ -170,7 +170,7 @@ const LlmTab = ({
                                         e.target.value,
                                     )
                                 }
-                                placeholder="Select model"
+                                placeholder="انتخاب مدل"
                                 className="input-style"
                             >
                                 {modelOptions.map((model) => (
@@ -185,7 +185,7 @@ const LlmTab = ({
                 </Box>
 
                 <Box>
-                    <Tooltip content="Secondary model for tasks requiring different capabilities or for comparison">
+                    <Tooltip content="مدل ثانویه برای کارهای با قابلیت متفاوت یا مقایسه">
                         <Text fontSize="sm" mb="1" fontWeight={"bold"}>
                             Secondary Model
                         </Text>
@@ -208,7 +208,7 @@ const LlmTab = ({
                                         e.target.value,
                                     )
                                 }
-                                placeholder="Select model"
+                                placeholder="انتخاب مدل"
                                 className="input-style"
                             >
                                 {modelOptions.map((model) => (
@@ -223,7 +223,7 @@ const LlmTab = ({
                 </Box>
 
                 <Box>
-                    <Tooltip content="Choose how PDFs/images are handled: visual LLM, OCR fallback, or automatic selection">
+                    <Tooltip content="نحوه پردازش PDF و تصویر را انتخاب کنید: مدل زبانی تصویری، جایگزین OCR یا انتخاب خودکار">
                         <Text fontSize="sm" mb="1" fontWeight={"bold"}>
                             Document/Image Processing Mode
                         </Text>
@@ -245,8 +245,8 @@ const LlmTab = ({
                             <option value="auto">
                                 Auto (prefer visual if available)
                             </option>
-                            <option value="vision">Vision only</option>
-                            <option value="ocr">OCR only</option>
+                            <option value="vision">فقط تصویری</option>
+                            <option value="ocr">فقط OCR</option>
                         </NativeSelect.Field>
                         <NativeSelect.Indicator />
                     </NativeSelect.Root>
@@ -258,7 +258,7 @@ const LlmTab = ({
                 </Box>
 
                 <Box>
-                    <Tooltip content="Send a tiny test image to check whether the selected endpoint/model accepts image inputs">
+                    <Tooltip content="ارسال یک تصویر آزمایشی کوچک برای بررسی پشتیبانی نقطه پایانی یا مدل انتخاب‌شده از تصویر">
                         <Text fontSize="sm" mb="1" fontWeight={"bold"}>
                             Vision Capability Probe
                         </Text>
@@ -284,8 +284,8 @@ const LlmTab = ({
                         >
                             {currentVisionCapability
                                 ? currentVisionCapability.vision_capable
-                                    ? "Vision capable"
-                                    : "Not vision-capable"
+                                    ? "دارای قابلیت تصویری"
+                                    : "بدون قابلیت تصویری"
                                     : "Unknown"}
                         </Badge>
                     </HStack>

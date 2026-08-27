@@ -11,9 +11,23 @@ import pytest
 # Import the public functions from the transcription module
 from server.transcription import (
     _detect_audio_format,
+    normalize_persian_text,
     process_transcription,
+    resolve_asr_language,
     transcribe_audio,
 )
+
+
+def test_persian_normalization_preserves_mixed_medical_text():
+    assert normalize_persian_text("بيمار كبد چرب HbA1c 7.2٪") == "بیمار کبد چرب HbA1c 7.2٪"
+
+
+def test_resolve_asr_language_defaults_to_mixed_auto():
+    assert resolve_asr_language({}) == "auto"
+    assert resolve_asr_language({"ASR_LANGUAGE": "fa"}) == "fa"
+    assert resolve_asr_language({"ASR_LANGUAGE": "fa-en"}) == "auto"
+    # Older installations use the WHISPER_LANGUAGE compatibility key.
+    assert resolve_asr_language({"WHISPER_LANGUAGE": "en"}) == "en"
 
 
 # A simple asynchronous test for transcribe_audio
@@ -53,6 +67,46 @@ async def test_transcribe_audio():
             assert "text" in result
             assert result["text"] == "Transcribed text"
             assert "transcriptionDuration" in result
+            request_data = mock_client.post.call_args.kwargs["data"]
+            assert request_data["task"] == "transcribe"
+            assert "language" not in request_data  # auto keeps mixed-language detection enabled
+
+
+@pytest.mark.asyncio
+async def test_transcribe_audio_uses_canonical_persian_asr_configuration():
+    fake_config = {
+        "ASR_BASE_URL": "http://fake-asr/v1",
+        "ASR_MODEL": "multilingual-asr",
+        "ASR_KEY": "fake-key",
+        "ASR_LANGUAGE": "fa-IR",
+        "LLM_PROVIDER": "external",
+    }
+
+    from server.database.config.manager import config_manager
+
+    with patch.object(config_manager, "get_config", return_value=fake_config):
+        fake_response = MagicMock(spec=httpx.Response)
+        fake_response.status_code = 200
+        fake_response.json.return_value = {"text": "بیمار HbA1c هفت دارد"}
+        fake_response.text = '{"text": "بیمار HbA1c هفت دارد"}'
+
+        mock_client = AsyncMock()
+        mock_client.post.return_value = fake_response
+        mock_client.__aenter__ = AsyncMock(return_value=mock_client)
+        mock_client.__aexit__ = AsyncMock(return_value=False)
+
+        with (
+            patch("server.transcription.audio._detect_audio_format", return_value=("recording.wav", "audio/wav")),
+            patch("httpx.AsyncClient", return_value=mock_client),
+        ):
+            result = await transcribe_audio(b"fake audio data")
+
+        assert result["text"] == "بیمار HbA1c هفت دارد"
+        request_data = mock_client.post.call_args.kwargs["data"]
+        assert request_data["model"] == "multilingual-asr"
+        assert request_data["task"] == "transcribe"
+        assert request_data["language"] == "fa"
+        assert mock_client.post.call_args.args[0] == "http://fake-asr/v1/audio/transcriptions"
 
 
 # Test process_transcription with no non-persistent fields.

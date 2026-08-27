@@ -236,6 +236,21 @@ export const useLocalModels = () => {
     [fetchWhisperModels],
   );
 
+  // Select the local ASR model and restart the matching sidecar when needed.
+  const selectWhisperModel = useCallback(
+    async (modelId) => {
+      await localModelApi.selectWhisperModel(modelId);
+      await fetchWhisperStatus();
+      try {
+        await localModelApi.restartWhisperServer();
+      } catch (error) {
+        // Shenava is executed by the Python ASR adapter and has no C++ sidecar.
+        console.debug("ASR sidecar restart skipped:", error);
+      }
+    },
+    [fetchWhisperStatus],
+  );
+
   // Delete Whisper model
   const deleteWhisperModel = useCallback(
     async (modelId) => {
@@ -332,6 +347,7 @@ export const useLocalModels = () => {
 
     // Whisper actions
     downloadWhisperModel,
+    selectWhisperModel,
     deleteWhisperModel,
     restartWhisperServer: () => localModelApi.restartWhisperServer(),
   };

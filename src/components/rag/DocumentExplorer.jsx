@@ -60,7 +60,7 @@ const DocumentExplorer = ({
             } catch (error) {
                 console.error("Error fetching collection:", error);
                 toaster.create({
-                    title: "Error",
+                    title: "خطا",
                     description: "Error fetching collection files",
                     type: "error",
                     duration: 3000,
@@ -75,7 +75,7 @@ const DocumentExplorer = ({
                 .renameCollection(oldName, newName)
                 .then(() => {
                     toaster.create({
-                        title: "Success",
+                        title: "موفق",
                         description: `Successfully renamed to ${newName}`,
                         type: "success",
                         duration: 3000,
@@ -94,7 +94,7 @@ const DocumentExplorer = ({
                             );
                         } catch {
                             toaster.create({
-                                title: "Error",
+                                title: "خطا",
                                 description:
                                     "Error fetching updated collection list",
                                 type: "error",
@@ -107,7 +107,7 @@ const DocumentExplorer = ({
                 .catch((error) => {
                     console.error("Error renaming collection:", error);
                     toaster.create({
-                        title: "Error",
+                        title: "خطا",
                         description: "Failed to rename collection",
                         type: "error",
                         duration: 3000,
@@ -130,7 +130,7 @@ const DocumentExplorer = ({
         } catch (error) {
             console.error("Error downloading PDF:", error);
             toaster.create({
-                title: "Error",
+                title: "خطا",
                 description: "Failed to download PDF",
                 type: "error",
                 duration: 3000,
@@ -143,7 +143,7 @@ const DocumentExplorer = ({
                 <Flex align="center">
                     <IconButton
                         onClick={() => setIsCollapsed(!isCollapsed)}
-                        aria-label="Toggle collapse"
+                        aria-label="باز و بسته کردن بخش"
                         variant="outline"
                         size="sm"
                         mr="2"
@@ -157,7 +157,7 @@ const DocumentExplorer = ({
                     </IconButton>
                     <HStack gap={2}>
                         <MdOutlineFolderCopy size="1.2em" />
-                        <Text as="h3">Document Explorer</Text>
+                        <Text as="h3">مرورگر اسناد</Text>
                     </HStack>
                 </Flex>
             </Flex>
@@ -180,7 +180,7 @@ const DocumentExplorer = ({
                                             _hover={{ bg: "surfaceMuted" }}
                                         >
                                             <Tooltip
-                                                content="Toggle collection"
+                                                content="تغییر وضعیت مجموعه"
                                                 showArrow
                                             >
                                                 <IconButton
@@ -189,7 +189,7 @@ const DocumentExplorer = ({
                                                             collection.name,
                                                         )
                                                     }
-                                                    aria-label="Toggle collection"
+                                                    aria-label="تغییر وضعیت مجموعه"
                                                     variant="ghost"
                                                     size="sm"
                                                     mr="2"
@@ -225,11 +225,11 @@ const DocumentExplorer = ({
                                             </Text>
                                             <Flex ml="auto">
                                                 <Tooltip
-                                                    content="Rename collection"
+                                                    content="تغییر نام مجموعه"
                                                     showArrow
                                                 >
                                                     <IconButton
-                                                        aria-label="Rename collection"
+                                                        aria-label="تغییر نام مجموعه"
                                                         onClick={() => {
                                                             const newName =
                                                                 prompt(
@@ -249,11 +249,11 @@ const DocumentExplorer = ({
                                                     </IconButton>
                                                 </Tooltip>
                                                 <Tooltip
-                                                    content="Delete collection"
+                                                    content="حذف مجموعه"
                                                     showArrow
                                                 >
                                                     <IconButton
-                                                        aria-label="Delete collection"
+                                                        aria-label="حذف مجموعه"
                                                         onClick={() =>
                                                             setItemToDelete({
                                                                 type: "collection",
@@ -389,11 +389,11 @@ const DocumentExplorer = ({
                                                                             )}
                                                                             {hasPdf && (
                                                                                 <Tooltip
-                                                                                    content="Download PDF"
+                                                                                    content="دانلود PDF"
                                                                                     showArrow
                                                                                 >
                                                                                     <IconButton
-                                                                                        aria-label="Download PDF"
+                                                                                        aria-label="دانلود PDF"
                                                                                         onClick={() =>
                                                                                             handleDownloadPdf(
                                                                                                 collection.name,
@@ -410,11 +410,11 @@ const DocumentExplorer = ({
                                                                                 </Tooltip>
                                                                             )}
                                                                             <Tooltip
-                                                                                content="Delete file"
+                                                                                content="حذف فایل"
                                                                                 showArrow
                                                                             >
                                                                                 <IconButton
-                                                                                    aria-label="Delete file"
+                                                                                    aria-label="حذف فایل"
                                                                                     onClick={() =>
                                                                                         setItemToDelete(
                                                                                             {

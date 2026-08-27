@@ -5,7 +5,7 @@ import { colors } from "../../theme/colors";
 
 /**
  * Shared floating panel wrapper with consistent positioning and optional speech bubble arrow.
- * Used by all floating panels (Chat, Letter, Document, etc.)
+ * استفادهd by all floating panels (Chat, Letter, Document, etc.)
  *
  * @param {boolean} isOpen - Whether the panel is visible
  * @param {string} position - "left-of-fab" (right side) or "bottom-center" (above ScribePillBox)

@@ -16,7 +16,7 @@ const UploadTemplateModal = ({ isOpen, onClose, onCreated }) => {
     const selected = e.target.files?.[0];
     if (selected && !selected.name.toLowerCase().endsWith(".pdf")) {
       toaster.create({
-        title: "Invalid file",
+        title: "فایل نامعتبر است",
         description: "Please select a PDF file",
         type: "error",
         duration: 2000,
@@ -54,7 +54,7 @@ const UploadTemplateModal = ({ isOpen, onClose, onCreated }) => {
 
       const template = await pdfFormsApi.uploadTemplate(formData);
       toaster.create({
-        title: "Template created",
+        title: "قالب ایجاد شد",
         description: `"${name}" uploaded (${pageCount} page${pageCount !== 1 ? "s" : ""})`,
         type: "success",
         duration: 2000,
@@ -63,7 +63,7 @@ const UploadTemplateModal = ({ isOpen, onClose, onCreated }) => {
       handleClose();
     } catch (error) {
       toaster.create({
-        title: "Upload failed",
+        title: "بارگذاری ناموفق بود",
         description: error.message,
         type: "error",
         duration: 3000,
@@ -92,7 +92,7 @@ const UploadTemplateModal = ({ isOpen, onClose, onCreated }) => {
         <Dialog.Positioner>
           <Dialog.Content>
             <Dialog.Header>
-              <Text as="h3">New Form Template</Text>
+              <Text as="h3">قالب فرم جدید</Text>
             </Dialog.Header>
             <Dialog.Body>
               <VStack gap="4">
@@ -101,7 +101,7 @@ const UploadTemplateModal = ({ isOpen, onClose, onCreated }) => {
                     Template Name
                   </Text>
                   <Input
-                    placeholder="e.g. Referral Form"
+                    placeholder="مثلاً فرم ارجاع"
                     value={name}
                     onChange={(e) => setName(e.target.value)}
                     className="input-style"

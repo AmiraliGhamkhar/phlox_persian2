@@ -46,7 +46,7 @@ export const ServerConnectionCheck = ({ children }) => {
         <VStack gap={4}>
           <Spinner size="xl" color="primaryButton" />
           <Text fontSize="lg" fontWeight="medium">
-            Initializing...
+            در حال راه‌اندازی...
           </Text>
         </VStack>
       </Box>

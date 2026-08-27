@@ -98,10 +98,14 @@ const ModelSettingsPanel = ({
     const handleInferenceTypeChange = (isLocal) => {
         if (isLocal) {
             handleConfigChange("LLM_PROVIDER", "local");
+            handleConfigChange("ASR_PROVIDER", "local");
+            handleConfigChange("ASR_BASE_URL", "");
             handleConfigChange("WHISPER_BASE_URL", "");
-            handleConfigChange("WHISPER_MODEL", "whisper-1");
+            handleConfigChange("ASR_MODEL", "whisper-large-v3-turbo-q5_0");
+            handleConfigChange("WHISPER_MODEL", "whisper-large-v3-turbo-q5_0");
         } else {
             handleConfigChange("LLM_PROVIDER", "openai");
+            handleConfigChange("ASR_PROVIDER", "openai_compatible");
         }
     };
 
@@ -111,7 +115,7 @@ const ModelSettingsPanel = ({
                 <Flex align="center">
                     <IconButton
                         onClick={() => setIsCollapsed(!isCollapsed)}
-                        aria-label="Toggle collapse"
+                        aria-label="باز و بسته کردن بخش"
                         variant="outline"
                         size="sm"
                         mr="2"
@@ -124,7 +128,7 @@ const ModelSettingsPanel = ({
                         )}
                     </IconButton>
                     <FaCog size="1.2em" style={{ marginRight: "5px" }} />
-                    <Text as="h3">Model Settings</Text>
+                    <Text as="h3">تنظیمات مدل</Text>
                 </Flex>
             </Flex>
             <Collapsible.Root open={!isCollapsed}>
@@ -133,7 +137,7 @@ const ModelSettingsPanel = ({
                         {/* Inference Type Selection - Desktop (Tauri) only and not in Docker */}
                         {isTauri() && !isDocker && (
                             <Box>
-                                <Tooltip content="Choose between running models locally on your machine or connecting to remote API services">
+                                <Tooltip content="انتخاب اجرای محلی مدل‌ها یا اتصال به سرویس‌های API راه‌دور">
                                     <Text
                                         fontSize="md"
                                         fontWeight="bold"
@@ -161,7 +165,7 @@ const ModelSettingsPanel = ({
                                         position="relative"
                                         zIndex={1}
                                     >
-                                        <Tooltip content="Run models directly on your machine using bundled inference engines">
+                                        <Tooltip content="اجرای مستقیم مدل‌ها روی دستگاه با موتورهای استنتاج داخلی">
                                             <Button
                                                 className={`mode-selector-button ${isLocalInference ? "active" : ""}`}
                                                 onClick={() =>
@@ -178,7 +182,7 @@ const ModelSettingsPanel = ({
                                                 Local
                                             </Button>
                                         </Tooltip>
-                                        <Tooltip content="Connect to external OpenAI/Ollama-compatible APIs">
+                                        <Tooltip content="اتصال به APIهای خارجی سازگار با OpenAI/Ollama">
                                             <Button
                                                 className={`mode-selector-button ${!isLocalInference ? "active" : ""}`}
                                                 onClick={() =>
@@ -202,25 +206,25 @@ const ModelSettingsPanel = ({
                                 defaultValue="0"
                             >
                                 <Tabs.List>
-                                    <Tooltip content="Manage local LLM and Whisper models">
+                                    <Tooltip content="مدیریت مدل‌های زبانی و ASR محلی">
                                         <Tabs.Trigger
                                             className="tab-style"
                                             value="0"
                                         >
                                             <HStack>
                                                 <FaDesktop />
-                                                <Text>Models</Text>
+                                                <Text>مدل‌ها</Text>
                                             </HStack>
                                         </Tabs.Trigger>
                                     </Tooltip>
-                                    <Tooltip content="Configure external tool servers">
+                                    <Tooltip content="پیکربندی سرورهای ابزار خارجی">
                                         <Tabs.Trigger
                                             className="tab-style"
                                             value="1"
                                         >
                                             <HStack>
                                                 <FaPuzzlePiece />
-                                                <Text>Tools</Text>
+                                                <Text>ابزارها</Text>
                                             </HStack>
                                         </Tabs.Trigger>
                                     </Tooltip>
@@ -244,49 +248,49 @@ const ModelSettingsPanel = ({
                                 defaultValue="0"
                             >
                                 <Tabs.List>
-                                    <Tooltip content="Configure speech-to-text service settings">
+                                    <Tooltip content="پیکربندی سرویس تشخیص گفتار">
                                         <Tabs.Trigger
                                             className="tab-style"
                                             value="0"
                                         >
                                             <HStack>
                                                 <FaMicrophone />
-                                                <Text>Whisper</Text>
+                                                <Text>تشخیص گفتار</Text>
                                             </HStack>
                                         </Tabs.Trigger>
                                     </Tooltip>
-                                    <Tooltip content="Configure large language model provider settings">
+                                    <Tooltip content="پیکربندی ارائه‌دهنده مدل زبانی">
                                         <Tabs.Trigger
                                             className="tab-style"
                                             value="1"
                                         >
                                             <HStack>
                                                 <FaBrain />
-                                                <Text>LLM</Text>
+                                                <Text>مدل زبانی</Text>
                                             </HStack>
                                         </Tabs.Trigger>
                                     </Tooltip>
                                     {isRagEnabled() && (
-                                        <Tooltip content="Configure knowledge base embedding model">
+                                        <Tooltip content="پیکربندی مدل بردارسازی پایگاه دانش">
                                             <Tabs.Trigger
                                                 className="tab-style"
                                                 value="2"
                                             >
                                                 <HStack>
                                                     <FaDatabase />
-                                                    <Text>RAG</Text>
+                                                    <Text>پایگاه دانش</Text>
                                                 </HStack>
                                             </Tabs.Trigger>
                                         </Tooltip>
                                     )}
-                                    <Tooltip content="Configure external tool servers">
+                                    <Tooltip content="پیکربندی سرورهای ابزار خارجی">
                                         <Tabs.Trigger
                                             className="tab-style"
                                             value="3"
                                         >
                                             <HStack>
                                                 <FaPuzzlePiece />
-                                                <Text>Tools</Text>
+                                                <Text>ابزارها</Text>
                                             </HStack>
                                         </Tabs.Trigger>
                                     </Tooltip>

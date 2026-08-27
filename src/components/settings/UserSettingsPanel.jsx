@@ -10,17 +10,17 @@ import { isChatEnabled } from "../../utils/helpers/featureFlags";
 const ADVANCED_OPTIONS_SCHEMA = [
   {
     key: "store_original_pdfs",
-    label: "Store Original PDFs",
+    label: "ذخیره PDFهای اصلی",
     description:
-      "Keep original PDF files in the database after upload. Increases storage usage.",
+      "پس از بارگذاری، فایل‌های اصلی PDF را در پایگاه داده نگه می‌دارد و فضای بیشتری مصرف می‌کند.",
     type: "boolean",
     defaultValue: false,
   },
   {
     key: "require_scribe_consent",
-    label: "Require patient consent for ambient scribing",
+    label: "نیاز به رضایت بیمار برای ثبت محیطی",
     description:
-      "Prompt each patient for consent before ambient (transcription) recording. Dictation is unaffected; consent is remembered per patient.",
+      "پیش از ضبط محیطی از هر بیمار رضایت می‌گیرد. دیکته تحت تأثیر نیست و رضایت برای هر بیمار ذخیره می‌شود.",
     type: "boolean",
     defaultValue: false,
   },
@@ -63,13 +63,13 @@ const UserSettingsPanel = ({
         <Flex align="center">
           <IconButton
             onClick={() => setIsCollapsed(!isCollapsed)}
-            aria-label="Toggle collapse"
+            aria-label="باز و بسته کردن بخش"
             variant="outline"
             size="sm"
             mr="2"
             className="collapse-toggle">{isCollapsed ? <ChevronRightIcon /> : <ChevronDownIcon />}</IconButton>
           <FaUser size="1.2em" style={{ marginRight: "5px" }} />
-          <Text as="h3">User Settings</Text>
+          <Text as="h3">تنظیمات کاربر</Text>
         </Flex>
       </Flex>
       <Collapsible.Root open={!isCollapsed}>
@@ -79,33 +79,33 @@ const UserSettingsPanel = ({
               <Tabs.Trigger className="tab-style" value="0">
                 <HStack>
                   <FaUser />
-                  <Text>General</Text>
+                  <Text>عمومی</Text>
                 </HStack>
               </Tabs.Trigger>
               <Tabs.Trigger className="tab-style" value="2">
                 <HStack>
                   <FaFileAlt />
-                  <Text>Note Templates</Text>
+                  <Text>قالب‌های یادداشت</Text>
                 </HStack>
               </Tabs.Trigger>
               <Tabs.Trigger className="tab-style" value="3">
                 <HStack>
                   <FaEnvelopeOpenText />
-                  <Text>Letter Templates</Text>
+                  <Text>قالب‌های نامه</Text>
                 </HStack>
               </Tabs.Trigger>
               {isChatEnabled() && (
                 <Tabs.Trigger className="tab-style" value="4">
                   <HStack>
                     <FaComments />
-                    <Text>Quick Chat</Text>
+                    <Text>گفت‌وگوی سریع</Text>
                   </HStack>
                 </Tabs.Trigger>
               )}
               <Tabs.Trigger className="tab-style" value="1">
                 <HStack>
                   <FaCog />
-                  <Text>Advanced</Text>
+                  <Text>پیشرفته</Text>
                 </HStack>
               </Tabs.Trigger>
             </Tabs.List>
@@ -126,7 +126,7 @@ const UserSettingsPanel = ({
                         }))
                       }
                       className="input-style"
-                      placeholder="Enter your name"
+                      placeholder="نام خود را وارد کنید"
                     />
                   </Box>
                   <Box>
@@ -144,7 +144,7 @@ const UserSettingsPanel = ({
                           }))
                         }
                         className="input-style"
-                        placeholder="Select your specialty">
+                        placeholder="تخصص خود را انتخاب کنید">
                         {specialties.map((specialty) => (
                           <option key={specialty} value={specialty}>
                             {specialty}
@@ -164,7 +164,7 @@ const UserSettingsPanel = ({
                         value={userSettings.default_template || ""}
                         onChange={(e) => handleDefaultTemplateChange(e.target.value)}
                         className="input-style"
-                        placeholder="Select default template">
+                        placeholder="قالب پیش‌فرض را انتخاب کنید">
                         {/* Change this part to map over templates array correctly */}
                         {templates.map((template) => (
                           <option
@@ -180,7 +180,7 @@ const UserSettingsPanel = ({
                   </Field.Root>
                   <Field.Root>
                     <Field.Label fontSize="sm" fontWeight={"bold"}>
-                      Default Letter Template
+                      قالب پیش‌فرض نامه
                     </Field.Label>
                     <NativeSelect.Root>
                       <NativeSelect.Field
@@ -190,7 +190,7 @@ const UserSettingsPanel = ({
                           handleDefaultLetterTemplateChange(e.target.value)
                         }
                         className="input-style"
-                        placeholder="Select default letter template">
+                        placeholder="قالب پیش‌فرض نامه را انتخاب کنید">
                         {letterTemplates.map((template) => (
                           <option key={template.id} value={template.id}>
                             {template.name}
@@ -204,8 +204,8 @@ const UserSettingsPanel = ({
               </Tabs.Content>
               <Tabs.Content value="1" className="floating-main">
                 <Text fontSize="sm" mb={4} className="pill-box-icons">
-                  These options are intended for advanced users. Changing them may
-                  affect storage or performance.
+                  این گزینه‌ها برای کاربران پیشرفته هستند و تغییرشان ممکن است
+                  بر فضای ذخیره‌سازی یا عملکرد اثر بگذارد.
                 </Text>
                 <VStack gap={3} align="stretch">
                   {ADVANCED_OPTIONS_SCHEMA.map((option) => (

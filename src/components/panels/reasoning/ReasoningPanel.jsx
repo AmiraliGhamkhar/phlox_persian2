@@ -59,15 +59,15 @@ const ReasoningPanel = forwardRef(
                     >
                         <Flex align="center">
                             <FaAtom size="1em" style={{ marginRight: "8px" }} />
-                            <Text fontWeight="bold">Chart Insights</Text>
+                            <Text fontWeight="bold">بینش‌های نمودار</Text>
                         </Flex>
                         {reasoning && (
-                            <Tooltip content="Regenerate reasoning">
+                            <Tooltip content="تولید دوباره استدلال">
                                 <Button
                                     onClick={handleGenerateReasoning}
                                     loading={loading}
                                     size="xs"
-                                    className="orange-button"><FaSync size="10px" />Regenerate
+                                    className="orange-button"><FaSync size="10px" />تولید دوباره
                                                                     </Button>
                             </Tooltip>
                         )}

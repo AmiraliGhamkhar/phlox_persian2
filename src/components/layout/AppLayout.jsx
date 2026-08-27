@@ -19,9 +19,9 @@ const AppLayout = ({
                     onClick={toggleSidebar}
                     position="fixed"
                     top="6"
-                    left="6"
+                    right="6"
                     zIndex="101"
-                    aria-label="Toggle sidebar"
+                    aria-label="تغییر وضعیت نوار کناری"
                     className="dark-toggle"
                 >
                     <CollapseIcon />
@@ -30,9 +30,9 @@ const AppLayout = ({
             <Sidebar {...sidebarProps} />
             <Box
                 flex="1"
-                ml={isSmallScreen ? "0" : sidebarOffset(isCollapsed, isTauri())}
+                mr={isSmallScreen ? "0" : sidebarOffset(isCollapsed, isTauri())}
                 minH="100dvh"
-                transition="margin-left 0.3s ease"
+                transition="margin-right 0.3s ease"
                 bg={isTauri() ? "base" : "transparent"}
                 display="flex"
                 flexDirection="column"
@@ -44,10 +44,10 @@ const AppLayout = ({
                         height="25px"
                         position="fixed"
                         top="0"
-                        right="0"
-                        left={isSmallScreen ? "0" : sidebarOffset(isCollapsed, true)}
+                        left="0"
+                        right={isSmallScreen ? "0" : sidebarOffset(isCollapsed, true)}
                         zIndex="1000"
-                        transition="left 0.3s ease"
+                        transition="right 0.3s ease"
                     />
                 )}
 

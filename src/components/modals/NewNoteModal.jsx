@@ -45,7 +45,7 @@ const NewNoteModal = ({
         const q = (query || "").trim();
         if (!q) {
             toaster.create({
-                title: "Enter a UR number or name",
+                title: "شماره پرونده یا نام را وارد کنید",
                 description:
                     "Type a UR number or patient name, then click search.",
                 type: "warning",
@@ -61,8 +61,8 @@ const NewNoteModal = ({
                     setView("results");
                 } else {
                     toaster.create({
-                        title: "No patient found",
-                        description: `No patient matches "${q}". Fill in their details to create a new record.`,
+                        title: "بیماری پیدا نشد",
+                        description: `بیماری با «${q}» پیدا نشد. برای ایجاد پرونده جدید، جزئیات او را وارد کنید.`,
                         type: "info",
                         ...DEFAULT_TOAST_CONFIG,
                     });
@@ -70,8 +70,8 @@ const NewNoteModal = ({
             })
             .catch(() => {
                 toaster.create({
-                    title: "Search failed",
-                    description: "Couldn't search patients. Please try again.",
+                    title: "جست‌وجو ناموفق بود",
+                    description: "جست‌وجوی بیماران ممکن نبود. لطفاً دوباره تلاش کنید.",
                     type: "error",
                     duration: 3000,
                 });
@@ -85,8 +85,8 @@ const NewNoteModal = ({
             .then(() => onComplete({ cameFromSearch: true }))
             .catch(() => {
                 toaster.create({
-                    title: "Couldn't load patient",
-                    description: "Please try again.",
+                    title: "بارگذاری بیمار ممکن نبود",
+                    description: "لطفاً دوباره تلاش کنید.",
                     type: "error",
                     duration: 3000,
                 });
@@ -107,8 +107,8 @@ const NewNoteModal = ({
             })
             .catch(() => {
                 toaster.create({
-                    title: "Couldn't start new patient",
-                    description: "Please try again.",
+                    title: "شروع بیمار جدید ممکن نبود",
+                    description: "لطفاً دوباره تلاش کنید.",
                     type: "error",
                     duration: 3000,
                 });
@@ -117,12 +117,12 @@ const NewNoteModal = ({
 
     const subtitle =
         view === "search"
-            ? "Enter a UR number or name to find an existing patient."
+            ? "برای یافتن بیمار موجود، شماره پرونده یا نام را وارد کنید."
             : view === "results"
-              ? "Confirm the patient to start a new visit."
+              ? "برای شروع ویزیت جدید، بیمار را تأیید کنید."
               : view === "new-patient"
-                ? "Enter the patient's details to create a new record."
-                : "Find an existing patient to start a new visit, or create a new patient record.";
+                ? "برای ایجاد پرونده جدید، جزئیات بیمار را وارد کنید."
+                : "برای شروع ویزیت جدید، بیمار موجود را پیدا کنید یا پرونده بیمار جدیدی ایجاد کنید.";
 
     return (
         <Dialog.Root
@@ -147,7 +147,7 @@ const NewNoteModal = ({
                                     fontFamily: '"Space Grotesk", sans-serif',
                                 }}
                             >
-                                New encounter
+                                ویزیت جدید
                             </Heading>
                         </Dialog.Header>
                         <Dialog.CloseTrigger />
@@ -170,16 +170,16 @@ const NewNoteModal = ({
                                     <Flex gap={3} mb={2}>
                                         <PathHalf
                                             icon={FaUserPlus}
-                                            title="New patient"
-                                            subtitle="Create a new record"
+                                            title="بیمار جدید"
+                                            subtitle="ایجاد پرونده جدید"
                                             accent="primaryButton"
                                             tileBg="tile"
                                             onClick={handleNewPatient}
                                         />
                                         <PathHalf
                                             icon={FaSearch}
-                                            title="Search"
-                                            subtitle="Existing patient"
+                                            title="جست‌وجو"
+                                            subtitle="بیمار موجود"
                                             accent="secondaryButton"
                                             tileBg="tile"
                                             onClick={() => setView("search")}
@@ -197,7 +197,7 @@ const NewNoteModal = ({
                                                     onSearch={handleFind}
                                                     isLoading={isSearchLoading}
                                                     autoFocus
-                                                    placeholder="UR number or name"
+                                                    placeholder="شماره پرونده یا نام"
                                                 />
                                             </form>
                                         </Flex>
@@ -212,7 +212,7 @@ const NewNoteModal = ({
                                             onClick={() => setView("choose")}
                                         >
                                             <FaArrowLeft />
-                                            Back
+                                            بازگشت
                                         </Button>
                                     </Box>
                                 ) : view === "results" ? (
@@ -248,7 +248,7 @@ const NewNoteModal = ({
                                             onClick={() => setView("search")}
                                         >
                                             <FaArrowLeft />
-                                            Back
+                                            بازگشت
                                         </Button>
                                     </Box>
                                 ) : (
@@ -258,7 +258,7 @@ const NewNoteModal = ({
                                         setPatient={setDraftPatient}
                                         onSaved={commitNewPatient}
                                         onCancel={() => setView("choose")}
-                                        cancelLabel="Back"
+                                        cancelLabel="بازگشت"
                                         cancelIcon={<FaArrowLeft />}
                                     />
                                 )}

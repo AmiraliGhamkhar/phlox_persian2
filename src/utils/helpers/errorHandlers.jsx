@@ -1,6 +1,7 @@
 // Functions to handle and format API errors.
 import { toaster } from "@/components/ui/toaster";
 import { DEFAULT_TOAST_CONFIG } from "../constants";
+import { translatePersian } from "@/i18n/fa";
 
 export class ApiError extends Error {
     constructor(message, status) {
@@ -15,15 +16,15 @@ export const handleError = (error) => {
 
     if (error instanceof ApiError) {
         toaster.create({
-            title: `Error ${error.status}`,
-            description: error.message,
+            title: `${translatePersian("Error")} ${error.status}`,
+            description: translatePersian(error.message),
             type: "error",
             ...DEFAULT_TOAST_CONFIG,
         });
     } else {
         toaster.create({
-            title: "Error",
-            description: "An unexpected error occurred",
+            title: translatePersian("Error"),
+            description: translatePersian("An unexpected error occurred"),
             type: "error",
             ...DEFAULT_TOAST_CONFIG,
         });
@@ -32,8 +33,8 @@ export const handleError = (error) => {
 
 export const toastApiError = (description, title = "Error") => {
     toaster.create({
-        title,
-        description,
+        title: translatePersian(title),
+        description: translatePersian(description),
         type: "error",
         ...DEFAULT_TOAST_CONFIG,
     });
@@ -41,8 +42,8 @@ export const toastApiError = (description, title = "Error") => {
 
 export const toastApiSuccess = (description, title = "Success") => {
     toaster.create({
-        title,
-        description,
+        title: translatePersian(title),
+        description: translatePersian(description),
         type: "success",
         ...DEFAULT_TOAST_CONFIG,
     });

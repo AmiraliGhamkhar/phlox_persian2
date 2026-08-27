@@ -12,8 +12,7 @@ const ChatSettingsPanel = ({ userSettings, setUserSettings }) => {
     return (
         <VStack gap={2} align="stretch">
             <Text fontSize="xs" className="pill-box-icons">
-                Configure the quick chat buttons that appear in the chat
-                interface.
+                دکمه‌های گفت‌وگوی سریع را که در رابط گفت‌وگو نمایش داده می‌شوند پیکربندی کنید.
             </Text>
             <HStack gap={2}>
                 <Text
@@ -22,10 +21,10 @@ const ChatSettingsPanel = ({ userSettings, setUserSettings }) => {
                     fontWeight="medium"
                     w="40%"
                 >
-                    Button Text
+                    متن دکمه
                 </Text>
                 <Text fontSize="xs" color="overlay0" fontWeight="medium" flex="1">
-                    Prompt
+                    دستور
                 </Text>
             </HStack>
             {[1, 2, 3].map((n) => (
@@ -37,7 +36,7 @@ const ChatSettingsPanel = ({ userSettings, setUserSettings }) => {
                     >
                         <Input
                             className="input-style quick-chat-title-input"
-                            placeholder="Button text"
+                            placeholder="متن دکمه"
                             value={
                                 userSettings[`quick_chat_${n}_title`] || ""
                             }
@@ -53,7 +52,7 @@ const ChatSettingsPanel = ({ userSettings, setUserSettings }) => {
                         size="sm"
                         flex="1"
                         className="input-style"
-                        placeholder="Prompt sent to AI"
+                        placeholder="دستور ارسال‌شده به هوش مصنوعی"
                         value={
                             userSettings[`quick_chat_${n}_prompt`] || ""
                         }

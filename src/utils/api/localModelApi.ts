@@ -129,78 +129,92 @@ export const localModelApi = {
       errorMessage: "Failed to get selected model",
     }),
 
-  // Whisper model management
+  // ASR model management
   fetchWhisperModels: async () =>
     handleApiRequest({
       apiCall: async () => {
         const url = await buildApiUrl(
-          "/api/config/local/whisper/models/downloaded",
+          "/api/config/local/asr/models/downloaded",
         );
         return universalFetch(url);
       },
-      errorMessage: "Failed to fetch Whisper models",
+      errorMessage: "Failed to fetch ASR models",
     }),
 
   fetchDownloadedWhisperModels: async () =>
     handleApiRequest({
       apiCall: async () => {
         const url = await buildApiUrl(
-          "/api/config/local/whisper/models/downloaded",
+          "/api/config/local/asr/models/downloaded",
         );
         return universalFetch(url);
       },
-      errorMessage: "Failed to fetch downloaded Whisper models",
+      errorMessage: "Failed to fetch downloaded ASR models",
     }),
 
   fetchAvailableWhisperModels: async () =>
     handleApiRequest({
       apiCall: async () => {
         const url = await buildApiUrl(
-          "/api/config/local/whisper/models/available",
+          "/api/config/local/asr/models/available",
         );
         return universalFetch(url);
       },
-      errorMessage: "Failed to fetch available Whisper models",
+      errorMessage: "Failed to fetch available ASR models",
     }),
 
   fetchWhisperRecommendations: async () =>
     handleApiRequest({
       apiCall: async () => {
         const url = await buildApiUrl(
-          "/api/config/local/whisper/model-recommendations",
+          "/api/config/local/asr/model-recommendations",
         );
         return universalFetch(url);
       },
-      errorMessage: "Failed to fetch Whisper model recommendations",
+      errorMessage: "Failed to fetch ASR model recommendations",
     }),
 
   streamDownloadWhisperModel: async function* (modelId) {
     const baseUrl = await buildApiUrl("");
-    const url = `${baseUrl}/api/config/local/whisper/models/download/stream?model_id=${encodeURIComponent(modelId)}`;
+    const url = `${baseUrl}/api/config/local/asr/models/download/stream?model_id=${encodeURIComponent(modelId)}`;
     yield* this.streamSSE(url);
   },
+
+  selectWhisperModel: async (modelId) =>
+    handleApiRequest({
+      apiCall: async () => {
+        const url = await buildApiUrl("/api/config/local/asr/models/select");
+        return universalFetch(url, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ model_id: modelId }),
+        });
+      },
+      successMessage: "ASR model selected",
+      errorMessage: "Failed to select ASR model",
+    }),
 
   deleteWhisperModel: async (modelId) =>
     handleApiRequest({
       apiCall: async () => {
         const url = await buildApiUrl(
-          `/api/config/local/whisper/models/${modelId}`,
+          `/api/config/local/asr/models/${modelId}`,
         );
         return universalFetch(url, {
           method: "DELETE",
         });
       },
-      successMessage: "Whisper model deleted successfully",
-      errorMessage: "Failed to delete Whisper model",
+      successMessage: "ASR model deleted successfully",
+      errorMessage: "Failed to delete ASR model",
     }),
 
   fetchWhisperStatus: async () =>
     handleApiRequest({
       apiCall: async () => {
-        const url = await buildApiUrl("/api/config/local/whisper/status");
+        const url = await buildApiUrl("/api/config/local/asr/status");
         return universalFetch(url);
       },
-      errorMessage: "Failed to fetch Whisper status",
+      errorMessage: "Failed to fetch ASR status",
     }),
 
   restartWhisperServer: async () =>

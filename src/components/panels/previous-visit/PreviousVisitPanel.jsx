@@ -95,7 +95,7 @@ const PreviousVisitPanel = ({
         >
           <Flex align="center">
             <FaClock size="1em" style={{ marginRight: "8px" }} />
-            <Text fontWeight="bold">Previous Visit</Text>
+            <Text fontWeight="bold">ویزیت قبلی</Text>
           </Flex>
         </Flex>
 
@@ -110,19 +110,19 @@ const PreviousVisitPanel = ({
             height="100%"
           >
             <Tabs.List flexShrink={0}>
-              <Tooltip content="AI-generated summary of the previous visit">
+              <Tooltip content="خلاصه تولیدشده با هوش مصنوعی از ویزیت قبلی">
                 <Tabs.Trigger className="tab-style" value="0">
                   <HStack>
                     <FaList />
-                    <Text>Summary</Text>
+                    <Text>خلاصه</Text>
                   </HStack>
                 </Tabs.Trigger>
               </Tooltip>
-              <Tooltip content="Full note content from the previous encounter">
+              <Tooltip content="محتوای کامل یادداشت ویزیت قبلی">
                 <Tabs.Trigger className="tab-style" value="1">
                   <HStack>
                     <FaFileAlt />
-                    <Text>Full Note</Text>
+                    <Text>متن کامل یادداشت</Text>
                   </HStack>
                 </Tabs.Trigger>
               </Tooltip>

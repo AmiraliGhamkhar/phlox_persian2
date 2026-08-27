@@ -17,32 +17,32 @@ export const SPLASH_STEPS = {
 };
 
 export const STEP_TITLES = {
-  [SPLASH_STEPS.ENCRYPTION]: "Secure Your Data",
-  [SPLASH_STEPS.ABOUT_YOU]: "About You",
-  [SPLASH_STEPS.AI_MODELS]: "AI Models",
-  [SPLASH_STEPS.TEMPLATES]: "Choose Your Template",
+  [SPLASH_STEPS.ENCRYPTION]: "از داده‌های خود محافظت کنید",
+  [SPLASH_STEPS.ABOUT_YOU]: "درباره شما",
+  [SPLASH_STEPS.AI_MODELS]: "مدل‌های هوش مصنوعی",
+  [SPLASH_STEPS.TEMPLATES]: "قالب خود را انتخاب کنید",
 };
 
 export const STEP_DESCRIPTIONS = {
   [SPLASH_STEPS.ENCRYPTION]:
-    "Create a passphrase to encrypt and protect your patient data.",
+    "یک عبارت عبور برای رمزگذاری و محافظت از داده‌های بیماران ایجاد کنید.",
   [SPLASH_STEPS.ABOUT_YOU]:
-    "Your name and specialty personalize your notes and letters.",
+    "نام و تخصص شما یادداشت‌ها و نامه‌ها را شخصی‌سازی می‌کند.",
   [SPLASH_STEPS.TEMPLATES]:
-    "Choose the note template you'll use for patient encounters.",
+    "قالب یادداشتی را که برای ویزیت بیماران استفاده می‌کنید انتخاب کنید.",
   [SPLASH_STEPS.AI_MODELS]:
-    "Download a model to run on your Mac, or connect to an API.",
+    "برای اجرای مدل روی رایانه خود آن را دانلود کنید یا به یک API متصل شوید.",
 };
 
 export const TEMPLATE_DESCRIPTIONS = {
   phlox_01:
-    "Physician consultations — primary condition, history, impression, and plan.",
-  soap_01: "Standard SOAP format — Subjective, Objective, Assessment, Plan.",
-  progress_01: "Follow-up visits — interval history, current status, and plan.",
+    "ویزیت پزشک — بیماری اصلی، شرح‌حال، برداشت بالینی و برنامه درمانی.",
+  soap_01: "قالب استاندارد SOAP — ذهنی، عینی، ارزیابی و برنامه.",
+  progress_01: "ویزیت‌های پیگیری — شرح‌حال فاصله‌ای، وضعیت فعلی و برنامه.",
   procedure_01:
-    "Procedural documentation — indication, details, complications.",
+    "مستندسازی اقدامات — اندیکاسیون، جزئیات و عوارض.",
   consult_01:
-    "Specialist consultations — reason, findings, impression, recommendations.",
+    "ویزیت تخصصی — علت مراجعه، یافته‌ها، برداشت بالینی و توصیه‌ها.",
 };
 
 export const getStepIcon = (step) => {

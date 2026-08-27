@@ -9,7 +9,7 @@ const baseStyles = (props) => ({
             props.colorMode === "light"
                 ? colors.light.textPrimary
                 : colors.dark.textPrimary,
-        fontFamily: '"Roboto", sans-serif',
+        fontFamily: '"Vazirmatn", Tahoma, Arial, sans-serif',
     },
     ".headings": {
         color:
@@ -68,7 +68,7 @@ const baseStyles = (props) => ({
                 : colors.dark.textSecondary,
     },
     p: {
-        fontFamily: '"Roboto", sans-serif',
+        fontFamily: '"Vazirmatn", Tahoma, Arial, sans-serif',
         fontSize: "1rem",
         lineHeight: "1.5",
         textWrap: "pretty",

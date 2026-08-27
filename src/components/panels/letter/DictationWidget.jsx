@@ -111,7 +111,7 @@ const DictationWidget = ({
   const startRecording = async () => {
     if (!navigator.mediaDevices || !navigator.mediaDevices.getUserMedia) {
       toaster.create({
-        title: "Error",
+        title: "خطا",
         description: "Audio recording is not supported in this browser.",
         type: "error",
         duration: 3000,
@@ -132,7 +132,7 @@ const DictationWidget = ({
     } catch (error) {
       console.error("Error starting recording:", error);
       toaster.create({
-        title: "Error",
+        title: "خطا",
         description:
           "Failed to start recording. Please check microphone permissions.",
         type: "error",
@@ -196,7 +196,7 @@ const DictationWidget = ({
       if (letterResponse && letterResponse.letter) {
         setFinalCorrespondence(letterResponse.letter);
         toaster.create({
-          title: "Success",
+          title: "موفق",
           description: "Letter generated from dictation",
           type: "success",
           duration: 3000,
@@ -207,7 +207,7 @@ const DictationWidget = ({
     } catch (error) {
       console.error("Error processing dictation:", error);
       toaster.create({
-        title: "Error",
+        title: "خطا",
         description: "Failed to process dictation",
         type: "error",
         duration: 3000,
@@ -226,7 +226,7 @@ const DictationWidget = ({
         timer={timer}
       />
       <Tooltip
-        content={isRecording ? "Stop Dictation" : "Start Dictation"}
+        content={isRecording ? "توقف دیکته" : "شروع دیکته"}
         disabled={isDisabled || isProcessing}
         positioning={{
           placement: "left"
@@ -236,7 +236,7 @@ const DictationWidget = ({
           onClick={isRecording ? stopRecording : startRecording}
           disabled={isDisabled || isProcessing}
           colorPalette={isRecording ? "red" : "gray"}
-          aria-label="Dictate"
+          aria-label="دیکته"
           position="absolute"
           bottom={4}
           // Positioned to the left of the refinement button (which is at right: 4 = 16px)

@@ -2,7 +2,7 @@
 # Combined build script for Phlox Tauri application
 # This script builds all required components:
 # 1. Python server (Nuitka)
-# 2. parakeet.cpp server (Omi Med STT, for local transcription) [SKIP with --skip-whisper]
+# 2. whisper.cpp server (multilingual local ASR) [SKIP with --skip-whisper]
 # 3. llama.cpp server (for local LLM) [SKIP with --skip-llama]
 # 4. Copies all binaries to src-tauri/binaries/ for Tauri bundling
 #
@@ -123,15 +123,15 @@ fi
 echo "✅ Python server built successfully"
 
 # ========================================
-# Step 3: Build parakeet.cpp
+# Step 3: Build whisper.cpp
 # ========================================
 echo ""
 echo "=========================================="
-echo "Step 3: Building parakeet.cpp..."
+echo "Step 3: Building whisper.cpp..."
 echo "=========================================="
 
 if [ "$SKIP_WHISPER" = true ]; then
-    echo "⏭️  Skipping parakeet.cpp build (--skip-whisper)"
+    echo "⏭️  Skipping whisper.cpp build (--skip-whisper)"
     WHISPER_BIN="src-tauri/phlox-whisper-server"
     if [[ "$PLATFORM" == "windows-"* ]]; then
         WHISPER_BIN="src-tauri/phlox-whisper-server.exe"
@@ -141,9 +141,9 @@ if [ "$SKIP_WHISPER" = true ]; then
     fi
 else
     if [ "$DEBUG_MODE" = true ]; then
-        bash src-tauri/build-parakeet.sh --debug
+        bash src-tauri/build-whisper.sh --debug
     else
-        bash src-tauri/build-parakeet.sh
+        bash src-tauri/build-whisper.sh
     fi
 
     # Check if whisper-server was built
@@ -154,11 +154,11 @@ else
     fi
 
     if [ ! -f "$WHISPER_BIN" ]; then
-        echo "❌ Error: parakeet-server binary not found at $WHISPER_BIN"
+        echo "❌ Error: whisper.cpp server binary not found at $WHISPER_BIN"
         exit 1
     fi
 
-    echo "✅ parakeet.cpp built successfully"
+    echo "✅ whisper.cpp built successfully"
 fi
 
 # ========================================
@@ -241,8 +241,12 @@ if [ "$DEBUG_MODE" = true ]; then
     fi
 
     if [ -f "$WHISPER_BIN" ]; then
-        cp "$WHISPER_BIN" "src-tauri/target/debug/phlox-whisper-server"
-        chmod +x "src-tauri/target/debug/phlox-whisper-server"
+        WHISPER_DEBUG_NAME="phlox-whisper-server"
+        if [[ "$PLATFORM" == "windows-"* ]]; then
+            WHISPER_DEBUG_NAME="phlox-whisper-server.exe"
+        fi
+        cp "$WHISPER_BIN" "src-tauri/target/debug/$WHISPER_DEBUG_NAME"
+        chmod +x "src-tauri/target/debug/$WHISPER_DEBUG_NAME"
         echo "✅ Copied phlox-whisper-server to target/debug"
     fi
 fi
@@ -292,9 +296,9 @@ echo ""
 echo "Built components:"
 echo "  • Python server: src-tauri/server_dist/"
 if [ "$SKIP_WHISPER" != true ]; then
-    echo "  • parakeet-server: $WHISPER_BIN"
+    echo "  • whisper.cpp ASR server: $WHISPER_BIN"
 else
-    echo "  • parakeet-server: (skipped)"
+    echo "  • whisper.cpp ASR server: (skipped)"
 fi
 if [ "$SKIP_LLAMA" != true ]; then
     echo "  • llama-server: $LLAMA_BIN"

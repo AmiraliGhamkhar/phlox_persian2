@@ -19,7 +19,20 @@ import { tabGlobalCss } from "./styles/tab";
 import { scrollbarGlobalCss } from "./styles/scrollbar";
 import { patientInfoGlobalCss } from "./styles/patientInfo";
 
-const globalCss = {};
+const globalCss = {
+    "html, body, #root": {
+        direction: "rtl",
+        fontFamily: '"Vazirmatn", Tahoma, Arial, sans-serif',
+    },
+    "input, textarea, select": {
+        direction: "rtl",
+        unicodeBidi: "plaintext",
+    },
+    "[dir=auto]": {
+        unicodeBidi: "plaintext",
+        textAlign: "start",
+    },
+};
 
 Object.assign(
     globalCss,

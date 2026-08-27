@@ -26,7 +26,7 @@ const OutstandingJobs = ({ handleSelectPatient, refreshSidebar }) => {
             setPatients={setPatients}
             handleSelectPatient={handleSelectPatient}
             refreshSidebar={refreshSidebar}
-            title="Outstanding Jobs"
+            title="کارهای باقی‌مانده"
             groupByDate={true}
             summaryOnly={true}
         />

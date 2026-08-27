@@ -72,8 +72,8 @@ const BulkUploader = ({ setCollections }) => {
         );
         if (pdfFiles.length === 0) {
             toaster.create({
-                title: "No PDF files",
-                description: "Only PDF files are supported",
+                title: "فایل PDF وجود ندارد",
+                description: "فقط فایل‌های PDF پشتیبانی می‌شوند",
                 type: "warning",
                 duration: 3000,
             });
@@ -81,7 +81,7 @@ const BulkUploader = ({ setCollections }) => {
         }
         if (files.length > pdfFiles.length) {
             toaster.create({
-                title: "Some files skipped",
+                title: "برخی فایل‌ها رد شدند",
                 description: `${files.length - pdfFiles.length} non-PDF file(s) were ignored`,
                 type: "info",
                 duration: 3000,
@@ -107,7 +107,7 @@ const BulkUploader = ({ setCollections }) => {
             case STATUS.EXTRACTING:
                 return "Extracting...";
             case STATUS.EXTRACTED:
-                return "Ready to commit";
+                return "آماده ثبت";
             case STATUS.COMMITTING:
                 return "Committing...";
             case STATUS.COMMITTED:
@@ -189,7 +189,7 @@ const BulkUploader = ({ setCollections }) => {
                                 </Text>
                                 {entry.status === STATUS.EXTRACTED && (
                                     <IconButton
-                                        aria-label="Edit metadata"
+                                        aria-label="ویرایش فراداده"
                                         size="xs"
                                         variant="ghost"
                                         onClick={(e) => {
@@ -207,7 +207,7 @@ const BulkUploader = ({ setCollections }) => {
                                     entry.status === STATUS.EXTRACTED) &&
                                     !isProcessing && (
                                         <IconButton
-                                            aria-label="Remove from queue"
+                                            aria-label="حذف از صف"
                                             size="xs"
                                             variant="ghost"
                                             colorPalette="red"
@@ -331,9 +331,9 @@ const BulkUploader = ({ setCollections }) => {
                                 !hasPendingOrFailed || isProcessing
                             }
                             loading={isProcessing && extractedCount === 0}
-                            loadingText="Extracting..."
+                            loadingText="در حال استخراج..."
                             size="sm"
-                            className="orange-button"><CheckIcon />Extract All
+                            className="orange-button"><CheckIcon />استخراج همه
                                                     </Button>
                         <Button
                             onClick={commitAll}
@@ -343,9 +343,9 @@ const BulkUploader = ({ setCollections }) => {
                             loading={
                                 isProcessing && readyToCommit === 0
                             }
-                            loadingText="Committing..."
+                            loadingText="در حال ثبت..."
                             size="sm"
-                            className="green-button"><CheckIcon />Commit All
+                            className="green-button"><CheckIcon />ثبت همه
                                                     </Button>
                     </HStack>
                 </Flex>

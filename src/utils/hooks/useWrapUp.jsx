@@ -4,10 +4,10 @@ import { toaster } from "@/components/ui/toaster";
 import { patientApi } from "../api/patientApi";
 
 const REQUIRED_WRAP_UP_FIELDS = [
-    { key: "name", label: "Name" },
+    { key: "name", label: "نام" },
     { key: "dob", label: "Date of Birth" },
     { key: "ur_number", label: "UR Number" },
-    { key: "gender", label: "Gender" },
+    { key: "gender", label: "جنسیت" },
 ];
 
 export const useWrapUp = ({

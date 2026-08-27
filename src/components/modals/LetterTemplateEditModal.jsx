@@ -31,21 +31,21 @@ const LetterTemplateEditModal = ({
           <Dialog.Content className="modal-style">
             <Dialog.Header>
               <Heading as="h2" size="md" fontFamily="heading">
-                {template?.id ? "Edit Template" : "New Template"}
+                {template?.id ? "ویرایش قالب" : "قالب جدید"}
               </Heading>
             </Dialog.Header>
             <Dialog.CloseTrigger />
             <Dialog.Body maxH="40vh" overflowY="auto" className="custom-scrollbar">
               <VStack gap={4}>
                 <Input
-                  placeholder="Template Name"
+                  placeholder="نام قالب"
                   value={template?.name || ""}
                   onChange={(e) => handleChange("name", e.target.value)}
                   disabled={template?.name === "Dictation"}
                   className="input-style"
                 />
                 <Textarea
-                  placeholder="Instructions for letter generation..."
+                  placeholder="دستورهای تولید نامه..."
                   value={template?.instructions || ""}
                   onChange={(e) => handleChange("instructions", e.target.value)}
                   className="input-style"
@@ -62,10 +62,10 @@ const LetterTemplateEditModal = ({
                     setTemplate(null);
                   }}
                 >
-                  Cancel
+                  انصراف
                 </Button>
                 <Button className="green-button" onClick={handleSave}>
-                  Save
+                  ذخیره
                 </Button>
               </HStack>
             </Dialog.Footer>

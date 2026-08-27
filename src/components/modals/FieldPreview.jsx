@@ -12,7 +12,7 @@ export const FieldPreview = ({ field }) => {
                 {field.field_name || "Unnamed Field"}
                 {field.persistent && (
                     <Tooltip
-                        content="Persists between encounters."
+                        content="بین ویزیت‌ها حفظ می‌شود."
                         showArrow
                         positioning={{
                             placement: "right"
@@ -39,8 +39,8 @@ export const FieldPreview = ({ field }) => {
                         asChild
                     ><i>
                             {field.persistent
-                                ? "Persistent field content carries over..."
-                                : "This field will be generated from the transcript..."}
+                                ? "محتوای فیلد پایدار حفظ می‌شود..."
+                                : "این فیلد از متن پیاده‌سازی‌شده تولید می‌شود..."}
                         </i></Text>
                 )}
             </Box>

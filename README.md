@@ -1,55 +1,75 @@
 > [!WARNING]
-> Phlox is an experimental project. Please read the **[Usage Warning](#usage-warning-️)** section carefully before proceeding.
+> فلوکس یک پروژه آزمایشی است. پیش از استفاده، بخش **[هشدار استفاده](#هشدار-استفاده)** را با دقت بخوانید.
 
 <p align="center">
-  <img src="/assets/phlox_icon.png" width="150" alt="Phlox Logo">
+  <img src="/assets/phlox_icon.png" width="150" alt="نشان فلوکس">
 </p>
 
-<div align="center">
+<div align="center" dir="rtl">
 
-[![CI](https://github.com/bloodworks-io/phlox/actions/workflows/ci.yml/badge.svg)](https://github.com/bloodworks-io/phlox/actions/workflows/ci.yml)
-[![Coverage Status](https://coveralls.io/repos/github/bloodworks-io/phlox/badge.svg?branch=main)](https://coveralls.io/github/bloodworks-io/phlox?branch=main)
+[![وضعیت CI](https://github.com/bloodworks-io/phlox/actions/workflows/ci.yml/badge.svg)](https://github.com/bloodworks-io/phlox/actions/workflows/ci.yml)
+[![وضعیت پوشش آزمون](https://coveralls.io/repos/github/bloodworks-io/phlox/badge.svg?branch=main)](https://coveralls.io/github/bloodworks-io/phlox?branch=main)
 [![CodeQL](https://github.com/bloodworks-io/phlox/actions/workflows/github-code-scanning/codeql/badge.svg)](https://github.com/bloodworks-io/phlox/actions/workflows/github-code-scanning/codeql)
-[![Code style: ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json)](https://github.com/astral-sh/ruff)
-[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
-[![Docs](https://img.shields.io/badge/docs-phlox.bloodworks.io-blue)](https://phlox.bloodworks.io/docs)
+[![سبک کد: ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json)](https://github.com/astral-sh/ruff)
+[![مجوز: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
+[![مستندات](https://img.shields.io/badge/docs-phlox.bloodworks.io-blue)](https://phlox.bloodworks.io/docs)
 
 </div>
 
-Phlox is a free, open-source, AI scribe with a built-in patient management system and agentic AI capabilities. It's designed as a local-first alternative to SaaS medical scribes that you can run on your own hardware.
+# فلوکس؛ دستیار مستندسازی بالینی فارسی
 
-## Key Features 
-- **🔒 100% Local & Private:** Runs entirely on your machine with no third-party services - all data stays local.
-- **🎤 Ambient Note Generation** Automatically generate structured clinical notes with customizable templates.
-- **💡 Adaptive Refinement:** Outputs improve the more you use it; Phlox learns from your previous notes.
-- **📝 Flexible Template System:**  Including automated template generation from example notes you provide.
-- **🤖 AI-agent:** Your local assistant with access to literature in your own local knowledge base.
-- **🔌 MCP Server Support:** Connect external tool servers to give your agent new capabilties.
-- **✅ Task Manager:**  Parse clinical plans into to-do lists to keep up-to-date with your outstanding tasks.
-- **✉️  Correspondence Generation:**  One-click generation of patient letters based on clinical notes.
-- **📄 Document Processing:** Fill-in forms, extract demographics, and more using local Vision Language Models.
+فلوکس یک دستیار رایگان و متن‌باز برای مستندسازی بالینی است که مدیریت پرونده بیمار و قابلیت‌های هوش مصنوعی عامل‌محور را در خود دارد. این برنامه با رویکرد «محلی در اولویت» طراحی شده و روی سخت‌افزار خودتان اجرا می‌شود. رابط کاربری، متن‌های راهنما و چیدمان برنامه برای فارسی و راست‌به‌چپ آماده شده‌اند.
+
+## قابلیت‌های اصلی
+
+- **🔒 خصوصی و محلی:** داده‌های بیمار در حالت محلی روی دستگاه شما می‌مانند و برای پردازش به سرویس شخص ثالث ارسال نمی‌شوند.
+- **🎤 تولید یادداشت محیطی:** از صدای ویزیت، یادداشت بالینی ساختاریافته با قالب قابل تنظیم تولید کنید.
+- **💡 بهبود تطبیقی:** خروجی‌ها با استفاده بیشتر و نمونه‌های قبلی شما بهتر با سبک مورد نظر هماهنگ می‌شوند.
+- **📝 سیستم قالب منعطف:** از یادداشت نمونه، قالب مستندسازی تولید یا قالب‌ها را دستی ویرایش کنید.
+- **🤖 دستیار هوشمند:** با استفاده از منابع علمی و پایگاه دانش محلی به پرسش‌های شما پاسخ می‌دهد.
+- **🔌 پشتیبانی از سرورهای MCP:** برای افزودن ابزارهای مورد اعتماد، سرورهای ابزار خارجی را متصل کنید.
+- **✅ مدیریت کارها:** برنامه بالینی را به فهرست کارهای قابل پیگیری تبدیل کنید.
+- **✉️ تولید مکاتبه:** بر اساس یادداشت بالینی، نامه بیمار را با یک کلیک تولید کنید.
+- **📄 پردازش سند:** فرم‌ها را تکمیل کنید و اطلاعات را با مدل‌های تصویری محلی استخراج کنید.
+- **🌐 انتخاب ساده مدل و سرویس:** ارائه‌دهنده، مدل، زبان و حالت محلی/برخط را جداگانه انتخاب کنید.
 
 <p align="center">
-  <img src="/assets/readme_screenshot.png" width="600" alt="Phlox Screenshot">
+  <img src="/assets/readme_screenshot.png" width="600" alt="تصویر محیط فلوکس">
 </p>
 
-## Getting Started
+## شروع کار
 
-### Desktop App
+### برنامه دسکتاپ
 
-Pre-built Apple Silicon (macOS) binaries and Flatpaks (Linux - Vulkan) are available from [GitHub Releases](https://github.com/bloodworks-io/phlox/releases). 
+نسخه‌های آماده برای Apple Silicon در macOS و Flatpak برای Linux با پشتیبانی Vulkan از [صفحه انتشارهای GitHub](https://github.com/bloodworks-io/phlox/releases) در دسترس هستند.
 
-The desktop app comes bundled with both transcription and LLM inference engines. Models can be downloaded from within the application.
+برنامه دسکتاپ موتورهای `llama.cpp` و `whisper.cpp` را همراه دارد. مدل‌ها را از داخل برنامه دانلود و فعال کنید. برای ASR محلی، سه نسخه از Whisper large-v3-turbo در دسترس است:
 
-### Docker/Podman
+1. نسخه دقیق `F16`
+2. نسخه کم‌حجم `Q5_0` (پیشنهاد پیش‌فرض)
+3. نسخه `Q8_0` با دقت بالاتر و مصرف حافظه متوسط
 
-Pre-built images are available from [GitHub Container Registry](https://github.com/bloodworks-io/phlox/pkgs/container/phlox):
+همچنین مدل فارسی `Shenava-Koochik-v1.0-tract-streaming` با نسخه کم‌حجم `INT4` ارائه می‌شود. مدل‌های Whisper برای فارسی و گفتار فارسی/انگلیسی ترکیبی مناسب‌اند و Shenava برای پیاده‌سازی محلی فارسی بهینه شده است.
+
+### ASR محلی و برخط
+
+در بخش **تنظیمات ← مدل ← ASR** یا هنگام راه‌اندازی اولیه، یکی از گزینه‌های زیر را انتخاب کنید:
+
+- **مدل محلی:** Whisper.cpp برای فارسی و گفتار ترکیبی، یا Shenava برای فارسی.
+- **سرویس سازگار با OpenAI:** نشانی پایه، شناسه مدل و در صورت نیاز کلید API را وارد کنید.
+- **Speechmatics Realtime:** کلید API را در تنظیمات رمزگذاری‌شده برنامه وارد کنید؛ زبان `auto` برای تشخیص گفتار ترکیبی قابل انتخاب است.
+
+زبان‌های `فارسی`، `انگلیسی` و `تشخیص خودکار؛ فارسی و انگلیسی ترکیبی` پشتیبانی می‌شوند. کلیدهای API هرگز در کد یا مخزن ذخیره نمی‌شوند و پاسخ تنظیمات، کلید ذخیره‌شده را به‌صورت پوشانده نمایش می‌دهد.
+
+### Docker و Podman
+
+تصاویر آماده از [GitHub Container Registry](https://github.com/bloodworks-io/phlox/pkgs/container/phlox) در دسترس هستند:
 
 ```bash
 docker pull ghcr.io/bloodworks-io/phlox:latest
 ```
 
-Minimal `docker-compose.yml` for the pre-built image:
+نمونه حداقلی `docker-compose.yml`:
 
 ```yaml
 services:
@@ -57,58 +77,73 @@ services:
     image: ghcr.io/bloodworks-io/phlox:latest
     container_name: phlox
     ports:
-      - "5000:5000"  # Use "127.0.0.1:5000:5000" if not behind a reverse proxy
+      - "5000:5000"  # در صورت استفاده از reverse proxy، دسترسی را محدود کنید
     environment:
-      - DB_ENCRYPTION_KEY=          # Required: generate a strong random key
-      - TZ=                         # e.g. America/New_York
-      - ALLOWED_ORIGINS=*           # Or your origin, e.g. https://phlox.example.com
-      # Optional — proxy auth + rate limiting (see https://phlox.bloodworks.io/docs/setup#critical-security-warning)
+      - DB_ENCRYPTION_KEY=          # الزامی؛ یک کلید تصادفی قوی بسازید
+      - TZ=                         # مثلاً Europe/Berlin
+      - ALLOWED_ORIGINS=*           # بهتر است دامنه واقعی خود را جایگزین کنید
+      # گزینه‌های اختیاری احراز هویت و محدودسازی نرخ:
       # - PROXY_AUTH_ENABLED=true
       # - PROXY_AUTH_USER_HEADER=X-Forwarded-User
       # - PROXY_AUTH_ALLOWED_USERS=user1,user2
       # - RATE_LIMIT_ENABLED=true
     volumes:
-      - ./data:/usr/src/app/data    # Persistent data (database, vectors)
-      - ./logs:/usr/src/app/logs    # Optional: persist logs
+      - ./data:/usr/src/app/data    # پایگاه داده و بردارها
+      - ./logs:/usr/src/app/logs    # ثبت اختیاری گزارش‌ها
 ```
 
-Then `docker compose up -d`. See the [Setup guide](https://phlox.bloodworks.io/docs/setup) for full instructions including `.env` configuration.
+سپس `docker compose up -d` را اجرا کنید. برای پیکربندی کامل، [راهنمای راه‌اندازی](https://phlox.bloodworks.io/docs/setup) را ببینید.
 
-The Docker image does not have any inference or transcription capability built-in. OpenAI compatible endpoints are required for transcription and note generation. 
+در Docker موتورهای استنتاج محلی دسکتاپ قرار ندارند. برای تشخیص گفتار، یک نقطه پایانی سازگار با OpenAI یا Speechmatics Realtime تنظیم کنید؛ مدل‌های Whisper و Shenava مخصوص نسخه دسکتاپ هستند.
 
-Note quality benefits from speaker diarization. [parakeet-diarized](https://github.com/jfgonsalves/parakeet-diarized) provides an easy to use Docker container that serves a diarization-enabled OpenAI Whisper-comptaible endpoint.
+### توسعه
 
-## Architecture
+برای نصب وابستگی‌های رابط کاربری و اجرای آن:
 
-Ambient scribing is a relatively simple task for LLMs. In particular, large frontier models are very adept at one-shotting a decent note given a transcript and a style example. Smaller models capable of running on consumer hardware are able to summarise medical consultations reasonably well; however, they often struggle with replicating specific note styles.
+```bash
+npm ci
+npm run dev
+```
 
-Phlox approaches this by chunking transcripts per template field and constraining outputs to structured JSON. After getting the model to make a targeted summary for a given field, a dedicated refinement pass then allows the model to focus on matching output to the users personal style example. Finally an adaptive-refinement feedback loop allows the model to improve note quality as it is used more.
+برای اجرای آزمون‌ها و بررسی کیفیت:
 
-### Technical Stack
+```bash
+npm run typecheck
+npm run lint
+npm test -- --run
+DB_ENCRYPTION_KEY='یک-کلید-آزمایشی-محلی' server/.venv/bin/pytest -q server/tests
+```
 
-- **Frontend:** [Chakra UI](https://github.com/chakra-ui/chakra-ui) (React)
-- **Backend:** [FastAPI](https://github.com/fastapi/fastapi) (Python)
-- **Database:** [SQLCipher](https://github.com/sqlcipher/sqlcipher)
-- **Vector DB:** [sqlite-vec](https://github.com/asg017/sqlite-vec)
-- **Desktop Wrapper:** [Tauri](https://github.com/tauri-apps/tauri) 
-- **LLM Backend:** Any OpenAI-compatible endpoint (incl. Ollama), or bundled [llama.cpp ](https://github.com/ggml-org/llama.cpp) server
-- **Transcription:** Any OpenAI Whisper-compatible endpoint or bundled [parakeet.cpp](https://github.com/mudler/parakeet.cpp) server
+برای ساخت نسخه دسکتاپ، پیش‌نیازهای Tauri، Rust، CMake و ابزارهای توسعه سیستم‌عامل را نصب کنید و سپس `npm run tauri-build` را اجرا کنید.
 
-## Usage Warning 
+## معماری
 
-Phlox is an experimental project intended for educational and personal use only. **It is not a certified medical device, should NOT be used for clinical decision-making, and is not suitable for production deployment as provided in this repo.** If you intend to use it in a clinical setting, you are responsible for ensuring compliance with local applicable regulations (HIPAA, GDPR, TGA, etc.)
+فلوکس متن پیاده‌سازی‌شده را بر اساس فیلدهای قالب به قطعه‌های هدفمند تقسیم می‌کند و خروجی مدل زبانی را به JSON ساختاریافته محدود می‌سازد. سپس یک مرحله بهبود، سبک خروجی را با نمونه مورد نظر شما هماهنگ می‌کند و چرخه بهبود تطبیقی از یادداشت‌های قبلی برای شخصی‌سازی بیشتر استفاده می‌کند.
 
-AI outputs can be unreliable. Always verify AI-generated content and use professional clinical judgment. The application displays a disclaimer on startup with full details.
+### پشته فنی
 
+- **رابط کاربری:** React و [Chakra UI](https://github.com/chakra-ui/chakra-ui)
+- **سرور:** [FastAPI](https://github.com/fastapi/fastapi) و Python
+- **پایگاه داده:** [SQLCipher](https://github.com/sqlcipher/sqlcipher)
+- **پایگاه برداری:** [sqlite-vec](https://github.com/asg017/sqlite-vec)
+- **پوسته دسکتاپ:** [Tauri](https://github.com/tauri-apps/tauri)
+- **مدل زبانی محلی:** سرور [llama.cpp](https://github.com/ggml-org/llama.cpp)
+- **ASR:** نقطه پایانی سازگار با OpenAI، Speechmatics Realtime، یا [whisper.cpp](https://github.com/ggml-org/whisper.cpp) با سه نسخه Whisper large-v3-turbo و مدل فارسی Shenava
 
-## License 
+## هشدار استفاده
 
-[MIT License](LICENSE)
+فلوکس یک پروژه آزمایشی برای استفاده آموزشی و شخصی است. **این برنامه وسیله پزشکی تأییدشده نیست، نباید برای تصمیم‌گیری بالینی استفاده شود و در وضعیت فعلی برای استقرار تولیدی مناسب نیست.** اگر قصد استفاده بالینی دارید، مسئولیت رعایت قوانین و الزامات محلی مانند HIPAA، GDPR و سایر مقررات بر عهده شماست.
 
-Third-party models, runtimes, and library attributions: [Credits](https://phlox.bloodworks.io/docs/credits).
+خروجی هوش مصنوعی ممکن است نادرست باشد. همیشه محتوای تولیدشده را بررسی کنید و برای همه تصمیم‌های بالینی به قضاوت حرفه‌ای و راهنماهای معتبر تکیه کنید. برنامه هنگام شروع، هشدار کامل را نمایش می‌دهد.
 
-## Contributing 
+## مجوز
 
-[Contributing Guidelines](.github/CONTRIBUTING.md)
+[مجوز MIT](LICENSE)
 
-This repo has made extensive use of AI development tools. All AI generated code has been vetted by me and I ask that any contributors do the same prior to submitting PRs.
+برای اطلاعات مدل‌ها و وابستگی‌های شخص ثالث، [صفحه اعتبارها](https://phlox.bloodworks.io/docs/credits) را ببینید.
+
+## مشارکت
+
+[راهنمای مشارکت](.github/CONTRIBUTING.md)
+
+این مخزن با کمک ابزارهای توسعه هوش مصنوعی ساخته شده است. همه مشارکت‌کنندگان باید پیش از ارسال تغییرات، کد تولیدشده و اثر آن بر حریم خصوصی و ایمنی داده‌های بالینی را بررسی کنند.

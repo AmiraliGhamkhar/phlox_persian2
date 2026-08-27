@@ -43,7 +43,7 @@ const DisclaimerModal = ({ isOpen, onClose }) => {
                         <Dialog.Header>
                             <HStack>
                                 <Image src="/logo.webp" alt="Phlox Logo" width="30px" />
-                                <Heading as="h2" size="md" fontFamily="heading">Important Notice</Heading>
+                                <Heading as="h2" size="md" fontFamily="heading">اطلاعیه مهم</Heading>
                             </HStack>
                         </Dialog.Header>
                         {/* Warning alert */}
@@ -60,7 +60,7 @@ const DisclaimerModal = ({ isOpen, onClose }) => {
                             <HStack align="start">
                                 <Icon color="secondaryButton" mt={0.5} asChild><FaExclamationTriangle /></Icon>
                                 <Text color="textPrimary" fontSize="sm" fontWeight="600">
-                                    Experimental Software - Use at Your Own Risk
+                                    نرم‌افزار آزمایشی — استفاده با مسئولیت شما
                                 </Text>
                             </HStack>
                         </Box>
@@ -78,17 +78,16 @@ const DisclaimerModal = ({ isOpen, onClose }) => {
                                         fontWeight="600"
                                         mb={2}
                                     >
-                                        Phlox is an experimental project intended for
-                                        educational and personal experimentation ONLY.
+                                        فلوکس پروژه‌ای آزمایشی برای استفاده آموزشی و شخصی است؛
+                                        استفاده از آن فقط با آگاهی از این موضوع مجاز است.
                                     </Text>
                                     <Text
                                         color={"textPrimary"}
                                         fontSize="sm"
                                         fontWeight="600"
                                     >
-                                        AS PROVIDED, IT IS NOT A CERTIFIED MEDICAL
-                                        DEVICE AND MUST NOT BE USED IN ACTUAL CLINICAL
-                                        SETTINGS OR FOR CLINICAL DECISION-MAKING.
+                                        این برنامه وسیله پزشکی تأییدشده نیست و نباید در محیط واقعی
+                                        بالینی یا برای تصمیم‌گیری بالینی استفاده شود.
                                     </Text>
                                 </Box>
 
@@ -99,61 +98,50 @@ const DisclaimerModal = ({ isOpen, onClose }) => {
                                         fontWeight="600"
                                         mb={2}
                                     >
-                                        KEY LIMITATIONS:
+                                        محدودیت‌های اصلی:
                                     </Text>
                                     <VStack align="stretch" gap={2}>
                                         <Text
                                             color={"textPrimary"}
                                             fontSize="sm"
                                         >
-                                            <strong>Experimental Code:</strong> The
-                                            codebase is a work in progress and may
-                                            contain bugs and inconsistencies.
+                                            <strong>کد آزمایشی:</strong> کد پروژه در حال توسعه است و ممکن است
+                                            خطا و ناسازگاری داشته باشد.
                                         </Text>
                                         <Text
                                             color={"textPrimary"}
                                             fontSize="sm"
                                         >
-                                            <strong>AI Hallucinations:</strong> LLM
-                                            outputs, especially from smaller models, can
-                                            be unreliable, inaccurate, and may present
-                                            plausible but incorrect information. Always
-                                            verify AI-generated content against trusted
-                                            sources and use your professional clinical
-                                            judgment.
+                                            <strong>توهم‌های هوش مصنوعی:</strong> خروجی مدل زبانی، به‌ویژه مدل‌های کوچک،
+                                            ممکن است غیرقابل اعتماد یا نادرست باشد و اطلاعات ظاهراً معقول اما غلط ارائه کند.
+                                            محتوای تولیدشده را با منابع معتبر و قضاوت حرفه‌ای خود بررسی کنید.
                                         </Text>
                                         <Text
                                             color={"textPrimary"}
                                             fontSize="sm"
                                         >
-                                            <strong>No User Authentication:</strong>{" "}
-                                            Naively exposing this application to the
-                                            open internet is highly discouraged. Phlox
-                                            has no user access controls and minimal
-                                            input sanitisation.
+                                            <strong>احراز هویت کاربر وجود ندارد:</strong>{" "}
+                                            قرار دادن ساده این برنامه در اینترنت عمومی به‌شدت توصیه نمی‌شود. فلوکس
+                                            کنترل دسترسی کاربر و پاک‌سازی کامل ورودی را فراهم نمی‌کند.
                                         </Text>
                                         <Text
                                             color={"textPrimary"}
                                             fontSize="sm"
                                         >
-                                            <strong>Not HIPAA/GDPR Compliant:</strong>{" "}
-                                            Phlox lacks the necessary security and
-                                            compliance measures for handling protected
-                                            health information in regulated
-                                            environments.
+                                            <strong>با HIPAA/GDPR سازگار نیست:</strong>{" "}
+                                            فلوکس اقدامات امنیتی و الزامات لازم برای نگهداری اطلاعات سلامت
+                                            حفاظت‌شده در محیط‌های قانون‌گذاری‌شده را ندارد.
                                         </Text>
                                     </VStack>
                                 </Box>
 
                                 <Text color={"textPrimary"} fontSize="sm">
-                                    USE AT YOUR OWN RISK and only for non-clinical,
-                                    educational purposes unless you have implemented
-                                    robust security measures and undertaken thorough
-                                    validation.
+                                    فقط برای اهداف آموزشی و غیر بالینی و با مسئولیت خودتان استفاده کنید؛
+                                    مگر آنکه اقدامات امنیتی قوی و اعتبارسنجی کامل انجام داده باشید.
                                 </Text>
 
                                 <Text color={"textSecondary"} fontSize="xs">
-                                    This software is provided under the MIT License.
+                                    این نرم‌افزار تحت مجوز MIT ارائه می‌شود.
                                 </Text>
                             </VStack>
                         </Dialog.Body>
@@ -171,8 +159,7 @@ const DisclaimerModal = ({ isOpen, onClose }) => {
                                             fontFamily: '"Roboto", sans-serif'
                                         }}
                                     >
-                                        I have read and understand the above warnings. I
-                                        agree to proceed at my own risk.
+                                        هشدارهای بالا را خوانده‌ام و درک می‌کنم. موافقم با مسئولیت خودم ادامه دهم.
                                     </Text>
                                 </Checkbox.Label></Checkbox.Root>
                                 <HStack justify="flex-end">
@@ -187,7 +174,7 @@ const DisclaimerModal = ({ isOpen, onClose }) => {
                                             fontWeight: "600"
                                         }}
                                     >
-                                        Continue
+                                        ادامه
                                     </Button>
                                 </HStack>
                             </VStack>

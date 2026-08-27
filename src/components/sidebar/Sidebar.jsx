@@ -95,8 +95,8 @@ const Sidebar = ({
   // Ref for detecting outside clicks on small screens
   const sidebarRef = useRef(null);
 
-  // Close sidebar when clicking outside on small screens
-  // Close sidebar when clicking outside on small screens (replaces v2 useOutsideClick)
+  // بستن sidebar when clicking outside on small screens
+  // بستن sidebar when clicking outside on small screens (replaces v2 useOutsideClick)
   useEffect(() => {
     const handler = (event) => {
       if (
@@ -179,7 +179,7 @@ const Sidebar = ({
       as="nav"
       pos={shouldFloat ? "fixed" : "fixed"}
       top="0"
-      left="0"
+      right="0"
       {...navStyle}
       p="4"
       pt={isCollapsed ? (isTauri() ? "1" : "2") : isTauri() ? "10" : "4"}
@@ -189,7 +189,7 @@ const Sidebar = ({
       transition="all 0.3s ease"
       zIndex={shouldFloat ? "1200" : "100"} // Increase z-index when in overlay mode
       transform={
-        isSmallScreen && isCollapsed ? "translateX(-100%)" : "translateX(0)"
+        isSmallScreen && isCollapsed ? "translateX(100%)" : "translateX(0)"
       }
     >
       {/* Tauri titlebar drag region - full sidebar width */}
@@ -210,10 +210,10 @@ const Sidebar = ({
           onClick={toggleSidebar}
           position="absolute"
           top={isTauri() ? "32px" : "12px"}
-          right="15px"
+          left="15px"
           size="sm"
           borderRadius="full"
-          aria-label="Close sidebar"
+          aria-label="بستن نوار کناری"
           zIndex="200"
           variant="ghost"
           color={labelColor}
@@ -248,7 +248,7 @@ const Sidebar = ({
           >
             {isCollapsed ? (
               <Tooltip
-                content="Expand Sidebar"
+                content="باز کردن نوار کناری"
                 positioning={{
                   placement: "right",
                 }}
@@ -290,7 +290,7 @@ const Sidebar = ({
               </Tooltip>
             ) : (
               <Tooltip
-                content="Chat dashboard"
+                content="داشبورد گفت‌وگو"
                 positioning={{ placement: "bottom" }}
                 openDelay={700}
               >
@@ -312,7 +312,7 @@ const Sidebar = ({
         </Box>
         {!isSmallScreen && !isCollapsed && (
           <Tooltip
-            content="Collapse Sidebar"
+            content="بستن نوار کناری"
             positioning={{ placement: "bottom" }}
           >
             <IconButton
@@ -320,7 +320,7 @@ const Sidebar = ({
               size="sm"
               variant="ghost"
               borderRadius="full"
-              aria-label="Collapse sidebar"
+              aria-label="بستن نوار کناری"
               color={labelColor}
               _hover={{ bg: hoverColor }}
             >
@@ -331,7 +331,7 @@ const Sidebar = ({
       </Flex>
       {/* Main Content Area */}
       <Flex direction="column" flex="1" overflow="hidden">
-        {/* Navigation (top) — New Note is the primary action, first row */}
+        {/* Navigation (top) — جدید Note is the primary action, first row */}
         <SidebarNavigation
           isCollapsed={isCollapsed}
           handleNavigation={handleNavigation}
@@ -339,7 +339,7 @@ const Sidebar = ({
           incompleteJobsCount={incompleteJobsCount}
         />
 
-        {/* Patient List — hidden in collapsed mode */}
+        {/* فهرست بیماران — hidden in collapsed mode */}
         {!isCollapsed && (
           <Box flex="1" minH="0" mb={2}>
             <SidebarPatientList

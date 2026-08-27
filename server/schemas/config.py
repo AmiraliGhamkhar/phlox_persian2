@@ -14,7 +14,12 @@ class Config(BaseModel):
         EMBEDDING_MODEL (str): Model used for embedding generation.
         WHISPER_BASE_URL (str): Base URL for Whisper-compatible transcription endpoint.
         WHISPER_MODEL (str): Whisper model identifier.
-        WHISPER_KEY (str): API key for Whisper endpoint (optional depending on provider).
+        WHISPER_KEY (str): Legacy API key for the ASR endpoint.
+        ASR_BASE_URL (str): Canonical base URL for the ASR endpoint.
+        ASR_MODEL (str): Canonical ASR model identifier.
+        ASR_KEY (str): Canonical API key for the ASR endpoint.
+        ASR_LANGUAGE (str): ASR language hint: ``fa``, ``en``, or ``auto`` for mixed audio.
+        ASR_PROVIDER (str): ASR provider: ``local``, ``openai_compatible``, or ``speechmatics``.
         REASONING_MODEL (str): Model used for reasoning/analysis tasks.
         REASONING_ENABLED (bool): Toggle to enable or disable reasoning features.
         DAILY_SUMMARY (str): Optional daily summary configuration/prompt value.
@@ -31,6 +36,11 @@ class Config(BaseModel):
     WHISPER_BASE_URL: str = Field(default="")
     WHISPER_MODEL: str = Field(default="")
     WHISPER_KEY: str = Field(default="")
+    ASR_BASE_URL: str = Field(default="")
+    ASR_MODEL: str = Field(default="")
+    ASR_KEY: str = Field(default="")
+    ASR_LANGUAGE: str = Field(default="auto")
+    ASR_PROVIDER: str = Field(default="openai_compatible")
 
     REASONING_MODEL: str = Field(default="")
     REASONING_ENABLED: bool = Field(default=False)

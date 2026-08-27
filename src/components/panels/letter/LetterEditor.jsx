@@ -51,7 +51,7 @@ const LetterEditor = ({
         transition="opacity 0.2s ease-in-out, filter 0.2s ease-in-out"
       >
         <Textarea
-          placeholder="Write your letter here..."
+          placeholder="نامه خود را اینجا بنویسید..."
           value={finalCorrespondence || "No letter attached to encounter"}
           onChange={(e) => {
             onLetterChange(e.target.value);
@@ -70,7 +70,7 @@ const LetterEditor = ({
         />
         {/* Tooltip and IconButton remain largely the same */}
         {/* They are absolutely positioned relative to the floating-main Box */}
-        <Tooltip content="Refine letter" disabled={loading} positioning={{
+        <Tooltip content="بهبود نامه" disabled={loading} positioning={{
           placement: "left"
         }}>
           <IconButton
@@ -95,7 +95,7 @@ const LetterEditor = ({
             className="refinement-fab"
             // Prevent click when loading
             onClick={() => !loading && setIsRefining(true)}
-            aria-label="Refine letter"
+            aria-label="بهبود نامه"
             disabled={loading}><EditIcon /></IconButton>
         </Tooltip>
         {dictationWidget}

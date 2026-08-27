@@ -2,6 +2,7 @@ import logging
 from datetime import datetime
 from typing import Any
 
+from server.database.config.defaults.letters import DefaultLetters
 from server.database.core.connection import get_db
 from server.schemas.letter import LetterTemplate
 
@@ -178,24 +179,10 @@ def reset_default_templates() -> None:
             # Clear existing templates
             cursor.execute("DELETE FROM letter_templates")
 
-            # Insert defaults
+            # Insert the Persian defaults from the single source of truth.
             default_templates = [
-                (
-                    "GP Letter",
-                    "Write a brief letter to the patient's general practitioner summarizing the consultation",
-                ),
-                (
-                    "Specialist Referral",
-                    "Write a detailed referral letter to a specialist including relevant history and examination findings",
-                ),
-                (
-                    "Discharge Summary",
-                    "Write a comprehensive discharge summary including admission details, treatment, and follow-up plan",
-                ),
-                (
-                    "Brief Update",
-                    "Write a short update letter focusing only on recent changes and current plan",
-                ),
+                (name, instructions)
+                for _, name, instructions in DefaultLetters.get_default_letter_templates()
             ]
 
             cursor.executemany(

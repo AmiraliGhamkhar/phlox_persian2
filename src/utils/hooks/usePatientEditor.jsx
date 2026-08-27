@@ -78,8 +78,8 @@ export const usePatientEditor = (initialPatient = null) => {
     ) => {
         const missingFields = [];
 
-        if (!patient?.first_name) missingFields.push("First name");
-        if (!patient?.last_name) missingFields.push("Last name");
+        if (!patient?.first_name) missingFields.push("نام");
+        if (!patient?.last_name) missingFields.push("نام خانوادگی");
         if (!patient?.dob) missingFields.push("Date of Birth");
         if (!patient?.ur_number) missingFields.push("UR Number");
 

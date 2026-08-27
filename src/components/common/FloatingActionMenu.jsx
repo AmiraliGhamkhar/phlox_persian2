@@ -41,7 +41,7 @@ const FloatingActionMenu = ({
             {/* Document Upload button */}
             {isChatEnabled() && (
                 <Tooltip
-                    content="Upload Document"
+                    content="بارگذاری سند"
                     positioning={{
                         placement: "left",
                     }}
@@ -49,7 +49,7 @@ const FloatingActionMenu = ({
                     <IconButton
                         id="fab-document"
                         onClick={onOpenDocument}
-                        aria-label="Open Document Upload"
+                        aria-label="باز کردن بارگذاری سند"
                         size="xs"
                         borderRadius="full"
                         variant="ghost"
@@ -67,8 +67,8 @@ const FloatingActionMenu = ({
                 <Tooltip
                     content={
                         hasPreviousVisitSummary
-                            ? "Previous Visit"
-                            : "No previous visit available"
+                            ? "ویزیت قبلی"
+                            : "ویزیت قبلی موجود نیست"
                     }
                     positioning={{
                         placement: "left",
@@ -77,7 +77,7 @@ const FloatingActionMenu = ({
                     <IconButton
                         id="fab-previous-visit"
                         onClick={onOpenPreviousVisit}
-                        aria-label="Open Previous Visit"
+                        aria-label="باز کردن ویزیت قبلی"
                         size="xs"
                         borderRadius="full"
                         variant="ghost"
@@ -111,7 +111,7 @@ const FloatingActionMenu = ({
             {/* Chat button */}
             {isChatEnabled() && (
                 <Tooltip
-                    content="Chat with Phlox"
+                    content="گفت‌وگو با فلوکس"
                     positioning={{
                         placement: "left",
                     }}
@@ -119,7 +119,7 @@ const FloatingActionMenu = ({
                     <IconButton
                         id="fab-chat"
                         onClick={onOpenChat}
-                        aria-label="Open Chat"
+                        aria-label="باز کردن گفت‌وگو"
                         size="xs"
                         borderRadius="full"
                         m={0}
@@ -138,8 +138,8 @@ const FloatingActionMenu = ({
                     <Tooltip
                         content={
                             isEncounterSaved
-                                ? "Chart Insights"
-                                : "Save encounter to access Chart Insights"
+                                ? "بینش‌های نمودار"
+                                : "برای دسترسی به بینش‌های نمودار، ویزیت را ذخیره کنید"
                         }
                         positioning={{
                             placement: "left",
@@ -148,7 +148,7 @@ const FloatingActionMenu = ({
                         <IconButton
                             id="fab-reasoning"
                             onClick={onOpenReasoning}
-                            aria-label="Open Reasoning"
+                            aria-label="باز کردن استدلال"
                             size="xs"
                             borderRadius="full"
                             m={0}
@@ -184,8 +184,8 @@ const FloatingActionMenu = ({
             <Tooltip
                 content={
                     isEncounterSaved
-                        ? "Patient Letter"
-                        : "Save encounter to access Letter"
+                        ? "نامه بیمار"
+                        : "برای دسترسی به نامه، ویزیت را ذخیره کنید"
                 }
                 positioning={{
                     placement: "left",
@@ -194,7 +194,7 @@ const FloatingActionMenu = ({
                 <IconButton
                     id="fab-letter"
                     onClick={onOpenLetter}
-                    aria-label="Open Letter"
+                    aria-label="باز کردن نامه"
                     size="sm"
                     borderRadius="full"
                     m={0}

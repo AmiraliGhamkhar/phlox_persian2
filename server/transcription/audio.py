@@ -1,11 +1,17 @@
+import asyncio
+import io
 import logging
 import re
+import threading
 import time
+import wave
+from pathlib import Path
 from typing import Union
 
 import httpx
 
 from server.database.config.manager import config_manager
+from server.transcription.language import normalize_persian_text, resolve_asr_language
 
 logger = logging.getLogger(__name__)
 
@@ -19,23 +25,37 @@ def _get_whisper_port() -> str:
 
 async def transcribe_audio(audio_buffer: bytes) -> dict[str, Union[str, float]]:
     """
-    Transcribe an audio buffer using a Whisper endpoint.
+    Transcribe an audio buffer using an OpenAI-compatible ASR endpoint.
+
+    The endpoint is instructed to transcribe (never translate) and receives
+    either Persian (``fa``), English (``en``), or no language hint (``auto``)
+    for mixed Persian/English recordings.
     """
     try:
         config = config_manager.get_config()
 
-        # Determine if using local whisper
-        # Local mode is: LLM_PROVIDER is "local" AND WHISPER_BASE_URL is empty
-        is_local_whisper = config.get("LLM_PROVIDER") == "local" and not config.get(
-            "WHISPER_BASE_URL"
+        asr_base_url = config.get("ASR_BASE_URL") or config.get("WHISPER_BASE_URL")
+        provider = str(config.get("ASR_PROVIDER") or "").strip().lower()
+        # Local mode remains backwards compatible with old installations that
+        # only stored LLM_PROVIDER=local and empty Whisper endpoint fields.
+        is_local_asr = provider == "local" or (
+            config.get("LLM_PROVIDER") == "local" and not asr_base_url
         )
 
-        if is_local_whisper:
-            logger.info("Using local STT server for transcription")
+        if is_local_asr:
+            if str(config.get("ASR_MODEL") or config.get("WHISPER_MODEL") or "").startswith(
+                "shenava-"
+            ):
+                logger.info("Using local Shenava ASR for transcription")
+                return await _transcribe_local_shenava(audio_buffer, config)
+            logger.info("Using local Whisper.cpp ASR for transcription")
             return await _transcribe_local_whisper(audio_buffer, config)
-        else:
-            logger.info("Using external API for transcription")
-            return await _transcribe_external_api(audio_buffer, config)
+        if provider == "speechmatics":
+            logger.info("Using Speechmatics realtime ASR for transcription")
+            return await _transcribe_speechmatics(audio_buffer, config)
+
+        logger.info("Using external OpenAI-compatible ASR API for transcription")
+        return await _transcribe_external_api(audio_buffer, config)
     except Exception as error:
         logger.error(f"Error in transcribe_audio function: {error}")
         raise
@@ -44,7 +64,7 @@ async def transcribe_audio(audio_buffer: bytes) -> dict[str, Union[str, float]]:
 async def _transcribe_local_whisper(
     audio_buffer: bytes, _config: dict
 ) -> dict[str, Union[str, float]]:
-    """Transcribe using the local STT server (parakeet.cpp, OpenAI-compatible)."""
+    """Transcribe using the local whisper.cpp OpenAI-compatible server."""
     whisper_port = _get_whisper_port()
     whisper_url = f"http://127.0.0.1:{whisper_port}/v1/audio/transcriptions"
 
@@ -54,11 +74,16 @@ async def _transcribe_local_whisper(
 
     async with httpx.AsyncClient(timeout=httpx.Timeout(600.0)) as client:
         files = {"file": (filename, audio_buffer, content_type)}
+        language = resolve_asr_language(_config)
         data = {
             "response_format": "verbose_json",
-            "language": "en",
             "temperature": "0.0",
+            "task": "transcribe",
         }
+        # Whisper.cpp can receive an explicit language hint. Omitting it keeps
+        # auto-detection available for mixed Persian/English recordings.
+        if language != "auto":
+            data["language"] = language
 
         transcription_start = time.perf_counter()
 
@@ -87,41 +112,341 @@ async def _transcribe_local_whisper(
                 transcript_text = result["text"]
 
             # Clean repetitive text patterns
-            transcript_text = _clean_repetitive_text(transcript_text)
+            transcript_text = normalize_persian_text(_clean_repetitive_text(transcript_text))
 
             return {
                 "text": transcript_text,
                 "transcriptionDuration": float(f"{transcription_duration:.2f}"),
             }
         except httpx.RequestError as e:
-            raise ValueError(f"Cannot connect to local whisper server: {e}") from e
+            raise ValueError(f"Cannot connect to local ASR server: {e}") from e
+
+
+def _read_pcm_wav(audio_buffer: bytes) -> tuple[bytes, int]:
+    """Return mono 16-bit PCM frames and their sample rate from a WAV buffer."""
+    try:
+        with wave.open(io.BytesIO(audio_buffer), "rb") as wav:
+            if wav.getcomptype() != "NONE" or wav.getsampwidth() != 2:
+                raise ValueError("ASR audio must be uncompressed 16-bit PCM WAV")
+            channels = wav.getnchannels()
+            sample_rate = wav.getframerate()
+            frames = wav.readframes(wav.getnframes())
+    except (wave.Error, EOFError) as error:
+        raise ValueError("Speechmatics and Shenava require a valid WAV recording") from error
+
+    if channels == 1:
+        return frames, sample_rate
+    if channels != 2:
+        raise ValueError("ASR audio must have one or two channels")
+
+    # The browser recorder is mono, but downmix stereo recordings defensively.
+    import array
+
+    samples = array.array("h")
+    samples.frombytes(frames)
+    mono = array.array("h", ((left + right) // 2 for left, right in zip(samples[::2], samples[1::2], strict=True)))
+    return mono.tobytes(), sample_rate
+
+
+async def _transcribe_speechmatics(
+    audio_buffer: bytes, config: dict
+) -> dict[str, Union[str, float]]:
+    """Transcribe a complete recording through Speechmatics Realtime."""
+    try:
+        from speechmatics.rt import (
+            AsyncClient,
+            AudioEncoding,
+            AudioFormat,
+            ServerMessageType,
+            TranscriptResult,
+            TranscriptionConfig,
+        )
+    except ImportError as error:
+        raise ValueError(
+            "Speechmatics support is not installed in this server build"
+        ) from error
+
+    api_key = str(
+        config.get("ASR_KEY")
+        or config.get("WHISPER_KEY")
+        or ""
+    ).strip()
+    if not api_key:
+        raise ValueError("A Speechmatics API key is required for the selected ASR provider")
+
+    pcm, sample_rate = _read_pcm_wav(audio_buffer)
+    language = resolve_asr_language(config)
+    # Speechmatics supports automatic language identification for the mixed
+    # Persian/English workflow. Keep an explicit ``fa`` or ``en`` hint when the
+    # user chooses one in settings.
+    speechmatics_language = "auto" if language == "auto" else language
+    operating_point = str(config.get("ASR_MODEL") or "enhanced").strip().lower()
+    if operating_point not in {"enhanced", "standard"}:
+        operating_point = "enhanced"
+
+    transcript_parts: list[str] = []
+
+    def handle_final(message: dict) -> None:
+        try:
+            result = TranscriptResult.from_message(message)
+            text = result.metadata.transcript
+            if text:
+                transcript_parts.append(text)
+        except (KeyError, TypeError, AttributeError):
+            logger.debug("Ignoring malformed Speechmatics transcript event", exc_info=True)
+
+    client_url = str(config.get("ASR_BASE_URL") or "").strip() or None
+    client = AsyncClient(api_key=api_key, url=client_url)
+    client.on(ServerMessageType.ADD_TRANSCRIPT, handle_final)
+    started = time.perf_counter()
+    try:
+        await client.transcribe(
+            io.BytesIO(pcm),
+            transcription_config=TranscriptionConfig(
+                language=speechmatics_language,
+                operating_point=operating_point,
+                enable_partials=False,
+            ),
+            audio_format=AudioFormat(
+                encoding=AudioEncoding.PCM_S16LE,
+                sample_rate=sample_rate,
+                chunk_size=4096,
+            ),
+            timeout=600.0,
+        )
+    except Exception as error:
+        raise ValueError(f"Speechmatics transcription failed: {error}") from error
+    finally:
+        await client.close()
+
+    transcript_text = normalize_persian_text(_clean_repetitive_text("\n".join(transcript_parts)))
+    if not transcript_text:
+        raise ValueError("Speechmatics returned no transcript")
+    return {
+        "text": transcript_text,
+        "transcriptionDuration": float(f"{time.perf_counter() - started:.2f}"),
+    }
+
+
+_SHENAVA_CACHE: tuple[object, list[str], tuple[str, str]] | None = None
+_SHENAVA_LOCK = threading.Lock()
+
+
+def _load_shenava_runtime(model_path: str, tokens_path: str):
+    """Load the optional Shenava ONNX runtime once per model bundle."""
+    global _SHENAVA_CACHE
+    with _SHENAVA_LOCK:
+        if _SHENAVA_CACHE and _SHENAVA_CACHE[2] == (model_path, tokens_path):
+            return _SHENAVA_CACHE[0], _SHENAVA_CACHE[1]
+        try:
+            import numpy as np
+            import onnxruntime as ort
+        except ImportError as error:
+            raise ValueError(
+                "Shenava support requires the local ONNX runtime in this server build"
+            ) from error
+
+        session = ort.InferenceSession(model_path, providers=["CPUExecutionProvider"])
+        tokens = Path(tokens_path).read_text(encoding="utf-8").splitlines()
+        _SHENAVA_CACHE = (session, tokens, (model_path, tokens_path))
+        return session, tokens
+
+
+def _shenava_log_mel(pcm: bytes, sample_rate: int):
+    """Build the 80-bin NeMo-style log-mel input expected by Shenava."""
+    import numpy as np
+
+    if sample_rate != 16000:
+        raise ValueError("Shenava requires 16 kHz audio")
+    samples = np.frombuffer(pcm, dtype=np.int16).astype(np.float32) / 32768.0
+    n_fft, win_length, hop = 512, 400, 160
+    if samples.size < win_length:
+        samples = np.pad(samples, (0, win_length - samples.size))
+    frame_count = 1 + max(0, (samples.size - win_length) // hop)
+    padded_size = (frame_count - 1) * hop + win_length
+    samples = np.pad(samples, (0, max(0, padded_size - samples.size)))
+    frames = np.lib.stride_tricks.sliding_window_view(samples, win_length)[::hop]
+    spectrum = np.abs(np.fft.rfft(frames * np.hanning(win_length), n=n_fft)) ** 2
+
+    # HTK mel filter bank, matching the usual FastConformer preprocessing.
+    def hz_to_mel(hz):
+        return 2595.0 * np.log10(1.0 + hz / 700.0)
+
+    def mel_to_hz(mel):
+        return 700.0 * (10.0 ** (mel / 2595.0) - 1.0)
+
+    mel_points = mel_to_hz(np.linspace(hz_to_mel(0), hz_to_mel(8000), 82))
+    bins = np.floor((n_fft + 1) * mel_points / sample_rate).astype(int)
+    filters = np.zeros((80, n_fft // 2 + 1), dtype=np.float32)
+    for m in range(1, 81):
+        left, center, right = bins[m - 1], bins[m], bins[m + 1]
+        if center > left:
+            filters[m - 1, left:center] = np.arange(left, center) - left
+            filters[m - 1, left:center] /= center - left
+        if right > center:
+            filters[m - 1, center:right] = right - np.arange(center, right)
+            filters[m - 1, center:right] /= right - center
+    mel = np.maximum(spectrum @ filters.T, 1e-10)
+    return np.log(mel).T.astype(np.float32)
+
+
+def _run_shenava_inference(audio_buffer: bytes, config: dict) -> str:
+    """Run Shenava's cache-aware CTC graph over 121-frame chunks."""
+    import numpy as np
+
+    from server.utils.whisper_models import asr_model_manager
+
+    model_id = str(config.get("ASR_MODEL") or config.get("WHISPER_MODEL") or "")
+    model_path = asr_model_manager.get_model_path(model_id)
+    info = asr_model_manager.get_available_models()
+    model_info = next((model for model in info if model["id"] == model_id), None)
+    if not model_path or not model_info or model_info.get("runtime") != "shenava_onnx":
+        raise ValueError("The selected Shenava model is not downloaded")
+    tokens_path = asr_model_manager.models_dir / "shenava-koochik-v1.0-tokens.txt"
+    if not tokens_path.exists():
+        raise ValueError("Shenava vocabulary file is missing; download the model again")
+
+    pcm, sample_rate = _read_pcm_wav(audio_buffer)
+    mel = _shenava_log_mel(pcm, sample_rate)
+    session, tokens = _load_shenava_runtime(str(model_path), str(tokens_path))
+    inputs = session.get_inputs()
+    cache_inputs = []
+    cache_values: dict[str, np.ndarray] = {}
+    for item in inputs:
+        name = item.name.lower()
+        if "audio_signal" not in name and name != "length":
+            cache_inputs.append(item)
+            shape = [int(dim) if isinstance(dim, int) else 1 for dim in item.shape]
+            dtype = np.int64 if "len" in name else np.float32
+            cache_values[item.name] = np.zeros(shape, dtype=dtype)
+
+    previous_token = None
+    output_tokens: list[str] = []
+    frame_start = 0
+    while frame_start < mel.shape[1] or frame_start == 0:
+        frame_end = min(frame_start + 121, mel.shape[1])
+        valid_frames = max(1, frame_end - frame_start)
+        chunk = np.zeros((80, 121), dtype=np.float32)
+        if frame_end > frame_start:
+            chunk[:, :valid_frames] = mel[:, frame_start:frame_end]
+        feed: dict[str, np.ndarray] = {}
+        for item in inputs:
+            name = item.name.lower()
+            if "audio_signal" in name:
+                feed[item.name] = chunk[None, :, :]
+            elif name == "length" or name.endswith("_length") or name.endswith("length"):
+                feed[item.name] = np.array([valid_frames], dtype=np.int64)
+            else:
+                feed[item.name] = cache_values[item.name]
+
+        outputs = session.run(None, feed)
+        output_meta = session.get_outputs()
+        logits_index = next(
+            (index for index, item in enumerate(output_meta) if len(item.shape) >= 3),
+            0,
+        )
+        logits = np.asarray(outputs[logits_index])
+        if logits.ndim == 3:
+            logits = logits[0]
+        if logits.ndim != 2:
+            raise ValueError("Unexpected Shenava logits shape")
+        if logits.shape[0] > logits.shape[1]:
+            logits = logits.T
+        for token_id in np.argmax(logits, axis=1).tolist():
+            if token_id == 1024:
+                previous_token = token_id
+                continue
+            if token_id == previous_token:
+                continue
+            if 0 <= token_id < len(tokens):
+                output_tokens.append(tokens[token_id])
+            previous_token = token_id
+
+        # Feed returned cache tensors into the next chunk. ONNX exports do not
+        # agree on whether the output is called ``cache_last_channel_next`` or
+        # simply ``cache_last_channel``; match by stem first and fall back to
+        # the documented input/output cache order.
+        cache_outputs = [
+            (index, item)
+            for index, item in enumerate(output_meta)
+            if index != logits_index and "cache" in item.name.lower()
+        ]
+        used_outputs: set[int] = set()
+        for input_item in cache_inputs:
+            input_name = input_item.name.lower()
+            match = next(
+                (
+                    (index, item)
+                    for index, item in cache_outputs
+                    if index not in used_outputs
+                    and (
+                        input_name in item.name.lower()
+                        or item.name.lower().startswith(input_name)
+                    )
+                ),
+                None,
+            )
+            if match is None:
+                match = next(
+                    ((index, item) for index, item in cache_outputs if index not in used_outputs),
+                    None,
+                )
+            if match is not None:
+                index, _ = match
+                cache_values[input_item.name] = np.asarray(outputs[index])
+                used_outputs.add(index)
+        frame_start += 112
+
+    text = "".join(token.replace("▁", " ") for token in output_tokens).strip()
+    return normalize_persian_text(_clean_repetitive_text(text))
+
+
+async def _transcribe_local_shenava(
+    audio_buffer: bytes, config: dict
+) -> dict[str, Union[str, float]]:
+    """Transcribe with Shenava without requiring a running C++ sidecar."""
+    started = time.perf_counter()
+    text = await asyncio.to_thread(_run_shenava_inference, audio_buffer, config)
+    if not text:
+        raise ValueError("Shenava returned no transcript")
+    return {
+        "text": text,
+        "transcriptionDuration": float(f"{time.perf_counter() - started:.2f}"),
+    }
 
 
 async def _transcribe_external_api(
     audio_buffer: bytes, config: dict
 ) -> dict[str, Union[str, float]]:
-    """Transcribe using external Whisper API (existing logic)."""
+    """Transcribe using an external OpenAI-compatible ASR API."""
     filename, content_type = _detect_audio_format(audio_buffer)
     async with httpx.AsyncClient(timeout=httpx.Timeout(600.0)) as client:
         files = {"file": (filename, audio_buffer, content_type)}
+        language = resolve_asr_language(config)
         data = {
-            "model": config["WHISPER_MODEL"],
-            "language": "en",
+            "model": config.get("ASR_MODEL") or config.get("WHISPER_MODEL", "whisper-1"),
             "temperature": "0.1",
             "vad_filter": "true",
+            "task": "transcribe",
             "response_format": "verbose_json",
             "timestamp_granularities[]": "segment",
         }
+        # Omitting language lets multilingual engines detect a mixed
+        # Persian/English recording. ``fa`` gives Persian-first decoding.
+        if language != "auto":
+            data["language"] = language
 
         transcription_start = time.perf_counter()
 
         headers = {}
-        whisper_key = config.get("WHISPER_KEY", "").strip()
+        whisper_key = (config.get("ASR_KEY") or config.get("WHISPER_KEY") or "").strip()
         if whisper_key:
             headers["Authorization"] = f"Bearer {whisper_key}"
 
         try:
-            whisper_base_url = (config.get("WHISPER_BASE_URL") or "").strip().rstrip("/")
+            whisper_base_url = (
+                config.get("ASR_BASE_URL") or config.get("WHISPER_BASE_URL") or ""
+            ).strip().rstrip("/")
             if whisper_base_url.lower().endswith("/v1"):
                 whisper_base_url = whisper_base_url[:-3]
 
@@ -155,8 +480,8 @@ async def _transcribe_external_api(
         else:
             transcript_text = result["text"]
 
-        # Clean repetitive text patterns
-        transcript_text = _clean_repetitive_text(transcript_text)
+        # Clean repetitive text patterns and normalize Arabic/Persian Unicode.
+        transcript_text = normalize_persian_text(_clean_repetitive_text(transcript_text))
 
         return {
             "text": transcript_text,

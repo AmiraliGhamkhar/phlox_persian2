@@ -14,7 +14,7 @@ import { FiRefreshCw } from "react-icons/fi";
 
 const ResetToDefaultButton = ({
   onClick,
-  children = "Reset to Default",
+  children = "بازنشانی به پیش‌فرض",
   ...props
 }) => (
   <Button
@@ -45,13 +45,13 @@ const PromptSettingsPanel = ({
         <Flex align="center">
           <IconButton
             onClick={() => setIsCollapsed(!isCollapsed)}
-            aria-label="Toggle collapse"
+            aria-label="باز و بسته کردن بخش"
             variant="outline"
             size="sm"
             mr="2"
             className="collapse-toggle">{isCollapsed ? <ChevronRightIcon /> : <ChevronDownIcon />}</IconButton>
           <FaPencilAlt size="1.2em" style={{ marginRight: "5px" }} />
-          <Text as="h3">Prompt Settings</Text>
+          <Text as="h3">تنظیمات دستورها</Text>
         </Flex>
       </Flex>
       <Collapsible.Root open={!isCollapsed}>
@@ -59,8 +59,8 @@ const PromptSettingsPanel = ({
           <Alert.Root status="warning" mt={4} borderRadius="sm">
             <Alert.Indicator color="secondaryButton" />
             <Alert.Description fontSize="sm">
-              These prompts are carefully crafted defaults. We recommend not
-              changing them unless you have a specific reason.
+              این دستورها پیش‌فرض‌های با دقت تنظیم‌شده هستند. توصیه می‌کنیم
+              مگر برای دلیل مشخص آن‌ها را تغییر ندهید.
             </Alert.Description>
           </Alert.Root>
           <Tabs.Root
@@ -70,43 +70,43 @@ const PromptSettingsPanel = ({
             onValueChange={({ value }) => setTabIndex(value)}
           >
             <Tabs.List>
-              <Tooltip content="System prompt used for refining the generated outputs">
+              <Tooltip content="دستور سیستم برای بهبود خروجی‌های تولیدشده">
                 <Tabs.Trigger className="tab-style" value="0">
                   <HStack>
                     <FaPencilAlt />
-                    <Text>Refinement</Text>
+                    <Text>بهبود متن</Text>
                   </HStack>
                 </Tabs.Trigger>
               </Tooltip>
-              <Tooltip content="System prompt used for generating summaries">
+              <Tooltip content="دستور سیستم برای تولید خلاصه‌ها">
                 <Tabs.Trigger className="tab-style" value="1">
                   <HStack>
                     <FaFileAlt />
-                    <Text>Summary</Text>
+                    <Text>خلاصه</Text>
                   </HStack>
                 </Tabs.Trigger>
               </Tooltip>
-              <Tooltip content="System prompt used for chat interactions">
+              <Tooltip content="دستور سیستم برای گفت‌وگو">
                 <Tabs.Trigger className="tab-style" value="2">
                   <HStack>
                     <FaComments />
-                    <Text>Chat</Text>
+                    <Text>گفت‌وگو</Text>
                   </HStack>
                 </Tabs.Trigger>
               </Tooltip>
-              <Tooltip content="System prompt used for generating letters">
+              <Tooltip content="دستور سیستم برای تولید نامه‌ها">
                 <Tabs.Trigger className="tab-style" value="3">
                   <HStack>
                     <FaEnvelope />
-                    <Text>Letter</Text>
+                    <Text>نامه</Text>
                   </HStack>
                 </Tabs.Trigger>
               </Tooltip>
-              <Tooltip content="Technical settings for model configuration">
+              <Tooltip content="تنظیمات فنی پیکربندی مدل">
                 <Tabs.Trigger className="tab-style" value="4">
                   <HStack>
                     <FaCog />
-                    <Text>Advanced</Text>
+                    <Text>پیشرفته</Text>
                   </HStack>
                 </Tabs.Trigger>
               </Tooltip>
@@ -117,10 +117,10 @@ const PromptSettingsPanel = ({
                   <Flex justify="space-between" align="center">
                     <Box>
                       <Text fontSize="md" fontWeight="bold">
-                        Refinement Prompt
+                        دستور بهبود متن
                       </Text>
                       <Text fontSize="sm" color="overlay0">
-                        System prompt used for refining the generated outputs
+                        دستور سیستم برای بهبود خروجی‌های تولیدشده
                       </Text>
                     </Box>
                     <ResetToDefaultButton
@@ -145,10 +145,10 @@ const PromptSettingsPanel = ({
                   <Flex justify="space-between" align="center">
                     <Box>
                       <Text fontSize="md" fontWeight="bold">
-                        Summary Prompt
+                        دستور خلاصه
                       </Text>
                       <Text fontSize="sm" color="overlay0">
-                        System prompt used for generating summaries
+                        دستور سیستم برای تولید خلاصه‌ها
                       </Text>
                     </Box>
                     <ResetToDefaultButton
@@ -173,10 +173,10 @@ const PromptSettingsPanel = ({
                   <Flex justify="space-between" align="center">
                     <Box>
                       <Text fontSize="md" fontWeight="bold">
-                        Chat Prompt
+                        دستور گفت‌وگو
                       </Text>
                       <Text fontSize="sm" color="overlay0">
-                        System prompt used for chat interactions
+                        دستور سیستم برای گفت‌وگو
                       </Text>
                     </Box>
                     <ResetToDefaultButton
@@ -201,10 +201,10 @@ const PromptSettingsPanel = ({
                   <Flex justify="space-between" align="center">
                     <Box>
                       <Text fontSize="md" fontWeight="bold">
-                        Letter Prompt
+                        دستور نامه
                       </Text>
                       <Text fontSize="sm" color="overlay0">
-                        System prompt used for generating letters
+                        دستور سیستم برای تولید نامه‌ها
                       </Text>
                     </Box>
                     <ResetToDefaultButton

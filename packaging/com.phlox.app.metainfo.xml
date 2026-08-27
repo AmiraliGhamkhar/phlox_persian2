@@ -19,8 +19,8 @@
       for external tools, and document processing via vision language models.
     </p>
     <p>
-      The desktop app comes bundled with both transcription (parakeet.cpp)
-      and LLM inference (llama.cpp) engines using the Vulkan backend for
+      The desktop app comes bundled with both ASR (whisper.cpp) and LLM
+      inference (llama.cpp) engines using the Vulkan backend for
       GPU acceleration on AMD, Intel, and NVIDIA hardware.
     </p>
   </description>

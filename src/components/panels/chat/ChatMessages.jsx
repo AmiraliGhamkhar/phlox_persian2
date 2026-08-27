@@ -107,7 +107,7 @@ const ChatMessages = ({
                                         <HStack gap={1.5} mb={0.5}>
                                             <Image
                                                 src="/logo.webp"
-                                                alt="Phlox Assistant"
+                                                alt="دستیار فلوکس"
                                                 boxSize="14px"
                                                 objectFit="contain"
                                             />
@@ -117,7 +117,7 @@ const ChatMessages = ({
                                                 color="overlay0"
                                                 lineHeight="1"
                                             >
-                                                Phlox Assistant
+                                                دستیار فلوکس
                                             </Text>
                                         </HStack>
                                     )}

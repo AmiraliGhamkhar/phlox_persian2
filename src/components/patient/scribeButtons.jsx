@@ -185,7 +185,7 @@ export const ModeResetButton = ({
     if (isRecording) {
         // Reset button state
         return (
-            <Tooltip content="Reset" showArrow positioning={{
+            <Tooltip content="بازنشانی" showArrow positioning={{
                 placement: "top"
             }}>
                 <Box
@@ -264,7 +264,7 @@ export const TranscriptSendButton = ({
     if (isRecording) {
         // Send button state
         return (
-            <Tooltip content="Stop and send" showArrow positioning={{
+            <Tooltip content="توقف و ارسال" showArrow positioning={{
                 placement: "top"
             }}>
                 <Box
@@ -296,7 +296,7 @@ export const TranscriptSendButton = ({
 
     // Transcript button state
     const isDisabled = !hasRawTranscription;
-    const label = isDisabled ? "No transcript available" : "Transcript";
+    const label = isDisabled ? "متن پیاده‌سازی‌شده‌ای موجود نیست" : "متن پیاده‌سازی‌شده";
 
     return (
         <Tooltip content={label} showArrow positioning={{
@@ -345,7 +345,7 @@ export const TranscriptionFailurePill = ({
         gap={2}
     >
         <Tooltip
-            content={sendError?.message || "Transcription failed"}
+            content={sendError?.message || "پیاده‌سازی ناموفق بود"}
             showArrow
             positioning={{
                 placement: "top"
@@ -358,7 +358,7 @@ export const TranscriptionFailurePill = ({
                 </Text>
             </Flex>
         </Tooltip>
-        <Tooltip content="Retry sending" showArrow positioning={{
+        <Tooltip content="تلاش دوباره برای ارسال" showArrow positioning={{
             placement: "top"
         }}>
             <Box
@@ -384,7 +384,7 @@ export const TranscriptionFailurePill = ({
                     <FaRedoAlt size={13} />
                 </button></Box>
         </Tooltip>
-        <Tooltip content="Download audio to retry later" showArrow positioning={{
+        <Tooltip content="دانلود صدا برای تلاش دوباره در آینده" showArrow positioning={{
             placement: "top"
         }}>
             <Box
@@ -411,7 +411,7 @@ export const TranscriptionFailurePill = ({
                 </button></Box>
         </Tooltip>
         <Tooltip
-            content="Dismiss — download first to keep the audio"
+            content="بستن — برای نگه‌داشتن صدا ابتدا آن را دانلود کنید"
             showArrow
             positioning={{
                 placement: "top"

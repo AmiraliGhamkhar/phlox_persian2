@@ -17,9 +17,9 @@ export const EmptyState = ({ loading, status, onGenerate }) => {
             <Button
                 onClick={onGenerate}
                 loading={loading}
-                loadingText={status || "Generating"}
+                loadingText={status || "در حال تولید..."}
                 size="sm"
-                className="green-button"><FaAtom />Generate Chart Insights
+                className="green-button"><FaAtom />تولید بینش‌های نمودار
                             </Button>
         </VStack>
     );

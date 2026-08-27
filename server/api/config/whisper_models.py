@@ -1,7 +1,7 @@
 """
-Whisper model management API endpoints.
+ASR model management API endpoints.
 
-Provides endpoints for downloading, listing, and deleting Whisper models.
+Provides backwards-compatible Whisper routes and canonical ASR routes for downloading, listing, and deleting models.
 """
 
 import asyncio
@@ -9,54 +9,59 @@ import json
 import logging
 
 from fastapi import APIRouter, Body, HTTPException
+
+from server.database.config.manager import config_manager
 from fastapi.responses import StreamingResponse
 
 from server.constants import IS_DOCKER
-from server.utils.whisper_models import whisper_model_manager
+from server.utils.asr_models import asr_model_manager
 
 router = APIRouter()
 logger = logging.getLogger(__name__)
 
 
+@router.get("/local/asr/models/available")
 @router.get("/local/whisper/models/available")
 async def get_available_whisper_models():
-    """Get list of available Whisper models for download."""
+    """Get list of available ASR models for download."""
     if IS_DOCKER:
         raise HTTPException(
             status_code=400,
-            detail="Whisper models are only available in Tauri builds",
+            detail="ASR models are only available in Tauri builds",
         )
 
-    models = whisper_model_manager.get_available_models()
+    models = asr_model_manager.get_available_models()
     return {"models": models}
 
 
+@router.get("/local/asr/models/downloaded")
 @router.get("/local/whisper/models/downloaded")
 async def get_downloaded_whisper_models():
-    """Get list of downloaded Whisper models."""
+    """Get list of downloaded ASR models."""
     if IS_DOCKER:
         raise HTTPException(
             status_code=400,
-            detail="Whisper models are only available in Tauri builds",
+            detail="ASR models are only available in Tauri builds",
         )
 
-    models = whisper_model_manager.get_downloaded_models()
+    models = asr_model_manager.get_downloaded_models()
     return {"models": models}
 
 
+@router.post("/local/asr/models/download")
 @router.post("/local/whisper/models/download")
 async def download_whisper_model(
-    model_id: str = Body(..., embed=True, description="Whisper model ID to download"),
+    model_id: str = Body(..., embed=True, description="ASR model ID to download"),
 ):
-    """Download a Whisper model."""
+    """Download an ASR model."""
     if IS_DOCKER:
         raise HTTPException(
             status_code=400,
-            detail="Whisper models are only available in Tauri builds",
+            detail="ASR models are only available in Tauri builds",
         )
 
     try:
-        path = await whisper_model_manager.download_model(model_id)
+        path = await asr_model_manager.download_model(model_id)
         return {"message": "Model downloaded successfully", "path": path}
     except ValueError as e:
         raise HTTPException(status_code=404, detail=str(e)) from e
@@ -65,13 +70,14 @@ async def download_whisper_model(
         raise HTTPException(status_code=500, detail="Failed to download model") from e
 
 
+@router.get("/local/asr/models/download/stream")
 @router.get("/local/whisper/models/download/stream")
 async def download_whisper_model_stream(model_id: str):
-    """Stream download progress for Whisper model using SSE."""
+    """Stream ASR model download progress using SSE."""
     if IS_DOCKER:
         raise HTTPException(
             status_code=400,
-            detail="Whisper models are only available in Tauri builds",
+            detail="ASR models are only available in Tauri builds",
         )
 
     if not model_id:
@@ -96,7 +102,7 @@ async def download_whisper_model_stream(model_id: str):
 
         # Start download in background task
         download_task = asyncio.create_task(
-            whisper_model_manager.download_model(model_id, progress_callback=progress_callback)
+            asr_model_manager.download_model(model_id, progress_callback=progress_callback)
         )
 
         # Send start event
@@ -124,58 +130,89 @@ async def download_whisper_model_stream(model_id: str):
     return StreamingResponse(generate(), media_type="text/event-stream")
 
 
-@router.delete("/local/whisper/models/{model_id}")
-async def delete_whisper_model(model_id: str):
-    """Delete a downloaded Whisper model."""
+@router.post("/local/asr/models/select")
+@router.post("/local/whisper/models/select")
+async def select_whisper_model(
+    model_id: str = Body(..., embed=True, description="Downloaded ASR model ID"),
+):
+    """Select the local ASR model used by the next transcription request."""
     if IS_DOCKER:
         raise HTTPException(
             status_code=400,
-            detail="Whisper models are only available in Tauri builds",
+            detail="ASR models are only available in Tauri builds",
         )
 
-    success = whisper_model_manager.delete_model(model_id)
+    try:
+        selected = asr_model_manager.select_model(model_id)
+        # Keep the encrypted application configuration and the plaintext
+        # process-manager marker synchronized. Legacy aliases remain readable.
+        config_manager.update_config(
+            {
+                "ASR_PROVIDER": "local",
+                "ASR_MODEL": model_id,
+                "WHISPER_MODEL": model_id,
+                "ASR_BASE_URL": "",
+                "WHISPER_BASE_URL": "",
+            }
+        )
+        return {"model": selected}
+    except ValueError as error:
+        raise HTTPException(status_code=404, detail=str(error)) from error
+
+
+@router.delete("/local/asr/models/{model_id}")
+@router.delete("/local/whisper/models/{model_id}")
+async def delete_whisper_model(model_id: str):
+    """Delete a downloaded ASR model."""
+    if IS_DOCKER:
+        raise HTTPException(
+            status_code=400,
+            detail="ASR models are only available in Tauri builds",
+        )
+
+    success = asr_model_manager.delete_model(model_id)
     if not success:
         raise HTTPException(status_code=404, detail="Model not found")
     return {"message": "Model deleted successfully"}
 
 
+@router.get("/local/asr/status")
 @router.get("/local/whisper/status")
 async def get_whisper_status():
-    """Get status of local Whisper installation."""
+    """Get status of local ASR installation."""
     if IS_DOCKER:
         return {
             "available": False,
-            "reason": "Whisper models are only available in Tauri builds",
+            "reason": "ASR models are only available in Tauri builds",
         }
 
-    models = whisper_model_manager.get_downloaded_models()
-    default_exists = whisper_model_manager.ensure_default_model_exists()
+    models = asr_model_manager.get_downloaded_models()
+    default_exists = asr_model_manager.ensure_default_model_exists()
 
     return {
         "available": len(models) > 0,
         "models": models,
         "models_count": len(models),
         "default_model_exists": default_exists,
-        "models_dir": str(whisper_model_manager.models_dir),
+        "models_dir": str(asr_model_manager.models_dir),
     }
 
 
+@router.get("/local/asr/model-recommendations")
 @router.get("/local/whisper/model-recommendations")
 async def get_whisper_model_recommendations():
-    """Get Whisper model recommendations.
-
-    Returns a curated list of models with plain English descriptions.
-    """
-    model_recommendations = [
-        {
-            "id": "omi-med-stt-v1-q8_0",
-            "name": "omi-med-stt-v1-q8_0",
-            "simple_name": "Omi Med STT",
-            "size": "886MB",
-            "description": "English medical speech-to-text, tuned for clinical use",
-            "badge": "⭐ Recommended",
-            "badge_color": "purple",
-        },
-    ]
-
-    return {"models": model_recommendations}
+    """Return the complete curated local ASR catalog for easy model switching."""
+    recommendations = []
+    for model in asr_model_manager.get_available_models():
+        is_recommended = model["id"] == "whisper-large-v3-turbo-q5_0"
+        recommendations.append(
+            {
+                **model,
+                "simple_name": model["name"],
+                "size": f'{model["size_mb"]}MB',
+                "recommendedType": "recommended" if is_recommended else "alternative",
+                "badge": "⭐ پیشنهادشده" if is_recommended else None,
+                "badge_color": "purple" if is_recommended else None,
+            }
+        )
+    return {"models": recommendations}

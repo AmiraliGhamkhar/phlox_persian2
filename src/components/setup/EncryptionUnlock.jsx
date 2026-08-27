@@ -5,6 +5,7 @@ import { toaster } from "@/components/ui/toaster";
 import { FaEye, FaEyeSlash } from "react-icons/fa";
 import { encryptionApi } from "../../utils/api/encryptionApi";
 import { resetApiConfig, isTauri } from "../../utils/helpers/apiConfig";
+import { settingsApi } from "../../utils/api/settingsApi";
 
 const EncryptionUnlock = ({ onComplete }) => {
 
@@ -17,7 +18,7 @@ const EncryptionUnlock = ({ onComplete }) => {
   const handleSubmit = useCallback(async () => {
     if (passphrase.length < 1) {
       toaster.create({
-        title: "Passphrase Required",
+        title: "عبارت عبور الزامی است",
         description: "Please enter your passphrase to unlock.",
         type: "warning",
         duration: 3000,
@@ -45,31 +46,39 @@ const EncryptionUnlock = ({ onComplete }) => {
       // Reset cached port so we get the new server port
       resetApiConfig();
 
-      // Start llama and whisper services after server is up
-      // They will use the ports allocated by the Python server
-      try {
-        await invoke("start_llama_service");
-      } catch (llamaError) {
-        console.warn(
-          "Llama service did not start (no model downloaded yet):",
-          llamaError,
-        );
+      // Start only the local inference sidecars selected in settings. Remote
+      // providers, including Speechmatics, do not need local processes.
+      const runtimeConfig = await settingsApi.fetchConfig().catch(() => ({}));
+      const llmProvider = runtimeConfig.LLM_PROVIDER || "local";
+      const asrProvider = runtimeConfig.ASR_PROVIDER || runtimeConfig.WHISPER_PROVIDER || "local";
+
+      if (llmProvider === "local") {
+        try {
+          await invoke("start_llama_service");
+        } catch (llamaError) {
+          console.warn(
+            "سرویس مدل زبانی محلی راه‌اندازی نشد (هنوز مدلی دانلود نشده است):",
+            llamaError,
+          );
+        }
       }
 
-      try {
-        await invoke("start_whisper_service");
-      } catch (whisperError) {
-        console.warn(
-          "Whisper service did not start (no model downloaded yet):",
-          whisperError,
-        );
+      if (asrProvider === "local") {
+        try {
+          await invoke("start_whisper_service");
+        } catch (whisperError) {
+          console.warn(
+            "سرویس ASR محلی راه‌اندازی نشد (هنوز مدلی دانلود نشده است):",
+            whisperError,
+          );
+        }
       }
 
       try {
         await invoke("start_embedding_service");
       } catch (embeddingError) {
         console.warn(
-          "Embedding service did not start (no model downloaded yet):",
+          "سرویس بردارسازی راه‌اندازی نشد (هنوز مدلی دانلود نشده است):",
           embeddingError,
         );
       }
@@ -92,8 +101,8 @@ const EncryptionUnlock = ({ onComplete }) => {
 
       toaster.create({
         title: isPassphraseError
-          ? "Incorrect Passphrase"
-          : "Server Failed to Start",
+          ? "عبارت عبور نادرست است"
+          : "راه‌اندازی سرور ناموفق بود",
         description: isPassphraseError
           ? "The passphrase you entered is incorrect. Please try again."
           : "The server couldn't start (this isn't a passphrase problem). Click Unlock to retry — it will re-launch the server.",
@@ -219,7 +228,7 @@ const EncryptionUnlock = ({ onComplete }) => {
               <HStack>
                 <Input
                   type={showPassword ? "text" : "password"}
-                  placeholder="Enter your passphrase"
+                  placeholder="عبارت عبور خود را وارد کنید"
                   value={passphrase}
                   onChange={(e) => setPassphrase(e.target.value)}
                   onKeyPress={handleKeyPress}
@@ -240,7 +249,7 @@ const EncryptionUnlock = ({ onComplete }) => {
                   size="md"
                   variant="ghost"
                   onClick={() => setShowPassword(!showPassword)}
-                  aria-label="Toggle password visibility"
+                  aria-label="نمایش یا پنهان کردن رمز عبور"
                 >
                   <Icon as={showPassword ? FaEyeSlash : FaEye} />
                 </Button>
@@ -251,7 +260,7 @@ const EncryptionUnlock = ({ onComplete }) => {
           <Button
             onClick={handleSubmit}
             loading={isSubmitting}
-            loadingText="Unlocking..."
+            loadingText="در حال باز کردن قفل..."
             disabled={passphrase.length < 1}
             borderRadius="2xl"
             size="lg"

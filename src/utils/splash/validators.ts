@@ -13,8 +13,13 @@ export const validateTranscriptionStep = (
   whisperBaseUrl,
   whisperModelListAvailable,
   availableWhisperModels,
-  whisperModel
+  whisperModel,
+  asrProvider = "openai_compatible",
+  asrApiKey = "",
 ) => {
+  if (asrProvider === "speechmatics") {
+    return asrApiKey.trim() !== "";
+  }
   if (whisperBaseUrl.trim() === "") {
     return true; // Optional step
   }

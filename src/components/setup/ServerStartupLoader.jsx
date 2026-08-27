@@ -5,21 +5,21 @@ import { settingsApi } from "../../utils/api/settingsApi";
 import { isTauri } from "../../utils/helpers/apiConfig";
 
 const LOADING_MESSAGES = [
-  "Reticulating splines...",
-  "Initializing quip database...",
-  "Herding cats...",
-  "Warming up the hamsters...",
-  "Calculating escape velocity...",
-  "Decrypting the arc of the covenant...",
-  "Consulting the oracle...",
-  "Synergizing our core competencies...",
-  "Aligning our chakras...",
-  "Loading next experience point...",
-  "Polishing the bits...",
-  "Defragmenting the ether...",
-  "Convincing the AI to cooperate...",
-  "Applying coffee to the problem...",
-  "Downloading more RAM...",
+  "در حال آماده‌سازی زیرساخت...",
+  "در حال راه‌اندازی پایگاه داده...",
+  "در حال مرتب‌سازی فرایندها...",
+  "در حال آماده‌سازی موتور پردازش...",
+  "در حال بررسی منابع سیستم...",
+  "در حال رمزگشایی داده‌ها...",
+  "در حال بررسی وضعیت سرویس‌ها...",
+  "در حال هماهنگ‌سازی اجزای اصلی...",
+  "در حال آماده‌سازی محیط...",
+  "در حال بارگذاری مرحله بعد...",
+  "در حال آماده‌سازی مدل‌ها...",
+  "در حال بهینه‌سازی حافظه...",
+  "در حال اتصال به موتور هوش مصنوعی...",
+  "در حال تکمیل آماده‌سازی...",
+  "در حال تخصیص حافظه بیشتر...",
 ];
 
 const POLL_INTERVAL = 2000; // ms - increased to reduce CPU load
@@ -153,14 +153,14 @@ const ServerStartupLoader = ({ onReady, onError }) => {
                 fontWeight: "700"
               }}
             >
-              Server Taking Too Long
+              راه‌اندازی سرور بیش از حد طول کشید
             </Heading>
             <Text color={"textSecondary"}>
-              The server is taking longer than expected to start. This might be
-              due to system resources or other factors.
+              راه‌اندازی سرور بیشتر از زمان معمول طول کشیده است. ممکن است منابع
+              سیستم یا عوامل دیگری باعث این تأخیر شده باشند.
             </Text>
             <Text color={"textSecondary"} fontSize="sm">
-              Waited {Math.floor(elapsed / 1000)} seconds
+              مدت انتظار: {Math.floor(elapsed / 1000)} ثانیه
             </Text>
             <Button
               onClick={handleRetry}
@@ -171,7 +171,7 @@ const ServerStartupLoader = ({ onReady, onError }) => {
                 fontWeight: "600"
               }}
             >
-              Try Again
+              تلاش دوباره
             </Button>
           </VStack>
         </Box>
@@ -227,7 +227,7 @@ const ServerStartupLoader = ({ onReady, onError }) => {
               fontWeight: "700"
             }}
           >
-            Starting Server
+            در حال راه‌اندازی سرور
           </Heading>
           <Text color={"textSecondary"} fontSize="lg" minH="2rem">
             {LOADING_MESSAGES[messageIndex]}

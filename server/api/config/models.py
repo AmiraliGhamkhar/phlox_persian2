@@ -137,21 +137,29 @@ async def get_llm_models(
         raise HTTPException(status_code=500, detail="Internal Server Error") from e
 
 
+@router.get("/asr/models")
 @router.get("/whisper/models")
 async def get_whisper_models(
-    whisperEndpoint: str = Query(..., description="The endpoint for Whisper API"),
+    whisperEndpoint: str | None = Query(None, description="Legacy ASR endpoint parameter"),
+    asrEndpoint: str | None = Query(None, description="The endpoint for the ASR API"),
 ):
-    """Fetch available Whisper models from the configured endpoint.
+    """Fetch available automatic speech recognition models from the configured endpoint.
 
     Accepts endpoints with or without a terminal /v1 segment.
     Only works if the instance exposes a compatible /v1/models endpoint
-    (e.g. Speaches); otherwise returns an empty list.
+    (for example an OpenAI-compatible Whisper or faster-whisper server). The
+    endpoint is treated as an ASR endpoint, so multilingual model ids are
+    accepted instead of filtering only ids containing the word Whisper.
     """
     try:
+        endpoint = (asrEndpoint or whisperEndpoint or "").strip()
+        if not endpoint:
+            raise HTTPException(status_code=422, detail="ASR endpoint is required")
+
         # First try to fetch models from the endpoint
         async with httpx.AsyncClient() as client:
             try:
-                url = build_whisper_v1_url(whisperEndpoint, "models")
+                url = build_whisper_v1_url(endpoint, "models")
                 response = await client.get(url, timeout=5.0)
 
                 if response.status_code == 200:
@@ -159,18 +167,17 @@ async def get_whisper_models(
                     data = response.json()
                     # Extract model names depending on the API structure
                     models = []
-                    if isinstance(data, list):
-                        models = [
-                            model.get("id", model.get("name", ""))
-                            for model in data
-                            if "whisper" in str(model).lower()
-                        ]
-                    elif isinstance(data, dict) and "data" in data:
-                        models = [
-                            model.get("id", model.get("name", ""))
-                            for model in data["data"]
-                            if "whisper" in str(model).lower()
-                        ]
+                    entries = data if isinstance(data, list) else data.get("data", []) if isinstance(data, dict) else []
+                    models = []
+                    for model in entries:
+                        if isinstance(model, str):
+                            model_id = model
+                        elif isinstance(model, dict):
+                            model_id = model.get("id", model.get("name", ""))
+                        else:
+                            model_id = ""
+                        if model_id:
+                            models.append(str(model_id))
 
                     # If we found some models, return them
                     if models:

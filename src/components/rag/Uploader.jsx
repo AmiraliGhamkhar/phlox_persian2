@@ -31,7 +31,7 @@ const Uploader = ({ isCollapsed, setIsCollapsed, setCollections }) => {
         try {
             if (!pdfFile) {
                 toaster.create({
-                    title: "No file selected",
+                    title: "فایلی انتخاب نشده است",
                     description: "Please select a PDF file to upload",
                     type: "warning",
                     duration: 3000,
@@ -48,7 +48,7 @@ const Uploader = ({ isCollapsed, setIsCollapsed, setCollections }) => {
             setFocusArea(result.focus_area);
             setTitle(result.title || "");
             toaster.create({
-                title: "Extraction Successful",
+                title: "استخراج موفق بود",
                 description: result.extractedText
                     ? "PDF information extracted successfully"
                     : "PDF information extracted via backend fallback",
@@ -58,7 +58,7 @@ const Uploader = ({ isCollapsed, setIsCollapsed, setCollections }) => {
         } catch (error) {
             console.error("Error extracting PDF info:", error);
             toaster.create({
-                title: "Extraction Failed",
+                title: "استخراج ناموفق بود",
                 description:
                     error.message || "Failed to extract PDF information",
                 type: "error",
@@ -72,7 +72,7 @@ const Uploader = ({ isCollapsed, setIsCollapsed, setCollections }) => {
     const handleCommitToDatabase = async () => {
         if (!pdfData) {
             toaster.create({
-                title: "No Data to Commit",
+                title: "داده‌ای برای ثبت وجود ندارد",
                 description: "Please extract PDF information first",
                 type: "warning",
                 duration: 3000,
@@ -118,14 +118,14 @@ const Uploader = ({ isCollapsed, setIsCollapsed, setCollections }) => {
             setPdfData(null);
             toaster.create({
                 title: "Commit Successful",
-                description: "Data successfully committed to the database",
+                description: "داده‌ها با موفقیت در پایگاه داده ثبت شدند",
                 type: "success",
                 duration: 3000,
             });
         } catch (error) {
             console.error("Error committing to database:", error);
             toaster.create({
-                title: "Error",
+                title: "خطا",
                 description:
                     error.message || "Failed to commit data to the database",
                 type: "error",
@@ -141,7 +141,7 @@ const Uploader = ({ isCollapsed, setIsCollapsed, setCollections }) => {
                 <Flex align="center">
                     <IconButton
                         onClick={() => setIsCollapsed(!isCollapsed)}
-                        aria-label="Toggle collapse"
+                        aria-label="باز و بسته کردن بخش"
                         variant="outline"
                         size="sm"
                         mr="2"
@@ -152,7 +152,7 @@ const Uploader = ({ isCollapsed, setIsCollapsed, setCollections }) => {
                         )}</IconButton>
                     <HStack gap={2}>
                         <MdFileUpload size="1.2em" />
-                        <Text as="h3">Upload Documents</Text>
+                        <Text as="h3">بارگذاری اسناد</Text>
                     </HStack>
                 </Flex>
             </Flex>
@@ -163,13 +163,13 @@ const Uploader = ({ isCollapsed, setIsCollapsed, setCollections }) => {
                             <Tabs.Trigger className="tab-style" value="0">
                                 <HStack>
                                     <MdFileUpload />
-                                    <Text>Single Upload</Text>
+                                    <Text>بارگذاری تکی</Text>
                                 </HStack>
                             </Tabs.Trigger>
                             <Tabs.Trigger className="tab-style" value="1">
                                 <HStack>
                                     <FaCloudUploadAlt />
-                                    <Text>Bulk Upload</Text>
+                                    <Text>بارگذاری گروهی</Text>
                                 </HStack>
                             </Tabs.Trigger>
                         </Tabs.List>
@@ -186,20 +186,20 @@ const Uploader = ({ isCollapsed, setIsCollapsed, setCollections }) => {
                                         onClick={handleExtractPdfInfo}
                                         width="220px"
                                         loading={isExtracting}
-                                        loadingText="Extracting..."
+                                        loadingText="در حال استخراج..."
                                         className="orange-button"
-                                        alignSelf="flex-start"><AddIcon />Extract PDF Info
+                                        alignSelf="flex-start"><AddIcon />استخراج اطلاعات PDF
                                                                         </Button>
                                     {pdfData && (
                                         <VStack gap={3} align="stretch" mt={2}>
-                                            <Text fontWeight="bold">Extracted Information</Text>
+                                            <Text fontWeight="bold">اطلاعات استخراج‌شده</Text>
                                             <Field.Root>
                                             <Field.Label htmlFor="custom-collection">
                                                 Collection Name:
                                             </Field.Label>
                                             <Input
                                                 id="custom-collection"
-                                                placeholder="Custom Collection Name"
+                                                placeholder="نام سفارشی مجموعه"
                                                 className="input-style"
                                                 value={customCollectionName}
                                                 onChange={(e) =>
@@ -213,7 +213,7 @@ const Uploader = ({ isCollapsed, setIsCollapsed, setCollections }) => {
                                             </Field.Label>
                                             <Input
                                                 id="document-source"
-                                                placeholder="Document Source"
+                                                placeholder="منبع سند"
                                                 className="input-style"
                                                 value={documentSource}
                                                 onChange={(e) =>
@@ -227,7 +227,7 @@ const Uploader = ({ isCollapsed, setIsCollapsed, setCollections }) => {
                                             </Field.Label>
                                             <Input
                                                 id="focus-area"
-                                                placeholder="Focus Area"
+                                                placeholder="حوزه تمرکز"
                                                 className="input-style"
                                                 value={focusArea}
                                                 onChange={(e) => setFocusArea(e.target.value)}
@@ -239,7 +239,7 @@ const Uploader = ({ isCollapsed, setIsCollapsed, setCollections }) => {
                                             </Field.Label>
                                             <Input
                                                 id="document-title"
-                                                placeholder="Document Title"
+                                                placeholder="عنوان سند"
                                                 className="input-style"
                                                 value={title}
                                                 onChange={(e) => setTitle(e.target.value)}
@@ -248,10 +248,10 @@ const Uploader = ({ isCollapsed, setIsCollapsed, setCollections }) => {
                                             <Button
                                                 onClick={handleCommitToDatabase}
                                                 loading={isCommitting}
-                                                loadingText="Committing..."
+                                                loadingText="در حال ثبت..."
                                                 className="green-button"
                                                 width="220px"
-                                                alignSelf="flex-start"><AddIcon />Commit to Database
+                                                alignSelf="flex-start"><AddIcon />ثبت در پایگاه داده
                                                                                         </Button>
                                         </VStack>
                                     )}

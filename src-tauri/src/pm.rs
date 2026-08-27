@@ -212,21 +212,29 @@ fn find_llama_mmproj() -> Option<PathBuf> {
     None
 }
 
-/// Find the STT in the models directory.
+/// Find the selected Whisper.cpp model in the models directory.
 fn find_whisper_model() -> Option<PathBuf> {
     let models_dir = phlox_dir()?.join("whisper_models");
 
-    // Primary: the fixed Omi Med STT q8_0 GGUF.
-    let primary = models_dir.join("omi-med-stt-v1-q8_0.gguf");
-    if primary.exists() {
-        return Some(primary);
+    // Python writes this marker after the encrypted ASR configuration is
+    // updated. Restrict it to a filename so it cannot escape the model folder.
+    let selected_file = phlox_dir()?.join("asr_model.txt");
+    if let Ok(model_name) = fs::read_to_string(&selected_file) {
+        let model_name = model_name.trim();
+        if !model_name.contains('/') && !model_name.contains('\\') {
+            let path = models_dir.join(model_name);
+            if path.extension().and_then(|ext| ext.to_str()) == Some("bin") && path.exists() {
+                return Some(path);
+            }
+        }
     }
 
-    // Fallback: any .gguf file in the models directory.
+    // Legacy installations may not have a marker yet. Only .bin artifacts
+    // belong to Whisper.cpp; Shenava .onnx artifacts are run by Python.
     if let Ok(entries) = fs::read_dir(&models_dir) {
         for entry in entries.flatten() {
             let path = entry.path();
-            if path.extension()?.to_str()? == "gguf" {
+            if path.extension().and_then(|ext| ext.to_str()) == Some("bin") {
                 return Some(path);
             }
         }
@@ -328,7 +336,7 @@ fn start_llama(port: Option<u16>) -> Result<ManagedProcess, String> {
 /// Start the whisper server (returns a raw [`ManagedProcess`]).
 fn start_whisper(port: Option<u16>) -> Result<ManagedProcess, String> {
     let server_path = find_whisper_server().ok_or("phlox-whisper-server binary not found")?;
-    let model_path = find_whisper_model().ok_or("No Whisper model found")?;
+    let model_path = find_whisper_model().ok_or("No Whisper.cpp ASR model found")?;
 
     let actual_port = port.unwrap_or(WHISPER_PORT);
 
@@ -340,18 +348,14 @@ fn start_whisper(port: Option<u16>) -> Result<ManagedProcess, String> {
     );
 
     let mut cmd = Command::new(&server_path);
+    // whisper.cpp's HTTP server exposes the OpenAI-compatible
+    // /v1/audio/transcriptions endpoint used by the Python API.
     cmd.arg("--port")
         .arg(actual_port.to_string())
         .arg("--host")
         .arg("127.0.0.1")
         .arg("--model")
-        .arg(model_path.to_string_lossy().as_ref())
-        .arg("--max-seconds")
-        .arg("240")
-        .arg("--chunk-seconds")
-        .arg("240")
-        .arg("--overlap")
-        .arg("5");
+        .arg(model_path.to_string_lossy().as_ref());
 
     #[cfg(unix)]
     {

@@ -52,7 +52,7 @@ const ChatInput = ({
                     value={userInput}
                     onChange={handleChange}
                     onKeyDown={handleKeyDown}
-                    placeholder="Message Phlox..."
+                    placeholder="پیام به فلوکس..."
                     rows={1}
                     resize="none"
                     variant="unstyled"
@@ -75,7 +75,7 @@ const ChatInput = ({
                     onClick={() => handleSendMessage(userInput)}
                     disabled={!canSend}
                     loading={chatLoading}
-                    aria-label="Send message"
+                    aria-label="ارسال پیام"
                     size="sm"
                     alignSelf="center"
                     borderRadius="full"

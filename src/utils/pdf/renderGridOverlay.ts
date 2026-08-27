@@ -95,7 +95,7 @@ export function renderRulerOverlay(pdfCanvas, options: Record<string, any> = {})
 
     // Page number label in top-right corner
     if (pageNumber) {
-        const label = `PAGE ${pageNumber}`;
+        const label = `صفحه ${pageNumber}`;
         ctx.font = "bold 13px sans-serif";
         ctx.textAlign = "right";
         ctx.fillStyle = "rgba(0, 0, 255, 0.7)";

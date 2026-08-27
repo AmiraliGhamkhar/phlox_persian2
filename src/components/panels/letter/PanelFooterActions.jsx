@@ -17,17 +17,17 @@ const PanelFooterActions = ({
             case "saving":
                 return {
                     leftIcon: <Spinner size="sm" />,
-                    children: "Saving...",
+                    children: "در حال ذخیره...",
                 };
             case "saved":
                 return {
                     leftIcon: <CheckIcon />,
-                    children: "Saved!",
+                    children: "ذخیره شد!",
                 };
             default:
                 return {
                     leftIcon: <FaSave />,
-                    children: "Save Letter",
+                    children: "ذخیره نامه",
                 };
         }
     };
@@ -37,14 +37,14 @@ const PanelFooterActions = ({
             <Button
                 onClick={() => handleGenerateLetter(additionalInstructions)}
                 className="red-button"
-                disabled={letterLoading || saveState !== "idle"}><RepeatIcon />Regenerate Letter
+                disabled={letterLoading || saveState !== "idle"}><RepeatIcon />تولید دوباره نامه
                             </Button>
             <Flex>
                 <Button
                     onClick={handleCopy}
                     className="grey-button"
                     mr="2"
-                    disabled={letterLoading}>{recentlyCopied ? <CheckIcon /> : <CopyIcon />}{recentlyCopied ? "Copied!" : "Copy Letter"}</Button>
+                    disabled={letterLoading}>{recentlyCopied ? <CheckIcon /> : <CopyIcon />}{recentlyCopied ? "کپی شد!" : "کپی نامه"}</Button>
                 <Button
                     onClick={handleSave}
                     className="green-button"

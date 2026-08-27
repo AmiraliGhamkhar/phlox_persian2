@@ -36,12 +36,12 @@ const FieldEditor = ({ field, onChange, onDelete }) => {
   return (
     <VStack gap="3" align="stretch">
       <HStack justify="space-between">
-        <Text as="h4">Field Properties</Text>
+        <Text as="h4">ویژگی‌های فیلد</Text>
         <IconButton
           variant="ghost"
           size="sm"
           colorPalette="red"
-          aria-label="Delete field"
+          aria-label="حذف فیلد"
           onClick={() => onDelete(field.id)}><DeleteIcon /></IconButton>
       </HStack>
       <Field.Root>
@@ -52,7 +52,7 @@ const FieldEditor = ({ field, onChange, onDelete }) => {
           size="sm"
           value={field.name}
           onChange={(e) => onChange({ ...field, name: e.target.value })}
-          placeholder="field_name"
+          placeholder="نام_فیلد"
           className="input-style"
         />
       </Field.Root>
@@ -66,10 +66,10 @@ const FieldEditor = ({ field, onChange, onDelete }) => {
             value={field.field_type}
             onChange={(e) => onChange({ ...field, field_type: e.target.value })}
             className="input-style">
-            <option value="text">Text</option>
-            <option value="checkbox">Checkbox</option>
-            <option value="date">Date</option>
-            <option value="number">Number</option>
+            <option value="text">متن</option>
+            <option value="checkbox">چک‌باکس</option>
+            <option value="date">تاریخ</option>
+            <option value="number">عدد</option>
           </NativeSelect.Field>
           <NativeSelect.Indicator />
         </NativeSelect.Root>
@@ -82,7 +82,7 @@ const FieldEditor = ({ field, onChange, onDelete }) => {
           size="sm"
           value={field.description || ""}
           onChange={(e) => onChange({ ...field, description: e.target.value })}
-          placeholder="Optional description"
+          placeholder="توضیحات اختیاری"
           rows={2}
           className="input-style"
         />
@@ -90,7 +90,7 @@ const FieldEditor = ({ field, onChange, onDelete }) => {
       <HStack gap="3">
         <Field.Root>
           <Field.Label fontSize="xs" mb="1">
-            Font Size
+            اندازه قلم
           </Field.Label>
           <NumberInput.Root
             size="sm"
@@ -105,7 +105,7 @@ const FieldEditor = ({ field, onChange, onDelete }) => {
 
         <Field.Root>
           <Field.Label fontSize="xs" mb="1">
-            Page
+            صفحه
           </Field.Label>
           <NumberInput.Root
             size="sm"
@@ -126,11 +126,11 @@ const FieldEditor = ({ field, onChange, onDelete }) => {
         <Checkbox.Control>
           <Checkbox.Indicator />
         </Checkbox.Control>
-        <Checkbox.Label>Required field</Checkbox.Label>
+        <Checkbox.Label>فیلد الزامی</Checkbox.Label>
       </Checkbox.Root>
       <Box pt="2" borderTop="1px solid" borderColor="border">
         <Text fontSize="xs" color="overlay0">
-          Position: ({field.x.toFixed(1)}, {field.y.toFixed(1)}) · Size:{" "}
+          موقعیت: ({field.x.toFixed(1)}, {field.y.toFixed(1)}) · اندازه:{" "}
           {field.width.toFixed(1)} × {field.height.toFixed(1)}
         </Text>
       </Box>

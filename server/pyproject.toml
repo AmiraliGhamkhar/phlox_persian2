@@ -13,6 +13,7 @@ dependencies = [
     "python-multipart==0.0.32",
     "rapidfuzz==3.14.3",
     "sqlcipher3==0.6.2",
+    "speechmatics-rt==0.5.3",
     "uvicorn[standard]==0.51.0",
 ]
 
@@ -29,6 +30,11 @@ ocr = [
     "phlox-server[rag]",
     "Pillow==12.3.0",
     "pytesseract==0.3.13",
+]
+
+asr = [
+    "numpy>=2.2,<3",
+    "onnxruntime>=1.20,<2",
 ]
 docker = [
     "phlox-server[rag,ocr]",

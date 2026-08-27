@@ -1,40 +1,45 @@
-# Contributing to Phlox
+# راهنمای مشارکت در فلوکس
 
-Thanks for your interest in contributing! Phlox is an experimental, local-first project and contributions of all kinds are welcome.
+از علاقه شما به مشارکت در فلوکس سپاسگزاریم. فلوکس پروژه‌ای آزمایشی و محلی‌محور است و از پیشنهاد، گزارش خطا، مستندات و کد استقبال می‌کند.
 
-Before getting started, please read the [Usage Warning](https://github.com/bloodworks-io/phlox#usage-warning-%EF%B8%8F) — Phlox is experimental software intended for educational and personal use.
+پیش از شروع، [هشدار استفاده](https://github.com/bloodworks-io/phlox#هشدار-استفاده) را بخوانید. فلوکس نرم‌افزاری آزمایشی برای استفاده آموزشی و شخصی است.
 
-## Ways to Contribute
+## روش‌های مشارکت
 
-- **Bug reports & feature requests** — open an [Issue](https://github.com/bloodworks-io/phlox/issues). Include steps to reproduce, expected vs. actual behaviour, and your platform (macOS/Linux, desktop app or Docker).
-- **Code contributions** — fork the repo and open a [Pull Request](https://github.com/bloodworks-io/phlox/pulls).
+- **گزارش خطا و پیشنهاد قابلیت:** یک [Issue](https://github.com/bloodworks-io/phlox/issues) باز کنید. مراحل بازتولید، نتیجه مورد انتظار، نتیجه فعلی و محیط اجرا (macOS/Linux، برنامه دسکتاپ یا Docker) را بنویسید.
+- **مشارکت در کد:** مخزن را fork کنید و یک [Pull Request](https://github.com/bloodworks-io/phlox/pulls) ارسال کنید.
+- **ترجمه و دسترس‌پذیری:** متن‌های رابط، راهنماها و حالت راست‌به‌چپ را بررسی و بهبود دهید. متن‌های بالینی، نام بیمار و متن پیاده‌سازی‌شده نباید خودکار ترجمه یا تغییر داده شوند.
 
-## Development Setup
+## آماده‌سازی محیط توسعه
 
-See the [Setup guide](https://phlox.bloodworks.io/docs/setup) for full installation instructions. In short:
+برای دستورهای نصب کامل، [راهنمای راه‌اندازی](https://phlox.bloodworks.io/docs/setup) را ببینید. دستورهای اصلی:
 
 ```bash
-make install        # install dependencies
-make rebuild-dev    # build and run the dev environment
+make install        # نصب وابستگی‌ها
+make rebuild-dev    # ساخت و اجرای محیط توسعه
 ```
 
-Other useful targets are listed via `make help`.
+فهرست دستورهای دیگر با `make help` نمایش داده می‌شود.
 
-## Before Submitting a PR
+## پیش از ارسال Pull Request
 
-- Run the checks and make sure they pass:
+- بررسی‌های زیر را اجرا کنید و مطمئن شوید موفق هستند:
 
   ```bash
-  make check-all    # lint + typecheck
+  make check-all    # lint و typecheck
+  npm test -- --run
+  DB_ENCRYPTION_KEY='یک-کلید-آزمایشی-محلی' server/.venv/bin/pytest -q server/tests
   ```
 
-- Keep PRs focused — one feature or fix per pull request.
-- Describe what the change does, why it's needed, and how you tested it.
+- هر Pull Request را روی یک قابلیت یا اصلاح متمرکز نگه دارید.
+- توضیح دهید تغییر چه کاری انجام می‌دهد، چرا لازم است و چگونه آن را آزموده‌اید.
+- کلیدهای API، اطلاعات بیمار، فایل‌های مدل بزرگ و فایل‌های محیطی شخصی را commit نکنید. برای کلیدهای سرویس‌های برخط از پیکربندی رمزگذاری‌شده برنامه یا secretهای CI استفاده کنید.
+- شناسه‌های مدل، نام endpointها و اصطلاحات فنی را فقط زمانی ترجمه کنید که رفتار برنامه تغییر نکند.
 
-## A Note on AI-Generated Code
+## کد تولیدشده با هوش مصنوعی
 
-This repo has made extensive use of AI development tools, and AI-assisted contributions are welcome. However, all AI-generated code must be vetted and understood by you before submitting a PR — please don't submit code you haven't reviewed.
+این مخزن با استفاده گسترده از ابزارهای توسعه هوش مصنوعی ساخته شده است و مشارکت کمک‌گرفته از هوش مصنوعی پذیرفته می‌شود. بااین‌حال، هر کد تولیدشده باید پیش از ارسال به‌طور کامل بررسی، آزموده و فهمیده شود. کدی را که بازبینی نکرده‌اید ارسال نکنید.
 
-## License
+## مجوز
 
-By contributing, you agree that your contributions will be licensed under the [MIT License](https://github.com/bloodworks-io/phlox/blob/main/LICENSE).
+با مشارکت در پروژه موافقت می‌کنید که مشارکت شما تحت [مجوز MIT](https://github.com/bloodworks-io/phlox/blob/main/LICENSE) منتشر شود.

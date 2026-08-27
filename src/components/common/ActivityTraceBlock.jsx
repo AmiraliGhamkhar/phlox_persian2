@@ -55,16 +55,16 @@ const ActivityTraceBlock = ({
     }, [currentActivity.isOngoing, startedAt]);
 
     const formatDuration = (secs) => {
-        if (secs < 60) return `${secs}s`;
+        if (secs < 60) return `${secs} ثانیه`;
         const m = Math.floor(secs / 60);
         const s = secs % 60;
-        return `${m}m ${s}s`;
+        return `${m} دقیقه و ${s} ثانیه`;
     };
 
     const collapsedLabel = currentActivity.isOngoing
         ? `${currentActivity.label}...`
         : elapsedSeconds !== null
-          ? `Thought for ${formatDuration(elapsedSeconds)}`
+          ? `مدت فرایند: ${formatDuration(elapsedSeconds)}`
           : currentActivity.label;
 
     return (
@@ -89,12 +89,12 @@ const ActivityTraceBlock = ({
                     </>
                 ) : (
                     <Text mr="2" fontWeight="medium" fontSize="xs" color="overlay0">
-                        {stepCount} {stepCount === 1 ? "step" : "steps"}
+                        {stepCount} {stepCount === 1 ? "گام" : "گام"}
                     </Text>
                 )}
                 <IconButton
                     aria-label={
-                        isTraceExpanded ? "Collapse trace" : "Expand trace"
+                        isTraceExpanded ? "بستن ردپا" : "باز کردن ردپا"
                     }
                     variant="ghost"
                     size="xs"
@@ -137,14 +137,14 @@ const ActivityTraceBlock = ({
                                                 fontSize="xs"
                                                 fontWeight="medium"
                                             >
-                                                Thinking
+                                                استدلال
                                                 {block.isPartial ? "..." : ""}
                                             </Text>
                                             <IconButton
                                                 aria-label={
                                                     isExpanded
-                                                        ? "Collapse thinking"
-                                                        : "Expand thinking"
+                                                        ? "بستن فرایند فکر کردن"
+                                                        : "باز کردن فرایند فکر کردن"
                                                 }
                                                 variant="ghost"
                                                 size="xs"
@@ -222,8 +222,8 @@ const ActivityTraceBlock = ({
                                             <IconButton
                                                 aria-label={
                                                     isExpanded
-                                                        ? "Collapse tool output"
-                                                        : "Expand tool output"
+                                                        ? "بستن خروجی ابزار"
+                                                        : "باز کردن خروجی ابزار"
                                                 }
                                                 variant="ghost"
                                                 size="xs"
@@ -251,7 +251,7 @@ const ActivityTraceBlock = ({
                                                         mb={1}
                                                     >
                                                         {toolContent ||
-                                                            "(No tool output)"}
+                                                            "(خروجی ابزاری وجود ندارد)"}
                                                     </Text>
                                                 </Box>
                                             </Collapsible.Content>

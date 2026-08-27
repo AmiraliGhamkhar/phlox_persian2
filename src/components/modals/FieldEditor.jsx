@@ -35,7 +35,7 @@ export const FieldEditor = ({
         <Box className="panels-bg" p="3" borderRadius="sm">
             <Flex maxW="530px" align="center" mb={2}>
                 {canEdit ? (
-                    <Tooltip content="Click to edit field name">
+                    <Tooltip content="برای ویرایش نام فیلد کلیک کنید">
                         <Flex
                             align="center"
                             cursor="pointer"
@@ -45,7 +45,7 @@ export const FieldEditor = ({
                             role="group"
                         >
                             <Input
-                                placeholder="Unnamed Field"
+                                placeholder="فیلد بدون نام"
                                 value={field.field_name || ""}
                                 onChange={(e) =>
                                     updateField(
@@ -174,7 +174,7 @@ export const FieldEditor = ({
                     {canEdit && !isPlanField && (
                         <IconButton
                             onClick={() => removeField(idx)}
-                            aria-label="Remove field"
+                            aria-label="حذف فیلد"
                             size="sm"
                             variant="ghost"
                             ml={3}
@@ -187,7 +187,7 @@ export const FieldEditor = ({
                 {/* System prompt */}
                 <Box width="full">
                     <Text fontSize="sm" color="overlay0" mb={1}>
-                        System Prompt
+                        دستور سیستمی
                     </Text>
                     <Textarea
                         value={field.system_prompt || ""}
@@ -210,7 +210,7 @@ export const FieldEditor = ({
                     <HStack gap={2}>
                         <IconButton
                             onClick={() => setShowAdvanced(!showAdvanced)}
-                            aria-label="Toggle Advanced Settings"
+                            aria-label="تغییر وضعیت تنظیمات پیشرفته"
                             variant="ghost"
                             size="sm"
                             className="collapse-toggle">{showAdvanced ? (
@@ -219,7 +219,7 @@ export const FieldEditor = ({
                                 <ChevronRightIcon />
                             )}</IconButton>
                         <Text fontSize="sm" color="overlay0">
-                            Advanced Settings
+                            تنظیمات پیشرفته
                         </Text>
                     </HStack>
                     <Collapsible.Root open={showAdvanced}>
@@ -257,7 +257,7 @@ export const FieldEditor = ({
                                                         );
                                                     }
                                                 }}>
-                                                <option value="none">Free Text</option>
+                                                <option value="none">متن آزاد</option>
                                                 <option value="bullet">
                                                     Bullet List
                                                 </option>
@@ -327,7 +327,7 @@ export const FieldEditor = ({
                                             );
                                         }}
                                         className="input-style"
-                                        placeholder="Enter an example of how this field should look..."
+                                        placeholder="نمونه‌ای از شکل این فیلد را وارد کنید..."
                                         rows={4}
                                     />
                                 </Box>

@@ -44,10 +44,10 @@ const TemplateEditor = ({
                     <Dialog.Backdrop />
                     <Dialog.Positioner>
                         <Dialog.Content className="modal-style">
-                            <Dialog.Header><Heading as="h2" size="md" fontFamily="heading">Loading Template...</Heading></Dialog.Header>
+                            <Dialog.Header><Heading as="h2" size="md" fontFamily="heading">در حال بارگذاری قالب...</Heading></Dialog.Header>
                             <Dialog.CloseTrigger />
                             <Dialog.Body>
-                                <Text>Loading template data...</Text>
+                                <Text>در حال بارگذاری داده‌های قالب...</Text>
                             </Dialog.Body>
                         </Dialog.Content>
                     </Dialog.Positioner>
@@ -123,7 +123,7 @@ const TemplateEditor = ({
                 <Dialog.Positioner>
                     <Dialog.Content className="modal-style" maxW="1200px">
                         <Dialog.Header>
-                            <Tooltip content="Click to edit template name">
+                            <Tooltip content="برای ویرایش نام قالب کلیک کنید">
                                 <Flex
                                     align="center"
                                     cursor="pointer"
@@ -133,7 +133,7 @@ const TemplateEditor = ({
                                 >
                                     <Box position="relative" width="fit-content">
                                         <Input
-                                            placeholder="Template Name"
+                                            placeholder="نام قالب"
                                             value={editedTemplate.template_name || ""}
                                             onChange={(e) =>
                                                 updateTemplateName(e.target.value)
@@ -213,13 +213,11 @@ const TemplateEditor = ({
                                         </Box>
                                         <VStack align="start" gap={1} flex="1">
                                             <Text fontWeight="600" fontSize="sm">
-                                                Creating a New Note Template
+                                                ایجاد قالب یادداشت جدید
                                             </Text>
                                             <Text fontSize="xs" opacity={0.8}>
-                                                Define the structure of your clinical
-                                                letter. Add fields, set which ones
-                                                persist between encounters, and provide
-                                                instructions for AI generation.
+                                                ساختار نامه بالینی خود را تعریف کنید، فیلدها را بیفزایید، مشخص کنید کدام فیلدها
+                                                بین ویزیت‌ها پایدار بمانند و دستورهای تولید با هوش مصنوعی را وارد کنید.
                                             </Text>
                                         </VStack>
                                     </HStack>
@@ -279,13 +277,13 @@ const TemplateEditor = ({
                                                             bg="transparent"
                                                             borderRadius="sm"
                                                         >
-                                                            <strong>Pin</strong> =
+                                                            <strong>پایدار</strong> =
                                                             Carries over between
                                                             encounters &nbsp;•&nbsp;{" "}
-                                                            <strong>Dyn</strong> =
+                                                            <strong>پویا</strong> =
                                                             Generated from transcript
                                                         </Box>
-                                                        <Button onClick={addField} className="summary-buttons" size="sm"><AddIcon />Add Field
+                                                        <Button onClick={addField} className="summary-buttons" size="sm"><AddIcon />افزودن فیلد
                                                                                                             </Button>
                                                     </>
                                                 )}
@@ -328,10 +326,10 @@ const TemplateEditor = ({
                                                     opacity={0.8}
                                                 >
                                                     <Text mb={1}>
-                                                        💡 <strong>Tip:</strong> Add
-                                                        "Style Examples" in Advanced
-                                                        Settings to see how fields will
-                                                        appear in the final letter.
+                                                        💡 <strong>نکته:</strong> افزودن
+                                                        «نمونه‌های سبک» را در تنظیمات
+                                                        پیشرفته فعال کنید تا نحوه نمایش
+                                                        فیلدها را در نامه نهایی ببینید.
                                                     </Text>
                                                 </Box>
                                             )}
@@ -361,7 +359,7 @@ const TemplateEditor = ({
                                 }}
                                 mr={3}
                             >
-                                Cancel
+                                انصراف
                             </Button>
                             <Button
                                 onClick={handleSave}
@@ -373,7 +371,7 @@ const TemplateEditor = ({
                                     fontWeight: "600",
                                 }}
                             >
-                                Save Changes
+                                ذخیره تغییرات
                             </Button>
                         </Dialog.Footer>
                     </Dialog.Content>

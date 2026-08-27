@@ -17,6 +17,7 @@ import PromptSettingsPanel from "../components/settings/PromptSettingsPanel";
 import { SPECIALTIES } from "../utils/constants";
 import { templateService } from "../utils/services/templateService";
 import { localModelApi } from "../utils/api/localModelApi";
+import { isTauri } from "../utils/helpers/apiConfig";
 import { useDebounce } from "../utils/hooks/useDebounce";
 import { useAutosave } from "../utils/hooks/useAutosave";
 
@@ -24,12 +25,12 @@ const Settings = () => {
     const [userSettings, setUserSettings] = useState({
         name: "",
         specialty: "",
-        quick_chat_1_title: "Review my plan",
-        quick_chat_1_prompt: "Review my plan",
-        quick_chat_2_title: "Additional points to review",
-        quick_chat_2_prompt: "Additional points to review",
-        quick_chat_3_title: "Other conditions worth reviewing",
-        quick_chat_3_prompt: "Other conditions worth reviewing",
+        quick_chat_1_title: "بررسی برنامه من",
+        quick_chat_1_prompt: "بررسی برنامه من",
+        quick_chat_2_title: "نکات دیگری برای بررسی",
+        quick_chat_2_prompt: "نکات دیگری برای بررسی",
+        quick_chat_3_title: "بیماری‌های دیگری که ارزش بررسی دارند",
+        quick_chat_3_prompt: "بیماری‌های دیگری که ارزش بررسی دارند",
     });
     const [prompts, setPrompts] = useState(null);
     const [options, setOptions] = useState({
@@ -136,14 +137,18 @@ const Settings = () => {
         fetchCoreSettings();
     }, [fetchCoreSettings]);
 
-    const debouncedWhisperUrl = useDebounce(config?.WHISPER_BASE_URL, 500);
+    const debouncedWhisperUrl = useDebounce(
+        config?.ASR_BASE_URL || config?.WHISPER_BASE_URL,
+        500,
+    );
     const debouncedLlmBaseUrl = useDebounce(config?.LLM_BASE_URL, 500);
     const debouncedLlmProvider = useDebounce(config?.LLM_PROVIDER, 500);
     const debouncedLlmApiKey = useDebounce(config?.LLM_API_KEY, 500);
+    const debouncedAsrProvider = useDebounce(config?.ASR_PROVIDER, 500);
 
     useEffect(() => {
         const validateUrls = async () => {
-            if (debouncedWhisperUrl) {
+            if (debouncedWhisperUrl && debouncedAsrProvider !== "speechmatics" && debouncedAsrProvider !== "local") {
                 const whisperValid = await settingsApi.validateUrl(
                     "whisper",
                     debouncedWhisperUrl,
@@ -167,12 +172,45 @@ const Settings = () => {
         };
 
         validateUrls();
-    }, [debouncedWhisperUrl, debouncedLlmBaseUrl, debouncedLlmProvider]);
+    }, [debouncedWhisperUrl, debouncedAsrProvider, debouncedLlmBaseUrl, debouncedLlmProvider]);
 
     useEffect(() => {
         const refreshWhisperModels = async () => {
             // Guard: don't clear existing models during debounce settling
+            if (debouncedAsrProvider === "speechmatics") {
+                setWhisperModelsLoading(false);
+                setWhisperModelOptions([]);
+                setWhisperModelListAvailable(false);
+                return;
+            }
+
+            if (debouncedAsrProvider === "local") {
+                if (!isTauri()) {
+                    setWhisperModelOptions([]);
+                    setWhisperModelListAvailable(false);
+                    return;
+                }
+                setWhisperModelsLoading(true);
+                try {
+                    const response = await localModelApi.fetchDownloadedWhisperModels();
+                    setWhisperModelOptions(
+                        (response.models || []).map((model) => model.id || model.name),
+                    );
+                    setWhisperModelListAvailable((response.models || []).length > 0);
+                } catch (error) {
+                    console.error("Error loading local ASR models:", error);
+                    setWhisperModelOptions([]);
+                    setWhisperModelListAvailable(false);
+                } finally {
+                    setWhisperModelsLoading(false);
+                }
+                return;
+            }
+
             if (!debouncedWhisperUrl) {
+                setWhisperModelsLoading(false);
+                setWhisperModelOptions([]);
+                setWhisperModelListAvailable(false);
                 return;
             }
 
@@ -193,7 +231,7 @@ const Settings = () => {
         };
 
         refreshWhisperModels();
-    }, [debouncedWhisperUrl]);
+    }, [debouncedWhisperUrl, debouncedAsrProvider]);
 
     useEffect(() => {
         const refreshLlmModels = async () => {
@@ -430,7 +468,7 @@ const Settings = () => {
     return (
         <Box p="5" borderRadius="sm" w="100%">
             <Text as="h2" mb="4">
-                Settings
+                تنظیمات
             </Text>
             <VStack gap="5" align="stretch">
                 <UserSettingsPanel

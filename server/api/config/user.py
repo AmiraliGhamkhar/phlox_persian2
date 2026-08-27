@@ -41,11 +41,11 @@ def mark_splash_complete():
             if key == "name" or key == "specialty":
                 current_settings[key] = ""
             elif key == "quick_chat_1_title" or key == "quick_chat_1_prompt":
-                current_settings[key] = "Critique my plan"
+                current_settings[key] = "بررسی برنامه من"
             elif key == "quick_chat_2_title" or key == "quick_chat_2_prompt":
-                current_settings[key] = "Any additional investigations"
+                current_settings[key] = "نکات دیگری برای بررسی"
             elif key == "quick_chat_3_title" or key == "quick_chat_3_prompt":
-                current_settings[key] = "Any differentials to consider"
+                current_settings[key] = "بیماری‌های دیگری که ارزش بررسی دارند"
             elif key == "default_letter_template_id":
                 current_settings[key] = None
 
