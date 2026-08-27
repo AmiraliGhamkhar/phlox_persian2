@@ -1,71 +1,137 @@
-# Stage 1: Build the React app
+#
+# Phlox - production image (FastAPI backend + prebuilt React frontend).
+#
+# Build:  docker build -t localhost/phlox:latest .
+# Run:    docker compose up -d            (see docker-compose.yml, reads .env)
+#
+# The image listens on :5000 and serves both the API and the built SPA, so a
+# single published port is all that is needed.
+
+###############################################################################
+# Stage 1 - build the React app
+###############################################################################
 FROM node:24-slim AS build
 
-# Set the working directory
 WORKDIR /usr/src/app
 
-# Copy package.json and package-lock.json
-COPY package*.json ./
+# npm policy files first so the dependency install honors them
+# (.npmrc pins ignore-scripts=true and the min-release-age cooldown).
+# CHANGELOG.md is required: src/components/sidebar/VersionInfo.jsx imports it
+# via `?raw`, so the build fails without it.
+COPY package.json package-lock.json .npmrc .nvmrc CHANGELOG.md ./
+COPY index.html vite.config.js tsconfig.json ./
+COPY src/ ./src/
+COPY public/ ./public/
 
-# Install Node.js dependencies
-RUN npm ci --ignore-scripts
+# Deterministic, script-free install of dev+runtime deps (vite lives in devDeps).
+RUN npm ci --ignore-scripts && npm cache clean --force
 
-# Copy the rest of the application
-COPY . .
-
-# Build the React app
 RUN npm run build
 
-# Stage 2: Run the FastAPI app
+###############################################################################
+# Stage 2 - run the FastAPI app
+###############################################################################
 FROM python:3.12-slim
 
-# Install uv
+LABEL org.opencontainers.image.title="Phlox" \
+      org.opencontainers.image.description="Patient management with AI transcription and clinical notes - FastAPI backend plus prebuilt React frontend (Persian/RTL build)" \
+      org.opencontainers.image.licenses="MIT" \
+      org.opencontainers.image.source="https://github.com/AmiraliGhamkhar/phlox_persian"
+
+# uv version must match [tool.uv].required-version in server/pyproject.toml.
 COPY --from=ghcr.io/astral-sh/uv:0.11.32@sha256:df4cae8f3a96d175e2e5f992e597550000edbe78fdc2594d5cd8de1a217f504c /uv /usr/local/bin/uv
 
-# Set the working directory
 WORKDIR /usr/src/app
 
-# Set environment variable
-ENV DOCKER_CONTAINER=true
-# Use the uv-locked project venv at runtime
-ENV PATH=/usr/src/app/server/.venv/bin:$PATH
+# DOCKER_CONTAINER selects the Docker code path (no desktop passphrase prompt) and
+# pins DATA_DIR/BUILD_DIR/TEMP_DIR to /usr/src/app (see server/constants.py).
+# PATH picks up the uv-locked venv created below; PYTHONPATH makes `server`
+# importable from any working directory; SERVER_HOST/PORT are the uvicorn bind
+# address and port (override with -e at run time).
+# UV_PYTHON_* stop uv from downloading a second CPython during the image build -
+# this base image already ships the interpreter required by the lockfile.
+# TIKTOKEN_CACHE_DIR points at a cache directory baked into the image (and owned
+# by the runtime user) so tokenizer data never has to be fetched at run time.
+ENV DOCKER_CONTAINER=true \
+    PATH=/usr/src/app/server/.venv/bin:$PATH \
+    PYTHONPATH=/usr/src/app \
+    PYTHONUNBUFFERED=1 \
+    PYTHONDONTWRITEBYTECODE=1 \
+    SERVER_HOST=0.0.0.0 \
+    PORT=5000 \
+    UV_PYTHON_PREFERENCE=only-system \
+    UV_PYTHON_DOWNLOADS=never \
+    TIKTOKEN_CACHE_DIR=/usr/src/app/.cache/tiktoken
 
-RUN apt-get update && apt-get install -y \
-    tesseract-ocr \
+# tesseract-ocr: image attachment OCR (server/nlp_tools/document_processing.py)
+# tzdata: makes the TZ environment variable actually resolve to a local zone
+# ca-certificates: TLS trust for outbound LLM / ASR / embedding requests
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends \
+        ca-certificates \
+        tesseract-ocr \
+        tesseract-ocr-eng \
+        tzdata \
     && rm -rf /var/lib/apt/lists/*
 
-# Create phlox user
-RUN useradd -m -u 1000 phlox
+# Create phlox user (uid:gid 1000:1000 - see the bind-mount note in docker-compose.yml)
+RUN groupadd -g 1000 phlox \
+    && useradd -m -u 1000 -g 1000 -s /usr/sbin/nologin phlox
 
-# Copy the build output and Python server files
+# Application content
 COPY --from=build /usr/src/app/build ./build
-COPY --from=build /usr/src/app/CHANGELOG.md ./CHANGELOG.md
-COPY server/pyproject.toml server/uv.lock ./server/
+COPY CHANGELOG.md ./CHANGELOG.md
+COPY server/pyproject.toml server/uv.lock server/.python-version ./server/
 
-# Create directories and set ownership
-RUN mkdir -p /usr/src/app/data \
-    /usr/src/app/static \
-    /usr/src/app/temp && \
-    chown -R phlox:phlox /usr/src/app
+# Writable paths: data (DB + vectors + backups + logs), temp uploads, token cache.
+RUN mkdir -p /usr/src/app/data /usr/src/app/temp /usr/src/app/.cache/tiktoken \
+    && chown -R phlox:phlox /usr/src/app
 
-# Install Python dependencies
+# Install Python dependencies from the lockfile (rag + ocr extras via "docker",
+# dev extras excluded) into /usr/src/app/server/.venv
 RUN uv sync --directory server --locked --no-dev --extra docker
 
-# Pre-cache tiktoken encodings so they don't need to be fetched at runtime
-RUN python -c "import tiktoken; tiktoken.get_encoding('cl100k_base')"
+# Pre-cache the tiktoken encoding used by RAG chunking and letter budgeting.
+RUN python -c "import tiktoken; tiktoken.get_encoding('cl100k_base')" \
+    && chown -R phlox:phlox /usr/src/app/.cache
 
-# Copy remaining server code
-COPY server/ ./server
+# Copy remaining server code (the venv above is not part of the build context).
+COPY server/ ./server/
 
-# Change permissions
 RUN chown -R phlox:phlox /usr/src/app
 
-# Switch to phlox user
+# Container health probe (no curl needed - stdlib only). 401/403 count as
+# healthy: the app is up, an auth proxy is just doing its job.
+RUN printf '%s\n' \
+'"""Liveness probe for the Phlox container."""' \
+'import os' \
+'import sys' \
+'import urllib.error' \
+'import urllib.request' \
+'' \
+'port = os.environ.get("PORT", "5000")' \
+'url = "http://127.0.0.1:" + port + "/api/dashboard/health"' \
+'' \
+'try:' \
+'    with urllib.request.urlopen(url, timeout=5) as response:' \
+'        sys.exit(0 if response.status == 200 else 1)' \
+'except urllib.error.HTTPError as exc:' \
+'    sys.exit(0 if exc.code in (401, 403) else 1)' \
+'except Exception:' \
+'    sys.exit(1)' \
+> /usr/local/bin/phlox-healthcheck.py && chmod 0755 /usr/local/bin/phlox-healthcheck.py
+
 USER phlox
 
-# Expose necessary ports
 EXPOSE 5000
 
-# Define the command to run the FastAPI app
-# Uses python -m to respect SERVER_HOST environment variable
+HEALTHCHECK --interval=30s --timeout=10s --start-period=30s --retries=3 \
+    CMD ["python", "/usr/local/bin/phlox-healthcheck.py"]
+
+# uvicorn installs SIGTERM/SIGINT handlers and shuts down gracefully
+# (timeout_graceful_shutdown=10), so forward the signal untouched.
+STOPSIGNAL SIGTERM
+
+# `python -m` keeps SERVER_HOST/PORT environment overrides working,
+# unlike `uvicorn server.server:app` with an explicit --host/--port pair.
 CMD ["python", "-m", "server.server"]

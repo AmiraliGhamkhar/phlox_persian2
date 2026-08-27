@@ -2,6 +2,14 @@
 .git/
 .gitignore
 
+# Local secrets and environment files - never bake them into an image
+.env
+.env.*
+!.env.example
+*.pem
+*.key
+secrets/
+
 # CI / IDE / tooling
 .github/
 .vscode/
@@ -17,24 +25,35 @@ CLAUDE.md
 build.log
 build/
 dist/
+.tmp/
 coverage/
 coverage.*
 .coverage
 .coveralls.yml
+npm-debug.log*
+yarn-error.log*
+pnpm-debug.log*
 
-# Tauri desktop artifacts
+# Tauri / desktop packaging artifacts (not needed by the web or server build)
 src-tauri/
+assets/
+packaging/
+build-all.sh
 
 # Node
 node_modules/
-server/node_modules/
+**/node_modules/
+package-lock.old
 
 # Python caches and venvs
+.venv/
+**/.venv/
 server/.venv/
 server/.pytest_cache/
 server/.ruff_cache/
 server/dist/
 server/phlox_server.egg-info/
+**/*.egg-info/
 **/__pycache__
 **/*.pyc
 **/*.pyo

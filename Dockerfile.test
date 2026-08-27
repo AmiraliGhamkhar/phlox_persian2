@@ -1,67 +1,80 @@
-# Use an official Python runtime as a parent image
+#
+# Phlox - test image (pytest + coverage, as used by .github/workflows/ci.yml).
+#
+# Build:  docker build -f Dockerfile.test -t localhost/phlox-test:latest .
+# Run:    docker run --rm localhost/phlox-test:latest
+#         Extra arguments are forwarded to pytest, e.g.
+#           docker run --rm localhost/phlox-test:latest -k test_chat -q
+#         Coverage report (as .github/workflows/ci.yml does it):
+#           docker run --name phlox-test localhost/phlox-test:latest
+#           docker cp phlox-test:/usr/src/app/coverage.lcov ./coverage.lcov
+#           docker rm -f phlox-test
+
 FROM python:3.12-slim
 
-# Install uv
+# uv version must match [tool.uv].required-version in server/pyproject.toml.
 COPY --from=ghcr.io/astral-sh/uv:0.11.32@sha256:df4cae8f3a96d175e2e5f992e597550000edbe78fdc2594d5cd8de1a217f504c /uv /usr/local/bin/uv
 
-# Set the working directory inside the image
 WORKDIR /usr/src/app
 
-# Install system dependencies
-RUN apt-get update && apt-get install -y \
-    && rm -rf /var/lib/apt/lists/*
+ENV PYTHONPATH=/usr/src/app \
+    PYTHONUNBUFFERED=1 \
+    PYTHONDONTWRITEBYTECODE=1 \
+    TESTING=true \
+    DB_ENCRYPTION_KEY=test_key_12345 \
+    DOCKER_CONTAINER=true \
+    PATH=/usr/src/app/server/.venv/bin:$PATH \
+    UV_PYTHON_PREFERENCE=only-system \
+    UV_PYTHON_DOWNLOADS=never \
+    TIKTOKEN_CACHE_DIR=/usr/src/app/.cache/tiktoken
 
-# Create phlox user
-RUN useradd -m -u 1000 phlox
+# Create phlox user (tests must not run as root)
+RUN groupadd -g 1000 phlox \
+    && useradd -m -u 1000 -g 1000 -s /usr/sbin/nologin phlox
 
-# First copy dependency files to leverage Docker cache
-COPY server/pyproject.toml server/uv.lock /usr/src/app/server/
+# Dependency manifests first to leverage the Docker layer cache.
+COPY server/pyproject.toml server/uv.lock server/.python-version ./server/
+COPY .coveragerc ./
 
-# Install Python dependencies from the locked project venv (dev group has pytest)
+# Python dependencies - dev group included (it provides pytest/pytest-cov).
 RUN uv sync --directory server --locked --extra docker
 
-# Then copy the rest of the application
-COPY server/ /usr/src/app/server/
+# Pre-cache the tokenizer data so chunking tests do not need network access.
+RUN python -c "import tiktoken; tiktoken.get_encoding('cl100k_base')"
 
-# Set environment variables
-ENV PYTHONPATH=/usr/src/app
-ENV TESTING=true
-ENV DB_ENCRYPTION_KEY=test_key_12345
-ENV DOCKER_CONTAINER=true
-ENV PATH=/usr/src/app/server/.venv/bin:$PATH
+# Then copy the rest of the application.
+COPY server/ ./server/
 
-# Create directories and set ownership
-RUN mkdir -p /usr/src/app/build /usr/src/app/data && \
-    echo "<html><body>Test</body></html>" > /usr/src/app/build/index.html && \
-    chown -R phlox:phlox /usr/src/app
+# server.py mounts StaticFiles(directory=BUILD_DIR), so the SPA dir must exist
+# even though the test suite never serves a real frontend.
+RUN mkdir -p /usr/src/app/data /usr/src/app/temp /usr/src/app/.cache/tiktoken \
+             /usr/src/app/build \
+    && printf '<html><body>Test</body></html>\n' > /usr/src/app/build/index.html
 
-# Create the run_tests.sh script
-RUN echo '#!/bin/bash\n\
-# Delete test database if it exists\n\
-rm -f /usr/src/app/data/test_phlox_database.sqlite\n\
-\n\
-PYTHONPATH=/usr/src/app pytest \
-    --verbose \
-    --cov=server \
-    --cov-report=xml \
-    --cov-report=lcov \
-    --asyncio-mode=strict \
-    /usr/src/app/server/tests/\n\
-\n\
-test_exit_code=$?\n\
-\n\
-# Delete test database after tests\n\
-rm -f /usr/src/app/data/test_phlox_database.sqlite\n\
-\n\
-exit $test_exit_code' > /usr/src/app/run_tests.sh && \
-    chmod +x /usr/src/app/run_tests.sh
+# Test runner: fresh DB before, report + cleanup after, pytest's exit code preserved.
+RUN printf '%s\n' \
+'#!/usr/bin/env bash' \
+'set -uo pipefail' \
+'' \
+'cd /usr/src/app' \
+'rm -f data/test_phlox_database.sqlite data/test_phlox_database.sqlite-wal data/test_phlox_database.sqlite-shm' \
+'' \
+'pytest \' \
+'    --verbose \' \
+'    --cov=server \' \
+'    --cov-report=xml \' \
+'    --cov-report=lcov \' \
+'    --asyncio-mode=strict \' \
+'    /usr/src/app/server/tests/ "$@"' \
+'status=$?' \
+'' \
+'rm -f data/test_phlox_database.sqlite data/test_phlox_database.sqlite-wal data/test_phlox_database.sqlite-shm' \
+'' \
+'exit $status' \
+> /usr/local/bin/phlox-test.sh \
+    && chmod +x /usr/local/bin/phlox-test.sh \
+    && chown -R phlox:phlox /usr/src/app
 
-# Change permissions
-RUN chown -R phlox:phlox /usr/src/app
-
-# Switch to phlox user
 USER phlox
 
-# Run tests using the script
-ENTRYPOINT ["/usr/src/app/run_tests.sh"]
-CMD ["/usr/src/app/run_tests.sh"]
+ENTRYPOINT ["/usr/local/bin/phlox-test.sh"]
