@@ -19,6 +19,12 @@ services:
         restart: unless-stopped
         # init reaps orphaned children and forwards SIGTERM for fast shutdown.
         init: true
+        # Lets the container reach a model server running on the host
+        # (Ollama, llama.cpp/llama-server, vLLM, LM Studio) via
+        # http://host.docker.internal:11434 in Settings. Remove this line on
+        # Docker older than 20.10, which does not know "host-gateway".
+        extra_hosts:
+            - "host.docker.internal:host-gateway"
         ports:
             # Loopback only: publish publicly only behind a reverse proxy.
             - "127.0.0.1:${PHLOX_PORT:-5000}:5000"

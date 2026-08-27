@@ -24,6 +24,12 @@ services:
         container_name: phlox-dev
         restart: unless-stopped
         init: true
+        # Lets the container reach a model server running on the host
+        # (Ollama, llama.cpp/llama-server, vLLM, LM Studio) via
+        # http://host.docker.internal:11434 in Settings. Remove this line on
+        # Docker older than 20.10, which does not know "host-gateway".
+        extra_hosts:
+            - "host.docker.internal:host-gateway"
         ports:
             # Use "127.0.0.1:3000:3000" if you do not want the dev server on the LAN.
             - "3000:3000" # Vite dev server
