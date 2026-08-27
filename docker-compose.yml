@@ -1,20 +1,84 @@
+# Phlox - production Docker Compose stack.
+#
+#   cp .env.example .env          # then set DB_ENCRYPTION_KEY
+#   docker compose up -d --build  # build from this repo
+#   docker compose up -d          # or use the published image (see PHLOX_IMAGE)
+#
+# Open http://127.0.0.1:5000 - the same container serves the API and the SPA.
+
+name: phlox
+
 services:
-  app:
-    image: ghcr.io/bloodworks-io/phlox:latest
-    container_name: phlox
-    restart: unless-stopped
-    ports:
-      - "127.0.0.1:5000:5000" # Use "5000:5000" only behind a reverse proxy
-    environment:
-      - DB_ENCRYPTION_KEY=${DB_ENCRYPTION_KEY} # Required: generate a strong random key
-      - ALLOWED_ORIGINS= # e.g. https://phlox.example.com (comma-separated); do NOT use "*" in production
-      - TZ=${TZ} # e.g. America/New_York
-      - LLM_EXTRA_BODY= # Optional: JSON string for extra_body params (e.g., '{"chat_template_kwargs": {"thinking": true}}'); does not apply to streaming requests
-      # Proxy auth (recommended when behind a reverse proxy)
-      # - PROXY_AUTH_ENABLED=true
-      # - PROXY_AUTH_USER_HEADER=X-Forwarded-User
-      # - PROXY_AUTH_ALLOWED_USERS= # Comma-separated list of allowed users (empty = any authenticated user)
-      # Rate limiting
-      # - RATE_LIMIT_ENABLED=true
-    volumes:
-      - ./data:/usr/src/app/data # Persistent data (database, vectors)
+    app:
+        image: ${PHLOX_IMAGE:-ghcr.io/bloodworks-io/phlox:latest}
+        # Comment out `build` to always pull the published image instead.
+        build:
+            context: .
+            dockerfile: Dockerfile
+        container_name: phlox
+        restart: unless-stopped
+        # init reaps orphaned children and forwards SIGTERM for fast shutdown.
+        init: true
+        # Lets the container reach a model server running on the host
+        # (Ollama, llama.cpp/llama-server, vLLM, LM Studio) via
+        # http://host.docker.internal:11434 in Settings. Remove this line on
+        # Docker older than 20.10, which does not know "host-gateway".
+        extra_hosts:
+            - "host.docker.internal:host-gateway"
+        ports:
+            # Loopback only: publish publicly only behind a reverse proxy.
+            - "127.0.0.1:${PHLOX_PORT:-5000}:5000"
+        environment:
+            # Required. Use the secret file alternative below or:
+            #   openssl rand -hex 32
+            DB_ENCRYPTION_KEY: "${DB_ENCRYPTION_KEY:?Set DB_ENCRYPTION_KEY in .env (openssl rand -hex 32), or mount /run/secrets/db_encryption_key and remove this line}"
+            # Comma-separated origins allowed to call the API cross-origin.
+            # Same-origin deployments (the usual case) can leave the default.
+            ALLOWED_ORIGINS: "${ALLOWED_ORIGINS:-*}"
+            TZ: "${TZ:-Etc/UTC}"
+            SERVER_HOST: "0.0.0.0"
+            PORT: "5000"
+            # Enabled by default for internet-facing deployments.
+            RATE_LIMIT_ENABLED: "${RATE_LIMIT_ENABLED:-true}"
+            LLM_EXTRA_BODY: "${LLM_EXTRA_BODY:-}"
+            # Proxy auth (recommended behind an authenticating reverse proxy)
+            PROXY_AUTH_ENABLED: "${PROXY_AUTH_ENABLED:-false}"
+            PROXY_AUTH_USER_HEADER: "${PROXY_AUTH_USER_HEADER:-X-Forwarded-User}"
+            PROXY_AUTH_ALLOWED_USERS: "${PROXY_AUTH_ALLOWED_USERS:-}"
+            # Optional: seed the demo dataset on first start (false by default).
+            PHLOX_DEMO_MODE: "${PHLOX_DEMO_MODE:-false}"
+        volumes:
+            # Named volume: Docker seeds it with the image's ownership, so the
+            # unprivileged container user can always write the encrypted DB.
+            - phlox_data:/usr/src/app/data
+            # Bind-mount alternative (keeps data in this directory). The container
+            # runs as uid/gid 1000, so prepare it first:
+            #   sudo mkdir -p data && sudo chown -R 1000:1000 data
+            # - ./data:/usr/src/app/data
+        # Secrets alternative to DB_ENCRYPTION_KEY (read by the server automatically):
+        #   echo "$KEY" > secrets/db_encryption_key
+        # secrets:
+        #   - db_encryption_key
+        #
+        # Hardened filesystem (optional). The app writes only to the data volume,
+        # /usr/src/app/temp and /tmp, so both tmpfs mounts below are required.
+        # read_only: true
+        # tmpfs:
+        #   - /usr/src/app/temp
+        #   - /tmp
+        security_opt:
+            - no-new-privileges:true
+        cap_drop:
+            - ALL
+        logging:
+            driver: json-file
+            options:
+                max-size: "10m"
+                max-file: "3"
+
+# secrets:
+#     db_encryption_key:
+#         file: ./secrets/db_encryption_key
+
+volumes:
+    phlox_data:

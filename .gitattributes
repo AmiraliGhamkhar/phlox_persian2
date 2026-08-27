@@ -1,0 +1,37 @@
+# Docker, shell and env files must keep LF endings.
+#
+# Reason: with Git's Windows default (core.autocrlf=true), a CRLF checkout of
+# Dockerfile.dev/Dockerfile.test injects a stray carriage return into every line
+# of the shell entrypoints those images generate with printf, which breaks
+# container start-up. A CRLF .env is worse: docker compose reads the trailing \r
+# as part of DB_ENCRYPTION_KEY, and that key can never be "fixed" later without
+# losing access to the encrypted database.
+
+* text=auto eol=lf
+
+# Explicitly force LF for the files that matter to containers.
+[Dd]ockerfile*      text eol=lf
+*.dockerignore     text eol=lf
+.dockerignore      text eol=lf
+.env.example       text eol=lf
+.env.test          text eol=lf
+docker-compose*.yml text eol=lf
+*.sh               text eol=lf
+*.service          text eol=lf
+nginx.conf         text eol=lf
+Caddyfile          text eol=lf
+
+# Never touch binary payloads.
+*.png binary
+*.jpg binary
+*.jpeg binary
+*.gif binary
+*.webp binary
+*.ico binary
+*.mp3 binary
+*.wasm binary
+*.pdf binary
+*.ttf binary
+*.otf binary
+*.woff binary
+*.woff2 binary

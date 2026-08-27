@@ -69,30 +69,23 @@
 docker pull ghcr.io/bloodworks-io/phlox:latest
 ```
 
-نمونه حداقلی `docker-compose.yml`:
+توصیه می‌شود از `docker-compose.yml` این مخزن استفاده کنید؛ یک ظرف هم API و هم رابط کاربری ساخته‌شده را روی پورت `5000` ارائه می‌کند:
 
-```yaml
-services:
-  phlox:
-    image: ghcr.io/bloodworks-io/phlox:latest
-    container_name: phlox
-    ports:
-      - "5000:5000"  # در صورت استفاده از reverse proxy، دسترسی را محدود کنید
-    environment:
-      - DB_ENCRYPTION_KEY=          # الزامی؛ یک کلید تصادفی قوی بسازید
-      - TZ=                         # مثلاً Europe/Berlin
-      - ALLOWED_ORIGINS=*           # بهتر است دامنه واقعی خود را جایگزین کنید
-      # گزینه‌های اختیاری احراز هویت و محدودسازی نرخ:
-      # - PROXY_AUTH_ENABLED=true
-      # - PROXY_AUTH_USER_HEADER=X-Forwarded-User
-      # - PROXY_AUTH_ALLOWED_USERS=user1,user2
-      # - RATE_LIMIT_ENABLED=true
-    volumes:
-      - ./data:/usr/src/app/data    # پایگاه داده و بردارها
-      - ./logs:/usr/src/app/logs    # ثبت اختیاری گزارش‌ها
+```bash
+cp .env.example .env          # سپس DB_ENCRYPTION_KEY را در .env وارد کنید
+docker compose up -d --build  # ساخت تصویر از همین مخزن
+docker compose ps             # وضعیت باید healthy شود
+docker compose logs -f
 ```
 
-سپس `docker compose up -d` را اجرا کنید. برای پیکربندی کامل، [راهنمای راه‌اندازی](https://phlox.bloodworks.io/docs/setup) را ببینید.
+نکات مهم:
+
+- `DB_ENCRYPTION_KEY` الزامی است و بعد از ساخت پایگاه داده نباید عوض شود (بدون کلید درست، داده رمزگشایی نمی‌شود). برای ساخت کلید: `openssl rand -hex 32`.
+- پایگاه داده، بردارها، نسخه‌های پشتیبان و گزارش‌ها همه داخل `/usr/src/app/data` قرار می‌گیرند، بنابراین یک volume برای همین مسیر کافی است.
+- `docker-compose.yml` به‌طور پیش‌فرض از named volume (`phlox_data`) استفاده می‌کند، چون مالکیت و اجازه‌های آن از تصویر کپی می‌شود و کاربر بدون امتیاز ظرف (uid/gid 1000) می‌تواند بنویسد. اگر bind mount را ترجیح می‌دهید: `sudo mkdir -p data && sudo chown -R 1000:1000 data`.
+- پورت فقط روی `127.0.0.1` منتشر می‌شود. برای دسترسی از بیرون، reverse proxy دارای احراز هویت بگذارید، `ALLOWED_ORIGINS` را روی نشانی واقعی تغییر دهید و `PROXY_AUTH_ENABLED=true` را فعال کنید. در این حالت `HEALTHCHECK` پاسخ‌های `401/403` را نیز سالم می‌شمارد.
+- با Podman نیز همین فایل‌ها کار می‌کنند (`podman compose`). به‌جای متغیر محیطی می‌توانید کلید را به‌صورت secret در `/run/secrets/db_encryption_key` قرار دهید؛ سرور آن را به‌طور خودکار می‌خواند.
+- برای توسعه با hot reload: `docker compose -f docker-compose.dev.yml up` (رابط کاربری روی پورت `3000`، API روی پورت `5000`).
 
 در Docker موتورهای استنتاج محلی دسکتاپ قرار ندارند. برای تشخیص گفتار، یک نقطه پایانی سازگار با OpenAI یا Speechmatics Realtime تنظیم کنید؛ مدل‌های Whisper و Shenava مخصوص نسخه دسکتاپ هستند.
 
