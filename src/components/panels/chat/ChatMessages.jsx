@@ -9,11 +9,13 @@ import { groupActivityTrace } from "../../../utils/chat/activityTrace";
 import ActivityTraceBlock from "../../common/ActivityTraceBlock";
 import MarkdownRenderer from "../../common/MarkdownRenderer";
 import ArtifactCard from "../../common/ArtifactCard";
+import PendingActionCard from "../../common/PendingActionCard";
 import FormFillArtifact from "../../pdf-forms/FormFillArtifact";
 import { CitationList } from "../reasoning/components/CitationList";
 
 const ChatMessages = ({
     messages,
+    setMessages,
     toggleThinkingVisibility,
     getThinkingBlockState,
 }) => {
@@ -172,6 +174,21 @@ const ChatMessages = ({
                                             </Box>
                                         );
                                     })}
+
+                                    {message.role === "assistant" &&
+                                        Array.isArray(message.confirmations) &&
+                                        message.confirmations.length > 0 &&
+                                        message.confirmations.map(
+                                            (confirmation, confIndex) => (
+                                                <PendingActionCard
+                                                    key={`confirm-${messageIndex}-${confIndex}`}
+                                                    confirmation={confirmation}
+                                                    setMessages={setMessages}
+                                                    messageIndex={messageIndex}
+                                                    confIndex={confIndex}
+                                                />
+                                            ),
+                                        )}
 
                                     {message.role === "assistant" &&
                                         message.context && (

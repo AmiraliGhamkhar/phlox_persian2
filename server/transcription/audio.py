@@ -144,7 +144,9 @@ def _read_pcm_wav(audio_buffer: bytes) -> tuple[bytes, int]:
 
     samples = array.array("h")
     samples.frombytes(frames)
-    mono = array.array("h", ((left + right) // 2 for left, right in zip(samples[::2], samples[1::2], strict=True)))
+    mono = array.array(
+        "h", ((left + right) // 2 for left, right in zip(samples[::2], samples[1::2], strict=True))
+    )
     return mono.tobytes(), sample_rate
 
 
@@ -158,19 +160,13 @@ async def _transcribe_speechmatics(
             AudioEncoding,
             AudioFormat,
             ServerMessageType,
-            TranscriptResult,
             TranscriptionConfig,
+            TranscriptResult,
         )
     except ImportError as error:
-        raise ValueError(
-            "Speechmatics support is not installed in this server build"
-        ) from error
+        raise ValueError("Speechmatics support is not installed in this server build") from error
 
-    api_key = str(
-        config.get("ASR_KEY")
-        or config.get("WHISPER_KEY")
-        or ""
-    ).strip()
+    api_key = str(config.get("ASR_KEY") or config.get("WHISPER_KEY") or "").strip()
     if not api_key:
         raise ValueError("A Speechmatics API key is required for the selected ASR provider")
 
@@ -239,7 +235,10 @@ def _load_shenava_runtime(model_path: str, tokens_path: str):
         if _SHENAVA_CACHE and _SHENAVA_CACHE[2] == (model_path, tokens_path):
             return _SHENAVA_CACHE[0], _SHENAVA_CACHE[1]
         try:
-            import numpy as np
+            import importlib.util
+
+            if importlib.util.find_spec("numpy") is None:
+                raise ImportError("numpy is not installed")
             import onnxruntime as ort
         except ImportError as error:
             raise ValueError(
@@ -380,8 +379,7 @@ def _run_shenava_inference(audio_buffer: bytes, config: dict) -> str:
                     for index, item in cache_outputs
                     if index not in used_outputs
                     and (
-                        input_name in item.name.lower()
-                        or item.name.lower().startswith(input_name)
+                        input_name in item.name.lower() or item.name.lower().startswith(input_name)
                     )
                 ),
                 None,
@@ -445,8 +443,10 @@ async def _transcribe_external_api(
 
         try:
             whisper_base_url = (
-                config.get("ASR_BASE_URL") or config.get("WHISPER_BASE_URL") or ""
-            ).strip().rstrip("/")
+                (config.get("ASR_BASE_URL") or config.get("WHISPER_BASE_URL") or "")
+                .strip()
+                .rstrip("/")
+            )
             if whisper_base_url.lower().endswith("/v1"):
                 whisper_base_url = whisper_base_url[:-3]
 

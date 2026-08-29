@@ -40,6 +40,7 @@ const DashboardChat = () => {
         setShowSuggestions,
         loading: chatLoading,
         sendMessage,
+        stopStreaming,
     } = useChat({ mode: "rag" });
 
     const messagesEndRef = useRef(null);
@@ -421,6 +422,7 @@ const DashboardChat = () => {
                             }}
                             onSend={handleUserInputSend}
                             isLoading={chatLoading}
+                            onStopStreaming={stopStreaming}
                             position="centered"
                             pendingImage={pendingImage}
                             onImageSelect={handleImageSelect}
@@ -499,6 +501,7 @@ const DashboardChat = () => {
                 onChange={(e) => setUserInput(e.target.value)}
                 onSend={handleUserInputSend}
                 isLoading={chatLoading}
+                onStopStreaming={stopStreaming}
                 position="bottom"
                 showDisclaimer={true}
                 pendingImage={pendingImage}

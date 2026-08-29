@@ -85,7 +85,7 @@ const modeSelectorStyles = (props) => ({
             color:
                 props.colorMode === "light"
                     ? `${colors.light.base} !important`
-                    : `${colors.dark.invertedText} !important`,
+                    : `${colors.dark.textPrimary} !important`,
         },
     },
 
@@ -105,7 +105,7 @@ const modeSelectorStyles = (props) => ({
             color:
                 props.colorMode === "light"
                     ? `${colors.light.base} !important`
-                    : `${colors.dark.invertedText} !important`,
+                    : `${colors.dark.textPrimary} !important`,
         },
     },
 });

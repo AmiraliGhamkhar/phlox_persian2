@@ -3,6 +3,8 @@
 This module provides a client for connecting to MCP servers via Streamable HTTP transport.
 """
 
+import asyncio
+import json
 import logging
 from contextlib import AsyncExitStack
 from typing import Any
@@ -12,6 +14,10 @@ from mcp.client.sse import sse_client
 from mcp import ClientSession
 
 logger = logging.getLogger(__name__)
+
+# Bound remote MCP tool metadata before it reaches the model's tool list.
+_MAX_TOOL_DESCRIPTION_CHARS = 2000
+_MAX_TOOL_SCHEMA_BYTES = 16384
 
 # Global cache for MCP tools (synchronous access)
 _mcp_tools_cache: list[dict[str, Any]] = []
@@ -45,6 +51,12 @@ class McpServerClient:
             if not url:
                 logger.error(f"No URL configured for MCP server '{self.server_config['name']}'")
                 return False
+
+            # SSRF guard: allow local/LAN MCP servers (legitimate), but block
+            # non-http(s) schemes and cloud-metadata/link-local targets.
+            from server.utils.ssrf import validate_fetch_url
+
+            await asyncio.to_thread(validate_fetch_url, url)
 
             sse_transport = await self.exit_stack.enter_async_context(sse_client(url))
 
@@ -111,14 +123,39 @@ class McpServerClient:
             tools = []
 
             for tool in response.tools:
+                # Never pass remote MCP metadata through verbatim: the
+                # description and schema go straight into the model's tool
+                # list. Malformed values break the OpenAI-compatible API and
+                # oversized ones bloat the prompt (or smuggle instructions).
+                description = str(tool.description or "").strip()
+                if len(description) > _MAX_TOOL_DESCRIPTION_CHARS:
+                    description = description[:_MAX_TOOL_DESCRIPTION_CHARS] + "…"
+
+                input_schema = tool.inputSchema
+                if not isinstance(input_schema, dict):
+                    input_schema = {"type": "object", "properties": {}}
+                else:
+                    try:
+                        serialized = len(json.dumps(input_schema))
+                    except (TypeError, ValueError):
+                        serialized = _MAX_TOOL_SCHEMA_BYTES + 1
+                    if serialized > _MAX_TOOL_SCHEMA_BYTES:
+                        logger.warning(
+                            "MCP tool '%s' schema too large (%d bytes); "
+                            "replaced with an empty object schema",
+                            tool.name,
+                            serialized,
+                        )
+                        input_schema = {"type": "object", "properties": {}}
+
                 # Convert to OpenAI function format
                 tools.append(
                     {
                         "type": "function",
                         "function": {
                             "name": f"mcp_{self._sanitize_name(self.server_config['name'])}_{tool.name}",
-                            "description": tool.description,
-                            "parameters": tool.inputSchema,
+                            "description": description,
+                            "parameters": input_schema,
                         },
                         "_mcp_server_id": self.server_config["id"],
                         "_mcp_tool_name": tool.name,

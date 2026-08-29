@@ -96,7 +96,10 @@ async def test_transcribe_audio_uses_canonical_persian_asr_configuration():
         mock_client.__aexit__ = AsyncMock(return_value=False)
 
         with (
-            patch("server.transcription.audio._detect_audio_format", return_value=("recording.wav", "audio/wav")),
+            patch(
+                "server.transcription.audio._detect_audio_format",
+                return_value=("recording.wav", "audio/wav"),
+            ),
             patch("httpx.AsyncClient", return_value=mock_client),
         ):
             result = await transcribe_audio(b"fake audio data")

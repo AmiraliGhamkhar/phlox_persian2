@@ -11,6 +11,7 @@ import {
 } from "../../utils/chat/messageParser";
 import { groupActivityTrace } from "../../utils/chat/activityTrace";
 import ActivityTraceBlock from "../common/ActivityTraceBlock";
+import PendingActionCard from "../common/PendingActionCard";
 import { CitationList } from "../panels/reasoning/components/CitationList";
 
 const DashboardMessageList = ({
@@ -205,6 +206,21 @@ const DashboardMessageList = ({
                                             </Box>
                                         );
                                     })}
+
+                                    {message.role === "assistant" &&
+                                        Array.isArray(message.confirmations) &&
+                                        message.confirmations.length > 0 &&
+                                        message.confirmations.map(
+                                            (confirmation, confIndex) => (
+                                                <PendingActionCard
+                                                    key={`confirm-${messageIndex}-${confIndex}`}
+                                                    confirmation={confirmation}
+                                                    setMessages={setMessages}
+                                                    messageIndex={messageIndex}
+                                                    confIndex={confIndex}
+                                                />
+                                            ),
+                                        )}
 
                                     {message.role === "assistant" &&
                                         message.context && (

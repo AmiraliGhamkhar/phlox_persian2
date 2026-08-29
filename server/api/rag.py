@@ -220,8 +220,10 @@ async def extract_pdf_info(file: UploadFile = File(...)):
         raise HTTPException(status_code=400, detail="No filename provided in upload.")
 
     try:
-        # Read bytes directly — no temp file.
-        content = await file.read()
+        # Read bytes directly — no temp file. Size-capped (matches /api/pdf-forms).
+        from server.utils.request_limits import MAX_PDF_UPLOAD_BYTES, read_upload_limited
+
+        content = await read_upload_limited(file, MAX_PDF_UPLOAD_BYTES, "PDF")
         logger.debug(f"Received upload: {len(content)} bytes")
 
         # Stage raw PDF bytes for optional storage
@@ -273,9 +275,7 @@ async def extract_pdf_info_from_text(payload: ExtractTextPayload):
             f"Error processing extracted text for '{payload.filename}': {e}",
             exc_info=True,
         )
-        raise HTTPException(
-            status_code=500, detail="Error processing extracted text"
-        ) from e
+        raise HTTPException(status_code=500, detail="Error processing extracted text") from e
 
 
 @router.post("/commit-to-vectordb")

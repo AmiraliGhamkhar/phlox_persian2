@@ -116,6 +116,17 @@ async def execute(
     server_config = mcp_config_manager.get_server(server_id)
     allow_sensitive = server_config.get("allow_sensitive_data", False) if server_config else False
 
+    # Execution-time enforcement of the per-tool toggles (the tool list shown
+    # to the model is already filtered; this covers stale caches).
+    if server_config and original_tool_name in set(server_config.get("disabled_tools") or []):
+        logger.warning(f"Blocked disabled MCP tool '{original_tool_name}' on server {server_id}")
+        result_content = (
+            f"Tool '{original_tool_name}' is disabled by the user for this MCP "
+            "server. Do not call it again."
+        )
+        yield end_message(function_response={"content": result_content, "citations": citations})
+        return
+
     # Sanitize arguments if sensitive data is not allowed
     sanitized_arguments = _sanitize_arguments(function_arguments, allow_sensitive)
 

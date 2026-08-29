@@ -156,7 +156,7 @@ const DisclaimerModal = ({ isOpen, onClose }) => {
                                         color={"textPrimary"}
                                         fontSize="sm"
                                         css={{
-                                            fontFamily: '"Roboto", sans-serif'
+                                            fontFamily: '"Vazirmatn", Tahoma, Arial, sans-serif'
                                         }}
                                     >
                                         هشدارهای بالا را خوانده‌ام و درک می‌کنم. موافقم با مسئولیت خودم ادامه دهم.

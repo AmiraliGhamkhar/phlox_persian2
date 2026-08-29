@@ -32,9 +32,8 @@ def _get_whisper_status_url(config: dict) -> str | None:
 
     # A local Shenava model runs in the Python ASR adapter and has no HTTP
     # sidecar; Whisper.cpp models expose the local health endpoint.
-    if (
-        config.get("ASR_PROVIDER") == "local"
-        and str(config.get("ASR_MODEL") or "").startswith("shenava-")
+    if config.get("ASR_PROVIDER") == "local" and str(config.get("ASR_MODEL") or "").startswith(
+        "shenava-"
     ):
         return None
 

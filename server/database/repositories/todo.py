@@ -16,15 +16,20 @@ def get_todo_items() -> list[dict]:
         ]
 
 
-def update_todo_item(todo_id: int, task: str, completed: bool) -> dict:
+def update_todo_item(todo_id: int, task: str, completed: bool) -> dict | None:
+    """Update a todo. Returns the updated item, or None if the id is unknown."""
     with get_db().transaction() as cursor:
         cursor.execute(
             "UPDATE todos SET task = ?, completed = ? WHERE id = ?",
             (task, completed, todo_id),
         )
+        if cursor.rowcount == 0:
+            return None
     return {"id": todo_id, "task": task, "completed": completed}
 
 
-def delete_todo_item(todo_id: int):
+def delete_todo_item(todo_id: int) -> bool:
+    """Delete a todo. Returns True if a row was removed."""
     with get_db().transaction() as cursor:
         cursor.execute("DELETE FROM todos WHERE id = ?", (todo_id,))
+        return cursor.rowcount > 0

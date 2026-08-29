@@ -97,6 +97,12 @@ class ChatEngine:
         context_question_options = prompts["options"]["general"]
         context_question_options.pop("stop", None)
 
+        # Register the active patient so external-search tools strip these
+        # exact identifiers from outbound queries (PHI defense-in-depth).
+        from server.chat.tools.sanitization import set_active_patient_context
+
+        set_active_patient_context(patient_context)
+
         # Clean</think> tags from conversation history
         cleaned_conversation_history = clean_think_tags(conversation_history)
 
@@ -318,10 +324,19 @@ class ChatEngine:
                                         "and what remains."
                                     )
 
+                                # Data fence: tool output is untrusted third-party
+                                # content. Delimit it so the model treats it as
+                                # data, never as instructions (LLM01:2026).
+                                fenced_content = (
+                                    f'<tool_result tool="{tool_name}">\n'
+                                    f"{tool_content}\n"
+                                    f"</tool_result>"
+                                )
+
                                 message_list.append(
                                     tool_response_message(
                                         tool_call_id=str(final_tool_calls[0].get("id", "")),
-                                        content=tool_content,
+                                        content=fenced_content,
                                     )
                                 )
                         elif result.get("type") != "end":

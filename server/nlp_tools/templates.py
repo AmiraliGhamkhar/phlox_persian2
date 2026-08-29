@@ -55,7 +55,7 @@ async def generate_template_from_note(example_note: str) -> ClinicalTemplate:
 
         json_schema_instruction = (
             "فقط JSON معتبر با کلیدهای سطح بالا شامل "
-            '\"sections\" (آرایه)، \"suggested_name\" (رشته) و \"note_type\" (رشته) برگردان. نمونه: '
+            '"sections" (آرایه)، "suggested_name" (رشته) و "note_type" (رشته) برگردان. نمونه: '
             + json.dumps(
                 {
                     "sections": [

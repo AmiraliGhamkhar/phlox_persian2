@@ -48,8 +48,14 @@ def migrate(cursor, _db):
         "quick_chat_1_prompt": ("Review my plan", "بررسی برنامه من"),
         "quick_chat_2_title": ("Additional points to review", "نکات دیگری برای بررسی"),
         "quick_chat_2_prompt": ("Additional points to review", "نکات دیگری برای بررسی"),
-        "quick_chat_3_title": ("Other conditions worth reviewing", "بیماری‌های دیگری که ارزش بررسی دارند"),
-        "quick_chat_3_prompt": ("Other conditions worth reviewing", "بیماری‌های دیگری که ارزش بررسی دارند"),
+        "quick_chat_3_title": (
+            "Other conditions worth reviewing",
+            "بیماری‌های دیگری که ارزش بررسی دارند",
+        ),
+        "quick_chat_3_prompt": (
+            "Other conditions worth reviewing",
+            "بیماری‌های دیگری که ارزش بررسی دارند",
+        ),
     }
     for key, (english_default, persian_default) in quick_chat_defaults.items():
         cursor.execute(
@@ -69,7 +75,7 @@ def migrate(cursor, _db):
         ("Brief Update", "Write a short update letter..."),
     ]
     for (_, persian_name, persian_instructions), (original_name, original_instructions) in zip(
-        DefaultLetters.get_default_letter_templates(), original_letters
+        DefaultLetters.get_default_letter_templates(), original_letters, strict=True
     ):
         cursor.execute(
             """

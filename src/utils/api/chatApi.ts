@@ -25,21 +25,6 @@ export const chatApi = {
         });
     },
 
-    generateLetter: async (letterData) => {
-        return handleApiRequest({
-            apiCall: async () => {
-                const url = await buildApiUrl("/api/generate-letter");
-                return universalFetch(url, {
-                    method: "POST",
-                    headers: { "Content-Type": "application/json" },
-                    body: JSON.stringify(letterData),
-                });
-            },
-            successMessage: "Letter generated successfully.",
-            errorMessage: "Error generating letter",
-        });
-    },
-
     analyzeVisualDocument: async (payload) => {
         return handleApiRequest({
             apiCall: async () => {
@@ -115,6 +100,7 @@ export const chatApi = {
         messages,
         rawTranscription = null,
         patientContext = null,
+        signal = null,
     ) {
         const url = await buildApiUrl("/api/chat");
         const response = await universalFetch(url, {
@@ -125,6 +111,7 @@ export const chatApi = {
                 raw_transcription: rawTranscription,
                 patient_context: patientContext,
             }),
+            signal,
         });
 
         if (!response.ok) {
@@ -134,6 +121,8 @@ export const chatApi = {
         const reader = response.body.getReader();
         const decoder = new TextDecoder();
         let buffer = "";
+        let sawEndEvent = false;
+        let malformedFrames = 0;
 
         while (true) {
             const { value, done } = await reader.read();
@@ -149,6 +138,9 @@ export const chatApi = {
                 if (line.trim() && line.startsWith("data: ")) {
                     try {
                         const data = JSON.parse(line.slice(6));
+                        if (data.type === "end") {
+                            sawEndEvent = true;
+                        }
                         if (data.type === "end" && data.function_response) {
                             // Handle function response at the end of stream
 
@@ -180,6 +172,8 @@ export const chatApi = {
                         }
                         await new Promise((resolve) => setTimeout(resolve, 0));
                     } catch (error) {
+                        // Malformed frame: track it instead of failing silently
+                        malformedFrames += 1;
                         console.error("Error parsing chunk:", error);
                     }
                 }
@@ -190,10 +184,53 @@ export const chatApi = {
         if (buffer.trim() && buffer.startsWith("data: ")) {
             try {
                 const data = JSON.parse(buffer.slice(6));
+                if (data.type === "end") {
+                    sawEndEvent = true;
+                }
                 yield data;
             } catch (error) {
+                malformedFrames += 1;
                 console.error("Error parsing final chunk:", error);
             }
         }
+
+        // Surface a broken stream instead of silently truncating the answer.
+        if (!sawEndEvent && !signal?.aborted) {
+            yield {
+                type: "error",
+                content:
+                    "پاسخ ناقص ماند: جریان پاسخ بدون پیام پایانی قطع شد." +
+                    (malformedFrames > 0
+                        ? ` (${malformedFrames} قطعه خراب نادیده گرفته شد.)`
+                        : ""),
+            };
+        }
     },
+
+    confirmPendingAction: async (actionId) =>
+        handleApiRequest({
+            apiCall: async () => {
+                const url = await buildApiUrl("/api/chat/confirm-action");
+                return universalFetch(url, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ action_id: actionId }),
+                });
+            },
+            errorMessage: "Failed to run the approved action",
+        }),
+
+    cancelPendingAction: async (actionId) =>
+        handleApiRequest({
+            apiCall: async () => {
+                const url = await buildApiUrl("/api/chat/cancel-action");
+                return universalFetch(url, {
+                    method: "POST",
+                    headers: { "Content-Type": "application/json" },
+                    body: JSON.stringify({ action_id: actionId }),
+                });
+            },
+            successMessage: "Action cancelled",
+            errorMessage: "Failed to cancel the action",
+        }),
 };

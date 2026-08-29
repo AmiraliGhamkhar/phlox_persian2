@@ -103,6 +103,21 @@ def artifact_message(artifact: dict[str, Any]) -> dict[str, Any]:
     }
 
 
+def confirmation_message(action_id: str, tool_name: str, summary: str) -> dict[str, Any]:
+    """
+    Create a confirmation-required event for a pending tool action.
+
+    The UI renders this as an approval card; the tool only executes when the
+    user approves (POST /api/chat/confirm-action).
+    """
+    return {
+        "type": "confirmation",
+        "action_id": action_id,
+        "tool": tool_name,
+        "summary": summary,
+    }
+
+
 def tool_response_message(tool_call_id: str, content: str) -> dict[str, Any]:
     """
     Create a tool response message for the message list.

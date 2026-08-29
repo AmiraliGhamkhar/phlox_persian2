@@ -5,6 +5,7 @@ import ipaddress
 import logging
 import secrets
 import time
+from urllib.parse import urlsplit
 
 from fastapi.responses import JSONResponse
 from starlette.middleware.base import BaseHTTPMiddleware
@@ -75,6 +76,150 @@ def _is_private_ip(ip_str: str) -> bool:
         return False
 
 
+def _is_trusted_proxy(ip_str: str) -> bool:
+    """Decide whether ``ip_str`` may set forwarded headers.
+
+    When TRUSTED_PROXY_CIDRS is configured, only those networks are trusted.
+    Otherwise any private-range peer is trusted (previous behaviour, kept for
+    backwards compatibility with existing deployments).
+    """
+    from server.constants import TRUSTED_PROXY_NETWORKS
+
+    if TRUSTED_PROXY_NETWORKS:
+        try:
+            ip = ipaddress.ip_address(ip_str)
+        except ValueError:
+            return False
+        return any(ip in network for network in TRUSTED_PROXY_NETWORKS)
+    return _is_private_ip(ip_str)
+
+
+# Hostnames the API always accepts (loopback/desktop + tests).
+DEFAULT_ALLOWED_HOSTNAMES = {"localhost", "127.0.0.1", "::1", "[::1]", "testserver"}
+# Origins embedded in desktop shells (Tauri webview fetches).
+SHELL_ORIGIN_HOSTNAMES = {"localhost"}
+
+
+def _get_allowed_hostnames() -> set[str]:
+    """Compute the Host-header allowlist from config."""
+    from server.constants import ALLOWED_HOSTS, ALLOWED_ORIGINS
+
+    allowed = set(DEFAULT_ALLOWED_HOSTNAMES) | set(ALLOWED_HOSTS)
+    for origin in ALLOWED_ORIGINS:
+        if origin == "*":
+            continue
+        try:
+            host = urlsplit(origin if "//" in origin else f"//{origin}").hostname
+        except ValueError:
+            continue
+        if host:
+            allowed.add(host.lower())
+    return allowed
+
+
+def _hostname_of_host_header(host_header: str) -> str:
+    """Extract the lowercase hostname from a Host header (handles [::1]:port)."""
+    host = host_header.strip().lower()
+    if host.startswith("["):
+        end = host.find("]")
+        return host[: end + 1] if end != -1 else host
+    return host.split(":", 1)[0]
+
+
+class HostValidationMiddleware(BaseHTTPMiddleware):
+    """Reject requests whose Host or Origin does not belong to this deployment.
+
+    Two protections:
+    - Host allowlist: defeats DNS-rebinding (an attacker page at evil.com that
+      rebinds to 127.0.0.1 sends ``Host: evil.com``, which is not allowed).
+    - Origin check on state-changing methods: defeats cross-site form POSTs to
+      multipart endpoints, which browsers send without a CORS preflight.
+
+    Requests without an Origin header (server-to-server clients, the desktop
+    shell's HTTP plugin, healthchecks) pass the Origin check.
+    """
+
+    UNSAFE_METHODS = {"POST", "PUT", "PATCH", "DELETE"}
+
+    async def dispatch(self, request, call_next):
+        from server.constants import IS_TESTING
+
+        if IS_TESTING:
+            return await call_next(request)
+
+        host_header = request.headers.get("host", "")
+        allowed = _get_allowed_hostnames()
+
+        if _hostname_of_host_header(host_header) not in allowed:
+            logger.warning("Rejected request with disallowed Host header: %r", host_header)
+            return JSONResponse(
+                status_code=421,
+                content={
+                    "detail": "This host is not served by Phlox. "
+                    "Set ALLOWED_HOSTS/ALLOWED_ORIGINS for your deployment."
+                },
+            )
+
+        if request.method in self.UNSAFE_METHODS:
+            origin = request.headers.get("origin")
+            if origin is not None and not self._origin_allowed(origin, allowed, host_header):
+                logger.warning("Rejected %s with disallowed Origin: %r", request.method, origin)
+                return JSONResponse(
+                    status_code=403,
+                    content={"detail": "Cross-origin request rejected"},
+                )
+
+        return await call_next(request)
+
+    @staticmethod
+    def _origin_allowed(origin: str, allowed: set[str], host_header: str) -> bool:
+        from server.constants import ALLOWED_ORIGINS
+
+        if origin == "null":
+            return False
+        if origin in ALLOWED_ORIGINS:
+            return True
+        try:
+            parts = urlsplit(origin if "//" in origin else f"//{origin}")
+            origin_host = (parts.hostname or "").lower()
+        except ValueError:
+            return False
+        if not origin_host:
+            return False
+        if origin_host in allowed or origin_host in SHELL_ORIGIN_HOSTNAMES:
+            return True
+        # Same-host origin is always fine.
+        return origin_host == _hostname_of_host_header(host_header)
+
+
+class RequestBodyLimitMiddleware(BaseHTTPMiddleware):
+    """Reject API requests whose declared body exceeds the size caps.
+
+    Works off the Content-Length header (fast, before any auth work). Bodies
+    without Content-Length (chunked) are capped by read-limited uploads in the
+    handlers themselves.
+    """
+
+    async def dispatch(self, request, call_next):
+        from server.utils.request_limits import DEFAULT_API_BODY_LIMIT, TRANSCRIBE_API_BODY_LIMIT
+
+        path = request.url.path
+        if path.startswith("/api/"):
+            limit = (
+                TRANSCRIBE_API_BODY_LIMIT
+                if path.startswith("/api/transcribe")
+                else DEFAULT_API_BODY_LIMIT
+            )
+            content_length = request.headers.get("content-length")
+            if content_length and content_length.isdigit() and int(content_length) > limit:
+                logger.warning("Rejected oversized request to %s (%s bytes)", path, content_length)
+                return JSONResponse(
+                    status_code=413,
+                    content={"detail": "Request body too large"},
+                )
+        return await call_next(request)
+
+
 class SecurityHeadersMiddleware(BaseHTTPMiddleware):
     """Add security headers to all responses."""
 
@@ -102,17 +247,19 @@ class SecurityHeadersMiddleware(BaseHTTPMiddleware):
 class TrustedProxyMiddleware(BaseHTTPMiddleware):
     """Extract real client IP from X-Forwarded-For header if from trusted proxy.
 
-    Only trusts X-Forwarded-For when the direct connection is from a private IP
-    (e.g., a reverse proxy on the same Docker network). This prevents clients
-    from spoofing the header directly.
+    Only trusts X-Forwarded-For when the direct connection comes from a
+    trusted proxy — a CIDR listed in TRUSTED_PROXY_CIDRS when configured, or
+    (backwards-compatible default) any private-range peer. This prevents
+    clients from spoofing the header directly and from rotating rate-limit
+    buckets or polluting the audit trail with forged IPs.
     """
 
     async def dispatch(self, request, call_next):
         client_host = request.client.host if request.client else "unknown"
         forwarded_for = request.headers.get("x-forwarded-for")
 
-        # Only trust X-Forwarded-For if the direct connection is from a private IP
-        if forwarded_for and client_host != "unknown" and _is_private_ip(client_host):
+        # Only trust X-Forwarded-For if the direct connection is a trusted proxy
+        if forwarded_for and client_host != "unknown" and _is_trusted_proxy(client_host):
             # Take the first IP in the chain (original client)
             request.state.client_ip = forwarded_for.split(",")[0].strip()
         else:
@@ -132,7 +279,7 @@ class LocalTokenMiddleware(BaseHTTPMiddleware):
     """
 
     async def dispatch(self, request, call_next):
-        from server.constants import IS_DOCKER
+        from server.constants import is_docker_runtime
         from server.utils.local_request_token import get_request_token
 
         path = request.url.path
@@ -141,8 +288,10 @@ class LocalTokenMiddleware(BaseHTTPMiddleware):
         if should_skip_middleware(path):
             return await call_next(request)
 
-        # In Docker mode, skip token validation
-        if IS_DOCKER:
+        # In Docker mode, skip token validation. Re-evaluated per request
+        # (not the import-time IS_DOCKER constant) so the skip can never be
+        # triggered by a stale flag in a non-container runtime.
+        if is_docker_runtime():
             logger.debug(f"Auth skipped - Docker mode (path: {path})")
             return await call_next(request)
 
@@ -166,7 +315,8 @@ class LocalTokenMiddleware(BaseHTTPMiddleware):
 
         provided_token = auth_header[7:]  # remove "Bearer " prefix
         if not secrets.compare_digest(provided_token, expected_token):
-            logger.warning(f"Invalid token for {path} (got {provided_token[:8]}...)")
+            # No token material is logged — even a prefix could help a guesser.
+            logger.warning(f"Invalid request token for {path}")
             return JSONResponse(status_code=403, content={"detail": "Invalid request token"})
 
         return await call_next(request)
@@ -226,13 +376,15 @@ class ProxyAuthMiddleware(BaseHTTPMiddleware):
 class RateLimitMiddleware(BaseHTTPMiddleware):
     """Rate limit API requests to prevent abuse and data exfiltration.
 
-    Uses a sliding window algorithm with in-memory storage.
-    Different rate limits apply to different endpoint categories.
+    Token-bucket algorithm with in-memory storage: each (client, endpoint)
+    bucket starts with ``rate * burst`` tokens, refills continuously at
+    ``rate / 60`` tokens per second, and consumes one token per request. This
+    gives a genuine short burst allowance while the sustained rate stays at
+    ``rate`` requests per minute (the previous sliding-window code effectively
+    allowed ``rate * burst`` per minute permanently).
     """
 
     # Endpoint-specific limits: (requests_per_minute, burst_multiplier)
-    # Burst multiplier allows 2x rate in first 10 seconds of window
-    # Tauri mode multiplies rate_limit by RATE_LIMIT_DESKTOP_MULTIPLIER
     RATE_LIMITS = {
         "/api/transcribe": (10, 2),
         "/api/chat": (30, 2),
@@ -249,10 +401,10 @@ class RateLimitMiddleware(BaseHTTPMiddleware):
     PATIENT_DETAIL_LIMIT = (20, 2)  # Normal browsing allowed
 
     WINDOW_SECONDS = 60
-    BURST_WINDOW_SECONDS = 10
 
-    # In-memory storage with lock for thread safety
-    _request_history: dict[str, dict[str, list[float]]] = {}
+    # Buckets: (client_ip, endpoint) -> [tokens, last_refill_ts]
+    # Class-level so the scheduler's cleanup job sees the same state.
+    _buckets: dict[tuple[str, str], list[float]] = {}
     _lock = asyncio.Lock()
 
     def _get_limit_for_path(self, path: str) -> tuple[int, int]:
@@ -260,7 +412,7 @@ class RateLimitMiddleware(BaseHTTPMiddleware):
         from server.constants import IS_DOCKER, RATE_LIMIT_DESKTOP_MULTIPLIER
 
         # Check for patient list vs detail
-        if path == "/api/note" or path == "/api/note/":
+        if path == "/api/note/list" or path == "/api/note/list/":
             rate, burst = self.PATIENT_LIST_LIMIT
         elif path.startswith("/api/note/"):
             rate, burst = self.PATIENT_DETAIL_LIMIT
@@ -282,7 +434,7 @@ class RateLimitMiddleware(BaseHTTPMiddleware):
 
     def _get_endpoint_key(self, path: str) -> str:
         """Get endpoint key for rate limiting (groups related paths)."""
-        if path.startswith("/api/note/") and path != "/api/note/":
+        if path.startswith("/api/note/") and not path.startswith("/api/note/list"):
             # Group all individual note requests
             return "/api/note/detail"
         for prefix in self.RATE_LIMITS:
@@ -290,50 +442,24 @@ class RateLimitMiddleware(BaseHTTPMiddleware):
                 return prefix
         return "/api/default"
 
-    async def _cleanup_old_requests(self, client_ip: str, endpoint: str, now: float):
-        """Remove requests older than the window and prune empty keys."""
-        if client_ip in self._request_history:
-            if endpoint in self._request_history[client_ip]:
-                self._request_history[client_ip][endpoint] = [
-                    ts
-                    for ts in self._request_history[client_ip][endpoint]
-                    if now - ts < self.WINDOW_SECONDS
-                ]
-                # Prune empty endpoint dict
-                if not self._request_history[client_ip][endpoint]:
-                    del self._request_history[client_ip][endpoint]
-            # Prune empty client dict
-            if not self._request_history[client_ip]:
-                del self._request_history[client_ip]
-
     @classmethod
     async def cleanup_all_zombie_ips(cls):
-        """Background task to clean up IPs that never returned.
+        """Background task to clean up buckets that never returned.
 
         Called periodically by the scheduler to prevent memory accumulation
         from port scanners or one-off requests.
         """
         now = time.time()
-        ips_to_delete = []
+        stale_keys = [
+            key
+            for key, (_tokens, last_refill) in cls._buckets.items()
+            if now - last_refill > cls.WINDOW_SECONDS * 2
+        ]
+        for key in stale_keys:
+            cls._buckets.pop(key, None)
 
-        async with cls._lock:
-            for client_ip, endpoints in list(cls._request_history.items()):
-                # Check if all endpoints for this IP are stale
-                all_stale = True
-                for _endpoint, timestamps in endpoints.items():
-                    # Keep if any timestamp is within window
-                    if any(now - ts < cls.WINDOW_SECONDS for ts in timestamps):
-                        all_stale = False
-                        break
-
-                if all_stale:
-                    ips_to_delete.append(client_ip)
-
-            for ip in ips_to_delete:
-                del cls._request_history[ip]
-
-        if ips_to_delete:
-            logger.debug(f"Cleaned up {len(ips_to_delete)} stale IPs from rate limiter")
+        if stale_keys:
+            logger.debug("Cleaned up %d stale rate-limit buckets", len(stale_keys))
 
     async def dispatch(self, request, call_next):
         from server.constants import RATE_LIMIT_ENABLED
@@ -356,64 +482,45 @@ class RateLimitMiddleware(BaseHTTPMiddleware):
         endpoint = self._get_endpoint_key(path)
 
         now = time.time()
+        capacity = float(rate_limit * burst_multiplier)
+        refill_per_second = rate_limit / self.WINDOW_SECONDS
+        key = (client_ip, endpoint)
 
         async with self._lock:
-            # Initialize storage for this client/endpoint if needed
-            if client_ip not in self._request_history:
-                self._request_history[client_ip] = {}
-            if endpoint not in self._request_history[client_ip]:
-                self._request_history[client_ip][endpoint] = []
+            bucket = self._buckets.get(key)
+            if bucket is None:
+                bucket = [capacity, now]
+                self._buckets[key] = bucket
 
-            # Clean up old requests (may delete empty dicts, so re-init after)
-            await self._cleanup_old_requests(client_ip, endpoint, now)
+            # Refill tokens accrued since the last request.
+            elapsed = max(0.0, now - bucket[1])
+            bucket[0] = min(capacity, bucket[0] + elapsed * refill_per_second)
+            bucket[1] = now
 
-            # Re-initialize if cleanup deleted entries
-            if client_ip not in self._request_history:
-                self._request_history[client_ip] = {}
-            if endpoint not in self._request_history[client_ip]:
-                self._request_history[client_ip][endpoint] = []
-
-            # Count requests in window
-            requests_in_window = len(self._request_history[client_ip][endpoint])
-
-            # Count requests in burst window (last 10 seconds)
-            requests_in_burst = sum(
-                1
-                for ts in self._request_history[client_ip][endpoint]
-                if now - ts < self.BURST_WINDOW_SECONDS
-            )
-
-            # Calculate effective limit (burst allowed in first 10 seconds)
-            if requests_in_burst < rate_limit * burst_multiplier:
-                effective_limit = rate_limit * burst_multiplier
+            if bucket[0] >= 1.0:
+                bucket[0] -= 1.0
+                allowed = True
             else:
-                effective_limit = rate_limit
+                allowed = False
 
-            # Check if rate limit exceeded
-            if requests_in_window >= effective_limit:
-                retry_after = int(
-                    self.WINDOW_SECONDS - (now - self._request_history[client_ip][endpoint][0])
-                )
-                logger.warning(f"Rate limit exceeded for {client_ip} on {path}")
-                return JSONResponse(
-                    status_code=429,
-                    content={
-                        "detail": "Rate limit exceeded. Please slow down.",
-                        "retry_after": retry_after,
-                    },
-                    headers={
-                        "X-RateLimit-Limit": str(rate_limit),
-                        "X-RateLimit-Remaining": "0",
-                        "X-RateLimit-Reset": str(int(now + retry_after)),
-                        "Retry-After": str(retry_after),
-                    },
-                )
+            remaining = int(bucket[0])
+            retry_after = int(max(1, (1.0 - bucket[0]) / refill_per_second)) if not allowed else 0
 
-            # Record this request
-            self._request_history[client_ip][endpoint].append(now)
-
-            # Calculate remaining
-            remaining = max(0, rate_limit - requests_in_window - 1)
+        if not allowed:
+            logger.warning(f"Rate limit exceeded for {client_ip} on {path}")
+            return JSONResponse(
+                status_code=429,
+                content={
+                    "detail": "Rate limit exceeded. Please slow down.",
+                    "retry_after": retry_after,
+                },
+                headers={
+                    "X-RateLimit-Limit": str(rate_limit),
+                    "X-RateLimit-Remaining": "0",
+                    "X-RateLimit-Reset": str(int(now + retry_after)),
+                    "Retry-After": str(retry_after),
+                },
+            )
 
         # Process request and add rate limit headers to response
         response = await call_next(request)
@@ -447,28 +554,35 @@ class AuditMiddleware(BaseHTTPMiddleware):
         if path == "/api/config/status" and request.method == "GET":
             return await call_next(request)
 
+        actor = getattr(request.state, "user", "local")
+        client_ip = getattr(request.state, "client_ip", None)
+
         start = time.monotonic()
         try:
             response = await call_next(request)
             status = response.status_code
         except Exception:
             # Request never produced a response; record as 500 and re-raise.
-            log_event(
+            # Offloaded to a worker thread: the audit write takes the global DB
+            # lock and must not block the event loop on every API request.
+            await asyncio.to_thread(
+                log_event,
                 method=request.method,
                 path=path,
                 status=500,
-                actor=getattr(request.state, "user", "local"),
-                client_ip=getattr(request.state, "client_ip", None),
+                actor=actor,
+                client_ip=client_ip,
                 duration_ms=int((time.monotonic() - start) * 1000),
             )
             raise
 
-        log_event(
+        await asyncio.to_thread(
+            log_event,
             method=request.method,
             path=path,
             status=status,
-            actor=getattr(request.state, "user", "local"),
-            client_ip=getattr(request.state, "client_ip", None),
+            actor=actor,
+            client_ip=client_ip,
             duration_ms=int((time.monotonic() - start) * 1000),
         )
         return response

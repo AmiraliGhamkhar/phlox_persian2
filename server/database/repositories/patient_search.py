@@ -8,7 +8,7 @@ from server.database.repositories.templates import (
     get_persistent_fields,
     get_template_by_key,
 )
-from server.utils.helpers import format_name
+from server.utils.helpers import escape_like, format_name
 
 
 def get_unique_primary_conditions():
@@ -72,7 +72,7 @@ def search_patients(query: str) -> list[dict[str, Any]]:
     """
     if not query:
         return []
-    like = f"%{query}%"
+    like = f"%{escape_like(query)}%"
     try:
         with get_db().read() as cursor:
             cursor.execute(
@@ -88,9 +88,9 @@ def search_patients(query: str) -> list[dict[str, Any]]:
                     LIMIT 1
                 )
                 WHERE p.ur_number = ?
-                   OR p.first_name LIKE ?
-                   OR p.last_name LIKE ?
-                ORDER BY (p.last_name LIKE ?) DESC, p.last_name, p.first_name
+                   OR p.first_name LIKE ? ESCAPE '\\'
+                   OR p.last_name LIKE ? ESCAPE '\\'
+                ORDER BY (p.last_name LIKE ? ESCAPE '\\') DESC, p.last_name, p.first_name
                 LIMIT 20
                 """,
                 (query, like, like, like),

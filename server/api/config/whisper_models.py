@@ -9,11 +9,10 @@ import json
 import logging
 
 from fastapi import APIRouter, Body, HTTPException
-
-from server.database.config.manager import config_manager
 from fastapi.responses import StreamingResponse
 
 from server.constants import IS_DOCKER
+from server.database.config.manager import config_manager
 from server.utils.asr_models import asr_model_manager
 
 router = APIRouter()
@@ -209,7 +208,7 @@ async def get_whisper_model_recommendations():
             {
                 **model,
                 "simple_name": model["name"],
-                "size": f'{model["size_mb"]}MB',
+                "size": f"{model['size_mb']}MB",
                 "recommendedType": "recommended" if is_recommended else "alternative",
                 "badge": "⭐ پیشنهادشده" if is_recommended else None,
                 "badge_color": "purple" if is_recommended else None,

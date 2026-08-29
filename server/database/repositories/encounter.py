@@ -1,7 +1,7 @@
 import json
 import logging
 from datetime import datetime
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 from server.database.core.connection import get_db
 from server.database.repositories.jobs import (
@@ -17,7 +17,10 @@ from server.database.repositories.templates import (
     get_template_by_key,
 )
 from server.schemas.patient import Patient
-from server.utils.helpers import format_name, split_name
+
+if TYPE_CHECKING:
+    from server.schemas.templates import TemplateField
+from server.utils.helpers import escape_like, format_name, split_name
 
 
 def _attach_profile_demographics(row: dict[str, Any]) -> dict[str, Any]:
@@ -431,10 +434,10 @@ def get_patient_history(ur_number: str, template_key: str | None = None) -> list
                     """
                     SELECT id, encounter_date, template_key, template_data
                     FROM encounters
-                    WHERE ur_number = ? AND template_key LIKE ?
+                    WHERE ur_number = ? AND template_key LIKE ? ESCAPE '\\'
                     ORDER BY encounter_date DESC
                     """,
-                    (ur_number, f"{template_key}%"),
+                    (ur_number, f"{escape_like(template_key)}%"),
                 )
             else:
                 cursor.execute(
@@ -449,13 +452,24 @@ def get_patient_history(ur_number: str, template_key: str | None = None) -> list
 
             rows = cursor.fetchall()
 
+        # NOTE: rows are ordered by date, so template keys repeat heavily.
+        # Memoize per distinct key instead of re-resolving twice per row
+        # (avoids an N+1 on encounters listing).
+        template_cache: dict[str, dict[str, Any] | None] = {}
+        persistent_fields_cache: dict[str, list[TemplateField]] = {}
+
         encounters = []
         for row in rows:
-            template = get_template_by_key(row["template_key"])
+            template_key = row["template_key"]
+            if template_key not in template_cache:
+                template_cache[template_key] = get_template_by_key(template_key)
+            template = template_cache[template_key]
             if not template:
                 continue
 
-            persistent_fields = get_persistent_fields(row["template_key"])
+            if template_key not in persistent_fields_cache:
+                persistent_fields_cache[template_key] = get_persistent_fields(template_key)
+            persistent_fields = persistent_fields_cache[template_key]
             template_data = json.loads(row["template_data"]) if row["template_data"] else {}
 
             persistent_data = {

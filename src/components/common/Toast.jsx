@@ -57,7 +57,7 @@ export function CustomToast(props) {
                             fontWeight="600"
                             color={c.textPrimary}
                             fontSize="md"
-                            css={{ fontFamily: '"Roboto", sans-serif' }}
+                            fontFamily={'"Vazirmatn", Tahoma, Arial, sans-serif'}
                         >
                             {localizedTitle}
                         </Box>
@@ -66,7 +66,7 @@ export function CustomToast(props) {
                         <Box
                             color={c.textSecondary}
                             fontSize="sm"
-                            css={{ fontFamily: '"Roboto", sans-serif' }}
+                            fontFamily={'"Vazirmatn", Tahoma, Arial, sans-serif'}
                         >
                             {localizedDescription}
                         </Box>

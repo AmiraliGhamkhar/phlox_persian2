@@ -66,6 +66,7 @@ const Chat = ({ isOpen, onClose, patientData, currentTemplate, rawTranscription 
         userInput={chat.userInput}
         setUserInput={chat.setUserInput}
         handleChat={handleChat}
+        stopStreaming={chat.stopStreaming}
         showSuggestions={chat.showSuggestions}
         setShowSuggestions={chat.setShowSuggestions}
         rawTranscription={rawTranscription}

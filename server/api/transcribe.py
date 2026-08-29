@@ -22,6 +22,11 @@ from server.schemas.documents import VisualDocumentPage
 from server.schemas.patient import TranscribeResponse
 from server.transcription.audio import transcribe_audio
 from server.transcription.text import process_transcription
+from server.utils.request_limits import (
+    MAX_AUDIO_UPLOAD_BYTES,
+    MAX_DOCUMENT_UPLOAD_BYTES,
+    read_upload_limited,
+)
 
 router = APIRouter()
 
@@ -76,7 +81,7 @@ async def transcribe(
     """Transcribes audio and processes the transcription."""
     try:
         # Read the audio file
-        audio_buffer = await file.read()
+        audio_buffer = await read_upload_limited(file, MAX_AUDIO_UPLOAD_BYTES, "Audio upload")
 
         # Process the name if provided
         formatted_name = _format_patient_display_name(name)
@@ -132,7 +137,7 @@ async def dictate(file: UploadFile = File(...)):
     """Transcribes the dictated audio."""
     try:
         # Read the audio file
-        audio_buffer = await file.read()
+        audio_buffer = await read_upload_limited(file, MAX_AUDIO_UPLOAD_BYTES, "Audio upload")
 
         # Perform transcription
         transcription_result = await transcribe_audio(audio_buffer)
@@ -217,7 +222,9 @@ async def process_document(
     """Processes a document to extract information and fill template fields."""
     try:
         # Read the document file
-        document_buffer = await file.read()
+        document_buffer = await read_upload_limited(
+            file, MAX_DOCUMENT_UPLOAD_BYTES, "Document upload"
+        )
 
         # Get the file type
         content_type = file.content_type
@@ -256,7 +263,9 @@ async def process_document(
 async def extract_demographics(file: UploadFile = File(...)):
     """Extract patient demographics from an uploaded document (referral, ID, etc.)."""
     try:
-        document_buffer = await file.read()
+        document_buffer = await read_upload_limited(
+            file, MAX_DOCUMENT_UPLOAD_BYTES, "Document upload"
+        )
         result = await extract_demographics_from_document(document_buffer, file.content_type or "")
         return result
     except Exception as e:

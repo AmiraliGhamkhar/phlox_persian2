@@ -1,6 +1,21 @@
+from datetime import date
 from typing import Any
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, Field, field_validator
+
+
+def _validate_iso_date(value: str | None, field_name: str) -> str | None:
+    """Require YYYY-MM-DD (the format every client and the DB assume)."""
+    if value is None:
+        return None
+    text = value.strip()
+    if not text:
+        return text
+    try:
+        date.fromisoformat(text)
+    except ValueError as e:
+        raise ValueError(f"{field_name} must be a valid date in YYYY-MM-DD format") from e
+    return text
 
 
 class Patient(BaseModel):
@@ -27,6 +42,18 @@ class Patient(BaseModel):
     final_letter: str | None = None
     encounter_summary: str | None = None
 
+    @field_validator("encounter_date")
+    @classmethod
+    def _check_encounter_date(cls, v: str) -> str:
+        validated = _validate_iso_date(v, "encounter_date")
+        assert validated is not None
+        return validated
+
+    @field_validator("dob")
+    @classmethod
+    def _check_dob(cls, v: str | None) -> str | None:
+        return _validate_iso_date(v, "dob")
+
     class Config:
         arbitrary_types_allowed = True
 
@@ -48,8 +75,8 @@ class AdaptiveRefinementData(BaseModel):
     Represents adaptive refinement data for a specific field.
     """
 
-    initial_content: str
-    modified_content: str
+    initial_content: str = Field(..., max_length=20_000)
+    modified_content: str = Field(..., max_length=20_000)
 
 
 class SavePatientRequest(BaseModel):

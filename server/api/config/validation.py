@@ -1,8 +1,10 @@
+import asyncio
 import logging
 
 import httpx
 from fastapi import APIRouter, HTTPException, Query
 
+from server.utils.ssrf import validate_fetch_url
 from server.utils.url_utils import build_openai_v1_url, build_whisper_v1_url
 
 router = APIRouter()
@@ -36,7 +38,14 @@ async def validate_url(
     try:
         validation_type = _normalize_validation_type(type)
 
-        async with httpx.AsyncClient() as client:
+        # SSRF guard: scheme allowlist + block link-local/metadata targets.
+        # Loopback/private remain allowed because local model servers are the
+        # primary legitimate use of this validator.
+        await asyncio.to_thread(validate_fetch_url, url)
+
+        # follow_redirects stays False (httpx default) so a validated host
+        # cannot bounce the request somewhere else.
+        async with httpx.AsyncClient(follow_redirects=False) as client:
             if validation_type == "whisper":
                 # For Whisper, try to access the audio/transcriptions endpoint with a minimal request.
                 # Accept endpoints with or without a terminal /v1 segment.
@@ -87,6 +96,9 @@ async def validate_url(
             except Exception:
                 return {"valid": False}
 
+    except ValueError as error:
+        # SSRF guard rejection (bad scheme / metadata target) -> client error
+        return {"valid": False, "error": str(error)}
     except HTTPException:
         raise
     except Exception as error:

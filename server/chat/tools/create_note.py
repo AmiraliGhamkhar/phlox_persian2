@@ -268,9 +268,20 @@ async def execute(
     result_content: str = ""
     citations: list[str] = []
 
+    # Validate the model-supplied date before it reaches the DB layer
+    date_ok = False
+    if encounter_date:
+        from datetime import date as _date
+
+        try:
+            _date.fromisoformat(str(encounter_date).strip())
+            date_ok = True
+        except ValueError:
+            date_ok = False
+
     if not patient_name:
         result_content = "Error: Patient name is required to create a note."
-    elif not encounter_date:
+    elif not date_ok:
         result_content = "Error: Encounter date is required to create a note. Please provide the date in YYYY-MM-DD format."
     else:
         try:
