@@ -1,3 +1,4 @@
+import asyncio
 import json
 import logging
 from datetime import UTC, datetime
@@ -5,7 +6,7 @@ from typing import Any
 
 from fastapi import APIRouter, Depends, File, UploadFile
 from fastapi.exceptions import HTTPException
-from fastapi.responses import StreamingResponse
+from fastapi.responses import JSONResponse, StreamingResponse
 from pydantic import BaseModel, Field
 
 from server.chat import ChatEngine
@@ -15,6 +16,8 @@ from server.llm_client.client import AsyncLLMClient, get_llm_client
 from server.nlp_tools.document_processing import extract_text_from_document
 from server.schemas.chat import ChatRequest, ChatResponse
 from server.schemas.documents import VisualDocumentPage
+from server.utils.request_limits import MAX_IMAGE_UPLOAD_BYTES, read_upload_limited
+from server.utils.ssrf import validate_fetch_url
 
 router = APIRouter()
 
@@ -143,6 +146,80 @@ def _get_chat_engine():
     return ChatEngine()
 
 
+class PendingActionDecision(BaseModel):
+    """Request body for confirming or cancelling a pending tool action."""
+
+    action_id: str
+
+
+@router.post("/confirm-action")
+async def confirm_pending_action(payload: PendingActionDecision):
+    """Execute a previously parked mutating tool after explicit user approval.
+
+    The tool call was captured (not executed) by the executor's confirmation
+    gate; this endpoint is the only way it ever runs.
+    """
+    from server.chat.tools.accumulator import ToolResultAccumulator
+    from server.chat.tools.executor import execute_tool_streaming
+    from server.chat.tools.pending_actions import pop_pending_action
+
+    action = pop_pending_action(payload.action_id)
+    if action is None:
+        raise HTTPException(
+            status_code=404,
+            detail="Pending action not found (it may have expired or already been handled)",
+        )
+
+    # Mark as approved so the executor's gate lets it through exactly once.
+    action.tool_call["_approved"] = True
+
+    # Re-register the patient captured when the action was parked: the
+    # confirm endpoint runs outside stream_chat, so the ContextVar would
+    # otherwise be empty here.
+    from server.chat.tools.sanitization import set_active_patient_context
+
+    set_active_patient_context(action.patient_context)
+
+    async def _run():
+        accumulator = ToolResultAccumulator()
+        stream = execute_tool_streaming(
+            tool_call=action.tool_call,
+            llm_client=action.llm_client,
+            config=action.config,
+            message_list=action.message_list,
+            context_question_options=action.context_question_options,
+            vector_store_manager=action.vector_store_manager,
+            conversation_history=action.conversation_history,
+            raw_transcription=action.raw_transcription,
+        )
+        result, citations = await accumulator.consume_stream(stream)
+        return result, citations
+
+    try:
+        result, citations = await asyncio.wait_for(_run(), timeout=180)
+    except Exception as e:
+        logging.error(f"Confirmed action {action.tool_name} failed: {e}")
+        raise HTTPException(
+            status_code=500, detail="The approved action failed while executing"
+        ) from e
+
+    return JSONResponse(
+        content={"result": result, "citations": citations, "tool": action.tool_name}
+    )
+
+
+@router.post("/cancel-action")
+async def cancel_pending_action(payload: PendingActionDecision):
+    """Discard a pending tool action without executing it."""
+    from server.chat.tools.pending_actions import pop_pending_action
+
+    action = pop_pending_action(payload.action_id)
+    if action is None:
+        raise HTTPException(status_code=404, detail="Pending action not found")
+    logging.info(f"Pending action cancelled: {action.tool_name} ({action.id})")
+    return {"cancelled": True, "tool": action.tool_name}
+
+
 @router.post("", response_model=ChatResponse)
 async def chat(
     chat_request: ChatRequest,
@@ -205,7 +282,7 @@ async def upload_image(file: UploadFile = File(...)):
     try:
         logging.info(f"Received image upload: {file.filename}, content_type: {file.content_type}")
 
-        content = await file.read()
+        content = await read_upload_limited(file, MAX_IMAGE_UPLOAD_BYTES, "Image upload")
         content_type = file.content_type
 
         # OCR extract text using existing pipeline
@@ -367,6 +444,10 @@ async def probe_vision_capability(payload: VisionCapabilityProbeRequest):
     base_url = payload.base_url or config.get("LLM_BASE_URL")
     api_key = payload.api_key or config.get("LLM_API_KEY")
 
+    if base_url:
+        # SSRF guard: probe targets must be http(s) and not metadata endpoints.
+        await asyncio.to_thread(validate_fetch_url, base_url)
+
     # 1x1 black PNG
     black_square_data_url = (
         "data:image/png;base64,"
@@ -419,6 +500,9 @@ async def probe_vision_capability(payload: VisionCapabilityProbeRequest):
         )
 
         return result_payload
+    except ValueError as e:
+        # SSRF guard rejection -> client error, not a vision-capability result
+        raise HTTPException(status_code=400, detail=str(e)) from e
     except Exception as e:
         error_text = str(e)
         lowered = error_text.lower()

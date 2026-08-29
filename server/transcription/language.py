@@ -57,11 +57,7 @@ def resolve_asr_language(config: dict) -> str:
     default: it supports Persian-only recordings and recordings that mix
     Persian with English medical terms.
     """
-    language = (
-        config.get("ASR_LANGUAGE")
-        or config.get("WHISPER_LANGUAGE")
-        or "auto"
-    )
+    language = config.get("ASR_LANGUAGE") or config.get("WHISPER_LANGUAGE") or "auto"
     language = str(language).strip().lower()
     if language in {"automatic", "detect", "mixed", "fa-en", "fa_en"}:
         return "auto"

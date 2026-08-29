@@ -48,7 +48,11 @@ def update_todo(todo_id: int, todo: TodoItem):
     """Update a todo item."""
     try:
         updated_todo = update_todo_item(todo_id, todo.task, todo.completed)
+        if updated_todo is None:
+            raise HTTPException(status_code=404, detail="Todo item not found")
         return JSONResponse(content={"todo": updated_todo})
+    except HTTPException:
+        raise
     except Exception as e:
         logging.error(f"Error updating todo item: {e}")
         raise HTTPException(status_code=500, detail="Internal server error") from e
@@ -58,8 +62,11 @@ def update_todo(todo_id: int, todo: TodoItem):
 def delete_todo(todo_id: int):
     """Delete a todo item."""
     try:
-        delete_todo_item(todo_id)
+        if not delete_todo_item(todo_id):
+            raise HTTPException(status_code=404, detail="Todo item not found")
         return JSONResponse(content={"message": "Todo item deleted successfully"})
+    except HTTPException:
+        raise
     except Exception as e:
         logging.error(f"Error deleting todo item: {e}")
         raise HTTPException(status_code=500, detail="Internal server error") from e

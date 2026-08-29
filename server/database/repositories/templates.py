@@ -1,5 +1,6 @@
 import json
 import logging
+import threading
 from datetime import datetime
 from typing import Any
 
@@ -8,6 +9,26 @@ from server.schemas.templates import (
     ClinicalTemplate,
     TemplateField,
 )
+
+# Templates are read on hot paths (patient history, search, chat tools) but
+# change rarely. Cache the raw row per key; the parsed "fields" JSON is rebuilt
+# on every access so callers can never mutate the cached object.
+_template_cache: dict[tuple[str, bool], tuple[str, str, str]] = {}
+_template_cache_lock = threading.Lock()
+
+
+def invalidate_template_cache(template_key: str | None = None) -> None:
+    """Drop one template from the cache, or everything when key is None."""
+    with _template_cache_lock:
+        if template_key is None:
+            _template_cache.clear()
+        else:
+            for cached_key in [k for k in _template_cache if k[0] == template_key]:
+                _template_cache.pop(cached_key, None)
+            # Versioned updates also change the "latest of base key" entry.
+            base = template_key.rsplit("_", 1)[0]
+            for cached_key in [k for k in _template_cache if k[0].startswith(base)]:
+                _template_cache.pop(cached_key, None)
 
 
 def get_template_by_key(template_key: str, exact_match: bool = True) -> dict[str, Any] | None:
@@ -18,6 +39,17 @@ def get_template_by_key(template_key: str, exact_match: bool = True) -> dict[str
         template_key: The template key to search for
         exact_match: If True, finds exact key match. If False, finds latest version of base key
     """
+    cache_key = (template_key, exact_match)
+    with _template_cache_lock:
+        cached = _template_cache.get(cache_key)
+    if cached is not None:
+        cached_key, cached_name, cached_fields_json = cached
+        return {
+            "template_key": cached_key,
+            "template_name": cached_name,
+            "fields": json.loads(cached_fields_json),
+        }
+
     try:
         with get_db().read() as cursor:
             if exact_match:
@@ -44,6 +76,12 @@ def get_template_by_key(template_key: str, exact_match: bool = True) -> dict[str
 
             row = cursor.fetchone()
             if row:
+                with _template_cache_lock:
+                    _template_cache[cache_key] = (
+                        row["template_key"],
+                        row["template_name"],
+                        row["fields"],
+                    )
                 return {
                     "template_key": row["template_key"],
                     "template_name": row["template_name"],
@@ -133,6 +171,7 @@ def save_template(template: ClinicalTemplate) -> str:
                     now,
                 ),
             )
+            invalidate_template_cache(template.template_key)
             return template.template_key
     except Exception as e:
         logging.error(f"Error saving template: {e}")
@@ -254,6 +293,7 @@ def update_template(template: ClinicalTemplate) -> str:
                 )
                 logging.info(f"Updated default template to new version: {new_template_key}")
 
+            invalidate_template_cache(base_key)
             return new_template_key
 
     except Exception as e:
@@ -283,6 +323,7 @@ def soft_delete_template(template_key: str) -> bool:
                 """,
                 (now, template_key),
             )
+            invalidate_template_cache(template_key)
             return cursor.rowcount > 0
     except Exception as e:
         logging.error(f"Error soft deleting template: {e}")
@@ -487,6 +528,7 @@ def update_field_adaptive_instructions(
                 """,
                 (json.dumps(fields_list), datetime.now().isoformat(), template_key),
             )
+        invalidate_template_cache(template_key)
 
         logging.info(
             f"Successfully updated fields and timestamp for template '{template_key}' in database."

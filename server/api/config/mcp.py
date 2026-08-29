@@ -29,6 +29,14 @@ class McpServerUpdate(BaseModel):
     allow_sensitive_data: bool | None = None
     description: str | None = None
     server_version: str | None = None
+    disabled_tools: list[str] | None = None
+
+
+class McpToolToggle(BaseModel):
+    """Request body for enabling/disabling a single tool of a server."""
+
+    tool_name: str
+    disabled: bool
 
 
 @router.get("/mcp")
@@ -82,6 +90,7 @@ def update_mcp_server(server_id: int, data: McpServerUpdate):
         allow_sensitive_data=data.allow_sensitive_data,
         description=data.description,
         server_version=data.server_version,
+        disabled_tools=data.disabled_tools,
     )
     if not server:
         raise HTTPException(status_code=404, detail="MCP server not found")
@@ -106,6 +115,57 @@ def toggle_mcp_server(server_id: int, enabled: bool = Body(..., embed=True)):
     return JSONResponse(
         content={"message": f"MCP server {'enabled' if enabled else 'disabled'} successfully"}
     )
+
+
+@router.post("/mcp/{server_id}/tools/toggle")
+def toggle_mcp_tool(server_id: int, payload: McpToolToggle):
+    """Enable or disable a single tool exposed by an MCP server.
+
+    Disabled tools are removed from the model's tool list and rejected at
+    execution time, so a vetted server can be used without trusting every
+    tool it advertises.
+    """
+    server = mcp_config_manager.get_server(server_id)
+    if not server:
+        raise HTTPException(status_code=404, detail="MCP server not found")
+
+    disabled = set(server.get("disabled_tools") or [])
+    if payload.disabled:
+        disabled.add(payload.tool_name)
+    else:
+        disabled.discard(payload.tool_name)
+
+    updated = mcp_config_manager.update_server(server_id, disabled_tools=sorted(disabled))
+    return JSONResponse(
+        content={
+            "message": f"Tool '{payload.tool_name}' "
+            f"{'disabled' if payload.disabled else 'enabled'}",
+            "disabled_tools": updated.get("disabled_tools", []) if updated else [],
+        }
+    )
+
+
+@router.get("/mcp/cached-tools")
+def list_cached_mcp_tools():
+    """List tools from the last MCP tools-cache refresh, grouped by server.
+
+    Lets the settings UI show the human exactly which tool names/descriptions
+    an attached server exposes so they can be vetted and toggled.
+    """
+    from server.mcp.client import get_mcp_tools_sync
+
+    tools = []
+    for tool in get_mcp_tools_sync():
+        function = tool.get("function", {})
+        tools.append(
+            {
+                "name": function.get("name", ""),
+                "description": function.get("description", ""),
+                "server_id": tool.get("_mcp_server_id"),
+                "server_tool_name": tool.get("_mcp_tool_name"),
+            }
+        )
+    return JSONResponse(content={"tools": tools})
 
 
 @router.post("/mcp/{server_id}/test")

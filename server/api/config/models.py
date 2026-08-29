@@ -167,7 +167,13 @@ async def get_whisper_models(
                     data = response.json()
                     # Extract model names depending on the API structure
                     models = []
-                    entries = data if isinstance(data, list) else data.get("data", []) if isinstance(data, dict) else []
+                    entries = (
+                        data
+                        if isinstance(data, list)
+                        else data.get("data", [])
+                        if isinstance(data, dict)
+                        else []
+                    )
                     models = []
                     for model in entries:
                         if isinstance(model, str):

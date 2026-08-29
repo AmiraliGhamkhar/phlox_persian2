@@ -207,17 +207,6 @@ export const settingsApi = {
             errorMessage: "Failed to get default template",
         }),
 
-    saveLetterTemplateSetting: async (templateId) =>
-        handleApiRequest({
-            apiCall: async (signal) => {
-                const url = await buildApiUrl(
-                    `/api/letter-templates/default/${templateId}`,
-                );
-                return universalFetch(url, { signal, method: "POST" });
-            },
-            errorMessage: "Failed to set default letter template",
-        }),
-
     resetOptionsToDefaults: async () =>
         handleApiRequest({
             apiCall: async (signal) => {

@@ -56,7 +56,7 @@ const PatientInfoBar = ({ patient, onEdit }) => {
                         color={"textSecondary"}
                         lineClamp={1}
                         css={{
-                            fontFamily: '"Roboto", sans-serif',
+                            fontFamily: '"Vazirmatn", Tahoma, Arial, sans-serif',
                         }}
                     >
                         {meta.length

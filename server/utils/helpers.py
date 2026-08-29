@@ -7,6 +7,14 @@ logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
 
 
+def escape_like(value: str) -> str:
+    r"""Escape SQL LIKE wildcards so user input matches literally.
+
+    Pair the result with ``LIKE ? ESCAPE '\'`` in the query.
+    """
+    return value.replace("\\", "\\\\").replace("%", "\\%").replace("_", r"\_")
+
+
 def calculate_age(dob: str, encounter_date: str | None = None) -> int:
     """
     Calculate the age of a patient at the time of encounter or current date.

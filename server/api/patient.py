@@ -86,6 +86,15 @@ async def save_patient_data(request: SavePatientRequest, background_tasks: Backg
     """
     patient = request.patientData
 
+    # Cost bound: each entry triggers an LLM refinement pass (API4:2023 /
+    # LLM06:2026). Reject absurd field counts instead of silently burning
+    # tokens.
+    if request.adaptive_refinement and len(request.adaptive_refinement) > 32:
+        raise HTTPException(
+            status_code=422,
+            detail="adaptive_refinement supports at most 32 fields per request",
+        )
+
     try:
         # Generate task token for deduplication
         task_token = summarization_manager.generate_token()
@@ -375,6 +384,8 @@ def delete_patient(id: int):
         if success:
             return {"message": "Patient deleted"}
         raise HTTPException(status_code=404, detail="Patient not found")
+    except HTTPException:
+        raise
     except Exception as e:
         logging.error(f"Error deleting patient: {e}")
         raise HTTPException(status_code=500, detail="Internal server error") from e

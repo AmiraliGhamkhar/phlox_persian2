@@ -12,6 +12,12 @@ from .accumulator import ToolResultAccumulator
 
 logger = logging.getLogger(__name__)
 
+# Tools that write to the medical record. They are never executed on the
+# model's say-so alone: the call is parked as a pending action and only runs
+# after the user approves the confirmation card in the UI (LLM03:2026
+# Excessive Agency / human-approval gate for high-stakes actions).
+MUTATING_TOOLS = {"create_note", "complete_job", "fill_pdf_form"}
+
 
 async def execute_tool_streaming(
     tool_call: dict[str, Any],
@@ -43,6 +49,42 @@ async def execute_tool_streaming(
     """
     function_name = tool_call["function"]["name"]
     logger.info(f"Executing tool (streaming): {function_name}")
+
+    # Human-approval gate: park record-writing tools until the user approves.
+    # Approved re-runs carry the "_approved" marker set by the confirm endpoint.
+    if function_name in MUTATING_TOOLS and not tool_call.get("_approved"):
+        from server.chat.streaming.response import confirmation_message, end_message
+
+        from .pending_actions import register_pending_action
+        from .sanitization import get_active_patient_context
+
+        action = register_pending_action(
+            tool_call=tool_call,
+            tool_name=function_name,
+            llm_client=llm_client,
+            config=config,
+            message_list=message_list,
+            context_question_options=context_question_options,
+            vector_store_manager=vector_store_manager,
+            conversation_history=conversation_history,
+            raw_transcription=raw_transcription,
+            patient_context=get_active_patient_context(),
+        )
+        logger.info(f"Tool '{function_name}' requires user approval (action {action.id})")
+        yield confirmation_message(action.id, function_name, action.summary)
+        yield end_message(
+            function_response={
+                "content": (
+                    f"The '{function_name}' action requires the user's explicit "
+                    "approval before it can run. A confirmation card has been "
+                    "shown in the UI. Do NOT call this tool again; briefly tell "
+                    "the user you are waiting for their approval."
+                ),
+                "citations": [],
+                "pending_action_id": action.id,
+            }
+        )
+        return
 
     if function_name == "direct_response":
         from .direct_response import execute
@@ -246,6 +288,18 @@ async def execute_tool_non_streaming(
     """
     function_name = tool_call["function"]["name"]
     logger.info(f"Executing tool (non-streaming via accumulator): {function_name}")
+
+    # Human-approval gate: the reasoning context has no confirmation card to
+    # approve with, so record-writing tools must never run here (and must not
+    # register an unconfirmable pending action with llm_client=None).
+    if function_name in MUTATING_TOOLS and not tool_call.get("_approved"):
+        logger.warning(f"Blocked mutating tool '{function_name}' in non-streaming context")
+        return (
+            f"The '{function_name}' tool writes data and requires explicit user "
+            "approval in the chat flow, so it was NOT executed here. Summarize "
+            "what the user would need to confirm instead.",
+            None,
+        )
 
     accumulator = ToolResultAccumulator()
 

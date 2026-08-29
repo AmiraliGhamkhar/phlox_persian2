@@ -1,3 +1,4 @@
+import ipaddress
 import logging
 import os
 import tempfile
@@ -8,6 +9,20 @@ from platformdirs import user_data_dir
 # Constants
 IS_TESTING = os.getenv("TESTING", "false").lower() == "true"
 IS_DOCKER = Path("/.dockerenv").exists() or os.getenv("DOCKER_CONTAINER") == "true"
+
+
+def is_docker_runtime() -> bool:
+    """Re-evaluate Docker detection at call time.
+
+    ``IS_DOCKER`` is frozen at import time, which is fine for cheap
+    module-level decisions. The auth middleware, however, must not trust a
+    stale import-time flag: re-check the container markers on every request
+    so a process started outside Docker never silently skips token
+    validation (fail-closed), even if the environment changes late.
+    """
+    return Path("/.dockerenv").exists() or os.getenv("DOCKER_CONTAINER") == "true"
+
+
 RATE_LIMIT_ENABLED = os.getenv("RATE_LIMIT_ENABLED", "false").lower() == "true"
 
 IS_DEMO_MODE = os.getenv("PHLOX_DEMO_MODE", "false").lower() == "true"
@@ -20,6 +35,37 @@ PROXY_AUTH_USER_HEADER = os.getenv("PROXY_AUTH_USER_HEADER", "X-Forwarded-User")
 PROXY_AUTH_ALLOWED_USERS = [
     u.strip() for u in os.getenv("PROXY_AUTH_ALLOWED_USERS", "").split(",") if u.strip()
 ]
+
+
+def _split_env(name: str) -> list[str]:
+    return [item.strip() for item in os.getenv(name, "").split(",") if item.strip()]
+
+
+def _parse_networks(raw_entries: list[str]) -> list[ipaddress.IPv4Network | ipaddress.IPv6Network]:
+    """Parse CIDR entries; invalid entries are logged and skipped."""
+    networks = []
+    for entry in raw_entries:
+        try:
+            networks.append(ipaddress.ip_network(entry, strict=False))
+        except ValueError:
+            logger.warning("Ignoring invalid CIDR in TRUSTED_PROXY_CIDRS: %r", entry)
+    return networks
+
+
+# Browser origins allowed to call the API cross-origin. Empty (the default)
+# means same-origin only: no CORS middleware is installed and the browser's
+# same-origin policy blocks other origins from reading API responses.
+ALLOWED_ORIGINS = _split_env("ALLOWED_ORIGINS")
+
+# Extra Host header values the API will serve (defence against DNS rebinding).
+# localhost/loopback are always allowed; add your public hostname here when
+# deploying behind a reverse proxy.
+ALLOWED_HOSTS = _split_env("ALLOWED_HOSTS")
+
+# Reverse proxies whose X-Forwarded-For header may be trusted. When set, only
+# connections from these CIDRs have their forwarded headers honoured; when
+# empty, any private-IP peer is trusted (previous behaviour).
+TRUSTED_PROXY_NETWORKS = _parse_networks(_split_env("TRUSTED_PROXY_CIDRS"))
 
 APP_NAME = "Phlox"
 APP_AUTHOR = "bloodworks.io"

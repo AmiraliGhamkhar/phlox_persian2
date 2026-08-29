@@ -19,6 +19,7 @@ from fastapi.responses import FileResponse
 from fastapi.staticfiles import StaticFiles
 
 from server.constants import (
+    ALLOWED_ORIGINS,
     APP_NAME,
     BUILD_DIR,
     IS_DEMO_MODE,
@@ -30,9 +31,11 @@ from server.constants import (
 )
 from server.middleware import (
     AuditMiddleware,
+    HostValidationMiddleware,
     LocalTokenMiddleware,
     ProxyAuthMiddleware,
     RateLimitMiddleware,
+    RequestBodyLimitMiddleware,
     SecurityHeadersMiddleware,
     TrustedProxyMiddleware,
 )
@@ -113,12 +116,16 @@ def initialize_and_get_app():
         lifespan=lifespan,  # Add the lifespan context manager
     )
 
-    # CORS configuration - restrict via environment variable
-    # Note: Browsers reject allow_credentials=True with allow_origins=["*"]
-    allowed_origins = os.environ.get("ALLOWED_ORIGINS", "*").split(",")
-    allowed_origins = [origin.strip() for origin in allowed_origins]
-
-    if "*" in allowed_origins:
+    # CORS configuration - restrict via environment variable.
+    # Default (unset/empty) = same-origin only: no CORS middleware is added and
+    # the browser's same-origin policy blocks other origins from reading API
+    # responses. Explicitly set ALLOWED_ORIGINS=* to opt back into the wildcard
+    # (credentials are impossible with a wildcard), or list specific origins to
+    # allow credentialed cross-origin access for exactly those hosts.
+    allowed_origins = list(ALLOWED_ORIGINS)
+    if not allowed_origins:
+        logger.info("No ALLOWED_ORIGINS configured - API is same-origin only")
+    elif "*" in allowed_origins:
         # Wildcard mode - no credentials allowed by browsers
         app.add_middleware(
             CORSMiddleware,
@@ -156,7 +163,11 @@ def initialize_and_get_app():
 
     app.add_middleware(AuditMiddleware)
     app.add_middleware(TrustedProxyMiddleware)
+    # Host/Origin validation (anti DNS-rebinding + anti cross-site form POST)
+    app.add_middleware(HostValidationMiddleware)
     app.add_middleware(SecurityHeadersMiddleware)
+    # Cheap early rejection of oversized bodies (runs before auth/rate limits)
+    app.add_middleware(RequestBodyLimitMiddleware)
 
     # Then load API submodules
     from server.api import (

@@ -3,6 +3,7 @@
 This module manages MCP server configurations stored in the database.
 """
 
+import json
 import logging
 from threading import Lock
 from typing import Any
@@ -50,12 +51,18 @@ class McpConfigManager:
             with self.db.read() as cursor:
                 cursor.execute(
                     """
-                    SELECT id, name, url, description, server_version, enabled, allow_sensitive_data, created_at, updated_at
+                    SELECT id, name, url, description, server_version, enabled, allow_sensitive_data, disabled_tools, created_at, updated_at
                     FROM mcp_servers
                     ORDER BY created_at DESC
                     """
                 )
                 for row in cursor.fetchall():
+                    try:
+                        disabled_tools = json.loads(row["disabled_tools"] or "[]")
+                        if not isinstance(disabled_tools, list):
+                            disabled_tools = []
+                    except (TypeError, json.JSONDecodeError):
+                        disabled_tools = []
                     servers.append(
                         {
                             "id": row["id"],
@@ -65,6 +72,7 @@ class McpConfigManager:
                             "server_version": row["server_version"] or "",
                             "enabled": bool(row["enabled"]),
                             "allow_sensitive_data": bool(row["allow_sensitive_data"]),
+                            "disabled_tools": disabled_tools,
                             "created_at": row["created_at"],
                             "updated_at": row["updated_at"],
                         }
@@ -149,6 +157,7 @@ class McpConfigManager:
         allow_sensitive_data: bool | None = None,
         description: str | None = None,
         server_version: str | None = None,
+        disabled_tools: list[str] | None = None,
     ) -> dict[str, Any] | None:
         """Update an existing MCP server configuration.
 
@@ -181,6 +190,10 @@ class McpConfigManager:
         if server_version is not None:
             updates.append("server_version = ?")
             params.append(server_version)
+
+        if disabled_tools is not None:
+            updates.append("disabled_tools = ?")
+            params.append(json.dumps([str(t) for t in disabled_tools]))
 
         if updates:
             updates.append("updated_at = CURRENT_TIMESTAMP")

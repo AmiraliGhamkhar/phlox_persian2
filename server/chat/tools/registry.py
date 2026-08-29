@@ -446,18 +446,39 @@ def get_tools_definition(
 
     # Add MCP tools if available
     try:
+        from server.database.config.mcp_manager import mcp_config_manager
         from server.mcp.client import get_mcp_tools_sync
+
+        # Per-server tool toggles: tools the clinician disabled are never
+        # shown to the model (and are rejected at execution time too).
+        disabled_by_server: dict[int, set[str]] = {}
+        try:
+            for server in mcp_config_manager.get_servers():
+                disabled_by_server[server["id"]] = set(server.get("disabled_tools") or [])
+        except Exception as e:  # pragma: no cover - manager unavailable in tests
+            logger.debug(f"Could not load MCP server toggles: {e}")
 
         mcp_tools = get_mcp_tools_sync()
         if mcp_tools:
             # Return the tool definitions (without internal metadata)
+            skipped = 0
             for tool in mcp_tools:
+                server_id = tool.get("_mcp_server_id")
+                server_tool_name = tool.get("_mcp_tool_name", "")
+                if (
+                    server_id in disabled_by_server
+                    and server_tool_name in disabled_by_server[server_id]
+                ):
+                    skipped += 1
+                    continue
                 enabled_tools.append(
                     {
                         "type": tool["type"],
                         "function": tool["function"],
                     }
                 )
+            if skipped:
+                logger.info(f"Filtered out {skipped} user-disabled MCP tool(s)")
             logger.info(f"Loaded {len(mcp_tools)} tools from MCP servers")
     except ImportError:
         # MCP not installed, skip

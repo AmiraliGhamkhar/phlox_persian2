@@ -33,8 +33,18 @@ services:
             #   openssl rand -hex 32
             DB_ENCRYPTION_KEY: "${DB_ENCRYPTION_KEY:?Set DB_ENCRYPTION_KEY in .env (openssl rand -hex 32), or mount /run/secrets/db_encryption_key and remove this line}"
             # Comma-separated origins allowed to call the API cross-origin.
-            # Same-origin deployments (the usual case) can leave the default.
-            ALLOWED_ORIGINS: "${ALLOWED_ORIGINS:-*}"
+            # Default is EMPTY = same-origin only (recommended). Set to your
+            # public origin e.g. https://phlox.example.com when serving via a
+            # reverse proxy on a different origin, or * to allow any origin
+            # (no credential support, not recommended).
+            ALLOWED_ORIGINS: "${ALLOWED_ORIGINS:-}"
+            # Extra Host header values the API will serve (DNS-rebinding
+            # defence). localhost/loopback are always allowed; add your public
+            # hostname here when deploying behind a reverse proxy.
+            ALLOWED_HOSTS: "${ALLOWED_HOSTS:-}"
+            # Reverse-proxy CIDRs whose X-Forwarded-For header is trusted.
+            # Defaults cover the standard Docker network ranges + loopback.
+            TRUSTED_PROXY_CIDRS: "${TRUSTED_PROXY_CIDRS:-172.16.0.0/12,127.0.0.0/8}"
             TZ: "${TZ:-Etc/UTC}"
             SERVER_HOST: "0.0.0.0"
             PORT: "5000"

@@ -1,6 +1,7 @@
 import React, { useEffect, useRef } from "react";
 import { Box, Flex, Textarea, IconButton } from "@chakra-ui/react";
 import { ArrowUpIcon } from "../../common/icons";
+import { FaStop } from "react-icons/fa";
 
 const MIN_HEIGHT = 32;
 const MAX_HEIGHT = 72; // ~3 lines, then scroll
@@ -9,6 +10,7 @@ const ChatInput = ({
     userInput,
     setUserInput,
     handleSendMessage,
+    handleStopStreaming,
     chatLoading,
 }) => {
     const textareaRef = useRef(null);
@@ -71,7 +73,22 @@ const ChatInput = ({
                     disabled={chatLoading}
                 />
 
-                <IconButton
+                {chatLoading && handleStopStreaming ? (
+                    <IconButton
+                        onClick={handleStopStreaming}
+                        aria-label="توقف پاسخ"
+                        size="sm"
+                        alignSelf="center"
+                        borderRadius="full"
+                        bg="sendButton"
+                        color="sendButtonText"
+                        _hover={{ bg: "sendButtonHover", transform: "scale(1.05)" }}
+                        transition="all 0.2s ease"
+                    >
+                        <FaStop />
+                    </IconButton>
+                ) : (
+                    <IconButton
                     onClick={() => handleSendMessage(userInput)}
                     disabled={!canSend}
                     loading={chatLoading}
@@ -88,6 +105,7 @@ const ChatInput = ({
                         transform: "scale(1.05)",
                     }}
                     transition="all 0.2s ease"><ArrowUpIcon /></IconButton>
+                )}
             </Flex>
         </Box>
     );

@@ -166,7 +166,11 @@ const inputStyles = (props) => ({
     },
     ".refinement-fab": {
         borderRadius: "full !important",
-        color: `${colors.light.invertedText} !important`,
+        color: `${
+            props.colorMode === "light"
+                ? colors.light.invertedText
+                : colors.dark.invertedText
+        } !important`,
         border:
             props.colorMode === "light"
                 ? `1px solid ${darkenColor(colors.light.chatIcon, 0.15)} !important`
@@ -191,7 +195,11 @@ const inputStyles = (props) => ({
     },
     ".refinement-submit-button": {
         borderRadius: "lg !important",
-        color: `${colors.light.invertedText} !important`,
+        color: `${
+            props.colorMode === "light"
+                ? colors.light.invertedText
+                : colors.dark.invertedText
+        } !important`,
         backgroundColor: `${
             props.colorMode === "light"
                 ? colors.light.chatIcon
@@ -214,7 +222,7 @@ const inputStyles = (props) => ({
         color:
             props.colorMode === "light"
                 ? `${colors.light.textTertiary} !important`
-                : `${colors.dark.invertedText} !important`,
+                : `${colors.dark.textPrimary} !important`,
         fontSize: "sm !important",
         borderRadius: "lg !important",
         borderRightRadius: "none !important",
@@ -270,7 +278,7 @@ const inputStyles = (props) => ({
         overflowY: "auto !important",
         resize: "none",
         maxHeight: "200px !important",
-        fontFamily: "'Roboto', sans-serif",
+        fontFamily: "'Vazirmatn', Tahoma, Arial, sans-serif",
         lineHeight: "1.6",
     },
     ".scroll-container": {

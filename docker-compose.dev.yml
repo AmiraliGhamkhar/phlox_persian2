@@ -42,8 +42,10 @@ services:
             DB_ENCRYPTION_KEY: ${DB_ENCRYPTION_KEY:-phlox-dev-insecure-key}
             TZ: ${TZ:-Etc/UTC}
             RATE_LIMIT_ENABLED: "false"
-            # Same-origin dev traffic goes through the Vite proxy.
-            ALLOWED_ORIGINS: ${ALLOWED_ORIGINS:-*}
+            # Dev traffic goes through the Vite proxy, so it is same-origin:
+            # the default (empty) keeps CORS closed. Set "*" or an explicit
+            # origin only if you call the API cross-origin in dev.
+            ALLOWED_ORIGINS: ${ALLOWED_ORIGINS:-}
             # Optional extras:
             # LLM_EXTRA_BODY: '{"extra_body": {"chat_template_kwargs": {"enable_thinking": false}}}'
             # PHLOX_DEMO_MODE: "true"

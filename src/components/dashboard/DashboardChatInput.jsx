@@ -12,7 +12,7 @@ import {
     Icon,
 } from "@chakra-ui/react";
 import { ArrowUpIcon, AttachmentIcon, CloseIcon } from "../common/icons";
-import { FaFilePdf } from "react-icons/fa";
+import { FaFilePdf, FaStop } from "react-icons/fa";
 
 const VALID_IMAGE_TYPES = [
     "image/png",
@@ -33,6 +33,7 @@ const DashboardChatInput = ({
     placeholder = "Message Phlox...",
     position = "centered", // "centered" | "bottom"
     showDisclaimer = true,
+    onStopStreaming,
     pendingImage,
     onImageSelect,
     onImageRemove,
@@ -260,26 +261,45 @@ const DashboardChatInput = ({
                         />
                     </HStack>
 
-                    <IconButton
-                        onClick={onSend}
-                        disabled={!canSend}
-                        loading={isLoading}
-                        aria-label="ارسال پیام"
-                        size="sm"
-                        alignSelf="center"
-                        borderRadius="full"
-                        bg={canSend ? "sendButton" : "sendButtonDisabled"}
-                        color={canSend ? "sendButtonText" : "sendButtonTextDisabled"}
-                        _hover={{
-                            bg: canSend
-                                ? "sendButtonHover"
-                                : "sendButtonHoverDisabled",
-                            transform: "scale(1.05)",
-                        }}
-                        transition="all 0.2s ease"
-                    >
-                        <ArrowUpIcon />
-                    </IconButton>
+                    {isLoading && onStopStreaming ? (
+                        <IconButton
+                            onClick={onStopStreaming}
+                            aria-label="توقف پاسخ"
+                            size="sm"
+                            alignSelf="center"
+                            borderRadius="full"
+                            bg="sendButton"
+                            color="sendButtonText"
+                            _hover={{
+                                bg: "sendButtonHover",
+                                transform: "scale(1.05)",
+                            }}
+                            transition="all 0.2s ease"
+                        >
+                            <FaStop />
+                        </IconButton>
+                    ) : (
+                        <IconButton
+                            onClick={onSend}
+                            disabled={!canSend}
+                            loading={isLoading}
+                            aria-label="ارسال پیام"
+                            size="sm"
+                            alignSelf="center"
+                            borderRadius="full"
+                            bg={canSend ? "sendButton" : "sendButtonDisabled"}
+                            color={canSend ? "sendButtonText" : "sendButtonTextDisabled"}
+                            _hover={{
+                                bg: canSend
+                                    ? "sendButtonHover"
+                                    : "sendButtonHoverDisabled",
+                                transform: "scale(1.05)",
+                            }}
+                            transition="all 0.2s ease"
+                        >
+                            <ArrowUpIcon />
+                        </IconButton>
+                    )}
                 </Flex>
             </Box>
             {showDisclaimer && (

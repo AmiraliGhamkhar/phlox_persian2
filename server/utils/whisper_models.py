@@ -56,9 +56,7 @@ class ModelInfo(TypedDict, total=False):
 
 
 WHISPER_CPP_REPO = "https://huggingface.co/ggerganov/whisper.cpp/resolve/main"
-SHENAVA_REPO = (
-    "https://huggingface.co/Reza2kn/Shenava-Koochik-v1.0-tract-streaming/resolve/main"
-)
+SHENAVA_REPO = "https://huggingface.co/Reza2kn/Shenava-Koochik-v1.0-tract-streaming/resolve/main"
 
 # The three Whisper large-v3-turbo C++/GGML variants requested for desktop use.
 # Whisper large-v3-turbo is multilingual and can decode Persian and English in
@@ -196,9 +194,7 @@ class ASRModelManager:
         models = []
         # Only primary artifacts are listed. Shenava's tokens file is a
         # companion artifact and is intentionally not shown as a model.
-        primary_files = {
-            info["filename"]: model_id for model_id, info in ASR_MODELS.items()
-        }
+        primary_files = {info["filename"]: model_id for model_id, info in ASR_MODELS.items()}
         for model_file in self.models_dir.iterdir():
             if not model_file.is_file() or model_file.name not in primary_files:
                 continue
@@ -228,7 +224,15 @@ class ASRModelManager:
             return model_file
         return None
 
-    async def _download_file(self, client: httpx.AsyncClient, url: str, path: Path, progress_callback, total_offset: int, total_size: int) -> int:
+    async def _download_file(
+        self,
+        client: httpx.AsyncClient,
+        url: str,
+        path: Path,
+        progress_callback,
+        total_offset: int,
+        total_size: int,
+    ) -> int:
         """Download one artifact while reporting bundle-level progress."""
         async with client.stream("GET", url) as response:
             response.raise_for_status()

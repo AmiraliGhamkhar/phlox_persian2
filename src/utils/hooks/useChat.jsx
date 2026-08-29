@@ -1,4 +1,4 @@
-import { useState, useCallback } from "react";
+import { useState, useCallback, useRef } from "react";
 import { chatApi } from "../api/chatApi";
 import { formatPatientContext } from "../chat/messageUtils";
 
@@ -78,6 +78,15 @@ export const useChat = ({ mode = "patient" } = {}) => {
     const [userInput, setUserInput] = useState("");
     const [showSuggestions, setShowSuggestions] = useState(true);
     const [loading, setLoading] = useState(false);
+    const abortControllerRef = useRef(null);
+
+    const stopStreaming = useCallback(() => {
+        if (abortControllerRef.current) {
+            abortControllerRef.current.abort();
+            abortControllerRef.current = null;
+        }
+        setLoading(false);
+    }, []);
 
     const sendMessage = useCallback(
         async (
@@ -122,6 +131,10 @@ export const useChat = ({ mode = "patient" } = {}) => {
             setUserInput("");
             setShowSuggestions(false);
 
+            // Fresh AbortController per message so the user can cancel a
+            // long-running stream (the input shows a stop button while loading).
+            abortControllerRef.current = new AbortController();
+
             try {
                 let initialMessage;
                 let patientContext = null;
@@ -165,6 +178,7 @@ export const useChat = ({ mode = "patient" } = {}) => {
                     messagesForApi,
                     rawTranscription,
                     patientContext,
+                    abortControllerRef.current?.signal,
                 )) {
                     if (
                         !firstChunkSeen &&
@@ -244,6 +258,44 @@ export const useChat = ({ mode = "patient" } = {}) => {
                             };
                             return newMessages;
                         });
+                    } else if (chunk.type === "confirmation" && chunk.action_id) {
+                        // Mutating tool parked for human approval — attach the
+                        // confirmation card data to the assistant message.
+                        setMessages((prev) => {
+                            const newMessages = [...prev];
+                            const last = newMessages[newMessages.length - 1];
+                            const existing = last.confirmations || [];
+                            newMessages[newMessages.length - 1] = {
+                                ...last,
+                                confirmations: [
+                                    ...existing,
+                                    {
+                                        actionId: chunk.action_id,
+                                        tool: chunk.tool,
+                                        summary: chunk.summary,
+                                        status: "pending",
+                                    },
+                                ],
+                                loading: false,
+                            };
+                            return newMessages;
+                        });
+                    } else if (chunk.type === "error" && chunk.content) {
+                        // Broken stream / non-fatal backend notice: show it
+                        // inline instead of silently truncating the answer.
+                        const newContent = `${fullContent}\n\n${chunk.content}`;
+                        fullContent = newContent;
+                        setMessages((prev) => {
+                            const newMessages = [...prev];
+                            const last = newMessages[newMessages.length - 1];
+                            newMessages[newMessages.length - 1] = {
+                                ...last,
+                                role: "assistant",
+                                content: newContent,
+                                loading: false,
+                            };
+                            return newMessages;
+                        });
                     } else if (chunk.type === "context") {
                         setMessages((prev) => {
                             const newMessages = [...prev];
@@ -294,12 +346,16 @@ export const useChat = ({ mode = "patient" } = {}) => {
                     }
                 }
             } catch (error) {
-                console.error("Error in chat:", error);
-                setMessages((prev) => [
-                    ...prev,
-                    { role: "assistant", content: `Error: ${error.message}` },
-                ]);
+                // A user-initiated stop is not an error worth a message bubble.
+                if (error?.name !== "AbortError") {
+                    console.error("Error in chat:", error);
+                    setMessages((prev) => [
+                        ...prev,
+                        { role: "assistant", content: `Error: ${error.message}` },
+                    ]);
+                }
             } finally {
+                abortControllerRef.current = null;
                 setLoading(false);
             }
         },
@@ -323,6 +379,7 @@ export const useChat = ({ mode = "patient" } = {}) => {
         setShowSuggestions,
         loading,
         sendMessage,
+        stopStreaming,
         clearChat,
     };
 };

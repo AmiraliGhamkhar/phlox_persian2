@@ -18,6 +18,7 @@ const ChatPanel = ({
     userInput,
     setUserInput,
     handleChat,
+    stopStreaming,
     showSuggestions,
     setShowSuggestions,
     rawTranscription,
@@ -120,6 +121,7 @@ const ChatPanel = ({
             >
                 <ChatMessages
                     messages={messages}
+                    setMessages={setMessages}
                     toggleThinkingVisibility={toggleThinkingVisibility}
                     getThinkingBlockState={getThinkingBlockState}
                 />
@@ -148,6 +150,7 @@ const ChatPanel = ({
                     userInput={userInput}
                     setUserInput={setUserInput}
                     handleSendMessage={handleSendMessage}
+                    handleStopStreaming={stopStreaming}
                     chatLoading={chatLoading}
                 />
 
