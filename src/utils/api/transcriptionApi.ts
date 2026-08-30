@@ -214,8 +214,11 @@ export const transcriptionApi = {
 
         const sendPcm = (samples: Int16Array) => {
             if (socket.readyState !== WebSocket.OPEN || !samples?.length) return;
-            const bytes = new Uint8Array(
-                samples.buffer,
+            // Zero-copy view over the exact byte range. The explicit
+            // ArrayBuffer generic satisfies WebSocket.send() under TS 6
+            // (ArrayBufferLike is no longer assignable to BufferSource).
+            const bytes = new Uint8Array<ArrayBuffer>(
+                samples.buffer as ArrayBuffer,
                 samples.byteOffset,
                 samples.byteLength,
             );

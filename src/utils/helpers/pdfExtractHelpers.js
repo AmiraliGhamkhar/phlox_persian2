@@ -1,53 +1,8 @@
 // Shared PDF extraction helpers used by both single-file and bulk uploaders.
 import { ragApi } from "../api/ragApi";
 import { chatApi } from "../api/chatApi";
-import { settingsApi } from "../api/settingsApi";
 import { extractPdfTextOrRenderForVision } from "./pdfVisionHelpers";
-
-/**
- * Determine the document processing mode and vision capability from config.
- * @returns {{ mode: string, visionCapable: boolean }}
- */
-async function getProcessingConfig() {
-    let mode = "auto";
-    let visionCapable = false;
-
-    try {
-        const cfg = await settingsApi.fetchConfig();
-        if (cfg) {
-            const rawMode = String(
-                cfg?.DOCUMENT_IMAGE_PROCESSING_MODE || "auto",
-            )
-                .trim()
-                .toLowerCase();
-            mode =
-                rawMode === "vision" ||
-                rawMode === "ocr" ||
-                rawMode === "auto"
-                    ? rawMode
-                    : "auto";
-
-            try {
-                const capability =
-                    await chatApi.getCurrentVisionCapability();
-                visionCapable = Boolean(capability?.vision_capable);
-            } catch (capabilityError) {
-                console.warn(
-                    "Could not load cached current vision capability, falling back to legacy flag:",
-                    capabilityError,
-                );
-                visionCapable = Boolean(cfg?.VISION_MODEL_CAPABLE);
-            }
-        }
-    } catch (configError) {
-        console.warn(
-            "Could not load processing mode config, defaulting to auto:",
-            configError,
-        );
-    }
-
-    return { mode, visionCapable };
-}
+import { getDocumentProcessingPreferences } from "./documentExtraction";
 
 /**
  * Extract text from a PDF using the vision path (frontend text-first).
@@ -114,7 +69,7 @@ async function extractTextViaVision(file, filename) {
 export async function extractPdfMetadata(file) {
     const filename = file.name || "uploaded.pdf";
 
-    const { mode, visionCapable } = await getProcessingConfig();
+    const { mode, visionCapable } = await getDocumentProcessingPreferences();
 
     const shouldUseVision =
         mode === "vision" || (mode === "auto" && visionCapable);

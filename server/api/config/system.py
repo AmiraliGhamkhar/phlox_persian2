@@ -3,7 +3,11 @@ import logging
 import httpx
 from fastapi import APIRouter
 
-from server.utils.providers import resolve_asr_connection, resolve_embedding_connection, resolve_llm_connection
+from server.utils.providers import (
+    resolve_asr_connection,
+    resolve_embedding_connection,
+    resolve_llm_connection,
+)
 from server.utils.url_utils import build_openai_v1_url, build_whisper_v1_url
 
 router = APIRouter()

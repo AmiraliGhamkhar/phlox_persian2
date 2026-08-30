@@ -3,6 +3,7 @@
 import asyncio
 import ipaddress
 import logging
+import os
 import secrets
 import time
 from urllib.parse import urlsplit
@@ -321,6 +322,13 @@ class LocalTokenMiddleware(BaseHTTPMiddleware):
         # triggered by a stale flag in a non-container runtime.
         if is_docker_runtime():
             logger.debug(f"Auth skipped - Docker mode (path: {path})")
+            return await call_next(request)
+
+        # Bare-metal web development (`npm run dev` sets PHLOX_DEV_BOOT=1)
+        # has no Tauri IPC channel to deliver a token, so the same skip
+        # applies — explicit opt-in only, same fail-closed philosophy.
+        if os.environ.get("PHLOX_DEV_BOOT") == "1":
+            logger.debug(f"Auth skipped - dev boot mode (path: {path})")
             return await call_next(request)
 
         # Get expected token

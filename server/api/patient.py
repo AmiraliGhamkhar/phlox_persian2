@@ -329,6 +329,8 @@ def get_patient_history_endpoint(id: int):
 
         history = get_patient_history(patient["ur_number"])
         return JSONResponse(content=history)
+    except HTTPException as he:
+        raise he
     except Exception as e:
         logging.error(f"Error fetching patient history: {e}")
         raise HTTPException(status_code=500, detail="Internal server error") from e
@@ -371,6 +373,8 @@ async def get_patient_summary(id: int):
 
         summary = await generate_previous_visit_summary(patient)
         return JSONResponse(content={"summary": summary})
+    except HTTPException as he:
+        raise he
     except Exception as e:
         logging.error(f"Error getting patient summary: {e}")
         raise HTTPException(status_code=500, detail="Internal server error") from e
@@ -502,6 +506,8 @@ async def generate_reasoning_stream(note_id: int):
                 yield f"data: {json.dumps(event)}\n\n"
 
         return StreamingResponse(generate(), media_type="text/event-stream")
+    except HTTPException as he:
+        raise he
     except Exception as e:
         logging.error(f"Reasoning stream error: {e}")
         raise HTTPException(status_code=500, detail="Internal server error") from e

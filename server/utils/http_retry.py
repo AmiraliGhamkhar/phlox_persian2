@@ -11,10 +11,12 @@ import asyncio
 import logging
 import random
 import re
-from collections.abc import Awaitable, Callable
-from typing import TypeVar
+from typing import TYPE_CHECKING, TypeVar
 
 import httpx
+
+if TYPE_CHECKING:
+    from collections.abc import Awaitable, Callable
 
 from server.utils.request_context import get_request_id
 
@@ -81,7 +83,7 @@ def _retry_after_seconds(exc: BaseException) -> float | None:
         return None
 
 
-async def with_retries(
+async def with_retries(  # noqa: UP047 (kept TypeVar-based for Python 3.11 parseability)
     operation: Callable[[], Awaitable[T]],
     *,
     operation_name: str = "ai",

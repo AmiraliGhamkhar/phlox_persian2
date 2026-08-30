@@ -36,7 +36,6 @@ from server.middleware import (
     ProxyAuthMiddleware,
     RateLimitMiddleware,
     RequestBodyLimitMiddleware,
-    RequestIdMiddleware,
     SecurityHeadersMiddleware,
     TrustedProxyMiddleware,
 )
@@ -240,16 +239,30 @@ def initialize_and_get_app():
     @app.get("/outstanding-jobs")
     @app.get("/note/{note_id}")
     async def serve_react_app():
+        # Desktop / bare-metal dev modes do not serve the SPA from the API
+        # (Tauri bundles it, or the Vite dev server serves it). A clean 404
+        # beats the TypeError that a None BUILD_DIR would otherwise produce.
+        if BUILD_DIR is None:
+            raise HTTPException(
+                status_code=404,
+                detail="Frontend is not served by the API in this mode",
+            )
         return FileResponse(BUILD_DIR / "index.html")
 
     # Serve static files
-    app.mount("/", StaticFiles(directory=BUILD_DIR, html=True), name="static")
+    if BUILD_DIR is not None:
+        app.mount("/", StaticFiles(directory=BUILD_DIR, html=True), name="static")
 
     # Catch-all route for any other paths
     @app.get("/{full_path:path}")
     async def catch_all(full_path: str):
         if full_path.startswith("api/"):
             raise HTTPException(status_code=404, detail="API route not found")
+        if BUILD_DIR is None:
+            raise HTTPException(
+                status_code=404,
+                detail="Frontend is not served by the API in this mode",
+            )
         return FileResponse(BUILD_DIR / "index.html")
 
     return app
@@ -262,8 +275,16 @@ if IS_DOCKER:
     initialize_database()  # Uses env/secret
     app = initialize_and_get_app()
 else:
-    # Desktop mode: app will be initialized after passphrase is received
-    app: Any = None
+    # Desktop mode: app will be initialized after passphrase is received.
+    # Bare-metal web development (`npm run dev`) opts in via PHLOX_DEV_BOOT
+    # so the app boots immediately from DB_ENCRYPTION_KEY, like docker mode.
+    if os.environ.get("PHLOX_DEV_BOOT") == "1":
+        from server.database.core.connection import initialize_database
+
+        initialize_database()  # Uses env/secret
+        app = initialize_and_get_app()
+    else:
+        app: Any = None
 
 
 def find_free_port():

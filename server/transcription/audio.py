@@ -62,10 +62,7 @@ async def transcribe_audio(audio_buffer: bytes) -> dict[str, Union[str, float]]:
         provider = connection["provider"]
         protocol = connection["protocol"]
         model_id = str(
-            connection.get("model")
-            or config.get("ASR_MODEL")
-            or config.get("WHISPER_MODEL")
-            or ""
+            connection.get("model") or config.get("ASR_MODEL") or config.get("WHISPER_MODEL") or ""
         ).strip()
 
         if provider == "local" or protocol == "local":
@@ -199,6 +196,7 @@ async def _transcribe_speechmatics(
             AsyncClient,
             AudioEncoding,
             AudioFormat,
+            Model,
             ServerMessageType,
             TranscriptionConfig,
             TranscriptResult,
@@ -216,9 +214,10 @@ async def _transcribe_speechmatics(
     # Persian/English workflow. Keep an explicit ``fa`` or ``en`` hint when the
     # user chooses one in settings.
     speechmatics_language = "auto" if language == "auto" else language
-    operating_point = str(config.get("ASR_MODEL") or "enhanced").strip().lower()
-    if operating_point not in {"enhanced", "standard"}:
-        operating_point = "enhanced"
+    # Map the configured operating point onto the v1 ``Model`` enum; any
+    # unrecognised value falls back to the default ``enhanced`` model.
+    model_name = str(config.get("ASR_MODEL") or "enhanced").strip().lower()
+    model = Model.STANDARD if model_name == "standard" else Model.ENHANCED
 
     transcript_parts: list[str] = []
 
@@ -240,7 +239,7 @@ async def _transcribe_speechmatics(
             io.BytesIO(pcm),
             transcription_config=TranscriptionConfig(
                 language=speechmatics_language,
-                operating_point=operating_point,
+                model=model,
                 enable_partials=False,
             ),
             audio_format=AudioFormat(
@@ -484,9 +483,7 @@ def _fireworks_batch_url(config: dict) -> str:
     return configured or str(info["default_base_url"])
 
 
-async def _transcribe_fireworks(
-    audio_buffer: bytes, config: dict
-) -> dict[str, Union[str, float]]:
+async def _transcribe_fireworks(audio_buffer: bytes, config: dict) -> dict[str, Union[str, float]]:
     """Transcribe via Fireworks batch Whisper v3 / turbo HTTP API."""
     filename, content_type = _detect_audio_format(audio_buffer)
     model = str(config.get("ASR_MODEL") or config.get("WHISPER_MODEL") or "whisper-v3")

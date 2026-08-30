@@ -2,9 +2,9 @@
 #
 
 import numpy as np
+from langchain_text_splitters import RecursiveCharacterTextSplitter
 
 from .chunking_utils import openai_token_count
-from .recursive_token_chunker import RecursiveTokenChunker
 
 
 class ClusterSemanticChunker:
@@ -15,11 +15,12 @@ class ClusterSemanticChunker:
         min_chunk_size=50,
         _length_function=openai_token_count,
     ):
-        self.splitter = RecursiveTokenChunker(
+        self.splitter = RecursiveCharacterTextSplitter(
             chunk_size=min_chunk_size,
             chunk_overlap=0,
             length_function=openai_token_count,
             separators=["\n\n", "\n", ".", "?", "!", " ", ""],
+            keep_separator=True,
         )
 
         self._chunk_size = max_chunk_size

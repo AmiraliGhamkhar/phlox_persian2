@@ -1,7 +1,7 @@
 from datetime import date
 from typing import Any
 
-from pydantic import BaseModel, Field, field_validator
+from pydantic import BaseModel, ConfigDict, Field, field_validator
 
 
 def _validate_iso_date(value: str | None, field_name: str) -> str | None:
@@ -54,8 +54,7 @@ class Patient(BaseModel):
     def _check_dob(cls, v: str | None) -> str | None:
         return _validate_iso_date(v, "dob")
 
-    class Config:
-        arbitrary_types_allowed = True
+    model_config = ConfigDict(arbitrary_types_allowed=True)
 
 
 class DemographicsExtraction(BaseModel):
@@ -90,8 +89,7 @@ class SavePatientRequest(BaseModel):
     patientData: Patient
     adaptive_refinement: dict[str, AdaptiveRefinementData] | None = None
 
-    class Config:
-        arbitrary_types_allowed = True
+    model_config = ConfigDict(arbitrary_types_allowed=True)
 
 
 class TranscribeResponse(BaseModel):
@@ -110,8 +108,7 @@ class TranscribeResponse(BaseModel):
     transcriptionDuration: float
     processDuration: float
 
-    class Config:
-        arbitrary_types_allowed = True
+    model_config = ConfigDict(arbitrary_types_allowed=True)
 
 
 class Job(BaseModel):

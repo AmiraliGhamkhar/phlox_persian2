@@ -7,13 +7,13 @@ the legacy SSE transport when the URL or handshake requires it.
 from __future__ import annotations
 
 import asyncio
+import contextlib
 import json
 import logging
 from contextlib import AsyncExitStack
 from typing import Any
 
 from mcp import ClientSession
-
 from server.mcp.transport import (
     STREAMABLE_HTTP,
     mcp_tool_requires_confirmation,
@@ -144,10 +144,8 @@ class McpServerClient:
                         self.server_config.get("name"),
                         error,
                     )
-                    try:
+                    with contextlib.suppress(Exception):
                         await stack.aclose()
-                    except Exception:
-                        pass
 
             logger.error(
                 "Failed to connect to MCP server '%s': %s",
@@ -315,6 +313,7 @@ async def ensure_mcp_tools_cache(*, force: bool = False) -> None:
     Safe to call on every chat turn: a completed refresh (even one that found
     zero tools) is not repeated unless ``force`` is set.
     """
+    global _mcp_tools_cache
     if not force and _mcp_tools_cache is not None:
         return
     async with _get_refresh_lock():
@@ -324,7 +323,6 @@ async def ensure_mcp_tools_cache(*, force: bool = False) -> None:
             await get_mcp_tools()
         except Exception:
             logger.exception("Failed to refresh MCP tools cache")
-            global _mcp_tools_cache
             if _mcp_tools_cache is None:
                 _mcp_tools_cache = []
 

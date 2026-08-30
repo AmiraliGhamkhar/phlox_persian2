@@ -225,7 +225,10 @@ class ASRModelManager:
             return selected
         # whisper.cpp sidecar reads a .bin filename from this marker.
         for model_id, candidate in ASR_MODELS.items():
-            if candidate["filename"] == selected and (self.models_dir / candidate["filename"]).exists():
+            if (
+                candidate["filename"] == selected
+                and (self.models_dir / candidate["filename"]).exists()
+            ):
                 return model_id
 
         # Legacy installations did not have a selection marker. Prefer the

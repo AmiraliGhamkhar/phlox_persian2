@@ -1,5 +1,7 @@
 """Tests for the native Anthropic Messages adapter."""
 
+from typing import Any, cast
+
 import pytest
 
 from server.llm_client.providers.anthropic import convert_messages, convert_tools
@@ -107,6 +109,7 @@ def test_convert_tools_maps_openai_functions():
             }
         ]
     )
+    assert tools is not None
     assert tools[0]["name"] == "search"
     assert tools[0]["input_schema"]["properties"]["q"]["type"] == "string"
 
@@ -136,6 +139,8 @@ async def test_anthropic_nonstream_chat(monkeypatch):
 
         async def post(self, url, json=None, headers=None):
             assert url.endswith("/v1/messages")
+            assert headers is not None
+            assert json is not None
             assert headers["x-api-key"] == "sk-ant-test"
             assert json["model"] == "claude-haiku-4-5"
             return FakeResponse()
@@ -147,4 +152,6 @@ async def test_anthropic_nonstream_chat(monkeypatch):
         "claude-haiku-4-5",
         [{"role": "user", "content": "hi"}],
     )
-    assert "HbA1c" in result["message"]["content"]
+    assert isinstance(result, dict)
+    payload = cast("dict[str, Any]", result)
+    assert "HbA1c" in payload["message"]["content"]

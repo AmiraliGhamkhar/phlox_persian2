@@ -48,6 +48,16 @@ def test_get_template(monkeypatch):
     assert data.get("template_key") == "phlox_01"
 
 
+def test_get_missing_template_returns_404(monkeypatch):
+    """Regression: a missing template must return 404, not 500 (the broad
+    except Exception used to swallow the intended HTTPException)."""
+
+    monkeypatch.setattr("server.api.templates.get_template_by_key", lambda _key: None)
+    response = client.get("/api/templates/nonexistent_template_xyz")
+    assert response.status_code == 404
+    assert response.json()["detail"] == "Template not found"
+
+
 def test_get_templates():
     # This test calls the endpoint and expects a list (empty or not)
     response = client.get("/api/templates")
@@ -89,6 +99,36 @@ def test_save_templates(monkeypatch):
     assert response.status_code == 200
     data = response.json()
     assert "Templates processed successfully" in data.get("message", "")
+
+
+def test_save_templates_invalid_payload_returns_422(monkeypatch):
+    """Regression: a schema-invalid template payload must surface as 422,
+    not 500 (the manual ClinicalTemplate construction used to be swallowed
+    by the broad except Exception)."""
+
+    def fake_template_exists(_key: str):
+        return False
+
+    monkeypatch.setattr("server.api.templates.template_exists", fake_template_exists)
+
+    # Missing required TemplateField fields: system_prompt and style_example.
+    invalid_payload = [
+        {
+            "template_key": "bad_template",
+            "template_name": "Bad Template",
+            "fields": [
+                {
+                    "field_key": "f",
+                    "field_name": "F",
+                    "field_type": "text",
+                }
+            ],
+        }
+    ]
+    response = client.post("/api/templates", json=invalid_payload)
+    assert response.status_code == 422
+    detail = response.json()["detail"]
+    assert isinstance(detail, list)  # pydantic error list, matching FastAPI's 422 shape
 
 
 def test_generate_template(monkeypatch):

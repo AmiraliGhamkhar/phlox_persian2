@@ -7,14 +7,6 @@ import {
   renderPdfPagesToImages,
 } from "./pdfVisionHelpers";
 
-const normalizeProcessingMode = (value) => {
-  const raw = String(value || "")
-    .trim()
-    .toLowerCase();
-  if (raw === "vision" || raw === "ocr" || raw === "auto") return raw;
-  return "auto";
-};
-
 export const getDocumentProcessingPreferences = async () => {
   let mode = "auto";
   let visionCapable = false;
@@ -22,18 +14,32 @@ export const getDocumentProcessingPreferences = async () => {
   try {
     const config = await settingsApi.fetchConfig();
     if (config) {
-      mode = normalizeProcessingMode(config?.DOCUMENT_IMAGE_PROCESSING_MODE);
+      const rawMode = String(
+        config?.DOCUMENT_IMAGE_PROCESSING_MODE || "auto",
+      )
+        .trim()
+        .toLowerCase();
+      mode =
+        rawMode === "vision" || rawMode === "ocr" || rawMode === "auto"
+          ? rawMode
+          : "auto";
       visionCapable = Boolean(config?.VISION_MODEL_CAPABLE);
     }
-  } catch {
-    // keep defaults
+  } catch (configError) {
+    console.warn(
+      "Could not load processing mode config, defaulting to auto:",
+      configError,
+    );
   }
 
   try {
     const capability = await chatApi.getCurrentVisionCapability();
     visionCapable = Boolean(capability?.vision_capable);
-  } catch {
-    // keep whatever we got from config
+  } catch (capabilityError) {
+    console.warn(
+      "Could not load cached current vision capability, falling back to legacy flag:",
+      capabilityError,
+    );
   }
 
   return { mode, visionCapable };

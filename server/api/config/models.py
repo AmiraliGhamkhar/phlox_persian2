@@ -160,8 +160,10 @@ async def get_embedding_models(
         if not effective_url:
             return {"models": catalog_defaults}
 
-        effective_key = apiKey or config_manager.get_config().get("EMBEDDING_API_KEY") or config_manager.get_config().get(
-            "LLM_API_KEY"
+        effective_key = (
+            apiKey
+            or config_manager.get_config().get("EMBEDDING_API_KEY")
+            or config_manager.get_config().get("LLM_API_KEY")
         )
         headers = {"Authorization": f"Bearer {effective_key}"} if effective_key else {}
         models_url = build_openai_v1_url(effective_url, "models")

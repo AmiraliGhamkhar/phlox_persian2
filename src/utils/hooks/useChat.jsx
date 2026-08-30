@@ -1,7 +1,6 @@
 import { useState, useCallback, useRef } from "react";
 import { chatApi } from "../api/chatApi";
 import { formatPatientContext } from "../chat/messageUtils";
-import { normalizeChatArtifacts } from "../chat/artifacts";
 
 // Simple mode for RAG chat (no patient/template required)
 const RAG_SYSTEM_MESSAGE = {

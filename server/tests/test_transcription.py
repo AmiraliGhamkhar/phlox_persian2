@@ -235,15 +235,17 @@ async def test_transcribe_audio_dispatches_parakeet():
     }
     from server.database.config.manager import config_manager
 
-    with patch.object(config_manager, "get_config", return_value=fake_config):
-        with patch(
+    with (
+        patch.object(config_manager, "get_config", return_value=fake_config),
+        patch(
             "server.transcription.audio._transcribe_local_parakeet",
             new_callable=AsyncMock,
             return_value={"text": "hello", "transcriptionDuration": 0.1},
-        ) as mock_parakeet:
-            result = await transcribe_audio(b"RIFF....WAVEdata")
-            mock_parakeet.assert_called_once()
-            assert result["text"] == "hello"
+        ) as mock_parakeet,
+    ):
+        result = await transcribe_audio(b"RIFF....WAVEdata")
+        mock_parakeet.assert_called_once()
+        assert result["text"] == "hello"
 
 
 def test_live_session_factory_picks_native_streaming():
