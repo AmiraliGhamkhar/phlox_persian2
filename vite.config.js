@@ -49,6 +49,35 @@ export default defineConfig({
     // Build output directory must be 'build' for Tauri compatibility
     outDir: "build",
     emptyOutDir: true,
+    rollupOptions: {
+      output: {
+        // Extract the React runtime into its own long-lived chunk. React,
+        // react-dom and react-router change far less often than app code, so
+        // this chunk stays cached in users' browsers/Tauri webview across app
+        // releases instead of being re-downloaded inside the hashed `index`
+        // chunk on every deploy.
+        //
+        // Deliberately SCOPED to React only:
+        //  - Match on node_modules/<pkg>/ path *boundaries* with a regex; a loose
+        //    substring like "/react/" also matches @tauri-apps/plugin-http and
+        //    react-markdown, silently ballooning the chunk.
+        //  - Chakra UI / @emotion / react-icons are intentionally left in the
+        //    app chunks: splitting them into a separate vendor chunk measured
+        //    *larger* initial JS (extra wrapper/runtime duplication) and merely
+        //    moved the >500 kB warning to a different file - they also track
+        //    app-code versions, so a vendor split gave no caching benefit.
+        //  - Libraries the app loads lazily via dynamic import (pdfjs-dist) or
+        //    that are reachable only from lazy routes (pdf-lib, react-markdown)
+        //    are left undefined so rolldown keeps them in on-demand chunks.
+        manualChunks(id) {
+          if (!id.includes("node_modules")) return undefined;
+          if (/node_modules\/(react|react-dom|react-router|scheduler)\//.test(id)) {
+            return "vendor-react";
+          }
+          return undefined;
+        },
+      },
+    },
   },
 
   test: {

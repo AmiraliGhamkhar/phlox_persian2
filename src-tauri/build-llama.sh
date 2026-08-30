@@ -21,6 +21,9 @@ done
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 LLAMA_DIR="$SCRIPT_DIR/llama.cpp"
 
+# Shared build helpers (compiler cache + incremental build-dir management)
+source "$SCRIPT_DIR/build-common.sh"
+
 echo "Building llama.cpp server from: $LLAMA_DIR"
 
 if [ "$DEBUG_MODE" = true ]; then
@@ -47,18 +50,9 @@ elif [ -d "$LLAMA_DIR/.git" ]; then
   fi
 fi
 
-# Clean build directory to ensure fresh configuration
-echo "Cleaning build directory..."
-rm -rf "$LLAMA_DIR/build"
-
-# Create build directory
-mkdir -p "$LLAMA_DIR/build"
-cd "$LLAMA_DIR/build"
-
 # Detect platform-specific build settings
 if [[ "$OSTYPE" == "darwin"* ]]; then
     # macOS: Metal + Accelerate
-    JOBS=$(sysctl -n hw.ncpu)
     CMAKE_BACKEND_FLAGS=(
         -DLLAMA_METAL=ON
         -DLLAMA_ACCELERATE=ON
@@ -67,18 +61,36 @@ if [[ "$OSTYPE" == "darwin"* ]]; then
 else
     # Linux local dev: CPU-only.
     # Production Flatpak build re-enables Vulkan via CMake flags
-    JOBS=$(nproc)
     CMAKE_BACKEND_FLAGS=(
         -DGGML_NATIVE=OFF
     )
     BACKEND_DESC="CPU"
 fi
 
+JOBS="$(phlox_jobs_count)"
+
+# Route compilation through ccache/sccache when available (no-op otherwise).
+phlox_collect_cmake_launcher
+# Use Ninja when installed (faster, parallel incremental builds); else Makefiles.
+phlox_collect_cmake_generator
+
+# Reuse the incremental CMake build dir; only wipe it when the pinned source
+# SHA, the generator, or the backend flags change (or FORCE_CLEAN=1). CMake/Make
+# still track source mtimes, so a manual `git checkout` of llama.cpp triggers
+# recompilation.
+LLAMA_BUILD_SIG="llama:${LLAMA_PINNED_SHA}:$(phlox_cmake_generator_tag):${BACKEND_DESC}:Release"
+phlox_prepare_build_dir "$LLAMA_DIR/build" "$LLAMA_BUILD_SIG"
+
+cd "$LLAMA_DIR/build"
+
 echo "Configuring llama.cpp build with $BACKEND_DESC support (static libs)..."
 cmake .. \
+  "${CMAKE_GENERATOR_ARGS[@]}" \
   -DCMAKE_BUILD_TYPE=Release \
+  "${CMAKE_LAUNCHER_ARGS[@]}" \
   "${CMAKE_BACKEND_FLAGS[@]}" \
   -DLLAMA_ALL_WARNINGS=OFF \
+  -DGGML_CCACHE=ON \
   -DBUILD_SHARED_LIBS=OFF \
   -DLLAMA_CURL=OFF \
   -DLLAMA_OPENSSL=OFF \
@@ -88,7 +100,7 @@ cmake .. \
   -DLLAMA_BUILD_EXAMPLES=OFF \
   -DLLAMA_BUILD_TESTS=OFF
 
-# Build the llama-server binary
+# Build the llama-server binary (incremental - only recompiles changed sources)
 echo "Building llama-server binary..."
 cmake --build . --target llama-server -j"$JOBS"
 

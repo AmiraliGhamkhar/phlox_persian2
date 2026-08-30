@@ -22,6 +22,9 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PARAKEET_DIR="$SCRIPT_DIR/parakeet.cpp"
 PATCH="$SCRIPT_DIR/parakeet-cpp-omi-adapter.patch"
 
+# Shared build helpers (compiler cache + incremental build-dir management)
+source "$SCRIPT_DIR/build-common.sh"
+
 echo "Building parakeet.cpp server from: $PARAKEET_DIR"
 
 if [ "$DEBUG_MODE" = true ]; then
@@ -55,14 +58,9 @@ else
   echo "Omi Med STT adapter patch already applied, skipping"
 fi
 
-# Clean build directory to ensure fresh configuration
-echo "Cleaning build directory..."
-rm -rf "$PARAKEET_DIR/build"
-
 # Detect platform-specific build settings before configuring
 if [[ "$OSTYPE" == "darwin"* ]]; then
     # macOS: Metal + embed Metallib into the binary for a standalone distributable.
-    JOBS=$(sysctl -n hw.ncpu)
     CMAKE_BACKEND_FLAGS=(
         -DPARAKEET_GGML_METAL=ON
     )
@@ -70,24 +68,41 @@ if [[ "$OSTYPE" == "darwin"* ]]; then
 else
     # Linux local dev: CPU-only.
     # Production Flatpak build re-enables Vulkan via CMake flags
-    JOBS=$(nproc)
     CMAKE_BACKEND_FLAGS=(
         -DGGML_NATIVE=OFF
     )
     BACKEND_DESC="CPU"
 fi
 
+JOBS="$(phlox_jobs_count)"
+
+# Route compilation through ccache/sccache when available (no-op otherwise).
+phlox_collect_cmake_launcher
+# Use Ninja when installed (faster, parallel incremental builds); else Makefiles.
+phlox_collect_cmake_generator
+
+# Reuse the incremental CMake build dir; wipe it only when the pinned SHA, the
+# Omi adapter patch, the generator, or the backend flags change (or
+# FORCE_CLEAN=1). Including a hash of the patch file ensures a changed adapter
+# forces a clean rebuild.
+PARAKEET_PATCH_HASH="$(shasum "$PATCH" 2>/dev/null | awk '{print $1}' || md5sum "$PATCH" 2>/dev/null | awk '{print $1}' || echo "unknown")"
+PARAKEET_BUILD_SIG="parakeet:${PARAKEET_PINNED_SHA}:${PARAKEET_PATCH_HASH}:$(phlox_cmake_generator_tag):${BACKEND_DESC}:Release"
+phlox_prepare_build_dir "$PARAKEET_DIR/build" "$PARAKEET_BUILD_SIG"
+
 # BUILD_SHARED_LIBS=OFF statically links ggml for a standalone distributable binary.
 echo "Configuring parakeet.cpp build with $BACKEND_DESC support..."
 cmake -S "$PARAKEET_DIR" -B "$PARAKEET_DIR/build" \
+  "${CMAKE_GENERATOR_ARGS[@]}" \
   -DCMAKE_BUILD_TYPE=Release \
+  "${CMAKE_LAUNCHER_ARGS[@]}" \
   "${CMAKE_BACKEND_FLAGS[@]}" \
+  -DGGML_CCACHE=ON \
   -DBUILD_SHARED_LIBS=OFF \
   -DPARAKEET_BUILD_SERVER=ON \
   -DPARAKEET_BUILD_CLI=OFF \
   -DPARAKEET_BUILD_TESTS=OFF
 
-# Build the parakeet-server binary
+# Build the parakeet-server binary (incremental - only recompiles changed sources)
 echo "Building parakeet-server binary..."
 cmake --build "$PARAKEET_DIR/build" --target parakeet-server -j"$JOBS"
 

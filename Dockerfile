@@ -1,3 +1,4 @@
+# syntax=docker/dockerfile:1
 #
 # Phlox - production image (FastAPI backend + prebuilt React frontend).
 #
@@ -6,6 +7,10 @@
 #
 # The image listens on :5000 and serves both the API and the built SPA, so a
 # single published port is all that is needed.
+#
+# BuildKit cache mounts (--mount=type=cache) keep the npm, apt and uv download
+# caches warm across rebuilds even when a layer is invalidated; they never end
+# up in the shipped image. Requires BuildKit (default in Docker 23+ / buildx).
 
 ###############################################################################
 # Stage 1 - build the React app
@@ -14,17 +19,21 @@ FROM node:24-slim AS build
 
 WORKDIR /usr/src/app
 
-# npm policy files first so the dependency install honors them
-# (.npmrc pins ignore-scripts=true and the min-release-age cooldown).
+# Install dependencies first so the layer is cached unless the lockfile or npm
+# policy files change. The BuildKit cache mount holds downloaded tarballs across
+# builds; node_modules itself is committed to the layer. .npmrc pins
+# ignore-scripts=true and the min-release-age cooldown.
+COPY package.json package-lock.json .npmrc .nvmrc ./
+RUN --mount=type=cache,target=/root/.npm,sharing=locked \
+    npm ci --ignore-scripts --no-audit --no-fund
+
+# Application sources (change frequently) come after the cached install layer.
 # CHANGELOG.md is required: src/components/sidebar/VersionInfo.jsx imports it
 # via `?raw`, so the build fails without it.
-COPY package.json package-lock.json .npmrc .nvmrc CHANGELOG.md ./
+COPY CHANGELOG.md ./
 COPY index.html vite.config.js tsconfig.json ./
 COPY src/ ./src/
 COPY public/ ./public/
-
-# Deterministic, script-free install of dev+runtime deps (vite lives in devDeps).
-RUN npm ci --ignore-scripts && npm cache clean --force
 
 RUN npm run build
 
@@ -52,6 +61,9 @@ WORKDIR /usr/src/app
 # this base image already ships the interpreter required by the lockfile.
 # TIKTOKEN_CACHE_DIR points at a cache directory baked into the image (and owned
 # by the runtime user) so tokenizer data never has to be fetched at run time.
+# UV_LINK_MODE=copy is required with BuildKit cache mounts: the uv cache is not
+# present at container run time, so installed files must be copied (not
+# hard-linked) into the venv.
 ENV DOCKER_CONTAINER=true \
     PATH=/usr/src/app/server/.venv/bin:$PATH \
     PYTHONPATH=/usr/src/app \
@@ -61,12 +73,17 @@ ENV DOCKER_CONTAINER=true \
     PORT=5000 \
     UV_PYTHON_PREFERENCE=only-system \
     UV_PYTHON_DOWNLOADS=never \
+    UV_LINK_MODE=copy \
     TIKTOKEN_CACHE_DIR=/usr/src/app/.cache/tiktoken
 
 # tesseract-ocr: image attachment OCR (server/nlp_tools/document_processing.py)
 # tzdata: makes the TZ environment variable actually resolve to a local zone
 # ca-certificates: TLS trust for outbound LLM / ASR / embedding requests
-RUN apt-get update \
+# The apt cache mounts keep package lists/debs warm across builds (and out of
+# the final image); the explicit removal keeps the committed layer minimal.
+RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
+    --mount=type=cache,target=/var/lib/apt,sharing=locked \
+    apt-get update \
     && apt-get install -y --no-install-recommends \
         ca-certificates \
         tesseract-ocr \
@@ -88,8 +105,11 @@ RUN mkdir -p /usr/src/app/data /usr/src/app/temp /usr/src/app/.cache/tiktoken \
     && chown -R phlox:phlox /usr/src/app
 
 # Install Python dependencies from the lockfile (rag + ocr extras via "docker",
-# dev extras excluded) into /usr/src/app/server/.venv
-RUN uv sync --directory server --locked --no-dev --extra docker
+# dev extras excluded) into /usr/src/app/server/.venv. The BuildKit cache mount
+# keeps downloaded wheels warm across builds without bloating the image. The
+# venv itself is committed to the layer so the runtime image needs no cache.
+RUN --mount=type=cache,target=/root/.cache/uv,sharing=locked \
+    uv sync --directory server --locked --no-dev --extra docker
 
 # Pre-cache the tiktoken encoding used by RAG chunking and letter budgeting.
 RUN python -c "import tiktoken; tiktoken.get_encoding('cl100k_base')" \

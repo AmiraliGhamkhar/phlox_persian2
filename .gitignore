@@ -47,6 +47,9 @@ dist/
 main.*/
 repo/
 
+# Local build-tool caches (ccache/Nuitka) used by src-tauri/build-common.sh
+src-tauri/.build-cache/
+
 # Cloned external repos (cloned by CI)
 src-tauri/whisper.cpp/
 src-tauri/omi-med-stt-runtime/

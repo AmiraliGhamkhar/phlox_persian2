@@ -26,16 +26,17 @@
         "swr": "2.5.1"
     },
     "scripts": {
-        "start-react": "rm -rf node_modules/.vite && vite",
+        "start-react": "vite",
         "dev": "concurrently --kill-others-on-fail -n web,api -c cyan,green \"npm run start-react\" \"DB_ENCRYPTION_KEY=${DB_ENCRYPTION_KEY:-phlox-dev-insecure-key} PHLOX_DEV_BOOT=1 server/.venv/bin/python -m uvicorn server.server:app --reload --host 127.0.0.1 --port 5000\"",
         "build": "vite build",
         "typecheck": "tsc --noEmit",
         "lint": "eslint .",
+        "lint:fast": "oxlint",
         "lint:fix": "eslint . --fix",
         "build-server": "bash src-tauri/build-server.sh",
         "test": "vitest",
         "tauri": "tauri",
-        "tauri-dev": "bash build-all.sh --debug --skip-cpp && tauri dev",
+        "tauri-dev": "bash -c 'source src-tauri/dev-env.sh; bash build-all.sh --debug --skip-cpp && tauri dev'",
         "tauri-build": "bash build-all.sh && tauri build"
     },
     "browserslist": {
@@ -70,6 +71,7 @@
         "eslint-plugin-unused-imports": "^4.4.1",
         "globals": "^17.11.0",
         "jsdom": "^29.1.1",
+        "oxlint": "^1.80.0",
         "typescript": "^6.0.3",
         "typescript-eslint": "^8.68.0",
         "vite": "^8.1.5",
