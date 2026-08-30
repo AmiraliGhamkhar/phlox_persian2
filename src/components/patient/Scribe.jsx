@@ -2,6 +2,7 @@ import { useEffect, useState, useRef, useCallback } from "react";
 import { useTranscription } from "../../utils/hooks/useTranscription";
 import { settingsService } from "../../utils/settings/settingsUtils";
 import { settingsApi } from "../../utils/api/settingsApi";
+import { transcriptionApi } from "../../utils/api/transcriptionApi";
 import { AudioRecorder } from "../../utils/audioRecorder";
 
 // Hook to manage scribe state and logic
@@ -25,10 +26,13 @@ export const useScribe = ({
     const timerIntervalRef = useRef(null);
 
     const [sendError, setSendError] = useState(null); // null = ok, else { message }
+    const [liveTranscript, setLiveTranscript] = useState("");
     const lastFailedRef = useRef({ blob: null, meta: null, isAmbient: null });
+    const liveSessionRef = useRef(null);
+    // lastFailedRef shape: { blob, meta, isAmbient, liveResult }
 
     // Transcription API
-    const { transcribeAudio, isTranscribing } = useTranscription((data) => {
+    const { transcribeAudio, reprocessTranscription, isTranscribing } = useTranscription((data) => {
         if (data?.error) return;
         handleTranscriptionComplete({
             fields: data.fields,
@@ -68,17 +72,30 @@ export const useScribe = ({
         return () => clearInterval(timerIntervalRef.current);
     }, [isRecording, isPaused]);
 
+    const closeLiveSession = useCallback(() => {
+        if (liveSessionRef.current) {
+            try {
+                liveSessionRef.current.close();
+            } catch {
+                // already closed
+            }
+            liveSessionRef.current = null;
+        }
+    }, []);
+
     const resetRecordingState = useCallback(() => {
         setIsRecording(false);
         setIsPaused(false);
         setTimer(0);
         setSendError(null);
+        setLiveTranscript("");
         lastFailedRef.current = { blob: null, meta: null, isAmbient: null };
+        closeLiveSession();
         if (audioRecorderRef.current) {
             audioRecorderRef.current.stop().catch(() => {});
         }
         audioRecorderRef.current = null;
-    }, []);
+    }, [closeLiveSession]);
 
     // Reset when patient changes
     useEffect(() => {
@@ -91,27 +108,45 @@ export const useScribe = ({
     }, []);
 
     const sendForTranscription = useCallback(
-        async (blob, meta) => {
+        async (blob, meta, liveResult = null) => {
             try {
-                await transcribeAudio(blob, meta, isAmbient);
+                if (liveResult?.authoritative && liveResult?.text) {
+                    await reprocessTranscription(
+                        liveResult.text,
+                        meta,
+                        0,
+                        isAmbient,
+                    );
+                } else {
+                    await transcribeAudio(blob, meta, isAmbient);
+                }
                 clearLastFailed();
                 return true;
             } catch (error) {
                 console.error("Transcription failed:", error);
-                lastFailedRef.current = { blob, meta: { ...meta }, isAmbient };
+                lastFailedRef.current = {
+                    blob,
+                    meta: { ...meta },
+                    isAmbient,
+                    liveResult,
+                };
                 const message = error?.message || "پیاده‌سازی ناموفق بود";
                 setSendError({ message });
                 return false;
             }
         },
-        [transcribeAudio, isAmbient, clearLastFailed],
+        [transcribeAudio, reprocessTranscription, isAmbient, clearLastFailed],
     );
 
     const retrySend = useCallback(async () => {
-        const { blob, meta, isAmbient: ambient } = lastFailedRef.current;
-        if (!blob) return false;
+        const { blob, meta, isAmbient: ambient, liveResult } = lastFailedRef.current;
+        if (!blob && !(liveResult?.authoritative && liveResult?.text)) return false;
         try {
-            await transcribeAudio(blob, meta, ambient);
+            if (liveResult?.authoritative && liveResult?.text) {
+                await reprocessTranscription(liveResult.text, meta, 0, ambient);
+            } else {
+                await transcribeAudio(blob, meta, ambient);
+            }
             clearLastFailed();
             return true;
         } catch (error) {
@@ -120,7 +155,7 @@ export const useScribe = ({
             setSendError({ message });
             return false;
         }
-    }, [transcribeAudio, clearLastFailed]);
+    }, [transcribeAudio, reprocessTranscription, clearLastFailed]);
 
     const downloadLastRecording = useCallback(() => {
         const { blob } = lastFailedRef.current;
@@ -151,15 +186,28 @@ export const useScribe = ({
     const startRecording = useCallback(async () => {
         try {
             const recorder = new AudioRecorder();
+            setLiveTranscript("");
+            try {
+                const session = await transcriptionApi.openLiveTranscription({
+                    onPartial: (text) => setLiveTranscript(text || ""),
+                    onFinal: (text) => setLiveTranscript(text || ""),
+                    onError: (message) => console.debug("Live transcription:", message),
+                });
+                liveSessionRef.current = session;
+                recorder.onPcm = (samples) => session.sendPcm(samples);
+            } catch (error) {
+                console.debug("Live transcription unavailable:", error);
+            }
             await recorder.start();
             audioRecorderRef.current = recorder;
             setIsRecording(true);
             setTimer(0);
         } catch (error) {
             console.error("Error starting recording:", error);
+            closeLiveSession();
             alert("دسترسی به میکروفون ممکن نبود. لطفاً مجوزها را بررسی کنید.");
         }
-    }, []);
+    }, [closeLiveSession]);
 
     const pauseRecording = useCallback(() => {
         audioRecorderRef.current?.pause();
@@ -183,14 +231,27 @@ export const useScribe = ({
         audioRecorderRef.current = null;
         setIsRecording(false);
         setIsPaused(false);
+        let liveResult = { text: "", authoritative: false };
+        if (liveSessionRef.current) {
+            try {
+                liveResult = (await liveSessionRef.current.stop()) || liveResult;
+            } catch {
+                // overlay-only; batch transcription still runs
+            }
+            closeLiveSession();
+        }
         const blob = await recorder.stop();
-        await sendForTranscription(blob, {
-            name,
-            gender,
-            dob,
-            templateKey: template?.template_key,
-            noteId,
-        });
+        await sendForTranscription(
+            blob,
+            {
+                name,
+                gender,
+                dob,
+                templateKey: template?.template_key,
+                noteId,
+            },
+            liveResult,
+        );
         return blob;
     }, [
         isRecording,
@@ -201,6 +262,7 @@ export const useScribe = ({
         template,
         noteId,
         onSendStart,
+        closeLiveSession,
     ]);
 
     const resetRecording = useCallback(() => {
@@ -248,6 +310,7 @@ export const useScribe = ({
         timer,
         isLoading: isTranscribing,
         sendError,
+        liveTranscript,
 
         // Actions
         startRecording,

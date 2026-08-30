@@ -1,4 +1,6 @@
+import json
 import logging
+import secrets
 import time
 
 from fastapi import (
@@ -7,6 +9,8 @@ from fastapi import (
     Form,
     HTTPException,
     UploadFile,
+    WebSocket,
+    WebSocketDisconnect,
 )
 from pydantic import BaseModel, Field
 
@@ -66,6 +70,97 @@ class ExtractDemographicsFromTextRequest(BaseModel):
 
 class ExtractDemographicsVisualRequest(BaseModel):
     pages: list[VisualDocumentPage]
+
+
+def _authorize_live_socket(websocket: WebSocket) -> bool:
+    """Accept either a Bearer header or ``?token=`` for the live WebSocket.
+
+    Browsers cannot set Authorization on the WebSocket handshake, so the
+    desktop client passes the local request token as a query parameter.
+    """
+    from server.constants import is_docker_runtime
+    from server.utils.local_request_token import get_request_token
+
+    if is_docker_runtime():
+        return True
+    expected = get_request_token()
+    if not expected:
+        return False
+    header = websocket.headers.get("authorization") or ""
+    provided = ""
+    if header.lower().startswith("bearer "):
+        provided = header[7:]
+    if not provided:
+        provided = websocket.query_params.get("token") or ""
+    return bool(provided) and secrets.compare_digest(provided, expected)
+
+
+@router.websocket("/live")
+async def live_transcribe(websocket: WebSocket):
+    """Stream PCM audio and receive partial / final transcripts.
+
+    Client frames:
+    - binary: 16-bit little-endian mono PCM at 16 kHz
+    - text JSON ``{"type": "stop"}`` to finish
+    Server frames (JSON text):
+    - ``{"type": "partial"|"final"|"error"|"ready", "text"?: str, "message"?: str}``
+    """
+    if not _authorize_live_socket(websocket):
+        await websocket.close(code=4401)
+        return
+    await websocket.accept()
+
+    from server.database.config.manager import config_manager
+    from server.transcription.live import create_live_session, live_is_authoritative
+
+    config = config_manager.get_config()
+
+    async def emit(event: dict) -> None:
+        try:
+            await websocket.send_text(json.dumps(event))
+        except Exception:
+            logging.debug("Live transcript emit failed", exc_info=True)
+
+    session = create_live_session(config, emit)
+    try:
+        await session.start()
+        await emit({"type": "ready", "authoritative": live_is_authoritative(config)})
+        while True:
+            message = await websocket.receive()
+            if message.get("type") == "websocket.disconnect":
+                break
+            data = message.get("bytes")
+            if data:
+                await session.feed_pcm(data)
+                continue
+            text = message.get("text")
+            if not text:
+                continue
+            try:
+                payload = json.loads(text)
+            except json.JSONDecodeError:
+                continue
+            if payload.get("type") == "stop":
+                break
+    except WebSocketDisconnect:
+        logging.debug("Live transcription client disconnected")
+    except Exception as error:
+        logging.error("Live transcription failed: %s", error)
+        try:
+            await emit({"type": "error", "message": str(error)})
+        except Exception:
+            logging.debug("Could not send live transcription error", exc_info=True)
+    finally:
+        try:
+            final_text = await session.stop()
+            if final_text:
+                await emit({"type": "final", "text": final_text})
+        except Exception:
+            logging.debug("Live transcription shutdown failed", exc_info=True)
+        try:
+            await websocket.close()
+        except Exception:
+            logging.debug("Live transcription websocket already closed", exc_info=True)
 
 
 @router.post("/audio", response_model=TranscribeResponse)

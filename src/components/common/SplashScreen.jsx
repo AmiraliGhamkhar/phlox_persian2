@@ -3,6 +3,7 @@ import { Box, Button, Heading, VStack, Text, Flex, Image, HStack, Progress } fro
 import { toaster } from "@/components/ui/toaster";
 import { FaArrowRight, FaArrowLeft } from "react-icons/fa";
 import { settingsApi } from "../../utils/api/settingsApi";
+import { EMBEDDING_PROVIDER_DEFAULTS, embeddingProviderIdForLlm } from "../../utils/aiProviders";
 import { isTauri } from "../../utils/helpers/apiConfig";
 import {
   SPLASH_STEPS,
@@ -134,6 +135,17 @@ const SplashScreen = ({ onComplete }) => {
         WHISPER_LANGUAGE: transcriptionData.asrLanguage || "auto",
         WHISPER_KEY: transcriptionData.asrApiKey || "",
       };
+
+      const embeddingProvider = embeddingProviderIdForLlm(llmData.llmProvider);
+      const embeddingDefaults = EMBEDDING_PROVIDER_DEFAULTS[embeddingProvider] || {};
+      configToSave.EMBEDDING_PROVIDER = embeddingProvider;
+      configToSave.EMBEDDING_BASE_URL =
+        embeddingProvider === llmData.llmProvider
+          ? llmData.llmBaseUrl || embeddingDefaults.url || ""
+          : embeddingDefaults.url || "";
+      if (!configToSave.EMBEDDING_MODEL && embeddingDefaults.models?.[0]) {
+        configToSave.EMBEDDING_MODEL = embeddingDefaults.models[0];
+      }
 
       await settingsApi.saveConfig(configToSave);
 

@@ -69,11 +69,40 @@ export const settingsApi = {
         });
     },
 
-    fetchWhisperModels: async (whisperBaseUrl) => {
-        if (!whisperBaseUrl) {
+    fetchProviders: async () =>
+        handleApiRequest({
+            apiCall: async (signal) => {
+                const url = await buildApiUrl("/api/config/providers");
+                return universalFetch(url, { signal });
+            },
+            errorMessage: "Failed to fetch AI providers",
+        }),
+
+    fetchEmbeddingModels: async (providerType, baseUrl, apiKey = null) => {
+        const params = new URLSearchParams({
+            provider: providerType || "openai_compatible",
+        });
+        if (baseUrl) params.append("baseUrl", baseUrl);
+        if (apiKey) params.append("apiKey", apiKey);
+        const endpoint = `/api/config/embedding/models?${params.toString()}`;
+        return handleApiRequest({
+            apiCall: async (signal) => {
+                const url = await buildApiUrl(endpoint);
+                return universalFetch(url, { signal });
+            },
+            errorMessage: "Failed to fetch embedding models",
+        });
+    },
+
+    fetchWhisperModels: async (whisperBaseUrl, provider = null, apiKey = null) => {
+        const params = new URLSearchParams();
+        if (whisperBaseUrl) params.append("asrEndpoint", whisperBaseUrl);
+        if (provider) params.append("provider", provider);
+        if (apiKey) params.append("apiKey", apiKey);
+        if (!whisperBaseUrl && !provider) {
             return Promise.resolve({ models: [], listAvailable: false });
         }
-        const endpoint = `/api/config/asr/models?asrEndpoint=${encodeURIComponent(whisperBaseUrl)}`;
+        const endpoint = `/api/config/asr/models?${params.toString()}`;
         return handleApiRequest({
             apiCall: async (signal) => {
                 const url = await buildApiUrl(endpoint);

@@ -5,6 +5,7 @@ import { AttachmentIcon } from "../common/icons";
 import { FaFilePdf, FaFileImage } from "react-icons/fa";
 import MarkdownRenderer from "../common/MarkdownRenderer";
 import ArtifactCard from "../common/ArtifactCard";
+import FormFillArtifact from "../pdf-forms/FormFillArtifact";
 import {
     parseMessageContent,
     buildCitationRemap,
@@ -242,12 +243,18 @@ const DashboardMessageList = ({
                                                 width="100%"
                                             >
                                                 {message.artifacts.map(
-                                                    (artifact, idx) => (
-                                                        <ArtifactCard
-                                                            key={`artifact-${messageIndex}-${idx}`}
-                                                            artifact={artifact}
-                                                        />
-                                                    ),
+                                                    (artifact, idx) =>
+                                                        artifact.type === "form_fill" ? (
+                                                            <FormFillArtifact
+                                                                key={`artifact-${messageIndex}-${idx}`}
+                                                                artifact={artifact}
+                                                            />
+                                                        ) : (
+                                                            <ArtifactCard
+                                                                key={`artifact-${messageIndex}-${idx}`}
+                                                                artifact={artifact}
+                                                            />
+                                                        ),
                                                 )}
                                             </VStack>
                                         )}

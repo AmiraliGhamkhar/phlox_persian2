@@ -76,8 +76,9 @@ async def execute(
         yield end_message(function_response={"content": result_content, "citations": citations})
         return
 
-    from server.mcp.client import get_mcp_tools_sync
+    from server.mcp.client import ensure_mcp_tools_cache, get_mcp_tools_sync
 
+    await ensure_mcp_tools_cache()
     mcp_tools = get_mcp_tools_sync()
     tool_def = None
     for tool in mcp_tools:
@@ -180,7 +181,11 @@ async def execute(
         else:
             tool_result = str(response)
 
-        logger.info(f"MCP tool result: {tool_result[:200]}...")
+        logger.info(
+            "MCP tool '%s' returned %d chars",
+            original_tool_name,
+            len(tool_result),
+        )
 
         result_content = (
             f"The following information was retrieved from the MCP server:\n\n{tool_result}"

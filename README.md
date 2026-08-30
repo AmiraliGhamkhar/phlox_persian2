@@ -32,7 +32,7 @@
 - **✅ مدیریت کارها:** برنامه بالینی را به فهرست کارهای قابل پیگیری تبدیل کنید.
 - **✉️ تولید مکاتبه:** بر اساس یادداشت بالینی، نامه بیمار را با یک کلیک تولید کنید.
 - **📄 پردازش سند:** فرم‌ها را تکمیل کنید و اطلاعات را با مدل‌های تصویری محلی استخراج کنید.
-- **🌐 انتخاب ساده مدل و سرویس:** ارائه‌دهنده، مدل، زبان و حالت محلی/برخط را جداگانه انتخاب کنید.
+- **🌐 انتخاب ساده مدل و سرویس:** ارائه‌دهنده، مدل، زبان و حالت محلی/برخط را جداگانه انتخاب کنید. بردارسازی از مدل گفتگو مستقل است.
 
 <p align="center">
   <img src="/assets/readme_screenshot.png" width="600" alt="تصویر محیط فلوکس">
@@ -116,6 +116,37 @@ cd server && DB_ENCRYPTION_KEY='یک-کلید-آزمایشی-محلی' uv run py
 
 فلوکس متن پیاده‌سازی‌شده را بر اساس فیلدهای قالب به قطعه‌های هدفمند تقسیم می‌کند و خروجی مدل زبانی را به JSON ساختاریافته محدود می‌سازد. سپس یک مرحله بهبود، سبک خروجی را با نمونه مورد نظر شما هماهنگ می‌کند و چرخه بهبود تطبیقی از یادداشت‌های قبلی برای شخصی‌سازی بیشتر استفاده می‌کند.
 
+رابط کاربری هرگز مستقیم با ارائه‌دهنده هوش مصنوعی صحبت نمی‌کند. مسیر درخواست:
+
+```text
+Frontend (React / Tauri)
+  → FastAPI (/api/*) + auth / validation / audit
+  → domain services (chat, transcription, letters, RAG)
+  → get_llm_client / resolve_asr_connection / resolve_embedding_connection
+  → provider adapter (OpenAI-compatible, Anthropic Messages, STT, embeddings)
+  → SQLCipher + sqlite-vec
+```
+
+```mermaid
+flowchart TD
+  User --> UI[React / Tauri]
+  UI --> API[FastAPI /api]
+  API --> Auth[Token or proxy auth]
+  Auth --> Svc[Application services]
+  Svc --> Orch[Provider resolvers]
+  Orch --> LLM[LLM adapter]
+  Orch --> STT[ASR adapter]
+  Orch --> Emb[Embedding adapter]
+  LLM --> LocalLLM[llama.cpp / Ollama / LM Studio]
+  LLM --> CloudLLM[OpenAI / Anthropic / Fireworks]
+  STT --> LocalSTT[Whisper.cpp / Shenava / Parakeet]
+  STT --> CloudSTT[OpenAI Audio / Speechmatics / Fireworks]
+  Emb --> Vec[sqlite-vec]
+  Svc --> DB[SQLCipher]
+```
+
+ارائه‌دهندگان از تنظیمات رمزگذاری‌شده عوض می‌شوند، نه با بازنویسی منطق کسب‌وکار. بردارسازی از مدل گفتگو جدا است؛ اگر LLM روی Anthropic باشد، embeddings به‌طور پیش‌فرض به Ollama محلی می‌رود مگر اینکه `EMBEDDING_PROVIDER` جداگانه تنظیم شود. خطاهای گذرا (۴۲۹، ۵xx، شبکه، وقفه) حداکثر دو بار با backoff تکرار می‌شوند؛ خطاهای ۴xx دیگر تکرار نمی‌شوند و failover خودکار به ابر وجود ندارد.
+
 ### پشته فنی
 
 - **رابط کاربری:** React و [Chakra UI](https://github.com/chakra-ui/chakra-ui)
@@ -123,8 +154,9 @@ cd server && DB_ENCRYPTION_KEY='یک-کلید-آزمایشی-محلی' uv run py
 - **پایگاه داده:** [SQLCipher](https://github.com/sqlcipher/sqlcipher)
 - **پایگاه برداری:** [sqlite-vec](https://github.com/asg017/sqlite-vec)
 - **پوسته دسکتاپ:** [Tauri](https://github.com/tauri-apps/tauri)
-- **مدل زبانی محلی:** سرور [llama.cpp](https://github.com/ggml-org/llama.cpp)
-- **ASR:** نقطه پایانی سازگار با OpenAI، Speechmatics Realtime، یا [whisper.cpp](https://github.com/ggml-org/whisper.cpp) با سه نسخه Whisper large-v3-turbo و مدل فارسی Shenava
+- **مدل زبانی:** سرور [llama.cpp](https://github.com/ggml-org/llama.cpp)، Ollama، LM Studio، 9Router/OmniRoute، OpenAI-compatible، OpenAI، Anthropic Messages، Fireworks
+- **ASR:** Whisper.cpp محلی، Shenava، Parakeet (غیر فارسی)، سرور Whisper.cpp، OpenAI Audio، Speechmatics Realtime، Fireworks live/batch
+- **بردارسازی:** نقطه پایانی مستقل `/v1/embeddings` (Ollama، LM Studio، llama.cpp، OpenAI، Fireworks، دروازه‌ها)
 
 ## لایه‌های امنیتی و حریم خصوصی
 

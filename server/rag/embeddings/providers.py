@@ -19,7 +19,7 @@ class OpenAICompatibleProvider:
     def __init__(self, base_url: str, api_key: str, model_name: str):
         from openai import OpenAI
 
-        self.client = OpenAI(base_url=base_url, api_key=api_key)
+        self.client = OpenAI(base_url=base_url, api_key=api_key, timeout=80, max_retries=2)
         self.model_name = model_name
         self._dimension: int | None = None
 

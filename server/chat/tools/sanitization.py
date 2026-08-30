@@ -121,7 +121,11 @@ def sanitize_query_for_external_search(
     sanitized = re.sub(r"^[\s,-]+|[\s,-]+$", "", sanitized)
 
     if sanitized != query:
-        logger.info(f"Sanitized search query: '{query}' -> '{sanitized}'")
+        logger.info(
+            "Sanitized outbound search query (%d -> %d chars)",
+            len(query),
+            len(sanitized),
+        )
 
     return sanitized.strip() or query  # Return original if sanitization empties it
 

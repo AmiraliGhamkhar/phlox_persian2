@@ -1,5 +1,5 @@
 import { handleApiRequest, universalFetch } from "../helpers/apiHelpers";
-import { buildApiUrl } from "../helpers/apiConfig";
+import { buildApiUrl, getApiBaseUrl, getRequestToken } from "../helpers/apiConfig";
 
 export const transcriptionApi = {
     transcribeAudio: async (formData) => {
@@ -148,5 +148,143 @@ export const transcriptionApi = {
             timeout: 300000,
             errorMessage: "Error processing visual document",
         });
+    },
+
+    openLiveTranscription: async ({
+        onPartial,
+        onFinal,
+        onError,
+        onReady,
+    }: {
+        onPartial?: (text: string) => void;
+        onFinal?: (text: string) => void;
+        onError?: (message: string) => void;
+        onReady?: (info: { authoritative: boolean }) => void;
+    } = {}) => {
+        const baseUrl = await getApiBaseUrl();
+        const token = await getRequestToken();
+        const wsBase = baseUrl
+            ? baseUrl.replace(/^http/i, "ws")
+            : `${window.location.protocol === "https:" ? "wss:" : "ws:"}//${window.location.host}`;
+        const query = token ? `?token=${encodeURIComponent(token)}` : "";
+        const socket = new WebSocket(`${wsBase}/api/transcribe/live${query}`);
+
+        let lastText = "";
+        let authoritative = false;
+        let opened = false;
+        let settleStop: ((result: { text: string; authoritative: boolean }) => void) | null =
+            null;
+
+        const result = () => ({ text: lastText, authoritative });
+
+        socket.binaryType = "arraybuffer";
+
+        socket.onmessage = (event) => {
+            if (typeof event.data !== "string") return;
+            let payload: any;
+            try {
+                payload = JSON.parse(event.data);
+            } catch {
+                return;
+            }
+            if (payload?.type === "ready") {
+                authoritative = Boolean(payload.authoritative);
+                onReady?.({ authoritative });
+                return;
+            }
+            if (payload?.type === "partial") {
+                lastText = payload.text || lastText;
+                onPartial?.(lastText);
+                return;
+            }
+            if (payload?.type === "final") {
+                lastText = payload.text || lastText;
+                onFinal?.(lastText);
+                if (settleStop) {
+                    const done = settleStop;
+                    settleStop = null;
+                    done(result());
+                }
+                return;
+            }
+            if (payload?.type === "error") {
+                onError?.(payload.message || "Live transcription error");
+            }
+        };
+
+        const sendPcm = (samples: Int16Array) => {
+            if (socket.readyState !== WebSocket.OPEN || !samples?.length) return;
+            const bytes = new Uint8Array(
+                samples.buffer,
+                samples.byteOffset,
+                samples.byteLength,
+            );
+            socket.send(bytes);
+        };
+
+        const close = () => {
+            try {
+                if (
+                    socket.readyState === WebSocket.OPEN ||
+                    socket.readyState === WebSocket.CONNECTING
+                ) {
+                    socket.close();
+                }
+            } catch {
+                // already closed
+            }
+        };
+
+        const stop = () =>
+            new Promise<{ text: string; authoritative: boolean }>((resolve) => {
+                if (socket.readyState !== WebSocket.OPEN) {
+                    resolve(result());
+                    return;
+                }
+                const timer = window.setTimeout(() => {
+                    settleStop = null;
+                    resolve(result());
+                    close();
+                }, 8000);
+                settleStop = (value) => {
+                    window.clearTimeout(timer);
+                    resolve(value);
+                };
+                try {
+                    socket.send(JSON.stringify({ type: "stop" }));
+                } catch {
+                    window.clearTimeout(timer);
+                    resolve(result());
+                }
+            });
+
+        await new Promise<void>((resolve, reject) => {
+            const timer = window.setTimeout(() => {
+                if (!opened) {
+                    close();
+                    reject(new Error("Live transcription timed out"));
+                }
+            }, 8000);
+            socket.onopen = () => {
+                opened = true;
+                window.clearTimeout(timer);
+                resolve();
+            };
+            socket.onerror = () => {
+                if (!opened) {
+                    window.clearTimeout(timer);
+                    reject(new Error("Live transcription unavailable"));
+                }
+            };
+            socket.onclose = () => {
+                if (settleStop) {
+                    const done = settleStop;
+                    settleStop = null;
+                    done(result());
+                }
+            };
+        });
+
+        return { sendPcm, stop, close };
     },
 };

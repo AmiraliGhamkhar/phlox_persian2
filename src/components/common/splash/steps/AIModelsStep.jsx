@@ -253,9 +253,9 @@ export const AIModelsStep = ({ llm, transcription }) => {
                 className="pill-box-icons"
               >
                 <Text fontSize="xs">
-                  مدل ASR داخلی Omi Med فقط انگلیسی را پشتیبانی می‌کند. برای
-                  پیاده‌سازی فارسی یا ترکیبی فارسی و انگلیسی، حالت «استفاده از
-                  API خارجی» و یک ASR چندزبانه را انتخاب کنید.
+                  Whisper large-v3-turbo چندزبانه است و فارسی و انگلیسی ترکیبی را
+                  پیاده‌سازی می‌کند. Shenava برای فارسی محلی است؛ Parakeet مدل
+                  کوچک چندزبانه است و فارسی را پوشش نمی‌دهد.
                 </Text>
               </Box>
 
@@ -390,7 +390,7 @@ export const AIModelsStep = ({ llm, transcription }) => {
                           الزامی
                         </Badge>
                         <Tooltip
-                          content={`برای تشخیص گفتار الزامی است. Omi Med ASR مدل پزشکی داخلی برنامه است. (${RECOMMENDED_WHISPER.size_mb}MB)`}
+                          content={`برای تشخیص گفتار الزامی است. Whisper large-v3-turbo مدل پیشنهادی چندزبانه است. (${RECOMMENDED_WHISPER.size_mb}MB)`}
                           showArrow
                         >
                           <InfoIcon boxSize={3} color="textSecondary" />
@@ -533,6 +533,8 @@ export const AIModelsStep = ({ llm, transcription }) => {
       {/* Remote mode */}
       {!isLocal && (
         <RemoteModeForm
+          llmProvider={llm.llmProvider}
+          setLlmProvider={llm.setLlmProvider}
           llmBaseUrl={llmBaseUrl}
           setLlmBaseUrl={setLlmBaseUrl}
           llmApiKey={llmApiKey}

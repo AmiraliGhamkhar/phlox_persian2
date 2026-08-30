@@ -20,6 +20,7 @@ import { localModelApi } from "../utils/api/localModelApi";
 import { isTauri } from "../utils/helpers/apiConfig";
 import { useDebounce } from "../utils/hooks/useDebounce";
 import { useAutosave } from "../utils/hooks/useAutosave";
+import { embeddingProviderIdForLlm } from "../utils/aiProviders";
 
 const Settings = () => {
     const [userSettings, setUserSettings] = useState({
@@ -50,6 +51,10 @@ const Settings = () => {
     const [whisperModelOptions, setWhisperModelOptions] = useState([]);
     const [whisperModelListAvailable, setWhisperModelListAvailable] =
         useState(false);
+    const [llmProviders, setLlmProviders] = useState([]);
+    const [asrProviders, setAsrProviders] = useState([]);
+    const [embeddingProviders, setEmbeddingProviders] = useState([]);
+    const [embeddingModelOptions, setEmbeddingModelOptions] = useState([]);
 
     const [urlStatus, setUrlStatus] = useState({
         whisper: false,
@@ -70,6 +75,14 @@ const Settings = () => {
             setCoreLoading(true);
             const configData = await settingsApi.fetchConfig();
             setConfig(configData);
+            try {
+                const catalog = await settingsApi.fetchProviders();
+                setLlmProviders(catalog?.llm || []);
+                setAsrProviders(catalog?.asr || []);
+                setEmbeddingProviders(catalog?.embedding || []);
+            } catch (error) {
+                console.error("Error loading AI provider catalog:", error);
+            }
 
             // Letter templates fetched here instead of a separate useEffect
             const [letterResponse, prompts, optionsData, userSettings, templates] = await Promise.all([
@@ -148,7 +161,11 @@ const Settings = () => {
 
     useEffect(() => {
         const validateUrls = async () => {
-            if (debouncedWhisperUrl && debouncedAsrProvider !== "speechmatics" && debouncedAsrProvider !== "local") {
+            if (
+                debouncedWhisperUrl &&
+                debouncedAsrProvider !== "speechmatics" &&
+                debouncedAsrProvider !== "local"
+            ) {
                 const whisperValid = await settingsApi.validateUrl(
                     "whisper",
                     debouncedWhisperUrl,
@@ -159,8 +176,7 @@ const Settings = () => {
             }
 
             if (debouncedLlmBaseUrl) {
-                // Use provider type from config for URL validation
-                const providerType = debouncedLlmProvider || "openai";
+                const providerType = debouncedLlmProvider || "ollama";
                 const llmValid = await settingsApi.validateUrl(
                     providerType,
                     debouncedLlmBaseUrl,
@@ -177,10 +193,20 @@ const Settings = () => {
     useEffect(() => {
         const refreshWhisperModels = async () => {
             // Guard: don't clear existing models during debounce settling
-            if (debouncedAsrProvider === "speechmatics") {
+            if (debouncedAsrProvider === "speechmatics" || debouncedAsrProvider === "fireworks") {
                 setWhisperModelsLoading(false);
-                setWhisperModelOptions([]);
-                setWhisperModelListAvailable(false);
+                if (debouncedAsrProvider === "fireworks") {
+                    setWhisperModelOptions([
+                        "fireworks-asr-v2",
+                        "fireworks-asr-large",
+                        "whisper-v3-turbo",
+                        "whisper-v3",
+                    ]);
+                    setWhisperModelListAvailable(true);
+                } else {
+                    setWhisperModelOptions([]);
+                    setWhisperModelListAvailable(false);
+                }
                 return;
             }
 
@@ -220,6 +246,7 @@ const Settings = () => {
                     debouncedWhisperUrl,
                     setWhisperModelOptions,
                     setWhisperModelListAvailable,
+                    debouncedAsrProvider,
                 );
             } catch (error) {
                 console.error("Error refreshing Whisper models:", error);
@@ -236,7 +263,7 @@ const Settings = () => {
     useEffect(() => {
         const refreshLlmModels = async () => {
             // Local mode uses local model manager, not remote model listing
-            if ((config?.LLM_PROVIDER || "openai") === "local") {
+            if ((config?.LLM_PROVIDER || "ollama") === "local") {
                 return;
             }
 
@@ -249,7 +276,7 @@ const Settings = () => {
             try {
                 await settingsService.fetchLLMModels(
                     {
-                        LLM_PROVIDER: debouncedLlmProvider || "openai",
+                        LLM_PROVIDER: debouncedLlmProvider || "ollama",
                         LLM_BASE_URL: debouncedLlmBaseUrl,
                         LLM_API_KEY: debouncedLlmApiKey,
                     },
@@ -269,6 +296,37 @@ const Settings = () => {
         debouncedLlmProvider,
         debouncedLlmApiKey,
         config?.LLM_PROVIDER,
+    ]);
+
+    const debouncedEmbeddingProvider = useDebounce(config?.EMBEDDING_PROVIDER, 500);
+    const debouncedEmbeddingUrl = useDebounce(config?.EMBEDDING_BASE_URL, 500);
+
+    useEffect(() => {
+        const refreshEmbeddingModels = async () => {
+            const provider =
+                debouncedEmbeddingProvider ||
+                embeddingProviderIdForLlm(config?.LLM_PROVIDER);
+            if (!provider || provider === "local") {
+                setEmbeddingModelOptions(["Qwen3-Embedding-0.6B-Q8_0"]);
+                return;
+            }
+            try {
+                const response = await settingsApi.fetchEmbeddingModels(
+                    provider,
+                    debouncedEmbeddingUrl || config?.LLM_BASE_URL,
+                );
+                setEmbeddingModelOptions(response.models || []);
+            } catch (error) {
+                console.error("Error refreshing embedding models:", error);
+                setEmbeddingModelOptions([]);
+            }
+        };
+        refreshEmbeddingModels();
+    }, [
+        debouncedEmbeddingProvider,
+        debouncedEmbeddingUrl,
+        config?.LLM_PROVIDER,
+        config?.LLM_BASE_URL,
     ]);
 
     // Load local models when provider is "local"
@@ -488,13 +546,16 @@ const Settings = () => {
                     config={config}
                     handleConfigChange={handleConfigChange}
                     modelOptions={modelOptions}
-                    embeddingModelOptions={modelOptions}
+                    embeddingModelOptions={embeddingModelOptions}
                     whisperModelOptions={whisperModelOptions}
                     whisperModelListAvailable={whisperModelListAvailable}
                     whisperModelsLoading={whisperModelsLoading}
                     llmModelsLoading={llmModelsLoading}
                     urlStatus={urlStatus}
                     handleReEmbed={handleReEmbed}
+                    llmProviders={llmProviders}
+                    asrProviders={asrProviders}
+                    embeddingProviders={embeddingProviders}
                 />
 
                 <PromptSettingsPanel

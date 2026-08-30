@@ -5,7 +5,6 @@ This module provides the ChatEngine class which coordinates between
 the LLM client, VectorStoreManager, and tool execution.
 """
 
-import json
 import logging
 import re
 from typing import Any
@@ -17,8 +16,16 @@ from server.chat.streaming.response import (
     start_message,
     status_message,
     stream_llm_response,
+    tool_response_message,
 )
 from server.chat.tools import execute_tool_streaming, get_tools_definition
+from server.chat.tools.call_parser import (
+    accumulate_tool_call,
+    finalized_tool_calls,
+    parse_tool_arguments,
+    tool_call_id,
+    tool_function_name,
+)
 from server.database.config.manager import config_manager
 from server.llm_client.client import get_llm_client
 from server.rag.vector_store import VECTOR_STORE_AVAILABLE, VectorStoreManager
@@ -94,7 +101,7 @@ class ChatEngine:
             else []
         )
 
-        context_question_options = prompts["options"]["general"]
+        context_question_options = dict(prompts["options"]["general"])
         context_question_options.pop("stop", None)
 
         # Register the active patient so external-search tools strip these
@@ -115,10 +122,23 @@ class ChatEngine:
         template_fields = patient_context.get("template_fields") if patient_context else None
         message_list = build_system_messages(patient_context, template_fields) + filtered_history
 
-        self.logger.info(f"Message list: {message_list}")
+        self.logger.info(
+            "Prepared %d chat messages (roles: %s)",
+            len(message_list),
+            [m.get("role") for m in message_list],
+        )
 
         # First call to determine if we need literature or direct response
         self.logger.info("Initial LLM call to determine tool usage...")
+
+        try:
+            from server.mcp.client import ensure_mcp_tools_cache
+
+            await ensure_mcp_tools_cache()
+        except ImportError:
+            pass
+        except Exception:
+            self.logger.warning("MCP tools cache warmup failed", exc_info=True)
 
         # Get tool definitions (always includes built-in tools)
         tools = get_tools_definition(collection_names)
@@ -185,32 +205,7 @@ class ChatEngine:
                         # Handle tool calls
                         if "tool_calls" in msg and msg["tool_calls"]:
                             for tc in msg["tool_calls"]:
-                                # OpenAI yields ChoiceDeltaToolCall objects with an index
-                                if hasattr(tc, "index"):
-                                    idx = tc.index
-                                    if idx not in accumulated_tool_calls:
-                                        accumulated_tool_calls[idx] = {
-                                            "id": getattr(tc, "id", ""),
-                                            "type": getattr(tc, "type", "function"),
-                                            "function": {"name": "", "arguments": ""},
-                                        }
-                                    if hasattr(tc, "function") and tc.function:
-                                        if hasattr(tc.function, "name") and tc.function.name:
-                                            accumulated_tool_calls[idx]["function"]["name"] += (
-                                                tc.function.name
-                                            )
-                                        if (
-                                            hasattr(tc.function, "arguments")
-                                            and tc.function.arguments
-                                        ):
-                                            accumulated_tool_calls[idx]["function"][
-                                                "arguments"
-                                            ] += tc.function.arguments
-                                # Ollama might yield dictionaries
-                                elif isinstance(tc, dict):
-                                    # Ollama usually yields the full tool call at the end of the stream
-                                    idx = len(accumulated_tool_calls)
-                                    accumulated_tool_calls[idx] = tc
+                                accumulate_tool_call(accumulated_tool_calls, tc)
 
                 # If the stream ended while still in thinking mode, close the <think> block
                 if thinking_open:
@@ -219,8 +214,8 @@ class ChatEngine:
                     yield chunk_message(closing_tag)
                     thinking_open = False
 
-                # Flatten tool calls into a list
-                final_tool_calls = [v for k, v in sorted(accumulated_tool_calls.items())]
+                # Flatten tool calls into a list (skip nameless stream fragments)
+                final_tool_calls = finalized_tool_calls(accumulated_tool_calls)
 
                 # Format the assistant message for history
                 assistant_message: dict[str, Any] = {"role": "assistant"}
@@ -239,52 +234,59 @@ class ChatEngine:
                     )
                     generated_final_answer = True
                     break
-                else:
-                    # Check if the tool is direct_response
-                    if final_tool_calls[0]["function"]["name"] == "direct_response":
-                        self.logger.info(
-                            "LLM called direct_response tool. Breaking loop and streaming fallback."
+
+                executable_calls = [
+                    tc for tc in final_tool_calls if tool_function_name(tc) != "direct_response"
+                ]
+                if not executable_calls:
+                    self.logger.info(
+                        "LLM called direct_response tool. Breaking loop and streaming fallback."
+                    )
+                    message_list.pop()
+                    yield status_message("Generating response...")
+                    async for chunk in stream_llm_response(
+                        llm_client=self.llm_client,
+                        model=self.config["PRIMARY_MODEL"],
+                        messages=message_list,
+                        options=context_question_options,
+                    ):
+                        yield chunk
+                    generated_final_answer = True
+                    break
+
+                # OpenAI/Anthropic require a tool result for every tool_call_id
+                # in this turn — including skipped direct_response siblings.
+                for skipped in final_tool_calls:
+                    if tool_function_name(skipped) != "direct_response":
+                        continue
+                    message_list.append(
+                        tool_response_message(
+                            tool_call_id=tool_call_id(skipped),
+                            content=(
+                                '<tool_result tool="direct_response">\n'
+                                "Skipped because other tools were requested in this turn.\n"
+                                "</tool_result>"
+                            ),
                         )
-                        message_list.pop()
-                        yield status_message("Generating response...")
-                        async for chunk in stream_llm_response(
-                            llm_client=self.llm_client,
-                            model=self.config["PRIMARY_MODEL"],
-                            messages=message_list,
-                            options=context_question_options,
-                        ):
-                            yield chunk
-                        generated_final_answer = True
-                        break
+                    )
 
-                    # Execute the tool call and emit an explicit status event to the UI
-                    tool_call = final_tool_calls[0]
-                    tool_name = tool_call["function"]["name"]
+                self.logger.info(
+                    "Executing %d tool call(s): %s",
+                    len(executable_calls),
+                    [tool_function_name(tc) for tc in executable_calls],
+                )
 
-                    # Include key args (like query) so the UI can show what is being executed
-                    tool_args_raw = tool_call.get("function", {}).get("arguments", "") or ""
+                for tool_call in executable_calls:
+                    tool_name = tool_function_name(tool_call)
+                    parsed_args = parse_tool_arguments(tool_call)
                     tool_query = ""
-
-                    try:
-                        parsed_args = {}
-                        if isinstance(tool_args_raw, str) and tool_args_raw.strip():
-                            parsed_args = json.loads(tool_args_raw)
-                        elif isinstance(tool_args_raw, dict):
-                            parsed_args = tool_args_raw
-
-                        if isinstance(parsed_args, dict):
-                            for key in ("query", "search_query", "topic", "question", "disease"):
-                                value = parsed_args.get(key)
-                                if isinstance(value, str) and value.strip():
-                                    tool_query = value.strip()
-                                    break
-                    except Exception:
-                        # If arguments are malformed, still emit a useful status without query details
-                        tool_query = ""
+                    for key in ("query", "search_query", "topic", "question", "disease"):
+                        value = parsed_args.get(key)
+                        if isinstance(value, str) and value.strip():
+                            tool_query = value.strip()[:200]
+                            break
 
                     if tool_query:
-                        # Keep status concise for UI rendering
-                        tool_query = tool_query[:200]
                         yield status_message(f"Calling tool: {tool_name} | query: {tool_query}")
                     else:
                         yield status_message(f"Calling tool: {tool_name}")
@@ -298,12 +300,9 @@ class ChatEngine:
                     ):
                         if result.get("type") == "end":
                             function_response = result.get("function_response")
-                            # We MUST append the tool's response to the message_list to continue the loop
+                            # We MUST append the tool's response to the message_list
+                            # so the next LLM turn sees every tool_call_id.
                             if function_response and "content" in function_response:
-                                from server.chat.streaming.response import (
-                                    tool_response_message,
-                                )
-
                                 tool_content = function_response["content"]
                                 if not isinstance(tool_content, str):
                                     tool_content = str(tool_content)
@@ -335,7 +334,7 @@ class ChatEngine:
 
                                 message_list.append(
                                     tool_response_message(
-                                        tool_call_id=str(final_tool_calls[0].get("id", "")),
+                                        tool_call_id=tool_call_id(tool_call),
                                         content=fenced_content,
                                     )
                                 )

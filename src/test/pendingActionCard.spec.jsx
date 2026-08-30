@@ -89,6 +89,7 @@ describe("PendingActionCard", () => {
         await waitFor(() => {
             expect(screen.getByText(/اجرا شد/)).toBeInTheDocument();
         });
+        expect(screen.getAllByText("ok").length).toBeGreaterThan(0);
     });
 
     it("marks the card cancelled and never calls confirm on cancel", async () => {

@@ -1,6 +1,7 @@
 import { useState, useCallback, useRef } from "react";
 import { chatApi } from "../api/chatApi";
 import { formatPatientContext } from "../chat/messageUtils";
+import { normalizeChatArtifacts } from "../chat/artifacts";
 
 // Simple mode for RAG chat (no patient/template required)
 const RAG_SYSTEM_MESSAGE = {
@@ -38,8 +39,20 @@ const getClinicianToolActionLabel = (toolName = "") => {
     if (normalized.includes("search_patient_notes")) {
         return "Searching patient notes";
     }
+    if (normalized.includes("search_patients_by_condition")) {
+        return "Searching patients by condition";
+    }
+    if (normalized.includes("search_patient")) {
+        return "Searching patients";
+    }
     if (normalized.includes("get_patient_jobs")) {
         return "Fetching patient tasks";
+    }
+    if (normalized.includes("fill_pdf_form")) {
+        return "Filling PDF form";
+    }
+    if (normalized.includes("list_pdf_form")) {
+        return "Listing PDF form templates";
     }
 
     // Job/Task tools

@@ -38,6 +38,9 @@ const ModelSettingsPanel = ({
     urlStatus = { whisper: false, llm: false },
     embeddingModelOptions = [],
     handleReEmbed,
+    llmProviders = [],
+    asrProviders = [],
+    embeddingProviders = [],
 }) => {
     const [localStatus, setLocalStatus] = useState(null);
     const [isDocker, setIsDocker] = useState(false);
@@ -312,6 +315,7 @@ const ModelSettingsPanel = ({
                                             whisperModelsLoading
                                         }
                                         urlStatus={urlStatus}
+                                        asrProviders={asrProviders}
                                     />
                                 </Tabs.Content>
                                 <Tabs.Content
@@ -324,6 +328,7 @@ const ModelSettingsPanel = ({
                                         modelOptions={modelOptions}
                                         llmModelsLoading={llmModelsLoading}
                                         urlStatus={urlStatus}
+                                        llmProviders={llmProviders}
                                     />
                                 </Tabs.Content>
                                 {isRagEnabled() && (
@@ -338,6 +343,8 @@ const ModelSettingsPanel = ({
                                             }
                                             llmModelsLoading={llmModelsLoading}
                                             handleReEmbed={handleReEmbed}
+                                            handleConfigChange={handleConfigChange}
+                                            embeddingProviders={embeddingProviders}
                                         />
                                     </Tabs.Content>
                                 )}

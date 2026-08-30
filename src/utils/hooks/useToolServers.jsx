@@ -24,6 +24,14 @@ export const useToolServers = () => {
         mutate: mutateUserSettings,
     } = useSWR(KEYS.USER_SETTINGS, () => settingsApi.fetchUserSettings());
 
+    const {
+        data: cachedMcpTools = [],
+        mutate: mutateCachedTools,
+    } = useSWR(KEYS.MCP_CACHED_TOOLS, async () => {
+        const data = await toolsApi.fetchCachedTools();
+        return data?.tools || [];
+    });
+
     const disabledTools = useMemo(
         () => userSettings.disabled_tools || DEFAULT_DISABLED_TOOLS,
         [userSettings],
@@ -40,7 +48,7 @@ export const useToolServers = () => {
                 await toolsApi.addToolServer(serverData);
                 await toolsApi.refreshTools();
                 toastApiSuccess("Tool server added successfully");
-                await mutateServers();
+                await Promise.all([mutateServers(), mutateCachedTools()]);
                 return true;
             } catch (error) {
                 console.error("Error adding tool server:", error);
@@ -50,7 +58,7 @@ export const useToolServers = () => {
                 setIsLoading(false);
             }
         },
-        [mutateServers],
+        [mutateServers, mutateCachedTools],
     );
 
     const deleteServer = useCallback(
@@ -60,7 +68,7 @@ export const useToolServers = () => {
                 await toolsApi.deleteToolServer(serverId);
                 await toolsApi.refreshTools();
                 toastApiSuccess("Tool server deleted");
-                await mutateServers();
+                await Promise.all([mutateServers(), mutateCachedTools()]);
                 return true;
             } catch (error) {
                 console.error("Error deleting tool server:", error);
@@ -70,7 +78,7 @@ export const useToolServers = () => {
                 setIsLoading(false);
             }
         },
-        [mutateServers],
+        [mutateServers, mutateCachedTools],
     );
 
     const toggleServer = useCallback(
@@ -80,7 +88,7 @@ export const useToolServers = () => {
                 await toolsApi.toggleToolServer(serverId, enabled);
                 await toolsApi.refreshTools();
                 toastApiSuccess(`Tool server ${enabled ? "enabled" : "disabled"}`);
-                await mutateServers();
+                await Promise.all([mutateServers(), mutateCachedTools()]);
                 return true;
             } catch (error) {
                 console.error("Error toggling tool server:", error);
@@ -90,7 +98,7 @@ export const useToolServers = () => {
                 setIsLoading(false);
             }
         },
-        [mutateServers],
+        [mutateServers, mutateCachedTools],
     );
 
     const toggleSensitiveData = useCallback(
@@ -104,7 +112,7 @@ export const useToolServers = () => {
                 toastApiSuccess(
                     `Sensitive data ${allowSensitive ? "allowed" : "sanitized"}`,
                 );
-                await mutateServers();
+                await Promise.all([mutateServers(), mutateCachedTools()]);
                 return true;
             } catch (error) {
                 console.error("Error toggling sensitive data:", error);
@@ -114,7 +122,7 @@ export const useToolServers = () => {
                 setIsLoading(false);
             }
         },
-        [mutateServers],
+        [mutateServers, mutateCachedTools],
     );
 
     const testServer = useCallback(async (serverId) => {
@@ -129,6 +137,8 @@ export const useToolServers = () => {
                     ? `${serverName}${serverVersion ? ` v${serverVersion}` : ""} - ${toolCount} tools`
                     : `Found ${toolCount} tools`;
                 toastApiSuccess(description, "Connection Successful");
+                await toolsApi.refreshTools();
+                await Promise.all([mutateServers(), mutateCachedTools()]);
                 return true;
             }
             toastApiError(
@@ -143,7 +153,7 @@ export const useToolServers = () => {
         } finally {
             setTestingServerId(null);
         }
-    }, []);
+    }, [mutateServers, mutateCachedTools]);
 
     const toggleBuiltInTool = useCallback(
         async (toolName, enabled) => {
@@ -177,8 +187,27 @@ export const useToolServers = () => {
         [disabledTools],
     );
 
+    const toggleMcpTool = useCallback(
+        async (serverId, toolName, enabled) => {
+            try {
+                await toolsApi.toggleMcpTool(serverId, toolName, enabled);
+                await mutateServers();
+                toastApiSuccess(
+                    `${toolName} ${enabled ? "enabled" : "disabled"}`,
+                );
+                return true;
+            } catch (error) {
+                console.error("Error toggling MCP tool:", error);
+                toastApiError("Failed to update MCP tool");
+                return false;
+            }
+        },
+        [mutateServers],
+    );
+
     return {
         toolServers,
+        cachedMcpTools,
         isLoading,
         testingServerId,
         userSettings,
@@ -189,6 +218,7 @@ export const useToolServers = () => {
         toggleSensitiveData,
         testServer,
         toggleBuiltInTool,
+        toggleMcpTool,
         isToolEnabled,
         refreshServers,
     };

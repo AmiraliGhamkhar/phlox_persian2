@@ -4,6 +4,7 @@ import { Tooltip } from "@/components/ui/tooltip";
 import { CheckCircleIcon } from "../common/icons";
 import { useState, useEffect } from "react";
 import { chatApi } from "../../utils/api/chatApi";
+import { applyLlmProviderDefaults } from "../../utils/aiProviders";
 
 const LlmTab = ({
     config,
@@ -11,12 +12,16 @@ const LlmTab = ({
     modelOptions,
     llmModelsLoading = false,
     urlStatus = { llm: false },
+    llmProviders = [],
 }) => {
     const [isProbingVision, setIsProbingVision] = useState(false);
     const [visionProbeDetail, setVisionProbeDetail] = useState("");
     const [visionProbeStatus, setVisionProbeStatus] = useState("info");
     const [currentVisionCapability, setCurrentVisionCapability] =
         useState(null);
+    const selectedProvider = llmProviders.find(
+        (item) => item.id === (config?.LLM_PROVIDER || "ollama"),
+    );
 
     const loadCurrentVisionCapability = async () => {
         try {
@@ -99,6 +104,55 @@ const LlmTab = ({
 
             <VStack gap={3} align="stretch">
                 <Box>
+                    <Text fontSize="sm" mb="1" fontWeight={"bold"}>
+                        ارائه‌دهنده مدل زبانی
+                    </Text>
+                    <NativeSelect.Root>
+                        <NativeSelect.Field
+                            size="sm"
+                            value={config?.LLM_PROVIDER || "ollama"}
+                            onChange={(event) =>
+                                applyLlmProviderDefaults(
+                                    event.target.value,
+                                    handleConfigChange,
+                                )
+                            }
+                            className="input-style"
+                        >
+                            {(llmProviders.length
+                                ? llmProviders
+                                : [
+                                      { id: "ollama", name: "Ollama" },
+                                      { id: "lmstudio", name: "LM Studio" },
+                                      { id: "llamacpp", name: "llama.cpp server" },
+                                      { id: "ninerouter", name: "9Router" },
+                                      { id: "omniroute", name: "OmniRoute" },
+                                      { id: "openai", name: "OpenAI" },
+                                      { id: "anthropic", name: "Anthropic" },
+                                      { id: "fireworks", name: "Fireworks AI" },
+                                      {
+                                          id: "openai_compatible",
+                                          name: "Custom OpenAI-compatible",
+                                      },
+                                  ]
+                            )
+                                .filter((item) => item.id !== "local")
+                                .map((item) => (
+                                    <option key={item.id} value={item.id}>
+                                        {item.name_fa || item.name}
+                                    </option>
+                                ))}
+                        </NativeSelect.Field>
+                        <NativeSelect.Indicator />
+                    </NativeSelect.Root>
+                    <Text fontSize="xs" color="overlay0" mt={1}>
+                        {llmProviders.find((item) => item.id === config?.LLM_PROVIDER)
+                            ?.help_fa ||
+                            "Ollama، LM Studio، llama.cpp، 9Router، OmniRoute، OpenAI و Anthropic پشتیبانی می‌شوند."}
+                    </Text>
+                </Box>
+
+                <Box>
                     <Tooltip content="نشانی پایه نقطه پایانی API مدل زبانی سازگار با OpenAI/Ollama">
                         <Text fontSize="sm" mb="1" fontWeight={"bold"}>
                             OpenAI/Ollama API Base URL
@@ -122,7 +176,10 @@ const LlmTab = ({
                                     e.target.value,
                                 )
                             }
-                            placeholder="https://api.example.com"
+                            placeholder={
+                                selectedProvider?.placeholder_url ||
+                                "https://api.example.com"
+                            }
                             className="input-style"
                         />
                     </InputGroup>

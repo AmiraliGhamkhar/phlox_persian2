@@ -91,4 +91,28 @@ export const toolsApi = {
       },
       errorMessage: "Failed to refresh tools",
     }),
+
+  fetchCachedTools: async () =>
+    handleApiRequest({
+      apiCall: async () => {
+        const url = await buildApiUrl("/api/config/mcp/cached-tools");
+        return universalFetch(url);
+      },
+      errorMessage: "Failed to fetch MCP tools",
+    }),
+
+  toggleMcpTool: async (serverId, toolName, enabled) =>
+    handleApiRequest({
+      apiCall: async () => {
+        const url = await buildApiUrl(
+          `/api/config/mcp/${serverId}/tools/toggle`,
+        );
+        return universalFetch(url, {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ tool_name: toolName, disabled: !enabled }),
+        });
+      },
+      errorMessage: `Failed to ${enabled ? "enable" : "disable"} MCP tool`,
+    }),
 };

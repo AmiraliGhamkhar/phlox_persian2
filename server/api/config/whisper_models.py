@@ -204,13 +204,22 @@ async def get_whisper_model_recommendations():
     recommendations = []
     for model in asr_model_manager.get_available_models():
         is_recommended = model["id"] == "whisper-large-v3-turbo-q5_0"
+        badge = None
+        if is_recommended:
+            badge = "⭐ پیشنهادشده"
+        elif model["id"].startswith("parakeet-") and model.get("supports_streaming"):
+            badge = "زنده"
+        elif model["id"].startswith("parakeet-"):
+            badge = "کوچک"
+        elif not model.get("supports_persian"):
+            badge = "بدون فارسی"
         recommendations.append(
             {
                 **model,
                 "simple_name": model["name"],
                 "size": f"{model['size_mb']}MB",
                 "recommendedType": "recommended" if is_recommended else "alternative",
-                "badge": "⭐ پیشنهادشده" if is_recommended else None,
+                "badge": badge,
                 "badge_color": "purple" if is_recommended else None,
             }
         )

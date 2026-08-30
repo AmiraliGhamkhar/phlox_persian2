@@ -10,6 +10,7 @@ import {
 } from "@chakra-ui/react";
 import { Tooltip } from "@/components/ui/tooltip";
 import { CheckCircleIcon } from "../common/icons";
+import { applyAsrProviderDefaults } from "../../utils/aiProviders";
 
 const WhisperTab = ({
     config,
@@ -18,10 +19,14 @@ const WhisperTab = ({
     whisperModelListAvailable = false,
     whisperModelsLoading = false,
     urlStatus = { whisper: false },
+    asrProviders = [],
 }) => {
     const provider = config?.ASR_PROVIDER || "openai_compatible";
     const isExternalProvider = provider !== "local";
     const modelValue = config?.ASR_MODEL || config?.WHISPER_MODEL || "";
+    const selectedAsr = asrProviders.find((item) => item.id === provider);
+    const urlPlaceholder =
+        selectedAsr?.placeholder_url || "https://asr.example.com";
 
     const updateModel = (value) => {
         handleConfigChange("ASR_MODEL", value);
@@ -54,13 +59,28 @@ const WhisperTab = ({
                             size="sm"
                             value={provider}
                             onChange={(event) =>
-                                handleConfigChange("ASR_PROVIDER", event.target.value)
+                                applyAsrProviderDefaults(
+                                    event.target.value,
+                                    handleConfigChange,
+                                )
                             }
                             className="input-style"
                         >
-                            <option value="local">مدل محلی؛ Whisper.cpp یا Shenava</option>
-                            <option value="openai_compatible">سرویس سازگار با OpenAI</option>
-                            <option value="speechmatics">Speechmatics؛ بلادرنگ</option>
+                            {(asrProviders.length
+                                ? asrProviders
+                                : [
+                                      { id: "local", name_fa: "مدل محلی؛ Whisper.cpp، Parakeet یا Shenava" },
+                                      { id: "openai_compatible", name_fa: "سرویس سازگار با OpenAI" },
+                                      { id: "openai", name_fa: "OpenAI Audio" },
+                                      { id: "whispercpp", name_fa: "سرور Whisper.cpp" },
+                                      { id: "speechmatics", name_fa: "Speechmatics؛ بلادرنگ" },
+                                      { id: "fireworks", name_fa: "Fireworks AI ASR" },
+                                  ]
+                            ).map((item) => (
+                                <option key={item.id} value={item.id}>
+                                    {item.name_fa || item.name}
+                                </option>
+                            ))}
                         </NativeSelect.Field>
                         <NativeSelect.Indicator />
                     </NativeSelect.Root>
@@ -91,7 +111,9 @@ const WhisperTab = ({
                     </NativeSelect.Root>
                 </Box>
 
-                {provider === "openai_compatible" && (
+                {["openai_compatible", "openai", "whispercpp", "fireworks"].includes(
+                    provider,
+                ) && (
                     <Box>
                         <Tooltip content="نشانی پایه سرویس سازگار با OpenAI را وارد کنید.">
                             <Text fontSize="sm" mb="1" fontWeight="bold">
@@ -117,7 +139,7 @@ const WhisperTab = ({
                                     handleConfigChange("ASR_BASE_URL", event.target.value);
                                     handleConfigChange("WHISPER_BASE_URL", event.target.value);
                                 }}
-                                placeholder="https://api.openai.com"
+                                placeholder={urlPlaceholder}
                                 className="input-style"
                             />
                         </InputGroup>
@@ -147,6 +169,21 @@ const WhisperTab = ({
                             >
                                 <option value="enhanced">حالت پیشرفته؛ دقت بالاتر</option>
                                 <option value="standard">حالت استاندارد؛ سرعت بالاتر</option>
+                            </NativeSelect.Field>
+                            <NativeSelect.Indicator />
+                        </NativeSelect.Root>
+                    ) : provider === "fireworks" && !whisperModelListAvailable ? (
+                        <NativeSelect.Root>
+                            <NativeSelect.Field
+                                size="sm"
+                                value={modelValue || "fireworks-asr-v2"}
+                                onChange={(event) => updateModel(event.target.value)}
+                                className="input-style"
+                            >
+                                <option value="fireworks-asr-v2">Fireworks ASR v2 (زنده)</option>
+                                <option value="fireworks-asr-large">Fireworks ASR Large (زنده)</option>
+                                <option value="whisper-v3-turbo">Whisper v3 Turbo (دسته‌ای)</option>
+                                <option value="whisper-v3">Whisper v3 (دسته‌ای)</option>
                             </NativeSelect.Field>
                             <NativeSelect.Indicator />
                         </NativeSelect.Root>

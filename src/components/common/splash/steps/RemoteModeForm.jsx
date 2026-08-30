@@ -11,6 +11,8 @@ import { Tooltip } from "@/components/ui/tooltip";
 import { InfoIcon } from "../../icons";
 
 export const RemoteModeForm = ({
+  llmProvider,
+  setLlmProvider,
   llmBaseUrl,
   setLlmBaseUrl,
   llmApiKey,
@@ -35,6 +37,31 @@ export const RemoteModeForm = ({
 }) => {
   return (
     <VStack gap={3} w="100%">
+      <Field.Root>
+        <Field.Label fontSize="sm" color="textSecondary">
+          ارائه‌دهنده مدل زبانی
+        </Field.Label>
+        <NativeSelect.Root>
+          <NativeSelect.Field
+            value={llmProvider || "ollama"}
+            onChange={(e) => setLlmProvider(e.target.value)}
+            className="input-style"
+            size="sm"
+          >
+            <option value="ollama">Ollama</option>
+            <option value="lmstudio">LM Studio</option>
+            <option value="llamacpp">llama.cpp server</option>
+            <option value="ninerouter">9Router</option>
+            <option value="omniroute">OmniRoute</option>
+            <option value="openai">OpenAI</option>
+            <option value="anthropic">Anthropic</option>
+            <option value="fireworks">Fireworks AI</option>
+            <option value="openai_compatible">سفارشی سازگار با OpenAI</option>
+          </NativeSelect.Field>
+          <NativeSelect.Indicator />
+        </NativeSelect.Root>
+      </Field.Root>
+
       <Field.Root>
         <HStack>
           <Field.Label fontSize="sm" color="textSecondary">
@@ -138,7 +165,10 @@ export const RemoteModeForm = ({
               size="sm"
             >
               <option value="openai_compatible">سرویس سازگار با OpenAI</option>
+              <option value="openai">OpenAI Audio</option>
+              <option value="whispercpp">سرور Whisper.cpp</option>
               <option value="speechmatics">Speechmatics؛ بلادرنگ</option>
+              <option value="fireworks">Fireworks AI ASR</option>
             </NativeSelect.Field>
             <NativeSelect.Indicator />
           </NativeSelect.Root>
@@ -162,7 +192,9 @@ export const RemoteModeForm = ({
           </NativeSelect.Root>
         </Field.Root>
 
-        {asrProvider === "openai_compatible" && (
+        {["openai_compatible", "openai", "whispercpp", "fireworks"].includes(
+          asrProvider,
+        ) && (
           <Field.Root>
             <Field.Label fontSize="sm" color="textSecondary">
               نشانی سرویس ASR
@@ -178,10 +210,10 @@ export const RemoteModeForm = ({
             />
           </Field.Root>
         )}
-        {asrProvider === "speechmatics" && (
+        {["speechmatics", "fireworks", "openai"].includes(asrProvider) && (
           <Field.Root>
             <Field.Label fontSize="sm" color="textSecondary">
-              کلید API سرویس Speechmatics
+              کلید API سرویس ASR
             </Field.Label>
             <Input
               type="password"
@@ -193,7 +225,9 @@ export const RemoteModeForm = ({
             />
           </Field.Root>
         )}
-        {(asrProvider === "speechmatics" || whisperBaseUrl.trim()) && (
+        {(asrProvider === "speechmatics" ||
+          asrProvider === "fireworks" ||
+          whisperBaseUrl.trim()) && (
           <Field.Root>
             <Field.Label fontSize="sm" color="textSecondary">
               مدل ASR
@@ -208,6 +242,21 @@ export const RemoteModeForm = ({
                 >
                   <option value="enhanced">حالت پیشرفته؛ دقت بالاتر</option>
                   <option value="standard">حالت استاندارد؛ سرعت بالاتر</option>
+                </NativeSelect.Field>
+                <NativeSelect.Indicator />
+              </NativeSelect.Root>
+            ) : asrProvider === "fireworks" ? (
+              <NativeSelect.Root>
+                <NativeSelect.Field
+                  value={whisperModel || "fireworks-asr-v2"}
+                  onChange={(e) => setWhisperModel(e.target.value)}
+                  className="input-style"
+                  size="sm"
+                >
+                  <option value="fireworks-asr-v2">Fireworks ASR v2 (زنده)</option>
+                  <option value="fireworks-asr-large">Fireworks ASR Large (زنده)</option>
+                  <option value="whisper-v3-turbo">Whisper v3 Turbo (دسته‌ای)</option>
+                  <option value="whisper-v3">Whisper v3 (دسته‌ای)</option>
                 </NativeSelect.Field>
                 <NativeSelect.Indicator />
               </NativeSelect.Root>

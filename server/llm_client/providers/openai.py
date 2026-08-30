@@ -187,5 +187,27 @@ async def openai_compatible_chat(
 
             return result
     except Exception as e:
-        logger.error(f"Error in OpenAI-compatible chat request: {e}")
+        from server.utils.http_retry import ProviderHTTPError, sanitize_provider_error
+
+        status = getattr(e, "status_code", None)
+        if status is None:
+            status = getattr(getattr(e, "response", None), "status_code", None)
+        body = sanitize_provider_error(
+            str(getattr(e, "body", None) or getattr(e, "message", None) or e)
+        )
+        if status == 401:
+            raise ProviderHTTPError(
+                f"LLM authentication failed (401): {body}", status_code=status
+            ) from e
+        if status == 403:
+            raise ProviderHTTPError(
+                f"LLM request forbidden (403): {body}", status_code=status
+            ) from e
+        if status == 429:
+            raise ProviderHTTPError(f"LLM rate limited (429): {body}", status_code=status) from e
+        if status and int(status) >= 500:
+            raise ProviderHTTPError(
+                f"LLM provider error ({status}): {body}", status_code=status
+            ) from e
+        logger.error("Error in OpenAI-compatible chat request: %s", e)
         raise

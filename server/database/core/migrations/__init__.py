@@ -10,6 +10,7 @@ from server.database.core.migrations import (
     v7_audit_log,
     v8_persian_asr,
     v9_mcp_tool_toggles,
+    v10_ai_providers,
 )
 from server.database.core.migrations.runner import run_migrations
 
@@ -23,6 +24,7 @@ MIGRATIONS = {
     7: v7_audit_log.migrate,
     8: v8_persian_asr.migrate,
     9: v9_mcp_tool_toggles.migrate,
+    10: v10_ai_providers.migrate,
 }
 
 __all__ = ["run_migrations", "MIGRATIONS"]

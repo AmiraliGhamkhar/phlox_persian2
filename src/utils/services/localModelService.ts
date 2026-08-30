@@ -70,10 +70,12 @@ export async function downloadWhisperModel(modelId, { onProgress, onStart }) {
       } else if (event.type === "complete") {
         // Shenava runs in the Python ASR adapter and intentionally has no
         // whisper.cpp sidecar to restart. Whisper.cpp GGML models do.
-        if (modelId.startsWith("shenava-")) {
+        if (modelId.startsWith("shenava-") || modelId.startsWith("parakeet-")) {
           toaster.create({
             title: "مدل ASR دانلود شد",
-            description: "برای استفاده از Shenava آن را در فهرست مدل‌های محلی فعال کنید.",
+            description: modelId.startsWith("parakeet-")
+              ? "Parakeet در آداپتور پایتون اجرا می‌شود و فارسی را پوشش نمی‌دهد. آن را از فهرست مدل‌های محلی فعال کنید."
+              : "برای استفاده از Shenava آن را در فهرست مدل‌های محلی فعال کنید.",
             type: "success",
             duration: 3000,
           });

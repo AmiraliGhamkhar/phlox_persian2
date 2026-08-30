@@ -45,11 +45,10 @@ export const settingsService = {
                 apiKey,
             );
 
-            if (providerType === "ollama") {
-                setModelOptions(response.models.map((model) => model.name));
-            } else {
-                setModelOptions(response.models || []);
-            }
+            const models = (response.models || []).map((model) =>
+                typeof model === "string" ? model : model?.name || model?.id,
+            );
+            setModelOptions(models.filter(Boolean));
         } catch (error) {
             console.error(
                 `Error fetching ${config.LLM_PROVIDER} models:`,
@@ -63,13 +62,18 @@ export const settingsService = {
         whisperBaseUrl,
         setWhisperModelOptions,
         setWhisperModelListAvailable,
+        provider = null,
+        apiKey = null,
     ) => {
         try {
-            const response =
-                await settingsApi.fetchWhisperModels(whisperBaseUrl);
-            setWhisperModelOptions(response.models);
+            const response = await settingsApi.fetchWhisperModels(
+                whisperBaseUrl,
+                provider,
+                apiKey,
+            );
+            setWhisperModelOptions(response?.models || []);
             if (setWhisperModelListAvailable) {
-                setWhisperModelListAvailable(response.listAvailable);
+                setWhisperModelListAvailable(Boolean(response?.listAvailable));
             }
             return response;
         } catch (error) {

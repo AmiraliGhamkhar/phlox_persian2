@@ -459,6 +459,13 @@ def get_tools_definition(
             logger.debug(f"Could not load MCP server toggles: {e}")
 
         mcp_tools = get_mcp_tools_sync()
+        if not mcp_tools:
+            enabled = [s for s in mcp_config_manager.get_servers() if s.get("enabled")]
+            if enabled:
+                logger.warning(
+                    "MCP servers enabled but tools cache is empty; "
+                    "chat will retry a cache refresh on the next turn"
+                )
         if mcp_tools:
             # Return the tool definitions (without internal metadata)
             skipped = 0

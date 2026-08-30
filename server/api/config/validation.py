@@ -10,18 +10,32 @@ from server.utils.url_utils import build_openai_v1_url, build_whisper_v1_url
 router = APIRouter()
 
 
-def _normalize_validation_type(request_type: str) -> str:
-    """
-    Normalize URL validation types.
+_OPENAI_COMPATIBLE_TYPES = {
+    "openai",
+    "openai_compatible",
+    "ollama",
+    "lmstudio",
+    "llamacpp",
+    "ninerouter",
+    "omniroute",
+    "fireworks",
+    "local",
+    "embedding",
+}
+_ASR_TYPES = {"whisper", "asr", "whispercpp", "speechmatics", "fireworks"}
+_ANTHROPIC_TYPES = {"anthropic"}
 
-    Supported:
-    - whisper
-    - openai
-    """
+
+def _normalize_validation_type(request_type: str) -> str:
+    """Normalize URL validation types to openai, anthropic, or whisper."""
     normalized = request_type.lower().strip()
 
-    if normalized in {"whisper", "openai"}:
-        return normalized
+    if normalized in _ASR_TYPES:
+        return "whisper"
+    if normalized in _ANTHROPIC_TYPES:
+        return "anthropic"
+    if normalized in _OPENAI_COMPATIBLE_TYPES:
+        return "openai"
 
     raise HTTPException(status_code=400, detail="Invalid URL type")
 
@@ -66,6 +80,22 @@ async def validate_url(
                     return {"valid": response.status_code in [200, 400, 401, 403, 422]}
                 except Exception as error:
                     logging.error(f"Error validating Whisper URL: {error}")
+                    return {
+                        "valid": False,
+                        "error": "An internal error has occurred while validating the URL.",
+                    }
+
+            if validation_type == "anthropic":
+                models_url = f"{url.rstrip('/')}/v1/models"
+                try:
+                    response = await client.get(
+                        models_url,
+                        headers={"anthropic-version": "2023-06-01"},
+                        timeout=3.0,
+                    )
+                    return {"valid": response.status_code in [200, 401, 403]}
+                except Exception as error:
+                    logging.error(f"Error validating Anthropic URL: {error}")
                     return {
                         "valid": False,
                         "error": "An internal error has occurred while validating the URL.",

@@ -9,6 +9,7 @@ import { localModelApi } from "../../api/localModelApi";
 import { downloadLlmModel as downloadLlmService } from "../../services/localModelService";
 import { useDebounce } from "../useDebounce";
 import { KEYS } from "../../cache/keys";
+import { LLM_PROVIDER_DEFAULTS } from "../../aiProviders";
 
 export const useLLMStep = (currentStep) => {
 
@@ -21,7 +22,7 @@ export const useLLMStep = (currentStep) => {
     );
 
     // Remote mode state
-    const [llmProvider, setLlmProvider] = useState("openai");
+    const [llmProvider, setLlmProvider] = useState("ollama");
     const [llmBaseUrl, setLlmBaseUrl] = useState(
         import.meta.env.VITE_OLLAMA_BASE_URL || "http://localhost:11434",
     );
@@ -164,6 +165,14 @@ export const useLLMStep = (currentStep) => {
         [localAvailableModels, localDownloadedModels],
     );
 
+    const handleSetLlmProvider = useCallback((provider) => {
+        setLlmProvider(provider);
+        const defaults = LLM_PROVIDER_DEFAULTS[provider];
+        if (defaults && defaults.url) {
+            setLlmBaseUrl(defaults.url);
+        }
+    }, []);
+
     // Switch inference mode
     const handleSetInferenceMode = useCallback((mode) => {
         setInferenceMode(mode);
@@ -248,7 +257,7 @@ export const useLLMStep = (currentStep) => {
 
         // Remote mode
         llmProvider,
-        setLlmProvider,
+        setLlmProvider: handleSetLlmProvider,
         llmBaseUrl,
         setLlmBaseUrl,
         llmApiKey,
