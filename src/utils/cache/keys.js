@@ -9,6 +9,7 @@ export const KEYS = {
     INCOMPLETE_JOBS_COUNT: ["incompleteJobsCount"],
     TODOS: ["todos"],
     TOOL_SERVERS: ["toolServers"],
+    MCP_CACHED_TOOLS: ["mcpCachedTools"],
 
     noteList: (date, detailed = true) => ["noteList", date, detailed],
     scribeConsent: (urNumber) => ["scribeConsent", urNumber],

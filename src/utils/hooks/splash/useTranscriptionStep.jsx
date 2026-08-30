@@ -8,6 +8,7 @@ import { localModelApi } from "../../api/localModelApi";
 import { downloadWhisperModel as downloadWhisperService } from "../../services/localModelService";
 import { useDebounce } from "../useDebounce";
 import { KEYS } from "../../cache/keys";
+import { ASR_PROVIDER_DEFAULTS } from "../../aiProviders";
 
 export const useTranscriptionStep = (currentStep, inferenceMode = "remote") => {
     // Auto-detect is the default so Persian speech and Persian/English medical
@@ -34,7 +35,7 @@ export const useTranscriptionStep = (currentStep, inferenceMode = "remote") => {
     const shouldFetchRemote =
         currentStep === SPLASH_STEPS.AI_MODELS &&
         inferenceMode === "remote" &&
-        asrProvider === "openai_compatible" &&
+        ["openai_compatible", "openai", "whispercpp"].includes(asrProvider) &&
         !!debouncedWhisperBaseUrl;
 
     const {
@@ -65,11 +66,20 @@ export const useTranscriptionStep = (currentStep, inferenceMode = "remote") => {
             }),
     );
 
-    const availableWhisperModels = useMemo(
-        () => whisperData?.models || [],
-        [whisperData],
-    );
-    const whisperModelListAvailable = whisperData?.listAvailable || false;
+    const availableWhisperModels = useMemo(() => {
+        if (asrProvider === "fireworks") {
+            return ASR_PROVIDER_DEFAULTS.fireworks.models;
+        }
+        if (asrProvider === "speechmatics") {
+            return ASR_PROVIDER_DEFAULTS.speechmatics.models;
+        }
+        return whisperData?.models || [];
+    }, [asrProvider, whisperData]);
+    const whisperModelListAvailable =
+        asrProvider === "fireworks" ||
+        asrProvider === "speechmatics" ||
+        whisperData?.listAvailable ||
+        false;
 
     // Manual refetch hook for consumers
     const fetchWhisperModels = useCallback(() => {
@@ -165,6 +175,16 @@ export const useTranscriptionStep = (currentStep, inferenceMode = "remote") => {
         [downloadedWhisperModels],
     );
 
+    const handleSetAsrProvider = useCallback((provider) => {
+        setAsrProvider(provider);
+        const defaults = ASR_PROVIDER_DEFAULTS[provider];
+        if (!defaults) return;
+        setWhisperBaseUrl(defaults.url || "");
+        if (defaults.models[0]) {
+            setWhisperModel(defaults.models[0]);
+        }
+    }, []);
+
     // Validate based on current mode
     const validate = useCallback(() => {
         if (inferenceMode === "local") {
@@ -241,7 +261,7 @@ export const useTranscriptionStep = (currentStep, inferenceMode = "remote") => {
         asrLanguage,
         setAsrLanguage,
         asrProvider,
-        setAsrProvider,
+        setAsrProvider: handleSetAsrProvider,
         asrApiKey,
         setAsrApiKey,
         availableWhisperModels,

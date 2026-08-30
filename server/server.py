@@ -36,6 +36,7 @@ from server.middleware import (
     ProxyAuthMiddleware,
     RateLimitMiddleware,
     RequestBodyLimitMiddleware,
+    RequestIdMiddleware,
     SecurityHeadersMiddleware,
     TrustedProxyMiddleware,
 )
@@ -85,6 +86,15 @@ async def lifespan(_app: FastAPI):
     from server.database.repositories.audit import purge_old_events
 
     scheduler.add_job(purge_old_events, "interval", hours=24)
+
+    try:
+        from server.mcp.client import ensure_mcp_tools_cache
+
+        await ensure_mcp_tools_cache(force=True)
+    except ImportError:
+        logger.info("MCP extra not installed; skipping tools cache warmup")
+    except Exception:
+        logger.warning("MCP tools cache warmup skipped", exc_info=True)
 
     yield
 

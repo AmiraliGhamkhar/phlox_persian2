@@ -236,11 +236,9 @@ const UI_TRANSLATIONS = {
     "Reset All Models?": "همه مدل‌ها بازنشانی شوند؟",
     "Download transcription model": "دانلود مدل تشخیص گفتار",
     "Download embedding model": "دانلود مدل بردارسازی",
-    "Omi Med STT": "Omi Med ASR",
-    "Omi Med ASR": "Omi Med ASR",
     "Qwen3 Embedding 0.6B": "Qwen3 Embedding 0.6B",
-    "Required for speech-to-text. Omi Med STT is the bundled medical model.":
-        "برای تشخیص گفتار الزامی است. Omi Med ASR مدل پزشکی داخلی برنامه است.",
+    "Required for speech-to-text. Whisper large-v3-turbo is the recommended multilingual model.":
+        "برای تشخیص گفتار الزامی است. Whisper large-v3-turbo مدل پیشنهادی چندزبانه است.",
 
     "System prompt used for refining the generated outputs": "دستور سیستم برای بهبود خروجی‌های تولیدشده",
     "System prompt used for generating summaries": "دستور سیستم برای تولید خلاصه‌ها",

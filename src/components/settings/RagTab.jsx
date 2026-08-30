@@ -1,13 +1,16 @@
-import { Box, Text, NativeSelect, VStack, HStack, Spinner, Button, Dialog, Portal } from "@chakra-ui/react";
+import { Box, Text, NativeSelect, VStack, HStack, Spinner, Button, Dialog, Portal, Input } from "@chakra-ui/react";
 import { Tooltip } from "@/components/ui/tooltip";
 import { ReEmbedProgress } from "../common/ReEmbedProgress";
 import { useState } from "react";
+import { applyEmbeddingProviderDefaults, embeddingProviderIdForLlm } from "../../utils/aiProviders";
 
 const RagTab = ({
     config,
     embeddingModelOptions = [],
     llmModelsLoading = false,
     handleReEmbed,
+    handleConfigChange,
+    embeddingProviders = [],
 }) => {
     const [isEmbeddingModelModalOpen, setIsEmbeddingModelModalOpen] =
         useState(false);
@@ -69,6 +72,70 @@ const RagTab = ({
                 </Box>
 
                 <Box>
+                    <Text fontSize="sm" mb="1" fontWeight="bold">
+                        ارائه‌دهنده بردارسازی
+                    </Text>
+                    <NativeSelect.Root>
+                        <NativeSelect.Field
+                            size="sm"
+                            value={
+                                config?.EMBEDDING_PROVIDER ||
+                                embeddingProviderIdForLlm(config?.LLM_PROVIDER)
+                            }
+                            onChange={(event) =>
+                                applyEmbeddingProviderDefaults(
+                                    event.target.value,
+                                    handleConfigChange,
+                                )
+                            }
+                            className="input-style"
+                        >
+                            {(embeddingProviders.length
+                                ? embeddingProviders
+                                : [
+                                      { id: "local", name: "Local embedding server" },
+                                      { id: "ollama", name: "Ollama embeddings" },
+                                      { id: "lmstudio", name: "LM Studio embeddings" },
+                                      { id: "llamacpp", name: "llama.cpp embeddings" },
+                                      { id: "openai", name: "OpenAI embeddings" },
+                                      { id: "ninerouter", name: "9Router embeddings" },
+                                      { id: "omniroute", name: "OmniRoute embeddings" },
+                                      { id: "fireworks", name: "Fireworks embeddings" },
+                                      { id: "openai_compatible", name: "Custom OpenAI-compatible" },
+                                  ]
+                            ).map((item) => (
+                                <option key={item.id} value={item.id}>
+                                    {item.name_fa || item.name}
+                                </option>
+                            ))}
+                        </NativeSelect.Field>
+                        <NativeSelect.Indicator />
+                    </NativeSelect.Root>
+                    <Text fontSize="xs" color="overlay0" mt="1">
+                        بردارسازی مستقل از مدل زبانی پیکربندی می‌شود.
+                    </Text>
+                </Box>
+
+                {config?.EMBEDDING_PROVIDER !== "local" && (
+                    <Box>
+                        <Text fontSize="sm" mb="1" fontWeight="bold">
+                            نشانی پایه بردارسازی
+                        </Text>
+                        <Input
+                            size="sm"
+                            dir="ltr"
+                            data-ltr="true"
+                            value={config?.EMBEDDING_BASE_URL || ""}
+                            onChange={(event) =>
+                                handleConfigChange("EMBEDDING_BASE_URL", event.target.value)
+                            }
+                            placeholder="https://api.example.com"
+                            className="input-style"
+                        />
+                    </Box>
+                )}
+
+                <Box>
                     <Tooltip content="مدل تولیدکننده بردارهای RAG؛ تغییر آن همه اسناد را دوباره بردارسازی می‌کند">
                         <Text fontSize="sm" mb="2" fontWeight={"bold"}>
                             Embedding Model
@@ -81,7 +148,7 @@ const RagTab = ({
                                 Loading models...
                             </Text>
                         </HStack>
-                    ) : (
+                    ) : embeddingModelOptions.length > 0 ? (
                         <NativeSelect.Root>
                             <NativeSelect.Field
                                 size="sm"
@@ -100,10 +167,21 @@ const RagTab = ({
                             </NativeSelect.Field>
                             <NativeSelect.Indicator />
                         </NativeSelect.Root>
+                    ) : (
+                        <Input
+                            size="sm"
+                            dir="ltr"
+                            data-ltr="true"
+                            placeholder="nomic-embed-text"
+                            value={config?.EMBEDDING_MODEL || ""}
+                            onChange={(e) =>
+                                handleEmbeddingModelChange(e.target.value)
+                            }
+                            className="input-style"
+                        />
                     )}
                     <Text fontSize="xs" color="overlay0" mt="1">
-                        Available embedding models depend on the LLM endpoint
-                        configured in the LLM tab
+                        فهرست مدل‌ها از ارائه‌دهنده بردارسازی انتخاب‌شده خوانده می‌شود.
                     </Text>
                     <Text
                         fontSize="xs"

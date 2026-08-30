@@ -1,9 +1,10 @@
 """Catalog and lifecycle management for local automatic speech recognition models.
 
-The desktop app supports multilingual Whisper.cpp GGML models and the
-Persian-first Shenava Koochik tract-streaming model.  All entries use the
-canonical ASR terminology; the old module name is retained only because
-released clients still import it.
+The desktop app supports multilingual Whisper.cpp GGML models, the
+Persian-first Shenava Koochik tract-streaming model, and NVIDIA Parakeet
+TDT 0.6B v3 INT8 ONNX (multilingual European, not Persian). All entries
+use the canonical ASR terminology; the old module name is retained only
+because released clients still import it.
 """
 
 import logging
@@ -52,11 +53,32 @@ class ModelInfo(TypedDict, total=False):
     languages: list[str]
     supports_persian: bool
     supports_mixed: bool
+    supports_streaming: bool
     display_name: str
 
 
 WHISPER_CPP_REPO = "https://huggingface.co/ggerganov/whisper.cpp/resolve/main"
 SHENAVA_REPO = "https://huggingface.co/Reza2kn/Shenava-Koochik-v1.0-tract-streaming/resolve/main"
+PARAKEET_REPO = "https://huggingface.co/istupakov/parakeet-tdt-0.6b-v3-onnx/resolve/main"
+
+PARAKEET_FILES: list[ModelFile] = [
+    {
+        "url": f"{PARAKEET_REPO}/decoder_joint-model.int8.onnx",
+        "filename": "parakeet-tdt-0.6b-v3-decoder_joint.int8.onnx",
+    },
+    {
+        "url": f"{PARAKEET_REPO}/nemo128.onnx",
+        "filename": "parakeet-tdt-0.6b-v3-nemo128.onnx",
+    },
+    {
+        "url": f"{PARAKEET_REPO}/vocab.txt",
+        "filename": "parakeet-tdt-0.6b-v3-vocab.txt",
+    },
+    {
+        "url": f"{PARAKEET_REPO}/config.json",
+        "filename": "parakeet-tdt-0.6b-v3-config.json",
+    },
+]
 
 # The three Whisper large-v3-turbo C++/GGML variants requested for desktop use.
 # Whisper large-v3-turbo is multilingual and can decode Persian and English in
@@ -73,6 +95,7 @@ ASR_MODELS: dict[str, ModelInfo] = {
         "languages": ["fa", "en"],
         "supports_persian": True,
         "supports_mixed": True,
+        "supports_streaming": True,
         "display_name": "Whisper large-v3-turbo (F16)",
     },
     "whisper-large-v3-turbo-q5_0": {
@@ -99,7 +122,38 @@ ASR_MODELS: dict[str, ModelInfo] = {
         "languages": ["fa", "en"],
         "supports_persian": True,
         "supports_mixed": True,
+        "supports_streaming": True,
         "display_name": "Whisper large-v3-turbo (Q8_0)",
+    },
+    "parakeet-tdt-0.6b-v3-int8": {
+        "url": f"{PARAKEET_REPO}/encoder-model.int8.onnx",
+        "filename": "parakeet-tdt-0.6b-v3-encoder.int8.onnx",
+        "files": PARAKEET_FILES,
+        "size_mb": 670,
+        "description": "Parakeet TDT 0.6B v3 INT8 — مدل چندزبانهٔ کوچک (۲۵ زبان اروپایی). فارسی را پوشش نمی‌دهد.",
+        "category": "parakeet",
+        "runtime": "parakeet_onnx",
+        "task": "transcribe",
+        "languages": ["en"],
+        "supports_persian": False,
+        "supports_mixed": False,
+        "supports_streaming": False,
+        "display_name": "Parakeet TDT 0.6B v3 (INT8)",
+    },
+    "parakeet-tdt-0.6b-v3-int8-streaming": {
+        "url": f"{PARAKEET_REPO}/encoder-model.int8.onnx",
+        "filename": "parakeet-tdt-0.6b-v3-encoder.int8.onnx",
+        "files": PARAKEET_FILES,
+        "size_mb": 670,
+        "description": "Parakeet TDT 0.6B v3 INT8 streaming — همان مدل کوچک با پنجره‌های غلتان برای نمایش زنده. فارسی را پوشش نمی‌دهد.",
+        "category": "parakeet",
+        "runtime": "parakeet_onnx_streaming",
+        "task": "transcribe",
+        "languages": ["en"],
+        "supports_persian": False,
+        "supports_mixed": False,
+        "supports_streaming": True,
+        "display_name": "Parakeet TDT 0.6B v3 (INT8 streaming)",
     },
     "shenava-koochik-v1.0-int4": {
         "url": f"{SHENAVA_REPO}/model.int4.onnx",
@@ -118,6 +172,7 @@ ASR_MODELS: dict[str, ModelInfo] = {
         "languages": ["fa"],
         "supports_persian": True,
         "supports_mixed": False,
+        "supports_streaming": True,
         "display_name": "Shenava Koochik v1.0 (INT4)",
     },
 }
@@ -151,6 +206,7 @@ class ASRModelManager:
             "languages": info.get("languages", []),
             "supports_persian": info.get("supports_persian", False),
             "supports_mixed": info.get("supports_mixed", False),
+            "supports_streaming": info.get("supports_streaming", False),
             **extra,
         }
 
@@ -167,6 +223,10 @@ class ASRModelManager:
         info = ASR_MODELS.get(selected)
         if info and (self.models_dir / info["filename"]).exists():
             return selected
+        # whisper.cpp sidecar reads a .bin filename from this marker.
+        for model_id, candidate in ASR_MODELS.items():
+            if candidate["filename"] == selected and (self.models_dir / candidate["filename"]).exists():
+                return model_id
 
         # Legacy installations did not have a selection marker. Prefer the
         # requested default and otherwise choose the first downloaded catalog
@@ -185,21 +245,23 @@ class ASRModelManager:
             raise ValueError(f"Unknown ASR model: {model_id}")
         if not (self.models_dir / info["filename"]).exists():
             raise ValueError(f"ASR model is not downloaded: {model_id}")
-        self.selection_file.write_text(model_id, encoding="utf-8")
+        # Tauri's whisper.cpp sidecar only accepts a .bin filename. ONNX
+        # runtimes (Shenava, Parakeet) are executed in Python, so keep the
+        # catalog id — a non-.bin marker is ignored by the sidecar.
+        marker = info["filename"] if info.get("runtime") == "whisper_cpp" else model_id
+        self.selection_file.write_text(marker, encoding="utf-8")
         return self._public_model(info, model_id, is_selected=True)
 
     def get_downloaded_models(self) -> list[dict]:
         """Return downloaded catalog models, including capability metadata."""
         selected_id = self.get_selected_model_id()
         models = []
-        # Only primary artifacts are listed. Shenava's tokens file is a
-        # companion artifact and is intentionally not shown as a model.
-        primary_files = {info["filename"]: model_id for model_id, info in ASR_MODELS.items()}
-        for model_file in self.models_dir.iterdir():
-            if not model_file.is_file() or model_file.name not in primary_files:
+        # Iterate the catalog so variants that share a primary artifact
+        # (Parakeet batch vs streaming) both appear once the bundle is present.
+        for model_id, info in ASR_MODELS.items():
+            model_file = self.models_dir / info["filename"]
+            if not model_file.is_file():
                 continue
-            model_id = primary_files[model_file.name]
-            info = ASR_MODELS[model_id]
             size_mb = round(model_file.stat().st_size / (1024 * 1024), 1)
             models.append(
                 self._public_model(

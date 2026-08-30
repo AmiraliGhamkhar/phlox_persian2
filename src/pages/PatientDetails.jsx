@@ -477,6 +477,7 @@ const PatientDetails = ({
                 onRetry={scribeControls.retrySend}
                 onDownload={scribeControls.downloadLastRecording}
                 onDismiss={scribeControls.dismissSendError}
+                liveTranscript={scribeControls.liveTranscript}
             />
             {/* Floating Action Menu - always expanded on right side */}
             <FloatingActionMenu

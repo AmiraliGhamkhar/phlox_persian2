@@ -262,8 +262,10 @@ const LocalModelManager = ({ className }) => {
 
   useEffect(() => {
     const selected = whisperModels.find((model) => model.is_selected);
-    setSelectedWhisperId(selected?.id || whisperModels[0]?.id || "");
-  }, [whisperModels]);
+    setSelectedWhisperId(
+      selected?.id || whisperModels[0]?.id || whisperRecommendations[0]?.id || "",
+    );
+  }, [whisperModels, whisperRecommendations]);
 
   const handleSelectWhisper = useCallback(async () => {
     if (!selectedWhisperId) return;
@@ -424,25 +426,31 @@ const LocalModelManager = ({ className }) => {
       </VStack>
 
       {/* Local ASR model switcher */}
-      {whisperModels.length > 0 && (
-        <VStack align="stretch" gap={2}>
-          <Text fontSize="sm" fontWeight="bold">انتخاب مدل ASR محلی</Text>
-          <HStack align="stretch">
-            <NativeSelect.Root flex={1}>
-              <NativeSelect.Field
-                value={selectedWhisperId}
-                onChange={(event) => setSelectedWhisperId(event.target.value)}
-                className="input-style"
-                size="sm"
-              >
-                {whisperModels.map((model) => (
+      <VStack align="stretch" gap={2}>
+        <Text fontSize="sm" fontWeight="bold">انتخاب مدل ASR محلی</Text>
+        <HStack align="stretch">
+          <NativeSelect.Root flex={1}>
+            <NativeSelect.Field
+              value={selectedWhisperId}
+              onChange={(event) => setSelectedWhisperId(event.target.value)}
+              className="input-style"
+              size="sm"
+            >
+              {(whisperRecommendations.length ? whisperRecommendations : whisperModels).map((model) => {
+                const downloaded = whisperModels.some((item) => item.id === model.id);
+                return (
                   <option key={model.id} value={model.id}>
-                    {model.name || model.id} — {model.languages?.join("/") || "ASR"}
+                    {model.name || model.id}
+                    {model.supports_persian === false ? " — بدون فارسی" : ""}
+                    {model.supports_streaming ? " — زنده" : ""}
+                    {downloaded ? " — دانلودشده" : ""}
                   </option>
-                ))}
-              </NativeSelect.Field>
-              <NativeSelect.Indicator />
-            </NativeSelect.Root>
+                );
+              })}
+            </NativeSelect.Field>
+            <NativeSelect.Indicator />
+          </NativeSelect.Root>
+          {whisperModels.some((model) => model.id === selectedWhisperId) ? (
             <Button
               size="sm"
               onClick={handleSelectWhisper}
@@ -451,12 +459,21 @@ const LocalModelManager = ({ className }) => {
             >
               فعال‌سازی
             </Button>
-          </HStack>
-          <Text fontSize="xs" className="pill-box-icons">
-            مدل‌های Whisper برای فارسی و گفتار فارسی/انگلیسی ترکیبی مناسب‌اند؛ Shenava برای فارسیِ محلی و کم‌حجم طراحی شده است.
-          </Text>
-        </VStack>
-      )}
+          ) : (
+            <Button
+              size="sm"
+              onClick={() => selectedWhisperId && downloadWhisperModel(selectedWhisperId)}
+              loading={whisperDownloading}
+              disabled={!selectedWhisperId}
+            >
+              دانلود
+            </Button>
+          )}
+        </HStack>
+        <Text fontSize="xs" className="pill-box-icons">
+          Whisper برای فارسی و گفتار ترکیبی مناسب است؛ Shenava برای فارسی محلی؛ Parakeet مدل کوچک چندزبانه است و فارسی را پوشش نمی‌دهد.
+        </Text>
+      </VStack>
 
       {/* Supporting Models */}
       <VStack align="start" gap={1} w="100%">

@@ -217,6 +217,7 @@ export const chatApi = {
                     body: JSON.stringify({ action_id: actionId }),
                 });
             },
+            timeout: 180000,
             errorMessage: "Failed to run the approved action",
         }),
 

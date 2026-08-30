@@ -17,7 +17,7 @@ export const validateTranscriptionStep = (
   asrProvider = "openai_compatible",
   asrApiKey = "",
 ) => {
-  if (asrProvider === "speechmatics") {
+  if (asrProvider === "speechmatics" || asrProvider === "fireworks" || asrProvider === "openai") {
     return asrApiKey.trim() !== "";
   }
   if (whisperBaseUrl.trim() === "") {

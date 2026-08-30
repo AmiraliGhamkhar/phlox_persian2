@@ -126,6 +126,34 @@ def _hostname_of_host_header(host_header: str) -> str:
     return host.split(":", 1)[0]
 
 
+class RequestIdMiddleware(BaseHTTPMiddleware):
+    """Assign a correlation id to every request.
+
+    Echoes a safe client-supplied ``X-Request-Id`` or generates one. The value
+    is stored on ``request.state`` and in a ContextVar so AI logs can include
+    it without changing response JSON envelopes.
+    """
+
+    async def dispatch(self, request, call_next):
+        from server.utils.request_context import (
+            normalize_request_id,
+            reset_request_id,
+            set_request_id,
+        )
+
+        request_id = normalize_request_id(request.headers.get("x-request-id")) or secrets.token_hex(
+            8
+        )
+        request.state.request_id = request_id
+        token = set_request_id(request_id)
+        try:
+            response = await call_next(request)
+            response.headers["X-Request-Id"] = request_id
+            return response
+        finally:
+            reset_request_id(token)
+
+
 class HostValidationMiddleware(BaseHTTPMiddleware):
     """Reject requests whose Host or Origin does not belong to this deployment.
 
@@ -304,16 +332,22 @@ class LocalTokenMiddleware(BaseHTTPMiddleware):
                 content={"detail": "Service not initialized"},
             )
 
-        # Verify Authorization header
+        # Verify Authorization header. Browser WebSocket clients cannot set
+        # custom headers, so the live transcription handshake may pass the
+        # token as ``?token=`` instead.
         auth_header = request.headers.get("Authorization", "")
-        if not auth_header.startswith("Bearer "):
+        provided_token = ""
+        if auth_header.startswith("Bearer "):
+            provided_token = auth_header[7:]  # remove "Bearer " prefix
+        elif path.startswith("/api/transcribe/live"):
+            provided_token = request.query_params.get("token") or ""
+
+        if not provided_token:
             logger.debug(f"Missing Bearer header for {path}")
             return JSONResponse(
                 status_code=401,
                 content={"detail": "Missing or invalid Authorization header"},
             )
-
-        provided_token = auth_header[7:]  # remove "Bearer " prefix
         if not secrets.compare_digest(provided_token, expected_token):
             # No token material is logged — even a prefix could help a guesser.
             logger.warning(f"Invalid request token for {path}")

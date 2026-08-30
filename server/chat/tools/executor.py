@@ -19,6 +19,28 @@ logger = logging.getLogger(__name__)
 MUTATING_TOOLS = {"create_note", "complete_job", "fill_pdf_form"}
 
 
+def requires_user_approval(function_name: str, tool_call: dict[str, Any] | None = None) -> bool:
+    """Return True when this tool must be parked behind the confirmation card.
+
+    Built-in record-writing tools always require approval. MCP tools require it
+    when the server advertised a destructive / non-read-only annotation.
+    """
+    if tool_call and tool_call.get("_approved"):
+        return False
+    if function_name in MUTATING_TOOLS:
+        return True
+    if function_name.startswith("mcp_"):
+        try:
+            from server.mcp.client import get_mcp_tools_sync
+
+            for tool in get_mcp_tools_sync():
+                if tool.get("function", {}).get("name") == function_name:
+                    return bool(tool.get("_mcp_requires_confirmation"))
+        except Exception:
+            return False
+    return False
+
+
 async def execute_tool_streaming(
     tool_call: dict[str, Any],
     llm_client,
@@ -52,7 +74,7 @@ async def execute_tool_streaming(
 
     # Human-approval gate: park record-writing tools until the user approves.
     # Approved re-runs carry the "_approved" marker set by the confirm endpoint.
-    if function_name in MUTATING_TOOLS and not tool_call.get("_approved"):
+    if requires_user_approval(function_name, tool_call):
         from server.chat.streaming.response import confirmation_message, end_message
 
         from .pending_actions import register_pending_action

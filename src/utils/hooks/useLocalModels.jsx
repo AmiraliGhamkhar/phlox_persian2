@@ -242,9 +242,12 @@ export const useLocalModels = () => {
       await localModelApi.selectWhisperModel(modelId);
       await fetchWhisperStatus();
       try {
+        if (modelId.startsWith("shenava-") || modelId.startsWith("parakeet-")) {
+          return;
+        }
         await localModelApi.restartWhisperServer();
       } catch (error) {
-        // Shenava is executed by the Python ASR adapter and has no C++ sidecar.
+        // Shenava and Parakeet run in the Python ASR adapter and have no C++ sidecar.
         console.debug("ASR sidecar restart skipped:", error);
       }
     },

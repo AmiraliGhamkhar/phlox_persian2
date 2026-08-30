@@ -193,10 +193,10 @@ async def confirm_pending_action(payload: PendingActionDecision):
             raw_transcription=action.raw_transcription,
         )
         result, citations = await accumulator.consume_stream(stream)
-        return result, citations
+        return result, citations, accumulator.artifacts
 
     try:
-        result, citations = await asyncio.wait_for(_run(), timeout=180)
+        result, citations, artifacts = await asyncio.wait_for(_run(), timeout=180)
     except Exception as e:
         logging.error(f"Confirmed action {action.tool_name} failed: {e}")
         raise HTTPException(
@@ -204,7 +204,12 @@ async def confirm_pending_action(payload: PendingActionDecision):
         ) from e
 
     return JSONResponse(
-        content={"result": result, "citations": citations, "tool": action.tool_name}
+        content={
+            "result": result,
+            "citations": citations,
+            "tool": action.tool_name,
+            "artifacts": artifacts,
+        }
     )
 
 
@@ -441,8 +446,17 @@ async def probe_vision_capability(payload: VisionCapabilityProbeRequest):
     """
     config = config_manager.get_config()
     model = payload.model or config.get("PRIMARY_MODEL", "")
-    base_url = payload.base_url or config.get("LLM_BASE_URL")
-    api_key = payload.api_key or config.get("LLM_API_KEY")
+    probe_config = dict(config)
+    if payload.base_url:
+        probe_config["LLM_BASE_URL"] = payload.base_url
+    if payload.api_key:
+        probe_config["LLM_API_KEY"] = payload.api_key
+
+    from server.utils.providers import resolve_llm_connection
+
+    connection = resolve_llm_connection(probe_config)
+    base_url = connection["base_url"]
+    api_key = connection["api_key"]
 
     if base_url:
         # SSRF guard: probe targets must be http(s) and not metadata endpoints.
@@ -455,14 +469,12 @@ async def probe_vision_capability(payload: VisionCapabilityProbeRequest):
     )
 
     try:
-        if base_url:
-            client = AsyncLLMClient(
-                provider_type="openai",
-                base_url=base_url,
-                api_key=api_key,
-            )
-        else:
-            client = get_llm_client()
+        client = AsyncLLMClient(
+            provider_type=connection["provider"],
+            base_url=base_url,
+            api_key=api_key,
+            protocol=connection["protocol"],
+        )
 
         messages = [
             {
@@ -491,7 +503,7 @@ async def probe_vision_capability(payload: VisionCapabilityProbeRequest):
         }
 
         _store_vision_probe_result(
-            provider=config.get("LLM_PROVIDER", "openai"),
+            provider=connection["provider"],
             base_url=base_url or "",
             model=model,
             vision_capable=result_payload["vision_capable"],
@@ -524,7 +536,7 @@ async def probe_vision_capability(payload: VisionCapabilityProbeRequest):
         }
 
         _store_vision_probe_result(
-            provider=config.get("LLM_PROVIDER", "openai"),
+            provider=connection["provider"],
             base_url=base_url or "",
             model=model,
             vision_capable=result_payload["vision_capable"],

@@ -194,3 +194,81 @@ async def test_transcribe_audio_api_error():
                 await transcribe_audio(b"fake audio data")
 
             assert "Invalid request parameters" in str(excinfo.value)
+
+
+@pytest.mark.asyncio
+async def test_transcribe_audio_dispatches_fireworks():
+    fake_config = {
+        "ASR_PROVIDER": "fireworks",
+        "ASR_MODEL": "whisper-v3-turbo",
+        "ASR_KEY": "fw-key",
+        "ASR_LANGUAGE": "fa",
+    }
+    from server.database.config.manager import config_manager
+
+    with patch.object(config_manager, "get_config", return_value=fake_config):
+        fake_response = MagicMock(spec=httpx.Response)
+        fake_response.status_code = 200
+        fake_response.json.return_value = {"text": "درد قفسه سینه"}
+        fake_response.text = '{"text": "درد قفسه سینه"}'
+
+        mock_client = AsyncMock()
+        mock_client.post.return_value = fake_response
+        mock_client.__aenter__ = AsyncMock(return_value=mock_client)
+        mock_client.__aexit__ = AsyncMock(return_value=False)
+
+        with patch("httpx.AsyncClient", return_value=mock_client):
+            result = await transcribe_audio(b"RIFF....WAVEdata")
+
+        assert result["text"] == "درد قفسه سینه"
+        assert "audio-turbo" in mock_client.post.call_args.args[0]
+        assert mock_client.post.call_args.kwargs["headers"]["Authorization"] == "Bearer fw-key"
+        assert mock_client.post.call_args.kwargs["data"]["language"] == "fa"
+
+
+@pytest.mark.asyncio
+async def test_transcribe_audio_dispatches_parakeet():
+    fake_config = {
+        "ASR_PROVIDER": "local",
+        "ASR_MODEL": "parakeet-tdt-0.6b-v3-int8",
+        "LLM_PROVIDER": "local",
+    }
+    from server.database.config.manager import config_manager
+
+    with patch.object(config_manager, "get_config", return_value=fake_config):
+        with patch(
+            "server.transcription.audio._transcribe_local_parakeet",
+            new_callable=AsyncMock,
+            return_value={"text": "hello", "transcriptionDuration": 0.1},
+        ) as mock_parakeet:
+            result = await transcribe_audio(b"RIFF....WAVEdata")
+            mock_parakeet.assert_called_once()
+            assert result["text"] == "hello"
+
+
+def test_live_session_factory_picks_native_streaming():
+    from server.transcription.live import (
+        FireworksLiveSession,
+        RollingWindowLiveSession,
+        SpeechmaticsLiveSession,
+        create_live_session,
+        live_is_authoritative,
+        pcm_to_wav,
+    )
+
+    async def emit(_event):
+        return None
+
+    speechmatics = create_live_session({"ASR_PROVIDER": "speechmatics", "ASR_KEY": "k"}, emit)
+    fireworks = create_live_session(
+        {"ASR_PROVIDER": "fireworks", "ASR_MODEL": "fireworks-asr-v2", "ASR_KEY": "k"},
+        emit,
+    )
+    rolling = create_live_session({"ASR_PROVIDER": "openai", "ASR_MODEL": "whisper-1"}, emit)
+    assert isinstance(speechmatics, SpeechmaticsLiveSession)
+    assert isinstance(fireworks, FireworksLiveSession)
+    assert isinstance(rolling, RollingWindowLiveSession)
+    assert live_is_authoritative({"ASR_PROVIDER": "speechmatics"}) is True
+    assert live_is_authoritative({"ASR_PROVIDER": "openai"}) is False
+    wav = pcm_to_wav(b"\x00\x00" * 16)
+    assert wav.startswith(b"RIFF")

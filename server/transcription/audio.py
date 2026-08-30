@@ -16,6 +16,28 @@ from server.transcription.language import normalize_persian_text, resolve_asr_la
 logger = logging.getLogger(__name__)
 
 
+async def _post_audio(client: httpx.AsyncClient, url: str, **kwargs):
+    """POST audio with retries on 429/5xx/network errors only."""
+    from server.utils.http_retry import (
+        ProviderHTTPError,
+        is_retryable_status,
+        sanitize_provider_error,
+        with_retries,
+    )
+
+    async def _do():
+        response = await client.post(url, **kwargs)
+        if is_retryable_status(response.status_code):
+            raise ProviderHTTPError(
+                f"ASR provider error ({response.status_code}): "
+                f"{sanitize_provider_error(response.text)}",
+                status_code=response.status_code,
+            )
+        return response
+
+    return await with_retries(_do, operation_name="asr")
+
+
 def _get_whisper_port() -> str:
     """Get the whisper server port from global state."""
     from server.utils.allocated_ports import get_whisper_port
@@ -34,25 +56,40 @@ async def transcribe_audio(audio_buffer: bytes) -> dict[str, Union[str, float]]:
     try:
         config = config_manager.get_config()
 
-        asr_base_url = config.get("ASR_BASE_URL") or config.get("WHISPER_BASE_URL")
-        provider = str(config.get("ASR_PROVIDER") or "").strip().lower()
-        # Local mode remains backwards compatible with old installations that
-        # only stored LLM_PROVIDER=local and empty Whisper endpoint fields.
-        is_local_asr = provider == "local" or (
-            config.get("LLM_PROVIDER") == "local" and not asr_base_url
-        )
+        from server.utils.providers import resolve_asr_connection
 
-        if is_local_asr:
-            if str(config.get("ASR_MODEL") or config.get("WHISPER_MODEL") or "").startswith(
-                "shenava-"
-            ):
+        connection = resolve_asr_connection(config)
+        provider = connection["provider"]
+        protocol = connection["protocol"]
+        model_id = str(
+            connection.get("model")
+            or config.get("ASR_MODEL")
+            or config.get("WHISPER_MODEL")
+            or ""
+        ).strip()
+
+        if provider == "local" or protocol == "local":
+            if not model_id:
+                try:
+                    from server.utils.whisper_models import asr_model_manager
+
+                    model_id = asr_model_manager.get_selected_model_id() or ""
+                except Exception:
+                    model_id = ""
+            if model_id.startswith("shenava-"):
                 logger.info("Using local Shenava ASR for transcription")
                 return await _transcribe_local_shenava(audio_buffer, config)
+            if model_id.startswith("parakeet-"):
+                logger.info("Using local Parakeet ASR for transcription")
+                return await _transcribe_local_parakeet(audio_buffer, config)
             logger.info("Using local Whisper.cpp ASR for transcription")
             return await _transcribe_local_whisper(audio_buffer, config)
-        if provider == "speechmatics":
+        if protocol == "speechmatics" or provider == "speechmatics":
             logger.info("Using Speechmatics realtime ASR for transcription")
             return await _transcribe_speechmatics(audio_buffer, config)
+        if protocol == "fireworks" or provider == "fireworks":
+            logger.info("Using Fireworks ASR for transcription")
+            return await _transcribe_fireworks(audio_buffer, config)
 
         logger.info("Using external OpenAI-compatible ASR API for transcription")
         return await _transcribe_external_api(audio_buffer, config)
@@ -88,13 +125,16 @@ async def _transcribe_local_whisper(
         transcription_start = time.perf_counter()
 
         try:
-            response = await client.post(whisper_url, data=data, files=files)
+            response = await _post_audio(client, whisper_url, data=data, files=files)
             transcription_end = time.perf_counter()
             transcription_duration = transcription_end - transcription_start
 
             if response.status_code != 200:
-                error_text = response.text
-                raise ValueError(f"Whisper local server error: {error_text}")
+                from server.utils.http_retry import sanitize_provider_error
+
+                raise ValueError(
+                    f"Whisper local server error: {sanitize_provider_error(response.text)}"
+                )
 
             try:
                 result = response.json()
@@ -413,6 +453,107 @@ async def _transcribe_local_shenava(
     }
 
 
+async def _transcribe_local_parakeet(
+    audio_buffer: bytes, config: dict
+) -> dict[str, Union[str, float]]:
+    """Transcribe with local Parakeet TDT ONNX (no whisper.cpp sidecar)."""
+    from server.transcription.parakeet import run_parakeet_inference
+
+    started = time.perf_counter()
+    text = await asyncio.to_thread(run_parakeet_inference, audio_buffer, config)
+    if not text:
+        raise ValueError("Parakeet returned no transcript")
+    return {
+        "text": text,
+        "transcriptionDuration": float(f"{time.perf_counter() - started:.2f}"),
+    }
+
+
+def _fireworks_batch_url(config: dict) -> str:
+    """Return the Fireworks batch ASR host for the selected model."""
+    from server.utils.providers import ASR_PROVIDERS
+
+    model = str(config.get("ASR_MODEL") or config.get("WHISPER_MODEL") or "").strip()
+    info = ASR_PROVIDERS["fireworks"]
+    batch_urls = info.get("batch_urls") or {}
+    if model in batch_urls:
+        return str(batch_urls[model])
+    if "turbo" in model:
+        return str(batch_urls.get("whisper-v3-turbo") or info["default_base_url"])
+    configured = str(config.get("ASR_BASE_URL") or config.get("WHISPER_BASE_URL") or "").strip()
+    return configured or str(info["default_base_url"])
+
+
+async def _transcribe_fireworks(
+    audio_buffer: bytes, config: dict
+) -> dict[str, Union[str, float]]:
+    """Transcribe via Fireworks batch Whisper v3 / turbo HTTP API."""
+    filename, content_type = _detect_audio_format(audio_buffer)
+    model = str(config.get("ASR_MODEL") or config.get("WHISPER_MODEL") or "whisper-v3")
+    # Streaming-only Fireworks ASR models still accept a Whisper v3 batch fallback.
+    if model.startswith("fireworks-asr"):
+        model = "whisper-v3"
+    api_key = str(config.get("ASR_KEY") or config.get("WHISPER_KEY") or "").strip()
+    if not api_key:
+        raise ValueError("A Fireworks API key is required for the selected ASR provider")
+
+    language = resolve_asr_language(config)
+    data = {
+        "model": model,
+        "temperature": "0.0",
+        "response_format": "verbose_json",
+        "task": "transcribe",
+    }
+    if language != "auto":
+        data["language"] = language
+
+    headers = {"Authorization": f"Bearer {api_key}"}
+    base_url = _fireworks_batch_url(config).rstrip("/")
+    if base_url.lower().endswith("/v1"):
+        base_url = base_url[:-3]
+
+    transcription_start = time.perf_counter()
+    async with httpx.AsyncClient(timeout=httpx.Timeout(600.0)) as client:
+        try:
+            response = await _post_audio(
+                client,
+                f"{base_url}/v1/audio/transcriptions",
+                data=data,
+                files={"file": (filename, audio_buffer, content_type)},
+                headers=headers,
+            )
+        except httpx.RequestError as error:
+            raise ValueError(f"Fireworks transcription failed: {error}") from error
+
+    from server.utils.http_retry import sanitize_provider_error
+
+    body = sanitize_provider_error(response.text)
+    if response.status_code == 401:
+        raise ValueError(f"Fireworks authentication failed (401): {body}")
+    if response.status_code == 403:
+        raise ValueError(f"Fireworks request forbidden (403): {body}")
+    if response.status_code == 429:
+        raise ValueError(f"Fireworks rate limited (429): {body}")
+    if response.status_code != 200:
+        raise ValueError(f"Fireworks transcription failed ({response.status_code}): {body}")
+
+    try:
+        result = response.json()
+    except Exception as error:
+        raise ValueError(f"Failed to parse Fireworks response: {error}") from error
+    if "text" not in result:
+        raise ValueError("Fireworks returned no transcript")
+    if "segments" in result:
+        transcript_text = "\n".join(segment["text"].strip() for segment in result["segments"])
+    else:
+        transcript_text = result["text"]
+    transcript_text = normalize_persian_text(_clean_repetitive_text(transcript_text))
+    return {
+        "text": transcript_text,
+        "transcriptionDuration": float(f"{time.perf_counter() - transcription_start:.2f}"),
+    }
+
+
 async def _transcribe_external_api(
     audio_buffer: bytes, config: dict
 ) -> dict[str, Union[str, float]]:
@@ -450,7 +591,8 @@ async def _transcribe_external_api(
             if whisper_base_url.lower().endswith("/v1"):
                 whisper_base_url = whisper_base_url[:-3]
 
-            response = await client.post(
+            response = await _post_audio(
+                client,
                 f"{whisper_base_url}/v1/audio/transcriptions",
                 data=data,
                 files=files,
@@ -463,8 +605,9 @@ async def _transcribe_external_api(
         transcription_duration = transcription_end - transcription_start
 
         if response.status_code != 200:
-            error_text = response.text
-            raise ValueError(f"Transcription failed: {error_text}")
+            from server.utils.http_retry import sanitize_provider_error
+
+            raise ValueError(f"Transcription failed: {sanitize_provider_error(response.text)}")
 
         try:
             result = response.json()

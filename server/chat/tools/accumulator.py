@@ -30,6 +30,7 @@ class ToolResultAccumulator:
         self.citations: list | None = None
         self.function_response: dict[str, Any] | None = None
         self.status_messages: list[str] = []
+        self.artifacts: list[dict[str, Any]] = []
 
     async def consume_stream(
         self, stream: AsyncGenerator[dict[str, Any], None]
@@ -55,6 +56,11 @@ class ToolResultAccumulator:
                 content = chunk.get("content", "")
                 if content:
                     self.content += content
+
+            elif chunk_type == "artifact":
+                artifact = chunk.get("artifact")
+                if isinstance(artifact, dict):
+                    self.artifacts.append(artifact)
 
             elif chunk_type == "end":
                 self.function_response = chunk.get("function_response")

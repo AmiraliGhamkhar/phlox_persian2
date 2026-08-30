@@ -7,11 +7,13 @@ import {
     Spinner,
 } from "@chakra-ui/react";
 import { chatApi } from "../../utils/api/chatApi";
+import { normalizeChatArtifacts } from "../../utils/chat/artifacts";
 
 /**
  * Card shown for a mutating tool call that the backend parked for human
  * approval (chunk.type === "confirmation"). The user can approve the run or
- * cancel it; the outcome is echoed back onto the card.
+ * cancel it; the outcome (including the tool result) is echoed back onto
+ * the card and into the chat transcript.
  */
 const PendingActionCard = ({
     confirmation,
@@ -20,32 +22,44 @@ const PendingActionCard = ({
     confIndex,
 }) => {
     const [busy, setBusy] = useState(false);
-    const { actionId, tool, summary, status } = confirmation;
+    const { actionId, tool, summary, status, result } = confirmation;
 
-    const finalize = (newStatus, note) => {
+    const patchConfirmation = (updates, extraMessage, extraArtifacts) => {
         setMessages((prev) => {
             const next = [...prev];
             const msg = { ...next[messageIndex] };
             const confs = [...(msg.confirmations || [])];
-            confs[confIndex] = { ...confs[confIndex], status: newStatus };
-            next[messageIndex] = { ...msg, confirmations: confs };
+            confs[confIndex] = { ...confs[confIndex], ...updates };
+            const artifacts = extraArtifacts?.length
+                ? [...(msg.artifacts || []), ...extraArtifacts]
+                : msg.artifacts;
+            next[messageIndex] = { ...msg, confirmations: confs, artifacts };
+            if (extraMessage) {
+                next.push({ role: "assistant", content: extraMessage });
+            }
             return next;
         });
-        if (note) {
-            setMessages((prev) => [
-                ...prev,
-                { role: "assistant", content: note },
-            ]);
-        }
     };
 
     const handleConfirm = async () => {
         setBusy(true);
         try {
-            await chatApi.confirmPendingAction(actionId);
-            finalize("done");
+            const data = await chatApi.confirmPendingAction(actionId);
+            const resultText =
+                typeof data?.result === "string" && data.result.trim()
+                    ? data.result.trim()
+                    : "";
+            const artifacts = normalizeChatArtifacts(data?.artifacts || []);
+            patchConfirmation(
+                { status: "done", result: resultText },
+                resultText || null,
+                artifacts,
+            );
         } catch (error) {
-            finalize("error", `Error: ${error.message}`);
+            patchConfirmation(
+                { status: "error" },
+                `Error: ${error.message}`,
+            );
         } finally {
             setBusy(false);
         }
@@ -55,9 +69,12 @@ const PendingActionCard = ({
         setBusy(true);
         try {
             await chatApi.cancelPendingAction(actionId);
-            finalize("cancelled");
+            patchConfirmation({ status: "cancelled" });
         } catch (error) {
-            finalize("error", `Error: ${error.message}`);
+            patchConfirmation(
+                { status: "error" },
+                `Error: ${error.message}`,
+            );
         } finally {
             setBusy(false);
         }
@@ -78,9 +95,17 @@ const PendingActionCard = ({
                 py={2}
                 fontSize="xs"
                 color="overlay0"
+                width="100%"
             >
-                {tool ? `${tool}: ` : ""}
-                {label}
+                <Text>
+                    {tool ? `${tool}: ` : ""}
+                    {label}
+                </Text>
+                {status === "done" && result && (
+                    <Text mt={1} whiteSpace="pre-wrap">
+                        {result}
+                    </Text>
+                )}
             </Box>
         );
     }

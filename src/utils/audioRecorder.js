@@ -12,6 +12,7 @@ export class AudioRecorder {
         this.chunks = [];
         this.isRecording = false;
         this.isPaused = false;
+        this.onPcm = null;
     }
 
     async start() {
@@ -35,10 +36,18 @@ export class AudioRecorder {
             1,
             1,
         );
+        const nativeSampleRate = this.audioContext.sampleRate;
         this.processor.onaudioprocess = (event) => {
             if (!this.isRecording || this.isPaused) return;
             const input = event.inputBuffer.getChannelData(0);
             this.chunks.push(new Float32Array(input));
+            if (this.onPcm) {
+                const resampled =
+                    nativeSampleRate === TARGET_SAMPLE_RATE
+                        ? input
+                        : resampleLinear(input, nativeSampleRate, TARGET_SAMPLE_RATE);
+                this.onPcm(floatToInt16(resampled));
+            }
         };
 
         this.source.connect(this.processor);
@@ -88,6 +97,16 @@ export class AudioRecorder {
         const wav = encodeWav(final, TARGET_SAMPLE_RATE);
         return new Blob([wav], { type: "audio/wav" });
     }
+}
+
+
+function floatToInt16(samples) {
+    const output = new Int16Array(samples.length);
+    for (let i = 0; i < samples.length; i++) {
+        const s = Math.max(-1, Math.min(1, samples[i]));
+        output[i] = s < 0 ? s * 0x8000 : s * 0x7fff;
+    }
+    return output;
 }
 
 

@@ -75,6 +75,7 @@ def register_pending_action(
     vector_store_manager=None,
     conversation_history: list | None = None,
     raw_transcription: str | None = None,
+    patient_context: dict[str, Any] | None = None,
 ) -> PendingAction:
     """Store a tool call awaiting approval and return it."""
     _prune_expired()
@@ -90,6 +91,7 @@ def register_pending_action(
         vector_store_manager=vector_store_manager,
         conversation_history=conversation_history or [],
         raw_transcription=raw_transcription,
+        patient_context=dict(patient_context) if isinstance(patient_context, dict) else None,
     )
     if len(_pending) >= MAX_PENDING_ACTIONS:
         # Drop the oldest action to bound memory.

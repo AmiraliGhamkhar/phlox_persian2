@@ -1,14 +1,16 @@
 """
-Main unified LLM client supporting OpenAI-compatible providers.
+Main unified LLM client supporting OpenAI-compatible providers and Anthropic.
 
 This module provides AsyncLLMClient, a unified interface for:
-- OpenAI-compatible APIs (including Ollama's OpenAI endpoint)
+- OpenAI-compatible APIs (Ollama, LM Studio, llama.cpp, 9Router, OmniRoute, OpenAI, Fireworks)
+- Native Anthropic Messages API
 - Local models via bundled llama.cpp server (exposed through an OpenAI-style API)
 """
 
 import json
 import logging
 import os
+import time
 from collections.abc import AsyncGenerator
 from typing import Any, Union
 
@@ -16,6 +18,7 @@ from server.database.config.manager import config_manager
 from server.locale import add_persian_output_instruction
 from server.utils.url_utils import normalize_openai_base_url
 
+from .providers.anthropic import anthropic_chat
 from .providers.openai import openai_compatible_chat
 from .utils import repair_json
 
@@ -23,7 +26,7 @@ logger = logging.getLogger(__name__)
 
 
 class AsyncLLMClient:
-    """A unified client interface for OpenAI-compatible and local providers."""
+    """A unified client interface for OpenAI-compatible, Anthropic, and local providers."""
 
     def __init__(
         self,
@@ -31,26 +34,32 @@ class AsyncLLMClient:
         base_url: str | None = None,
         api_key: str | None = None,
         timeout: int = 80,
+        protocol: str = "openai_compatible",
     ):
         """
         Initialize the LLM client.
 
         Args:
-            provider_type: The provider type ("openai" or "local")
+            provider_type: Canonical provider id (ollama, openai, anthropic, ...)
             base_url: Base URL for the API
             api_key: API key (required for some providers)
             timeout: Request timeout in seconds
+            protocol: ``openai_compatible`` or ``anthropic``
         """
         self.provider_type = provider_type.lower()
+        self.protocol = protocol
+        self.timeout = timeout
+        self.api_key = api_key or "not-needed"
 
         if base_url:
-            self.base_url = normalize_openai_base_url(base_url)
+            self.base_url = (
+                base_url.rstrip("/")
+                if protocol == "anthropic"
+                else normalize_openai_base_url(base_url)
+            )
         else:
             self.base_url = None
-        self.api_key = api_key or "not-needed"
-        self.timeout = timeout
 
-        # Load extra body from environment variable if present
         self.extra_body = None
         extra_body_env = os.getenv("LLM_EXTRA_BODY")
         if extra_body_env:
@@ -62,21 +71,23 @@ class AsyncLLMClient:
                 )
 
         if not self.base_url:
-            raise ValueError("base_url is required for OpenAI-compatible provider")
+            raise ValueError("base_url is required for the selected LLM provider")
 
-        try:
-            from openai import AsyncOpenAI
+        self._client = None
+        if self.protocol != "anthropic":
+            try:
+                from openai import AsyncOpenAI
 
-            self._client = AsyncOpenAI(
-                api_key=self.api_key,
-                base_url=f"{self.base_url}/v1",
-                timeout=timeout,
-                max_retries=0,
-            )
-        except ImportError as error:
-            raise ImportError(
-                "OpenAI client not installed. Install with 'pip install openai'"
-            ) from error
+                self._client = AsyncOpenAI(
+                    api_key=self.api_key,
+                    base_url=f"{self.base_url}/v1",
+                    timeout=timeout,
+                    max_retries=2,
+                )
+            except ImportError as error:
+                raise ImportError(
+                    "OpenAI client not installed. Install with 'pip install openai'"
+                ) from error
 
     async def chat_with_structured_output(
         self,
@@ -130,16 +141,81 @@ class AsyncLLMClient:
         # Persian/English input and never changes JSON keys or identifiers.
         messages = add_persian_output_instruction(messages)
 
-        return await openai_compatible_chat(
-            self._client,
+        from server.utils.request_context import get_request_id
+
+        started = time.perf_counter()
+
+        try:
+            if self.protocol == "anthropic":
+                result = await anthropic_chat(
+                    self.base_url or "",
+                    self.api_key,
+                    model,
+                    messages,
+                    format,
+                    options,
+                    tools,
+                    stream,
+                    self.timeout,
+                )
+            else:
+                result = await openai_compatible_chat(
+                    self._client,
+                    model,
+                    messages,
+                    format,
+                    options,
+                    tools,
+                    stream,
+                    self.extra_body,
+                )
+        except Exception:
+            logger.warning(
+                "ai_llm provider=%s protocol=%s model=%s stream=%s duration_ms=%d "
+                "status=error request_id=%s",
+                self.provider_type,
+                self.protocol,
+                model,
+                stream,
+                int((time.perf_counter() - started) * 1000),
+                get_request_id(),
+            )
+            raise
+
+        if stream:
+
+            async def _logged_stream(generator):
+                status = "ok"
+                try:
+                    async for chunk in generator:
+                        yield chunk
+                except Exception:
+                    status = "error"
+                    raise
+                finally:
+                    logger.info(
+                        "ai_llm provider=%s protocol=%s model=%s stream=true "
+                        "duration_ms=%d status=%s request_id=%s",
+                        self.provider_type,
+                        self.protocol,
+                        model,
+                        int((time.perf_counter() - started) * 1000),
+                        status,
+                        get_request_id(),
+                    )
+
+            return _logged_stream(result)
+
+        logger.info(
+            "ai_llm provider=%s protocol=%s model=%s stream=false duration_ms=%d "
+            "status=ok request_id=%s",
+            self.provider_type,
+            self.protocol,
             model,
-            messages,
-            format,
-            options,
-            tools,
-            stream,
-            self.extra_body,
+            int((time.perf_counter() - started) * 1000),
+            get_request_id(),
         )
+        return result
 
 
 def get_llm_client(timeout: int = 80):
@@ -148,25 +224,15 @@ def get_llm_client(timeout: int = 80):
     Args:
         timeout: Request timeout in seconds (default: 80)
     """
+    from server.utils.providers import resolve_llm_connection
+
     config = config_manager.get_config()
-    provider_type = (config.get("LLM_PROVIDER", "openai") or "openai").lower()
-    base_url = config.get("LLM_BASE_URL")
-    api_key = config.get("LLM_API_KEY", None)
-
-    if provider_type == "local":
-        # For local provider, use llama-server via OpenAI-compatible API.
-        from server.utils.allocated_ports import get_llama_port
-
-        base_url = f"http://127.0.0.1:{get_llama_port()}"
-        provider_type = "openai"
-    else:
-        # Default endpoint remains Ollama's default host, accessed via /v1 API.
-        if not base_url:
-            base_url = "http://127.0.0.1:11434"
+    connection = resolve_llm_connection(config)
 
     return AsyncLLMClient(
-        provider_type=provider_type,
-        base_url=base_url,
-        api_key=api_key,
+        provider_type=connection["provider"],
+        base_url=connection["base_url"],
+        api_key=connection["api_key"],
         timeout=timeout,
+        protocol=connection["protocol"],
     )

@@ -3,6 +3,7 @@ import logging
 import httpx
 from fastapi import APIRouter
 
+from server.utils.providers import resolve_asr_connection, resolve_embedding_connection, resolve_llm_connection
 from server.utils.url_utils import build_openai_v1_url, build_whisper_v1_url
 
 router = APIRouter()
@@ -10,56 +11,56 @@ router = APIRouter()
 
 def _get_llm_status_url(config: dict) -> str | None:
     """Determine the LLM status check URL based on provider configuration."""
-    provider_type = (config.get("LLM_PROVIDER") or "openai").lower()
-    base_url = config.get("LLM_BASE_URL")
-
-    if provider_type == "local":
-        from server.utils.allocated_ports import get_llama_port
-
-        return f"http://127.0.0.1:{get_llama_port()}/v1/models"
-
-    if provider_type == "openai":
-        # Default to Ollama's standard host, and normalize optional /v1 suffix.
-        url = base_url or "http://127.0.0.1:11434"
-        return build_openai_v1_url(url, "models")
-
+    connection = resolve_llm_connection(config)
+    provider = connection["provider"]
+    base_url = connection["base_url"]
+    if provider == "anthropic":
+        return f"{base_url.rstrip('/')}/v1/models"
+    if base_url:
+        return build_openai_v1_url(base_url, "models")
     return None
 
 
 def _get_whisper_status_url(config: dict) -> str | None:
     """Determine the Whisper status check URL based on configuration."""
-    whisper_base_url = config.get("ASR_BASE_URL") or config.get("WHISPER_BASE_URL")
+    connection = resolve_asr_connection(config)
+    provider = connection["provider"]
+    model = connection["model"]
+    protocol = connection["protocol"]
 
-    # A local Shenava model runs in the Python ASR adapter and has no HTTP
-    # sidecar; Whisper.cpp models expose the local health endpoint.
-    if config.get("ASR_PROVIDER") == "local" and str(config.get("ASR_MODEL") or "").startswith(
-        "shenava-"
+    # ONNX runtimes (Shenava, Parakeet) have no HTTP sidecar.
+    if provider == "local" and (
+        str(model).startswith("shenava-") or str(model).startswith("parakeet-")
     ):
         return None
 
-    # Check if using a local Whisper.cpp model (when no external endpoint is configured).
-    # ASR provider selection is independent from the LLM provider.
-    asr_provider = str(config.get("ASR_PROVIDER") or "").strip().lower()
-    if asr_provider == "local" and not whisper_base_url:
+    if protocol == "speechmatics":
+        # Speechmatics has no public models listing; a configured key is enough.
+        return None
+
+    if protocol == "fireworks":
+        return None
+
+    if provider == "local" and not connection["base_url"]:
         from server.utils.allocated_ports import get_whisper_port
 
-        # Whisper.cpp exposes /health (not the OpenAI /v1/models list)
         return f"http://127.0.0.1:{get_whisper_port()}/health"
 
-    if whisper_base_url:
-        return build_whisper_v1_url(whisper_base_url, "models")
+    if connection["base_url"]:
+        return build_whisper_v1_url(connection["base_url"], "models")
 
     return None
 
 
 def _get_embedding_status_url(config: dict) -> str | None:
-    """Determine the embedding server status check URL for local mode."""
-    if config.get("LLM_PROVIDER") == "local":
+    """Determine the embedding server status check URL."""
+    connection = resolve_embedding_connection(config)
+    if connection["provider"] == "local":
         from server.utils.allocated_ports import get_embedding_port
 
-        # llama.cpp embedding server exposes /health
         return f"http://127.0.0.1:{get_embedding_port()}/health"
-
+    if connection["base_url"]:
+        return build_openai_v1_url(connection["base_url"], "models")
     return None
 
 
@@ -74,30 +75,45 @@ async def get_server_status():
     status = {"llm": False, "whisper": False, "embedding": None}
 
     try:
-        # Check LLM status
         llm_url = _get_llm_status_url(config)
         if llm_url:
+            headers = {}
+            connection = resolve_llm_connection(config)
+            if connection["provider"] == "anthropic":
+                headers = {
+                    "x-api-key": connection["api_key"],
+                    "anthropic-version": "2023-06-01",
+                }
+            elif connection["api_key"] and connection["api_key"] not in {
+                "not-needed",
+                "ollama",
+                "lm-studio",
+            }:
+                headers = {"Authorization": f"Bearer {connection['api_key']}"}
             async with httpx.AsyncClient() as client:
                 try:
-                    response = await client.get(llm_url, timeout=2.0)
-                    # For OpenAI-compatible APIs (including local llama-server),
-                    # 401/403 indicates reachable service that requires authentication.
+                    response = await client.get(llm_url, timeout=2.0, headers=headers)
                     status["llm"] = response.status_code in [200, 401, 403]
                 except Exception:
                     logging.debug("LLM status check failed (service unreachable)")
 
-        # Check Whisper status
         whisper_url = _get_whisper_status_url(config)
-        if whisper_url:
+        asr = resolve_asr_connection(config)
+        if asr["provider"] in {"speechmatics", "fireworks"}:
+            # Cloud providers are "up" when a key is configured.
+            status["whisper"] = bool(asr["api_key"])
+        elif asr["provider"] == "local" and str(asr["model"]).startswith(("shenava-", "parakeet-")):
+            from server.utils.whisper_models import asr_model_manager
+
+            status["whisper"] = asr_model_manager.get_model_path(asr["model"]) is not None
+        elif whisper_url:
             async with httpx.AsyncClient() as client:
                 try:
                     response = await client.get(whisper_url, timeout=2.0)
-                    # If we get a 401/403, the service exists but requires auth
                     status["whisper"] = response.status_code in [200, 401, 403]
                 except Exception:
                     logging.debug("Whisper status check failed (service unreachable)")
 
-        # Check embedding status
         embedding_url = _get_embedding_status_url(config)
         if embedding_url:
             async with httpx.AsyncClient() as client:
