@@ -2,6 +2,7 @@ import logging
 
 from fastapi import APIRouter, Body, HTTPException
 from fastapi.responses import JSONResponse
+from pydantic import ValidationError
 
 from server.database.repositories.templates import (
     get_all_templates,
@@ -53,6 +54,9 @@ def get_template(template_key: str):
         if template is None:
             raise HTTPException(status_code=404, detail="Template not found")
         return JSONResponse(content=template)
+    except HTTPException as he:
+        # Preserve intended status codes (e.g. 404) instead of collapsing to 500.
+        raise he
     except Exception as e:
         logging.error(f"Error fetching template: {e}")
         raise HTTPException(status_code=500, detail="Internal server error") from e
@@ -218,6 +222,13 @@ def save_templates(
                 "updated_keys": updated_keys,
             }
         )
+    except HTTPException as he:
+        # Preserve intended status codes instead of collapsing to 500.
+        raise he
+    except ValidationError as ve:
+        # Manual ClinicalTemplate construction: surface schema errors as 422,
+        # matching FastAPI's own request-body validation contract.
+        raise HTTPException(status_code=422, detail=ve.errors()) from ve
     except Exception as e:
         logging.error(f"Error saving templates: {e}")
         raise HTTPException(status_code=500, detail="Internal server error") from e

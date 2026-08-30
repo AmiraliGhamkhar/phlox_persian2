@@ -75,12 +75,15 @@ class SpeechmaticsLiveSession(LiveSession):
                 AsyncClient,
                 AudioEncoding,
                 AudioFormat,
+                Model,
                 ServerMessageType,
                 TranscriptionConfig,
                 TranscriptResult,
             )
         except ImportError as error:
-            raise ValueError("Speechmatics support is not installed in this server build") from error
+            raise ValueError(
+                "Speechmatics support is not installed in this server build"
+            ) from error
 
         api_key = str(self.config.get("ASR_KEY") or self.config.get("WHISPER_KEY") or "").strip()
         if not api_key:
@@ -88,9 +91,10 @@ class SpeechmaticsLiveSession(LiveSession):
 
         language = resolve_asr_language(self.config)
         speechmatics_language = "auto" if language == "auto" else language
-        operating_point = str(self.config.get("ASR_MODEL") or "enhanced").strip().lower()
-        if operating_point not in {"enhanced", "standard"}:
-            operating_point = "enhanced"
+        # Map the configured operating point onto the v1 ``Model`` enum; any
+        # unrecognised value falls back to the default ``enhanced`` model.
+        model_name = str(self.config.get("ASR_MODEL") or "enhanced").strip().lower()
+        model = Model.STANDARD if model_name == "standard" else Model.ENHANCED
 
         client_url = str(self.config.get("ASR_BASE_URL") or "").strip() or None
         client = AsyncClient(api_key=api_key, url=client_url)
@@ -124,9 +128,7 @@ class SpeechmaticsLiveSession(LiveSession):
         def on_final(message: dict) -> None:
             asyncio.create_task(handle_final(message))
 
-        partial_event = getattr(ServerMessageType, "ADD_PARTIAL_TRANSCRIPT", None) or getattr(
-            ServerMessageType, "AddPartialTranscript", "AddPartialTranscript"
-        )
+        partial_event = ServerMessageType.ADD_PARTIAL_TRANSCRIPT
         client.on(partial_event, on_partial)
         client.on(ServerMessageType.ADD_TRANSCRIPT, on_final)
 
@@ -135,7 +137,7 @@ class SpeechmaticsLiveSession(LiveSession):
                 def __init__(self, queue: asyncio.Queue[bytes | None]):
                     self.queue = queue
 
-                async def read(self, size: int = -1) -> bytes:
+                async def read(self, _size: int = -1) -> bytes:
                     chunk = await self.queue.get()
                     if chunk is None:
                         return b""
@@ -143,10 +145,10 @@ class SpeechmaticsLiveSession(LiveSession):
 
             try:
                 await client.transcribe(
-                    _QueueAudio(self._queue),
+                    _QueueAudio(self._queue),  # ty: ignore (SDK types `source` as BinaryIO but accepts any binary read()-able object, incl. async reads)
                     transcription_config=TranscriptionConfig(
                         language=speechmatics_language,
-                        operating_point=operating_point,
+                        model=model,
                         enable_partials=True,
                     ),
                     audio_format=AudioFormat(
@@ -197,7 +199,9 @@ class FireworksLiveSession(LiveSession):
         try:
             import websockets
         except ImportError as error:
-            raise ValueError("Fireworks live transcription requires the websockets package") from error
+            raise ValueError(
+                "Fireworks live transcription requires the websockets package"
+            ) from error
 
         api_key = str(self.config.get("ASR_KEY") or self.config.get("WHISPER_KEY") or "").strip()
         if not api_key:
@@ -217,13 +221,23 @@ class FireworksLiveSession(LiveSession):
 
         headers = {"Authorization": f"Bearer {api_key}"}
         try:
-            self._ws = await websockets.connect(url, additional_headers=headers, max_size=8 * 1024 * 1024)
+            self._ws = await websockets.connect(
+                url,  # ty: ignore (websockets>=14 arg name; older versions fall back below)
+                additional_headers=headers,
+                max_size=8 * 1024 * 1024,
+            )
         except TypeError:
-            self._ws = await websockets.connect(url, extra_headers=headers, max_size=8 * 1024 * 1024)
+            self._ws = await websockets.connect(
+                url,  # ty: ignore (websockets<14 arg name kept for compat)
+                extra_headers=headers,
+                max_size=8 * 1024 * 1024,
+            )
 
         async def _receive() -> None:
+            ws = self._ws
+            assert ws is not None  # only reachable after start() assigned _ws above
             try:
-                async for message in self._ws:
+                async for message in ws:
                     await self._handle_message(message)
             except Exception as error:
                 logger.debug("Fireworks live receive ended: %s", error)
@@ -241,10 +255,7 @@ class FireworksLiveSession(LiveSession):
         except json.JSONDecodeError:
             return
         text = (
-            payload.get("transcript")
-            or payload.get("text")
-            or payload.get("transcription")
-            or ""
+            payload.get("transcript") or payload.get("text") or payload.get("transcription") or ""
         )
         if not text and isinstance(payload.get("words"), list):
             text = " ".join(
@@ -254,7 +265,9 @@ class FireworksLiveSession(LiveSession):
             )
         if not text:
             return
-        is_final = bool(payload.get("is_final") or payload.get("final") or payload.get("type") == "final")
+        is_final = bool(
+            payload.get("is_final") or payload.get("final") or payload.get("type") == "final"
+        )
         if is_final:
             self._finals.append(text)
             self._partial = ""
@@ -368,8 +381,6 @@ def live_is_authoritative(config: dict[str, Any]) -> bool:
     connection = resolve_asr_connection(config)
     protocol = connection["protocol"]
     model = connection["model"]
-    if protocol == "speechmatics":
-        return True
-    if protocol == "fireworks" and not str(model).startswith("whisper-"):
-        return True
-    return False
+    return protocol == "speechmatics" or (
+        protocol == "fireworks" and not str(model).startswith("whisper-")
+    )

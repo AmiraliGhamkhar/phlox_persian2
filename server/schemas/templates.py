@@ -1,7 +1,7 @@
 from enum import StrEnum
 from typing import Any, Literal, Union
 
-from pydantic import BaseModel, field_validator
+from pydantic import BaseModel, ConfigDict, field_validator
 
 VALID_FIELD_TYPES = Literal["text", "number", "date", "boolean", "list", "structured"]
 
@@ -49,8 +49,7 @@ class ClinicalTemplate(BaseModel):
     created_at: str | None = None
     updated_at: str | None = None
 
-    class Config:
-        extra = "allow"
+    model_config = ConfigDict(extra="allow")
 
 
 class TemplateResponse(BaseModel):

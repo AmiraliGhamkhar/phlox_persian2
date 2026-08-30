@@ -25,9 +25,15 @@ def test_list_providers_covers_requested_backends():
     llm_ids = {item["id"] for item in catalog["llm"]}
     asr_ids = {item["id"] for item in catalog["asr"]}
     embedding_ids = {item["id"] for item in catalog["embedding"]}
-    assert {"ollama", "lmstudio", "llamacpp", "ninerouter", "omniroute", "openai", "anthropic"}.issubset(
-        llm_ids
-    )
+    assert {
+        "ollama",
+        "lmstudio",
+        "llamacpp",
+        "ninerouter",
+        "omniroute",
+        "openai",
+        "anthropic",
+    }.issubset(llm_ids)
     assert {"fireworks", "speechmatics", "whispercpp", "openai"}.issubset(asr_ids)
     assert {"ollama", "openai", "local"}.issubset(embedding_ids)
 
@@ -52,8 +58,14 @@ def test_anthropic_uses_messages_protocol():
 
 
 def test_detect_llm_provider_from_url():
-    assert detect_llm_provider({"LLM_PROVIDER": "openai", "LLM_BASE_URL": "http://127.0.0.1:1234"}) == "lmstudio"
-    assert detect_llm_provider({"LLM_PROVIDER": "openai", "LLM_BASE_URL": "https://api.openai.com"}) == "openai"
+    assert (
+        detect_llm_provider({"LLM_PROVIDER": "openai", "LLM_BASE_URL": "http://127.0.0.1:1234"})
+        == "lmstudio"
+    )
+    assert (
+        detect_llm_provider({"LLM_PROVIDER": "openai", "LLM_BASE_URL": "https://api.openai.com"})
+        == "openai"
+    )
     assert detect_llm_provider({"LLM_PROVIDER": "openai", "LLM_BASE_URL": ""}) == "ollama"
 
 

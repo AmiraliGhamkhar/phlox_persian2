@@ -117,6 +117,8 @@ def modify_collection(request: ModifyCollectionRequest):
         if not success:
             raise HTTPException(status_code=500, detail="Failed to rename collection")
         return {"message": "Collection renamed successfully"}
+    except HTTPException as he:
+        raise he
     except Exception as e:
         logger.error(f"Error renaming collection: {e}", exc_info=True)
         raise HTTPException(status_code=500, detail="Error renaming collection") from e
@@ -132,6 +134,8 @@ def delete_collection_endpoint(name: str):
         if not success:
             raise HTTPException(status_code=500, detail="Failed to delete collection")
         return {"message": "Collection deleted successfully"}
+    except HTTPException as he:
+        raise he
     except Exception as e:
         logger.error(f"Error deleting collection: {e}", exc_info=True)
         raise HTTPException(status_code=500, detail="Error deleting collection") from e
@@ -149,6 +153,8 @@ def delete_file_endpoint(request: DeleteFileRequest):
         if not success:
             raise HTTPException(status_code=500, detail="Failed to delete file from collection")
         return {"message": "File deleted from collection successfully"}
+    except HTTPException as he:
+        raise he
     except Exception as e:
         logger.error(f"Error deleting file from collection: {e}", exc_info=True)
         raise HTTPException(
@@ -173,6 +179,8 @@ def update_document_metadata(request: UpdateDocumentMetadataRequest):
         if not success:
             raise HTTPException(status_code=500, detail="Failed to update document metadata")
         return {"message": "Document metadata updated successfully"}
+    except HTTPException as he:
+        raise he
     except Exception as e:
         logger.error(f"Error updating document metadata: {e}", exc_info=True)
         raise HTTPException(
@@ -371,6 +379,8 @@ def clear_database():
         if not success:
             raise HTTPException(status_code=500, detail="Failed to reset RAG database")
         return {"message": "RAG database cleared successfully"}
+    except HTTPException as he:
+        raise he
     except Exception as e:
         logger.error(f"Error clearing RAG database: {e}", exc_info=True)
         raise HTTPException(status_code=500, detail="Error clearing RAG database") from e

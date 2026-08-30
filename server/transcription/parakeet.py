@@ -88,7 +88,7 @@ def _session_feed(session, **named) -> dict[str, Any]:
             feed[name] = leftovers.pop(name)
             continue
         match = None
-        for key, value in list(leftovers.items()):
+        for key, _ in list(leftovers.items()):
             if key.lower() in lowered or lowered in key.lower():
                 match = key
                 break
@@ -142,11 +142,7 @@ def run_parakeet_inference(audio_buffer: bytes, config: dict) -> str:
     waveforms = samples[None, :]
     waveforms_len = np.array([samples.size], dtype=np.int64)
     pre_out = _run_named(preprocessor, waveforms=waveforms, waveforms_lens=waveforms_len)
-    features = next(
-        value
-        for name, value in pre_out.items()
-        if "len" not in name.lower()
-    )
+    features = next(value for name, value in pre_out.items() if "len" not in name.lower())
     features_len = next(
         (value for name, value in pre_out.items() if "len" in name.lower()),
         np.array([features.shape[-1]], dtype=np.int64),
@@ -168,12 +164,20 @@ def run_parakeet_inference(audio_buffer: bytes, config: dict) -> str:
         encodings = encoder_out[0]
     else:
         encodings = encoder_out
-    encodings_len = int(np.asarray(encoder_len).reshape(-1)[0]) if encoder_len is not None else encodings.shape[0]
+    encodings_len = (
+        int(np.asarray(encoder_len).reshape(-1)[0])
+        if encoder_len is not None
+        else encodings.shape[0]
+    )
     encodings_len = min(encodings_len, encodings.shape[0])
 
     shapes = {item.name: item.shape for item in decoder.get_inputs()}
-    state1_shape = [int(dim) if isinstance(dim, int) else 1 for dim in shapes.get("input_states_1", [2, 1, 640])]
-    state2_shape = [int(dim) if isinstance(dim, int) else 1 for dim in shapes.get("input_states_2", [2, 1, 640])]
+    state1_shape = [
+        int(dim) if isinstance(dim, int) else 1 for dim in shapes.get("input_states_1", [2, 1, 640])
+    ]
+    state2_shape = [
+        int(dim) if isinstance(dim, int) else 1 for dim in shapes.get("input_states_2", [2, 1, 640])
+    ]
     state1 = np.zeros(state1_shape, dtype=np.float32)
     state2 = np.zeros(state2_shape, dtype=np.float32)
 
@@ -200,7 +204,9 @@ def run_parakeet_inference(audio_buffer: bytes, config: dict) -> str:
             input_states_1=state1,
             input_states_2=state2,
         )
-        logits = np.asarray(next(value for name, value in dec_out.items() if "state" not in name.lower()))
+        logits = np.asarray(
+            next(value for name, value in dec_out.items() if "state" not in name.lower())
+        )
         logits = np.squeeze(logits)
         token_logits = logits[:vocab_size]
         duration = 0
@@ -209,11 +215,19 @@ def run_parakeet_inference(audio_buffer: bytes, config: dict) -> str:
         token = int(np.argmax(token_logits))
         if token != blank_idx:
             next_state1 = next(
-                (value for name, value in dec_out.items() if name.endswith("1") and "state" in name.lower()),
+                (
+                    value
+                    for name, value in dec_out.items()
+                    if name.endswith("1") and "state" in name.lower()
+                ),
                 state1,
             )
             next_state2 = next(
-                (value for name, value in dec_out.items() if name.endswith("2") and "state" in name.lower()),
+                (
+                    value
+                    for name, value in dec_out.items()
+                    if name.endswith("2") and "state" in name.lower()
+                ),
                 state2,
             )
             state1 = np.asarray(next_state1)

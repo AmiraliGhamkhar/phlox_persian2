@@ -518,11 +518,15 @@ def resolve_llm_connection(config: dict[str, Any]) -> dict[str, Any]:
             "info": LLM_PROVIDERS["local"],
         }
 
-    base_url = str(config.get("LLM_BASE_URL") or "").strip() or str(info.get("default_base_url") or "")
+    base_url = str(config.get("LLM_BASE_URL") or "").strip() or str(
+        info.get("default_base_url") or ""
+    )
     if not base_url:
         base_url = LEGACY_OPENAI_FALLBACK_URL
 
-    api_key = str(config.get("LLM_API_KEY") or "").strip() or str(info.get("default_api_key") or "not-needed")
+    api_key = str(config.get("LLM_API_KEY") or "").strip() or str(
+        info.get("default_api_key") or "not-needed"
+    )
     return {
         "provider": provider,
         "protocol": info.get("protocol", "openai_compatible"),
@@ -592,7 +596,12 @@ def resolve_embedding_connection(config: dict[str, Any]) -> dict[str, Any]:
         base_url = str(info.get("default_base_url") or config.get("LLM_BASE_URL") or "")
     if not base_url:
         base_url = LEGACY_OPENAI_FALLBACK_URL
-    api_key = str(config.get("EMBEDDING_API_KEY") or config.get("LLM_API_KEY") or info.get("default_api_key") or "not-needed")
+    api_key = str(
+        config.get("EMBEDDING_API_KEY")
+        or config.get("LLM_API_KEY")
+        or info.get("default_api_key")
+        or "not-needed"
+    )
     model = str(config.get("EMBEDDING_MODEL") or "").strip()
     if not model and info.get("default_models"):
         model = info["default_models"][0]
@@ -605,7 +614,9 @@ def resolve_embedding_connection(config: dict[str, Any]) -> dict[str, Any]:
     }
 
 
-def apply_llm_provider_defaults(provider_id: str, current: dict[str, Any] | None = None) -> dict[str, str]:
+def apply_llm_provider_defaults(
+    provider_id: str, current: dict[str, Any] | None = None
+) -> dict[str, str]:
     """Return config keys to apply when the user switches LLM provider."""
     provider = normalize_provider_id(provider_id, "llm")
     info = LLM_PROVIDERS.get(provider, LLM_PROVIDERS["openai_compatible"])
@@ -614,9 +625,7 @@ def apply_llm_provider_defaults(provider_id: str, current: dict[str, Any] | None
     default_url = str(info.get("default_base_url") or "")
     # Always stamp a known default when switching to a named provider so the
     # UI and model listing immediately target the right host.
-    if provider != "openai_compatible":
-        updates["LLM_BASE_URL"] = default_url
-    elif not current.get("LLM_BASE_URL"):
+    if provider != "openai_compatible" or not current.get("LLM_BASE_URL"):
         updates["LLM_BASE_URL"] = default_url
     return updates
 

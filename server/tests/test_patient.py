@@ -53,6 +53,43 @@ def test_search_patient():
     assert isinstance(data, list)
 
 
+def test_patient_history_missing_returns_404(monkeypatch):
+    """Regression: /api/note/id/{id}/history with an unknown patient must
+    return 404, not 500 (the 404 used to be swallowed into a 500)."""
+
+    monkeypatch.setattr(
+        "server.database.repositories.encounter.get_patient_by_id", lambda _id: None
+    )
+    response = client.get("/api/note/id/999999/history")
+    assert response.status_code == 404
+    assert response.json()["detail"] == "Patient not found"
+
+
+@pytest.mark.asyncio
+async def test_patient_summary_missing_returns_404(monkeypatch):
+    """Regression: /api/note/summary/{id} with an unknown patient must return
+    404 before any LLM call, not 500."""
+
+    monkeypatch.setattr(
+        "server.database.repositories.encounter.get_patient_by_id", lambda _id: None
+    )
+    response = client.get("/api/note/summary/999999")
+    assert response.status_code == 404
+    assert response.json()["detail"] == "Patient not found"
+
+
+def test_reasoning_stream_missing_returns_404(monkeypatch):
+    """Regression: POST /api/note/{id}/reasoning/stream with an unknown
+    patient must return 404, not 500."""
+
+    monkeypatch.setattr(
+        "server.database.repositories.encounter.get_patient_by_id", lambda _id: None
+    )
+    response = client.post("/api/note/999999/reasoning/stream")
+    assert response.status_code == 404
+    assert response.json()["detail"] == "Patient not found"
+
+
 # For save and update endpoints, we patch the database functions.
 @pytest.mark.asyncio
 async def test_save_patient(monkeypatch):

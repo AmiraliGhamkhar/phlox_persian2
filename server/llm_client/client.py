@@ -15,7 +15,7 @@ from collections.abc import AsyncGenerator
 from typing import Any, Union
 
 from server.database.config.manager import config_manager
-from server.locale import add_persian_output_instruction
+from server.locale_policy import add_persian_output_instruction
 from server.utils.url_utils import normalize_openai_base_url
 
 from .providers.anthropic import anthropic_chat

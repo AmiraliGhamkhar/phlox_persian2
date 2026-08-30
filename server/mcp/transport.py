@@ -33,9 +33,7 @@ def mcp_tool_requires_confirmation(tool: Any) -> bool:
         return False
     if _annotation_flag(annotations, "destructiveHint") is True:
         return True
-    if _annotation_flag(annotations, "readOnlyHint") is False:
-        return True
-    return False
+    return _annotation_flag(annotations, "readOnlyHint") is False
 
 
 def mcp_transport_order(url: str) -> list[str]:

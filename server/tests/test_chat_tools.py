@@ -68,6 +68,7 @@ def test_register_pending_action_stores_patient_context():
     assert action.patient_context == {"name": "Doe, Jane", "ur_number": "UR1"}
     popped = pop_pending_action(action.id)
     assert popped is not None
+    assert popped.patient_context is not None
     assert popped.patient_context["ur_number"] == "UR1"
 
 

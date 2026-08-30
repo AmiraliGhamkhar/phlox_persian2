@@ -9,8 +9,7 @@ from __future__ import annotations
 
 import json
 import logging
-from collections.abc import AsyncGenerator
-from typing import Any
+from typing import TYPE_CHECKING, Any
 
 import httpx
 
@@ -19,6 +18,9 @@ from server.utils.http_retry import (
     sanitize_provider_error,
     with_retries,
 )
+
+if TYPE_CHECKING:
+    from collections.abc import AsyncGenerator
 
 logger = logging.getLogger(__name__)
 
@@ -172,8 +174,7 @@ def convert_tools(tools: list[dict[str, Any]] | None) -> list[dict[str, Any]] | 
             {
                 "name": function.get("name") or "",
                 "description": function.get("description") or "",
-                "input_schema": function.get("parameters")
-                or {"type": "object", "properties": {}},
+                "input_schema": function.get("parameters") or {"type": "object", "properties": {}},
             }
         )
     return converted
@@ -224,12 +225,10 @@ def _message_to_ollama(model: str, data: dict[str, Any]) -> dict[str, Any]:
                     },
                 }
             )
-    result: dict[str, Any] = {
-        "model": model,
-        "message": {"role": "assistant", "content": "".join(text_parts)},
-    }
+    message: dict[str, Any] = {"role": "assistant", "content": "".join(text_parts)}
     if tool_calls:
-        result["message"]["tool_calls"] = tool_calls
+        message["tool_calls"] = tool_calls
+    result: dict[str, Any] = {"model": model, "message": message}
     return result
 
 
@@ -286,68 +285,70 @@ async def anthropic_chat(
         async def response_generator():
             tool_blocks: dict[int, dict[str, str]] = {}
             try:
-                async with httpx.AsyncClient(timeout=timeout) as client:
-                    async with client.stream("POST", url, json=payload, headers=headers) as response:
-                        _raise_for_status(response)
-                        async for line in response.aiter_lines():
-                            if not line.startswith("data: "):
-                                continue
-                            raw = line[6:].strip()
-                            if not raw or raw == "[DONE]":
-                                continue
-                            try:
-                                event = json.loads(raw)
-                            except json.JSONDecodeError:
-                                continue
-                            event_type = event.get("type")
-                            if event_type == "content_block_start":
-                                block = event.get("content_block") or {}
-                                if block.get("type") == "tool_use":
-                                    tool_blocks[int(event.get("index") or 0)] = {
-                                        "id": str(block.get("id") or ""),
-                                        "name": str(block.get("name") or ""),
-                                        "json": "",
-                                    }
-                            elif event_type == "content_block_delta":
-                                delta = event.get("delta") or {}
-                                if delta.get("type") == "text_delta" and delta.get("text"):
-                                    yield {
-                                        "model": model,
-                                        "message": {
-                                            "role": "assistant",
-                                            "content": delta["text"],
-                                        },
-                                    }
-                                elif delta.get("type") == "input_json_delta":
-                                    index = int(event.get("index") or 0)
-                                    if index in tool_blocks:
-                                        tool_blocks[index]["json"] += str(
-                                            delta.get("partial_json") or ""
-                                        )
-                            elif event_type == "message_stop" and tool_blocks:
+                async with (
+                    httpx.AsyncClient(timeout=timeout) as client,
+                    client.stream("POST", url, json=payload, headers=headers) as response,
+                ):
+                    _raise_for_status(response)
+                    async for line in response.aiter_lines():
+                        if not line.startswith("data: "):
+                            continue
+                        raw = line[6:].strip()
+                        if not raw or raw == "[DONE]":
+                            continue
+                        try:
+                            event = json.loads(raw)
+                        except json.JSONDecodeError:
+                            continue
+                        event_type = event.get("type")
+                        if event_type == "content_block_start":
+                            block = event.get("content_block") or {}
+                            if block.get("type") == "tool_use":
+                                tool_blocks[int(event.get("index") or 0)] = {
+                                    "id": str(block.get("id") or ""),
+                                    "name": str(block.get("name") or ""),
+                                    "json": "",
+                                }
+                        elif event_type == "content_block_delta":
+                            delta = event.get("delta") or {}
+                            if delta.get("type") == "text_delta" and delta.get("text"):
                                 yield {
                                     "model": model,
                                     "message": {
                                         "role": "assistant",
-                                        "content": "",
-                                        "tool_calls": [
-                                            {
-                                                "id": item["id"],
-                                                "type": "function",
-                                                "function": {
-                                                    "name": item["name"],
-                                                    "arguments": item["json"] or "{}",
-                                                },
-                                            }
-                                            for item in tool_blocks.values()
-                                        ],
+                                        "content": delta["text"],
                                     },
                                 }
-                            elif event_type == "error":
-                                error = event.get("error") or {}
-                                raise ValueError(
-                                    f"Anthropic stream error: {error.get('message') or event}"
-                                )
+                            elif delta.get("type") == "input_json_delta":
+                                index = int(event.get("index") or 0)
+                                if index in tool_blocks:
+                                    tool_blocks[index]["json"] += str(
+                                        delta.get("partial_json") or ""
+                                    )
+                        elif event_type == "message_stop" and tool_blocks:
+                            yield {
+                                "model": model,
+                                "message": {
+                                    "role": "assistant",
+                                    "content": "",
+                                    "tool_calls": [
+                                        {
+                                            "id": item["id"],
+                                            "type": "function",
+                                            "function": {
+                                                "name": item["name"],
+                                                "arguments": item["json"] or "{}",
+                                            },
+                                        }
+                                        for item in tool_blocks.values()
+                                    ],
+                                },
+                            }
+                        elif event_type == "error":
+                            error = event.get("error") or {}
+                            raise ValueError(
+                                f"Anthropic stream error: {error.get('message') or event}"
+                            )
             except httpx.HTTPStatusError as error:
                 _raise_for_status(error.response)
             except Exception as error:
