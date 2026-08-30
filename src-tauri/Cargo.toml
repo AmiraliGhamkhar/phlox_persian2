@@ -61,3 +61,14 @@ windows = { version = "0.62", features = ["Win32_Foundation", "Win32_System_Thre
 [[bin]]
 name = "phlox"
 path = "src/main.rs"
+
+# Dev/iteration tuning. These only affect `cargo build` / `tauri dev`
+# (debug builds); release builds (CI, Flatpak, `tauri build`) use the default
+# release profile and are unaffected.
+[profile.dev]
+incremental = true
+# Skip full debug info and lightly optimize third-party crates: dependency code
+# is rarely stepped through, and this substantially speeds up dev links.
+[profile.dev.package."*"]
+opt-level = 1
+debug = false

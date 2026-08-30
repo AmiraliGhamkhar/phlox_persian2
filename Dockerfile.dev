@@ -1,3 +1,4 @@
+# syntax=docker/dockerfile:1
 #
 # Phlox - development image (Vite dev server + uvicorn --reload, hot reload via
 # bind mounts).
@@ -11,6 +12,9 @@
 # image and reset the dependency volumes:
 #   docker compose -f docker-compose.dev.yml build
 #   docker compose -f docker-compose.dev.yml down -v
+#
+# BuildKit cache mounts keep npm/apt/uv download caches warm across rebuilds;
+# they never end up in the shipped image.
 
 ###############################################################################
 # Stage 1 - Node.js toolchain and node_modules
@@ -20,9 +24,11 @@ FROM node:24-slim AS node-stage
 WORKDIR /usr/src/app
 
 # Lockfile-driven install (reproducible); .npmrc pins ignore-scripts and the
-# min-release-age cooldown.
+# min-release-age cooldown. The BuildKit cache mount keeps downloaded tarballs
+# warm across rebuilds; node_modules is committed to the stage layer.
 COPY package.json package-lock.json .npmrc .nvmrc ./
-RUN npm ci --ignore-scripts && npm cache clean --force
+RUN --mount=type=cache,target=/root/.npm,sharing=locked \
+    npm ci --ignore-scripts --no-audit --no-fund
 
 ###############################################################################
 # Stage 2 - Python + Node runtime
@@ -48,12 +54,15 @@ ENV DOCKER_CONTAINER=true \
     RATE_LIMIT_ENABLED=false \
     UV_PYTHON_PREFERENCE=only-system \
     UV_PYTHON_DOWNLOADS=never \
+    UV_LINK_MODE=copy \
     TIKTOKEN_CACHE_DIR=/usr/src/app/.cache/tiktoken
 
 # parallel  - runs Vite and uvicorn side by side in one container
 # tesseract - OCR used by document processing
 # tzdata    - makes the TZ environment variable resolve to a real zone
-RUN apt-get update \
+RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
+    --mount=type=cache,target=/var/lib/apt,sharing=locked \
+    apt-get update \
     && apt-get install -y --no-install-recommends \
         ca-certificates \
         parallel \
@@ -82,7 +91,9 @@ RUN mkdir -p /usr/src/app/data /usr/src/app/temp /usr/src/app/build \
        > /usr/src/app/build/index.html
 
 # Python dependencies - dev group included so pytest/ruff/ty work in-container.
-RUN uv sync --directory server --locked --extra docker
+# The BuildKit cache mount keeps downloaded wheels warm across rebuilds.
+RUN --mount=type=cache,target=/root/.cache/uv,sharing=locked \
+    uv sync --directory server --locked --extra docker
 
 # Pre-cache the tokenizer data used by RAG chunking.
 RUN python -c "import tiktoken; tiktoken.get_encoding('cl100k_base')"

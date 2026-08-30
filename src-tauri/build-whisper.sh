@@ -17,6 +17,9 @@ SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 WHISPER_DIR="$SCRIPT_DIR/whisper.cpp"
 WHISPER_REF="${WHISPER_CPP_REF:-978113305b2ead22249b881deafa131dc8884911}"
 
+# Shared build helpers (compiler cache + incremental build-dir management)
+source "$SCRIPT_DIR/build-common.sh"
+
 if [ ! -d "$WHISPER_DIR" ]; then
   echo "Cloning whisper.cpp ($WHISPER_REF)..."
   git clone --depth 1 https://github.com/ggml-org/whisper.cpp.git "$WHISPER_DIR"
@@ -28,28 +31,40 @@ elif [ ! -f "$WHISPER_DIR/CMakeLists.txt" ]; then
 fi
 
 if [[ "$OSTYPE" == "darwin"* ]]; then
-  JOBS=$(sysctl -n hw.logicalcpu)
   BACKEND_FLAGS=(-DGGML_METAL=ON -DGGML_NATIVE=ON)
   BUILD_CONFIG_FLAGS=()
   SERVER_NAME="phlox-whisper-server"
   BACKEND="Metal"
 elif [[ "$OSTYPE" == "msys"* || "$OSTYPE" == "win32"* ]]; then
-  JOBS=${NUMBER_OF_PROCESSORS:-4}
   BACKEND_FLAGS=(-DGGML_NATIVE=OFF)
   BUILD_CONFIG_FLAGS=(--config Release)
   SERVER_NAME="phlox-whisper-server.exe"
   BACKEND="CPU"
 else
-  JOBS=$(nproc)
   BACKEND_FLAGS=(-DGGML_NATIVE=OFF)
   BUILD_CONFIG_FLAGS=()
   SERVER_NAME="phlox-whisper-server"
   BACKEND="CPU"
 fi
 
-rm -rf "$WHISPER_DIR/build"
+JOBS="$(phlox_jobs_count)"
+
+# Route compilation through ccache/sccache when available (no-op otherwise).
+phlox_collect_cmake_launcher
+# Use Ninja when installed (faster, parallel incremental builds); else Makefiles.
+phlox_collect_cmake_generator
+
+# Reuse the incremental CMake build dir; only wipe it when the pinned source
+# SHA, the generator, or the backend flags change (or FORCE_CLEAN=1). The
+# signature ties the cached object files to exactly the inputs that produced
+# them.
+WHISPER_BUILD_SIG="whisper:${WHISPER_REF}:$(phlox_cmake_generator_tag):${BACKEND}:Release"
+phlox_prepare_build_dir "$WHISPER_DIR/build" "$WHISPER_BUILD_SIG"
+
 cmake -S "$WHISPER_DIR" -B "$WHISPER_DIR/build" \
+  "${CMAKE_GENERATOR_ARGS[@]}" \
   -DCMAKE_BUILD_TYPE=Release \
+  "${CMAKE_LAUNCHER_ARGS[@]}" \
   "${BACKEND_FLAGS[@]}" \
   -DBUILD_SHARED_LIBS=OFF \
   -DWHISPER_BUILD_SERVER=ON \

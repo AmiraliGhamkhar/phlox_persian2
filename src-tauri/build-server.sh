@@ -14,6 +14,11 @@ for arg in "$@"; do
             DEBUG_MODE=true
             shift
             ;;
+        --clean)
+            # Force a clean rebuild (wipe Nuitka output + build objects)
+            export FORCE_CLEAN=1
+            shift
+            ;;
     esac
 done
 
@@ -21,6 +26,9 @@ done
 SCRIPT_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)"
 PROJECT_DIR="$(dirname "$SCRIPT_DIR")"
 SERVER_DIR="$PROJECT_DIR/server"
+
+# Shared build helpers (compiler cache + incremental build management)
+source "$SCRIPT_DIR/build-common.sh"
 
 echo "Building Python server with Nuitka..."
 echo "Server directory: $SERVER_DIR"
@@ -56,9 +64,22 @@ else
     echo "Defaulting to Apple Silicon (ARM64)"
 fi
 
-# Clean previous build
-echo "Cleaning previous build..."
-rm -rf "$SERVER_DIR/dist"
+# Point Nuitka at a persistent, ccache-backed cache so repeat compilations reuse
+# compiled object files instead of recompiling every generated C file. On local
+# builds this lives in src-tauri/.build-cache (git-ignored); CI keeps its own
+# platform-standard caches. No-op safety net: ccache simply isn't used if absent.
+phlox_setup_nuitka_cache
+
+# Nuitka keeps its per-module C build outputs next to the standalone folder;
+# retaining server/dist across builds lets Nuitka + ccache skip unchanged
+# modules. Only wipe it when explicitly requested (--clean / FORCE_CLEAN=1),
+# since a stale dist would otherwise be rebuilt from scratch every time.
+if [ "${FORCE_CLEAN:-0}" = "1" ]; then
+    echo "🧹 FORCE_CLEAN=1 - cleaning previous Nuitka build..."
+    rm -rf "$SERVER_DIR/dist"
+else
+    echo "♻️  Keeping previous Nuitka output for incremental reuse (use --clean to force a full rebuild)"
+fi
 
 # Build with Nuitka from project root
 echo "Compiling with Nuitka (this may take a while on first run)..."
