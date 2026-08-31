@@ -1,0 +1,54 @@
+name: CodeQL
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+  schedule:
+    - cron: "45 17 * * *" # 2:45AM AEST (UTC+10), staggered ahead of CI
+
+permissions:
+  contents: read
+  security-events: write
+
+jobs:
+  analyze:
+    runs-on: ubuntu-latest
+    strategy:
+      fail-fast: false
+      matrix:
+        language: ["javascript-typescript", "python"]
+
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Initialize CodeQL
+        uses: github/codeql-action/init@v3
+        with:
+          language: ${{ matrix.language }}
+
+      # Install the dependency trees so CodeQL can resolve imports for both
+      # the React frontend and the FastAPI server.
+      - name: Install JavaScript dependencies
+        if: matrix.language == 'javascript-typescript'
+        run: npm ci --ignore-scripts --no-audit --no-fund
+
+      - name: Install Python dependencies
+        if: matrix.language == 'python'
+        uses: astral-sh/setup-uv@c771a70e6277c0a99b617c7a806ffedaca235ff9 # v9.0.0
+        with:
+          version-file: "server/pyproject.toml"
+          enable-cache: true
+          cache-dependency-glob: "server/uv.lock"
+
+      - name: Python dependency install
+        if: matrix.language == 'python'
+        run: cd server && uv sync --locked
+
+      - name: Perform CodeQL Analysis
+        uses: github/codeql-action/analyze@v3
+        with:
+          category: "/language:${{ matrix.language }}"

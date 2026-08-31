@@ -12,10 +12,9 @@ from typing import Union
 
 import httpx
 
-from server.utils.ssrf import build_guarded_http_client
-
 from server.database.config.manager import config_manager
 from server.transcription.language import normalize_persian_text, resolve_asr_language
+from server.utils.ssrf import build_guarded_http_client
 
 logger = logging.getLogger(__name__)
 
@@ -200,7 +199,9 @@ def _read_pcm_wav(audio_buffer: bytes) -> tuple[bytes, int]:
             sample_rate = wav.getframerate()
             frames = wav.readframes(wav.getnframes())
     except (wave.Error, EOFError) as error:
-        raise ValueError("Shenava requires a valid uncompressed 16-bit PCM WAV recording") from error
+        raise ValueError(
+            "Shenava requires a valid uncompressed 16-bit PCM WAV recording"
+        ) from error
 
     if channels == 1:
         return frames, sample_rate
@@ -393,9 +394,7 @@ async def _transcribe_speechmatics(
             try:
                 job_response = await client.get(f"{base_url}/jobs/{job_id}", headers=headers)
                 if job_response.status_code == 200:
-                    duration = float(
-                        (job_response.json().get("job") or {}).get("duration") or 0
-                    )
+                    duration = float((job_response.json().get("job") or {}).get("duration") or 0)
             except Exception:
                 logger.debug("Speechmatics job details fetch failed", exc_info=True)
     except httpx.RequestError as error:
@@ -406,8 +405,7 @@ async def _transcribe_speechmatics(
         raise ValueError("Speechmatics returned no transcript")
     return {
         "text": transcript_text,
-        "transcriptionDuration": duration
-        or float(f"{time.perf_counter() - started:.2f}"),
+        "transcriptionDuration": duration or float(f"{time.perf_counter() - started:.2f}"),
     }
 
 

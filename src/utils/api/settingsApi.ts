@@ -49,10 +49,14 @@ export const settingsApi = {
 
     // New method to fetch models for any LLM provider
     fetchLLMModels: async (providerType, baseUrl, apiKey = null) => {
-        const params = new URLSearchParams({
-            provider: providerType,
-            baseUrl: baseUrl,
-        });
+        // Omit baseUrl when empty — URLSearchParams would stringify a null/
+        // undefined value to the literal "null", which the backend would
+        // treat as a real (garbage) URL.
+        const params = new URLSearchParams();
+        params.append("provider", providerType);
+        if (baseUrl) {
+            params.append("baseUrl", baseUrl);
+        }
 
         if (apiKey) {
             params.append("apiKey", apiKey);

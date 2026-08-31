@@ -182,21 +182,6 @@ export const transcriptionApi = {
 
         socket.binaryType = "arraybuffer";
 
-        socket.onopen = () => {
-            // Fail closed: an authenticated session must be confirmed by the
-            // server via the negotiated subprotocol (token must not echo).
-            if (token && socket.protocol !== "phlox-live") {
-                onError?.("Live transcription authentication failed");
-                try {
-                    socket.close();
-                } catch {
-                    // already closed
-                }
-                return;
-            }
-            opened = true;
-        };
-
         socket.onmessage = (event) => {
             if (typeof event.data !== "string") return;
             let payload: any;
@@ -284,6 +269,9 @@ export const transcriptionApi = {
                 }
             });
 
+        // A single onopen handler does both the fail-closed auth check and
+        // the open settlement — assigning a second handler here would
+        // overwrite the first (the auth check used to be dead code).
         await new Promise<void>((resolve, reject) => {
             const timer = window.setTimeout(() => {
                 if (!opened) {
@@ -292,6 +280,15 @@ export const transcriptionApi = {
                 }
             }, 8000);
             socket.onopen = () => {
+                // Fail closed: an authenticated session must be confirmed by
+                // the server via the negotiated subprotocol (token must not
+                // echo).
+                if (token && socket.protocol !== "phlox-live") {
+                    window.clearTimeout(timer);
+                    close();
+                    reject(new Error("Live transcription authentication failed"));
+                    return;
+                }
                 opened = true;
                 window.clearTimeout(timer);
                 resolve();

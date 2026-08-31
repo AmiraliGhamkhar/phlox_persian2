@@ -1,13 +1,11 @@
 import logging
 
-import httpx
 from fastapi import APIRouter, Body, HTTPException, Query
 from fastapi.responses import JSONResponse
 
 from server.constants import IS_DOCKER
 from server.database.config.manager import config_manager
 from server.utils.llama_models import llama_model_manager
-from server.utils.ssrf import build_guarded_http_client
 from server.utils.providers import (
     ASR_PROVIDERS,
     EMBEDDING_PROVIDERS,
@@ -16,6 +14,7 @@ from server.utils.providers import (
     looks_like_embedding_model,
     normalize_provider_id,
 )
+from server.utils.ssrf import build_guarded_http_client
 from server.utils.url_utils import build_openai_v1_url, build_whisper_v1_url
 
 router = APIRouter()
@@ -113,7 +112,9 @@ async def get_llm_models(
                 "x-api-key": effective_key or "",
                 "anthropic-version": info.get("anthropic_version", "2023-06-01"),
             }
-            models_url = f"{effective_url.rstrip('/')}/v1/models"
+            # Normalise a user-supplied trailing /v1 (same convention as the
+            # OpenAI-compatible branch) instead of building .../v1/v1/models.
+            models_url = build_openai_v1_url(effective_url, "models")
         else:
             headers = {"Authorization": f"Bearer {effective_key}"} if effective_key else {}
             models_url = build_openai_v1_url(effective_url, "models")

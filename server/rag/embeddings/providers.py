@@ -18,19 +18,20 @@ class OpenAICompatibleProvider:
 
     def __init__(self, base_url: str, api_key: str, model_name: str):
         import httpx
-
         from openai import OpenAI
 
-        from server.utils.ssrf import build_guarded_http_client
+        from server.utils.ssrf import build_guarded_sync_http_client
 
         # Guarded transport: resolve once, validate, pin to the resolved IP so
-        # a DNS-rebind after validation cannot reach a blocked target.
+        # a DNS-rebind after validation cannot reach a blocked target. The
+        # sync OpenAI client requires a sync httpx.Client — passing the async
+        # guarded client raises TypeError at construction.
         self.client = OpenAI(
             base_url=base_url,
             api_key=api_key,
             timeout=80,
             max_retries=2,
-            http_client=build_guarded_http_client(timeout=httpx.Timeout(80.0)),
+            http_client=build_guarded_sync_http_client(timeout=httpx.Timeout(80.0)),
         )
         self.model_name = model_name
         self._dimension: int | None = None

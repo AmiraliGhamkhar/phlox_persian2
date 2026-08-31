@@ -25,6 +25,7 @@ from server.constants import (
     IS_DEMO_MODE,
     IS_DOCKER,
     IS_TESTING,
+    PROXY_AUTH_ALLOWED_USERS,
     PROXY_AUTH_ENABLED,
     PROXY_AUTH_USER_HEADER,
     RATE_LIMIT_ENABLED,

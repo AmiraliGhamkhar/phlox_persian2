@@ -155,3 +155,41 @@ async def test_anthropic_nonstream_chat(monkeypatch):
     assert isinstance(result, dict)
     payload = cast("dict[str, Any]", result)
     assert "HbA1c" in payload["message"]["content"]
+
+
+def test_client_base_url_normalizes_terminal_v1():
+    """A user-supplied trailing /v1 must never produce /v1/v1/... paths."""
+    from server.llm_client.client import AsyncLLMClient
+
+    client = AsyncLLMClient("anthropic", "https://api.anthropic.com/v1", "sk-ant-test")
+    assert client.base_url == "https://api.anthropic.com"
+    assert f"{client.base_url.rstrip('/')}/v1/messages" == ("https://api.anthropic.com/v1/messages")
+
+    plain = AsyncLLMClient("anthropic", "https://api.anthropic.com", "sk-ant-test")
+    assert plain.base_url == "https://api.anthropic.com"
+
+    compatible = AsyncLLMClient(
+        "ollama", "http://127.0.0.1:11434/v1", "ollama", protocol="openai_compatible"
+    )
+    assert compatible.base_url == "http://127.0.0.1:11434"
+
+
+def test_llm_status_url_single_v1_for_anthropic():
+    from server.api.config.system import _get_llm_status_url
+
+    assert (
+        _get_llm_status_url(
+            {"LLM_PROVIDER": "anthropic", "LLM_BASE_URL": "https://api.anthropic.com/v1"}
+        )
+        == "https://api.anthropic.com/v1/models"
+    )
+    assert (
+        _get_llm_status_url(
+            {"LLM_PROVIDER": "anthropic", "LLM_BASE_URL": "https://api.anthropic.com"}
+        )
+        == "https://api.anthropic.com/v1/models"
+    )
+    assert (
+        _get_llm_status_url({"LLM_PROVIDER": "ollama", "LLM_BASE_URL": "http://127.0.0.1:11434"})
+        == "http://127.0.0.1:11434/v1/models"
+    )

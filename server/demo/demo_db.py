@@ -168,7 +168,7 @@ def seed_demo_data_desktop():
     Unlike ``main``/``clear_database`` (which re-initialise the DB without a
     passphrase for Docker), this assumes the encrypted DB is already open via
     ``get_db()``. It wipes encounters/profiles/templates and re-seeds the demo
-    patients, so every ``tauri dev`` launch starts from a clean, fullsome state.
+    patients, so every ``tauri dev`` launch starts from a clean, complete state.
     """
     db = patient_db()
     print("Clearing existing data for demo seed...")

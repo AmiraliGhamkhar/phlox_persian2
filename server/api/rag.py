@@ -305,7 +305,7 @@ def commit_to_db(request: CommitRequest):
         logger.error(f"Error committing data to database: {e}", exc_info=True)
         raise HTTPException(
             status_code=500,
-            detail="Error committing data to database",
+            detail=f"Error committing data to database: {e}"[:300],
         ) from e
 
 
@@ -339,7 +339,7 @@ def commit_direct(request: BulkCommitRequest):
         logger.error(f"Error committing data to database: {e}", exc_info=True)
         raise HTTPException(
             status_code=500,
-            detail="Error committing data to database",
+            detail=f"Error committing data to database: {e}"[:300],
         ) from e
 
 

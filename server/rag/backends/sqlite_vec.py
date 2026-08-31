@@ -4,6 +4,7 @@ sqlite-vec backend for the vector store.
 
 from __future__ import annotations
 
+import hashlib
 import logging
 import re
 import sqlite3
@@ -14,8 +15,21 @@ logger = logging.getLogger(__name__)
 
 
 def _safe_table_name(name: str) -> str:
-    """Sanitise a collection name for use as a SQL table-name suffix."""
-    return re.sub(r"[^a-z0-9_]", "", name.lower().replace(" ", "_"))
+    """Deterministic, collision-safe SQL table name for a collection.
+
+    The suffix is a short SHA-1 of the collection name. A pure
+    character-class filter would collapse every non-Latin collection name
+    (e.g. Persian disease names — the norm in this product) onto the *same*
+    ``vec_`` table, so one collection's vectors would be searchable from —
+    and deletable with — another's. Hashing keeps every collection's vector
+    table distinct regardless of script.
+    """
+    return "vec_" + hashlib.sha1(name.encode("utf-8")).hexdigest()[:16]
+
+
+def _legacy_table_name(name: str) -> str:
+    """Pre-fix table naming (kept only to migrate existing databases)."""
+    return "vec_" + re.sub(r"[^a-z0-9_]", "", name.lower().replace(" ", "_"))
 
 
 class SqliteVecBackend:
@@ -86,9 +100,101 @@ class SqliteVecBackend:
             )
 
             self._ensure_columns_and_backfill(db)
+            self._migrate_legacy_schema(db)
             db.commit()
         finally:
             db.close()
+
+    def _migrate_legacy_schema(self, db) -> None:
+        """Migrate databases written before the hash-based table naming.
+
+        Old databases had one ``vec_`` table per *sanitised* collection name
+        — and every non-Latin name (e.g. Persian disease names) collapsed
+        onto one shared table, so searches crossed collection boundaries —
+        plus chunk ids of ``"{filename}_{idx}"`` that were only unique per
+        collection and collided globally in ``chunks.id``.
+
+        This rebuilds one hash-named table per collection and re-keys chunk
+        ids to ``"{source_document_id}:{chunk_index}"`` (globally unique).
+        Runs exactly once per database; new-format data can only exist after
+        the first post-fix run, so every id present here is legacy.
+        """
+        db.execute("CREATE TABLE IF NOT EXISTS schema_flags (key TEXT PRIMARY KEY, value TEXT)")
+        done = db.execute(
+            "SELECT value FROM schema_flags WHERE key = 'vector_migration_v2'"
+        ).fetchone()
+        if done and done[0] == "1":
+            return
+
+        collections = db.execute("SELECT name, embedding_dim FROM collections").fetchall()
+        table_names = {
+            r[0] for r in db.execute("SELECT name FROM sqlite_master WHERE type = 'table'")
+        }
+        current_tables = {_safe_table_name(name) for name, _dim in collections}
+
+        failed = False
+        for name, dim in collections:
+            new_table = _safe_table_name(name)
+            legacy_table = _legacy_table_name(name)
+            rows = db.execute(
+                "SELECT id, source_document_id, chunk_index FROM chunks WHERE collection_name = ?",
+                (name,),
+            ).fetchall()
+            if not rows:
+                continue
+            try:
+                db.execute(
+                    f"CREATE VIRTUAL TABLE {new_table} USING vec0("  # nosec B608
+                    f"chunk_id TEXT PRIMARY KEY, embedding float[{int(dim)}] "
+                    f"distance_metric=cosine)"
+                )
+                for old_id, source_doc_id, chunk_index in rows:
+                    new_id = f"{source_doc_id}:{chunk_index}"
+                    if legacy_table in table_names and legacy_table != new_table:
+                        emb_row = db.execute(
+                            f"SELECT embedding FROM {legacy_table} WHERE chunk_id = ?",  # nosec B608
+                            (old_id,),
+                        ).fetchone()
+                        if emb_row and emb_row[0] is not None:
+                            db.execute(
+                                f"INSERT OR IGNORE INTO {new_table} "  # nosec B608
+                                "(chunk_id, embedding) VALUES (?, ?)",
+                                (new_id, emb_row[0]),
+                            )
+                    db.execute(
+                        "UPDATE chunks SET id = ? WHERE id = ? AND collection_name = ?",
+                        (new_id, old_id, name),
+                    )
+                logger.info(
+                    "Migrated collection '%s' to %s (%d chunks)", name, new_table, len(rows)
+                )
+            except Exception as e:
+                failed = True
+                logger.error("Legacy migration failed for collection '%s': %s", name, e)
+
+        if failed:
+            # Leave the flag unset so the retry happens on next startup.
+            return
+
+        # Drop legacy vector tables that no collection references any more.
+        for table in table_names:
+            if table.startswith("vec_") and table not in current_tables:
+                # Keep vec0 shadow tables of live tables (name__part); only
+                # drop actual legacy vector tables.
+                if "__" in table:
+                    continue
+                if not any(_legacy_table_name(name) == table for name, _dim in collections):
+                    continue
+                try:
+                    db.execute(f"DROP TABLE {table}")  # nosec B608
+                    logger.info("Dropped legacy vector table %s", table)
+                except Exception as e:
+                    logger.warning("Could not drop legacy table %s: %s", table, e)
+
+        db.execute(
+            "INSERT OR REPLACE INTO schema_flags (key, value) VALUES ('vector_migration_v2', '1')"
+        )
+        logger.info("Vector store legacy schema migration complete")
 
     @staticmethod
     def _has_column(db, table: str, column: str) -> bool:
@@ -159,7 +265,7 @@ class SqliteVecBackend:
                 (name, embedding_model, embedding_dim, display_name),
             )
             db.execute(
-                f"CREATE VIRTUAL TABLE IF NOT EXISTS vec_{safe} USING vec0("  # nosec B608
+                f"CREATE VIRTUAL TABLE IF NOT EXISTS {safe} USING vec0("  # nosec B608
                 f"chunk_id TEXT PRIMARY KEY, embedding float[{embedding_dim}] "
                 f"distance_metric=cosine)"
             )
@@ -171,7 +277,7 @@ class SqliteVecBackend:
         safe = _safe_table_name(name)
         db = self._connect()
         try:
-            db.execute(f"DROP TABLE IF EXISTS vec_{safe}")  # nosec B608
+            db.execute(f"DROP TABLE IF EXISTS {safe}")  # nosec B608
             db.execute("DELETE FROM collections WHERE name = ?", (name,))
             db.commit()
             logger.info("Collection '%s' deleted", name)
@@ -182,6 +288,24 @@ class SqliteVecBackend:
         finally:
             db.close()
 
+    def _rebuild_vec_table(self, db, src_table: str, dst_table: str, dim: int) -> None:
+        """Create ``dst_table`` as a copy of ``src_table`` (a vec0 table).
+
+        vec0 virtual tables cannot be ``RENAME``d — their shadow tables
+        (``*_chunks``, ``*_rowids``, ...) keep the old name and the table is
+        left broken. Rebuilding and copying the (chunk_id, embedding) rows is
+        reliable and cheap for a single-user store.
+        """
+        db.execute(
+            f"CREATE VIRTUAL TABLE {dst_table} USING vec0("  # nosec B608
+            f"chunk_id TEXT PRIMARY KEY, embedding float[{int(dim)}] "
+            f"distance_metric=cosine)"
+        )
+        db.execute(
+            f"INSERT INTO {dst_table} (chunk_id, embedding) "  # nosec B608
+            f"SELECT chunk_id, embedding FROM {src_table}"  # nosec B608
+        )
+
     def rename_collection(
         self, old_name: str, new_name: str, display_name: str | None = None
     ) -> bool:
@@ -189,26 +313,56 @@ class SqliteVecBackend:
         new_safe = _safe_table_name(new_name)
         db = self._connect()
         try:
-            db.execute(f"ALTER TABLE vec_{old_safe} RENAME TO vec_{new_safe}")  # nosec B608
-            db.execute("UPDATE collections SET name = ? WHERE name = ?", (new_name, old_name))
-            if display_name is not None:
+            table_names = {
+                r[0] for r in db.execute("SELECT name FROM sqlite_master WHERE type = 'table'")
+            }
+            dim_row = db.execute(
+                "SELECT embedding_dim FROM collections WHERE name = ?", (old_name,)
+            ).fetchone()
+            dim = int(dim_row[0]) if dim_row and dim_row[0] else 0
+
+            # Foreign keys on chunks/source_documents reference
+            # collections(name) without ON UPDATE CASCADE, so the parent row
+            # cannot be renamed while children still point at the old name.
+            # This is a short-lived, single-writer connection (WAL), so FK
+            # enforcement is relaxed on *this* connection only, for the
+            # duration of one transaction.
+            db.execute("PRAGMA foreign_keys=OFF")
+            try:
+                db.execute("BEGIN IMMEDIATE")
+                if old_safe in table_names and old_safe != new_safe:
+                    if new_safe in table_names:
+                        # Names are unique and hashes near-collision-free; a
+                        # pre-existing target means a stale/orphan table.
+                        db.execute(f"DROP TABLE {new_safe}")  # nosec B608
+                    if dim:
+                        self._rebuild_vec_table(db, old_safe, new_safe, dim)
+                    db.execute(f"DROP TABLE {old_safe}")  # nosec B608
+                db.execute("UPDATE collections SET name = ? WHERE name = ?", (new_name, old_name))
+                if display_name is not None:
+                    db.execute(
+                        "UPDATE collections SET display_name = ? WHERE name = ?",
+                        (display_name, new_name),
+                    )
                 db.execute(
-                    "UPDATE collections SET display_name = ? WHERE name = ?",
-                    (display_name, new_name),
+                    "UPDATE chunks SET collection_name = ?, disease_name = ? "
+                    "WHERE collection_name = ?",
+                    (new_name, display_name or new_name, old_name),
                 )
-            db.execute(
-                "UPDATE chunks SET collection_name = ?, disease_name = ? WHERE collection_name = ?",
-                (new_name, display_name or new_name, old_name),
-            )
-            db.execute(
-                "UPDATE source_documents SET collection_name = ? WHERE collection_name = ?",
-                (new_name, old_name),
-            )
-            db.commit()
+                db.execute(
+                    "UPDATE source_documents SET collection_name = ? WHERE collection_name = ?",
+                    (new_name, old_name),
+                )
+                db.execute("COMMIT")
+            except Exception:
+                db.execute("ROLLBACK")
+                raise
+            finally:
+                db.execute("PRAGMA foreign_keys=ON")
             logger.info("Collection '%s' renamed to '%s'", old_name, new_name)
             return True
         except Exception as e:
-            logger.error("Error renaming collection: %s", e)
+            logger.error("Error renaming collection '%s': %s", old_name, e)
             return False
         finally:
             db.close()
@@ -247,6 +401,13 @@ class SqliteVecBackend:
         if not chunks:
             return
 
+        collections_in_batch = {c.collection_name for c in chunks}
+        if len(collections_in_batch) != 1:
+            raise ValueError(
+                "insert_chunks: all chunks must belong to a single collection "
+                f"(got {sorted(collections_in_batch)})"
+            )
+
         safe = _safe_table_name(chunks[0].collection_name)
         db = self._connect()
         try:
@@ -269,7 +430,7 @@ class SqliteVecBackend:
                     ),
                 )
                 db.execute(
-                    f"INSERT INTO vec_{safe} (chunk_id, embedding) VALUES (?, ?)",  # nosec B608
+                    f"INSERT INTO {safe} (chunk_id, embedding) VALUES (?, ?)",  # nosec B608
                     (c.id, self._sqlite_vec.serialize_float32(c.embedding)),
                 )
             db.commit()
@@ -417,9 +578,13 @@ class SqliteVecBackend:
                 (collection_name, filename),
             ).fetchall()
             ids = [r[0] for r in rows]
-            if ids:
+            doc_row = db.execute(
+                "SELECT id FROM source_documents WHERE collection_name = ? AND filename = ?",
+                (collection_name, filename),
+            ).fetchone()
+            if ids or doc_row is not None:
                 for chunk_id in ids:
-                    db.execute(f"DELETE FROM vec_{safe} WHERE chunk_id = ?", (chunk_id,))  # nosec B608
+                    db.execute(f"DELETE FROM {safe} WHERE chunk_id = ?", (chunk_id,))  # nosec B608
                 db.execute(
                     "DELETE FROM chunks WHERE collection_name = ? AND filename = ?",
                     (collection_name, filename),
@@ -451,7 +616,7 @@ class SqliteVecBackend:
         db = self._connect()
         try:
             vec_rows = db.execute(
-                f"SELECT chunk_id, distance FROM vec_{safe} WHERE embedding MATCH ? AND k = ?",  # nosec B608
+                f"SELECT chunk_id, distance FROM {safe} WHERE embedding MATCH ? AND k = ?",  # nosec B608
                 (self._sqlite_vec.serialize_float32(query_embedding), n_results),
             ).fetchall()
         except Exception as e:
@@ -520,15 +685,15 @@ class SqliteVecBackend:
         safe = _safe_table_name(collection_name)
         db = self._connect()
         try:
-            db.execute(f"DROP TABLE IF EXISTS vec_{safe}")  # nosec B608
+            db.execute(f"DROP TABLE IF EXISTS {safe}")  # nosec B608
             db.execute(
-                f"CREATE VIRTUAL TABLE vec_{safe} USING vec0("  # nosec B608
+                f"CREATE VIRTUAL TABLE {safe} USING vec0("  # nosec B608
                 f"chunk_id TEXT PRIMARY KEY, embedding float[{dim}] "
                 f"distance_metric=cosine)"
             )
             for chunk_id, embedding in embeddings:
                 db.execute(
-                    f"INSERT INTO vec_{safe} (chunk_id, embedding) VALUES (?, ?)",  # nosec B608
+                    f"INSERT INTO {safe} (chunk_id, embedding) VALUES (?, ?)",  # nosec B608
                     (chunk_id, self._sqlite_vec.serialize_float32(embedding)),
                 )
             db.execute(

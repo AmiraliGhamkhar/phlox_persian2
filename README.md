@@ -7,9 +7,9 @@
 
 <div align="center" dir="rtl">
 
-[![وضعیت CI](https://github.com/bloodworks-io/phlox/actions/workflows/ci.yml/badge.svg)](https://github.com/bloodworks-io/phlox/actions/workflows/ci.yml)
-[![وضعیت پوشش آزمون](https://coveralls.io/repos/github/bloodworks-io/phlox/badge.svg?branch=main)](https://coveralls.io/github/bloodworks-io/phlox?branch=main)
-[![CodeQL](https://github.com/bloodworks-io/phlox/actions/workflows/github-code-scanning/codeql/badge.svg)](https://github.com/bloodworks-io/phlox/actions/workflows/github-code-scanning/codeql)
+[![وضعیت CI](https://github.com/AmiraliGhamkhar/phlox_persian/actions/workflows/ci.yml/badge.svg)](https://github.com/AmiraliGhamkhar/phlox_persian/actions/workflows/ci.yml)
+[![وضعیت پوشش آزمون](https://coveralls.io/repos/github/AmiraliGhamkhar/phlox_persian/badge.svg?branch=main)](https://coveralls.io/github/AmiraliGhamkhar/phlox_persian?branch=main)
+[![CodeQL](https://github.com/AmiraliGhamkhar/phlox_persian/actions/workflows/github-code-scanning/codeql/badge.svg)](https://github.com/AmiraliGhamkhar/phlox_persian/actions/workflows/github-code-scanning/codeql)
 [![سبک کد: ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json)](https://github.com/astral-sh/ruff)
 [![مجوز: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![مستندات](https://img.shields.io/badge/docs-phlox.bloodworks.io-blue)](https://phlox.bloodworks.io/docs)
@@ -42,7 +42,7 @@
 
 ### برنامه دسکتاپ
 
-نسخه‌های آماده برای Apple Silicon در macOS و Flatpak برای Linux با پشتیبانی Vulkan از [صفحه انتشارهای GitHub](https://github.com/bloodworks-io/phlox/releases) در دسترس هستند.
+نسخه‌های آماده برای Apple Silicon در macOS و Flatpak برای Linux با پشتیبانی Vulkan از [صفحه انتشارهای GitHub](https://github.com/AmiraliGhamkhar/phlox_persian/releases) در دسترس هستند.
 
 برنامه دسکتاپ موتورهای `llama.cpp` و `whisper.cpp` را همراه دارد. مدل‌ها را از داخل برنامه دانلود و فعال کنید. برای ASR محلی، سه نسخه از Whisper large-v3-turbo در دسترس است:
 
@@ -64,10 +64,10 @@
 
 ### Docker و Podman
 
-تصاویر آماده از [GitHub Container Registry](https://github.com/bloodworks-io/phlox/pkgs/container/phlox) در دسترس هستند:
+تصاویر آماده از [GitHub Container Registry](https://github.com/AmiraliGhamkhar/phlox_persian/pkgs/container/phlox_persian) در دسترس هستند:
 
 ```bash
-docker pull ghcr.io/bloodworks-io/phlox:latest
+docker pull ghcr.io/amiralighamkhar/phlox_persian:latest
 ```
 
 توصیه می‌شود از `docker-compose.yml` این مخزن استفاده کنید؛ یک ظرف هم API و هم رابط کاربری ساخته‌شده را روی پورت `5000` ارائه می‌کند:

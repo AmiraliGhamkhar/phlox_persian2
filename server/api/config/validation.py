@@ -1,7 +1,6 @@
 import asyncio
 import logging
 
-import httpx
 from fastapi import APIRouter, HTTPException, Query
 
 from server.utils.ssrf import build_guarded_http_client, validate_fetch_url
@@ -86,7 +85,8 @@ async def validate_url(
                     }
 
             if validation_type == "anthropic":
-                models_url = f"{url.rstrip('/')}/v1/models"
+                # Normalise a terminal /v1 like every other endpoint probe.
+                models_url = build_openai_v1_url(url, "models")
                 try:
                     response = await client.get(
                         models_url,

@@ -107,6 +107,10 @@ class TranscribeResponse(BaseModel):
     rawTranscription: str
     transcriptionDuration: float
     processDuration: float
+    # Set when the transcript was obtained but the LLM field-processing step
+    # failed: the raw text is preserved (fields empty) so the user can
+    # reprocess it without transcribing again.
+    processingError: str | None = None
 
     model_config = ConfigDict(arbitrary_types_allowed=True)
 

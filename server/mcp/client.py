@@ -52,8 +52,6 @@ def _guarded_httpx_client_factory():
     """
 
     def factory(headers=None, timeout=None, auth=None):
-        import httpx
-
         from server.utils.ssrf import build_guarded_http_client
 
         kwargs: dict = {}

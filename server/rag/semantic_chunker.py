@@ -59,9 +59,11 @@ class ClusterSemanticChunker:
         return np.sum(sub_matrix)
 
     def _optimal_segmentation(self, matrix, max_cluster_size, _window_size=3):
-        mean_value = np.mean(matrix[np.triu_indices(matrix.shape[0], k=1)])
+        upper = matrix[np.triu_indices(matrix.shape[0], k=1)]
+        # A 1x1 matrix has no upper-triangle entries; mean() would return nan.
+        mean_value = float(upper.mean()) if upper.size else 0.0
         matrix = matrix - mean_value  # Normalize the matrix
-        np.fill_diagonal(matrix, 0)  # Set diagonal to 1 to avoid trivial solutions
+        np.fill_diagonal(matrix, 0)  # Zero the diagonal to avoid trivial solutions
 
         n = matrix.shape[0]
         dp = np.zeros(n)

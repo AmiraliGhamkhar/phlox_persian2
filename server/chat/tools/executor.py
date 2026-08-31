@@ -75,8 +75,8 @@ async def execute_tool_streaming(
     # Human-approval gate: park record-writing tools until the user approves.
     # Approved re-runs carry the "_approved" marker set by the confirm endpoint.
     if requires_user_approval(function_name, tool_call):
-        from server.chat.tools.pending_actions import register_pending_action
         from server.chat.streaming.response import confirmation_message, end_message
+        from server.chat.tools.pending_actions import register_pending_action
         from server.utils.request_context import get_request_actor
 
         from .sanitization import get_active_patient_context

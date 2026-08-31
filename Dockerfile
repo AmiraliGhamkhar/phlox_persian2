@@ -81,6 +81,8 @@ ENV DOCKER_CONTAINER=true \
     TIKTOKEN_CACHE_DIR=/usr/src/app/.cache/tiktoken
 
 # tesseract-ocr: image attachment OCR (server/nlp_tools/document_processing.py)
+#   - tesseract-ocr-fa: Persian is the app's primary document language, so the
+#     OCR default is fa+eng (see TESSERACT_LANG in document_processing.py)
 # tzdata: makes the TZ environment variable actually resolve to a local zone
 # ca-certificates: TLS trust for outbound LLM / ASR / embedding requests
 # The apt cache mounts keep package lists/debs warm across builds (and out of
@@ -92,6 +94,7 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
         ca-certificates \
         tesseract-ocr \
         tesseract-ocr-eng \
+        tesseract-ocr-fa \
         tzdata \
     && rm -rf /var/lib/apt/lists/*
 

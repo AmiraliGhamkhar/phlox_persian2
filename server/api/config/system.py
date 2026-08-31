@@ -17,10 +17,8 @@ router = APIRouter()
 def _get_llm_status_url(config: dict) -> str | None:
     """Determine the LLM status check URL based on provider configuration."""
     connection = resolve_llm_connection(config)
-    provider = connection["provider"]
     base_url = connection["base_url"]
-    if provider == "anthropic":
-        return f"{base_url.rstrip('/')}/v1/models"
+    # Both protocols accept base URLs with or without a terminal /v1.
     if base_url:
         return build_openai_v1_url(base_url, "models")
     return None

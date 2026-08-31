@@ -1,4 +1,5 @@
 import { useEffect, useState, useRef, useCallback } from "react";
+import { toaster } from "@/components/ui/toaster";
 import { useTranscription } from "../../utils/hooks/useTranscription";
 import { settingsService } from "../../utils/settings/settingsUtils";
 import { settingsApi } from "../../utils/api/settingsApi";
@@ -35,6 +36,17 @@ export const useScribe = ({
     // Transcription API
     const { transcribeAudio, reprocessTranscription, isTranscribing } = useTranscription((data) => {
         if (data?.error) return;
+        // The transcript arrived but the LLM field-processing step failed:
+        // keep the raw text (so it can be reprocessed) and warn the user.
+        if (data?.processingError) {
+            toaster.create({
+                title: "پردازش ناقص",
+                description:
+                    "متن تشخیص داده شد اما پردازش فیلدها ناموفق بود. متن خام ذخیره شد؛ می‌توانید دوباره پردازش کنید.",
+                type: "warning",
+                duration: 8000,
+            });
+        }
         handleTranscriptionComplete({
             fields: data.fields,
             rawTranscription: data.rawTranscription,

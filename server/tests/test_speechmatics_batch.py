@@ -138,9 +138,11 @@ async def test_batch_authentication_failure_is_explicit():
         _fake_response(401, text='{"code": 401, "error": "Permission Denied"}'),
     ]
     mock_client = _mock_client(responses)
-    with patch("httpx.AsyncClient", return_value=mock_client):
-        with pytest.raises(ValueError, match="type=batch"):
-            await _transcribe_speechmatics(b"RIFF....WAVEdata", config)
+    with (
+        patch("httpx.AsyncClient", return_value=mock_client),
+        pytest.raises(ValueError, match="type=batch"),
+    ):
+        await _transcribe_speechmatics(b"RIFF....WAVEdata", config)
 
 
 @pytest.mark.asyncio

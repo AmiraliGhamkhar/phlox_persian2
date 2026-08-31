@@ -9,6 +9,7 @@ from fastapi.responses import StreamingResponse
 
 from server.constants import IS_DOCKER
 from server.utils.llama_models import llama_model_manager
+from server.utils.ssrf import build_guarded_http_client
 from server.utils.whisper_models import whisper_model_manager
 
 router = APIRouter()
@@ -215,9 +216,23 @@ async def get_local_model_status():
     models = llama_model_manager.get_downloaded_models()
     selected_model_id = llama_model_manager.get_selected_model_id()
 
+    # Probe the sidecar for real: this is an on-demand status query, so it must
+    # not assume the server is up just because this process once started it.
+    # Any HTTP answer (even 404) means the sidecar is listening; connection
+    # refused/timeout means it is down.
+    from server.utils.allocated_ports import get_llama_port
+
+    llama_server_running = False
+    try:
+        async with build_guarded_http_client() as client:
+            await client.get(f"http://127.0.0.1:{get_llama_port()}/health", timeout=1.5)
+        llama_server_running = True
+    except Exception:
+        llama_server_running = False
+
     return {
         "available": len(models) > 0,
-        "llama_server_running": True,  # Assume running since we started it
+        "llama_server_running": llama_server_running,
         "models": models,
         "models_count": len(models),
         "selected_model_id": selected_model_id,

@@ -212,6 +212,11 @@ class VectorStoreManager:
         # Ensure collection exists (display_name preserves original casing).
         self.backend.create_collection(formatted, self._model_name, dim, display_name=disease_name)
 
+        # Upsert: re-committing the same (collection, filename) replaces the
+        # previous document instead of hitting the UNIQUE constraint and
+        # failing. Without this, a re-upload silently keeps stale content.
+        self.backend.delete_file_from_collection(formatted, filename)
+
         # Store source document (include raw PDF if config enabled)
         user_settings = config_manager.get_user_settings()
         store_pdfs = user_settings.get("advanced_options", {}).get("store_original_pdfs", False)
@@ -224,10 +229,13 @@ class VectorStoreManager:
             formatted, filename, extracted_text, stored_pdf, title=title
         )
 
-        # Build chunk data objects (store natural-cased disease_name/source).
+        # Chunk ids are namespaced by source-document id: "{doc_id}:{index}".
+        # Plain "{filename}_{index}" was only unique *per collection* and
+        # collided in the globally-keyed chunks table when the same filename
+        # was committed under two different diseases.
         chunks = [
             ChunkData(
-                id=f"{filename}_{idx}",
+                id=f"{source_doc_id}:{idx}",
                 collection_name=formatted,
                 source_document_id=source_doc_id,
                 chunk_index=idx,
@@ -273,6 +281,7 @@ class VectorStoreManager:
                 disease_name,
                 filename,
             )
+            raise
 
     def commit_text_to_vectordb(
         self,
@@ -288,6 +297,10 @@ class VectorStoreManager:
 
         Used by the bulk upload path where the frontend holds the text and
         sends it alongside the metadata in a single request.
+
+        Raises on any failure (embedding error, storage error, ...) — the
+        caller must surface it instead of reporting success for data that
+        was not stored.
         """
         try:
             self._commit_text_impl(
@@ -305,6 +318,7 @@ class VectorStoreManager:
                 disease_name,
                 filename,
             )
+            raise
 
     # Similarity search
 

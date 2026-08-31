@@ -14,7 +14,10 @@ changes between the check and the fetch therefore cannot redirect the request
 onto a blocked target (API7:2023 SSRF / A01:2025).
 
 ``build_guarded_http_client()`` returns an ``httpx.AsyncClient`` using that
-transport, so callers only need to swap their client construction.
+transport, and ``build_guarded_sync_http_client()`` its synchronous twin for
+SDK clients that require a sync ``httpx.Client`` (e.g. the sync ``OpenAI``
+client used by the embedding provider). Callers only need to swap their
+client construction.
 """
 
 import asyncio
@@ -154,27 +157,55 @@ def validate_fetch_url(url: str) -> None:
     _parse_and_validate(url)
 
 
-async def _pinned_request(
-    request: httpx.Request, target: ResolvedTarget, ip: str
-) -> httpx.Request:
-    """Rewrite ``request`` to connect to ``ip``, preserving host/SNI."""
-    headers = dict(request.headers)
-    headers.setdefault("Host", target.host_header)
+def _pinned_headers(request: httpx.Request, target: ResolvedTarget) -> dict[str, str]:
+    """Original headers minus any Host, plus the original hostname as Host.
+
+    httpx's Headers iterate with *lowercased* keys, so dict() yields "host"
+    while a plain-dict setdefault("Host", ...) is case-sensitive and would
+    insert a second entry: h11 rejects requests carrying two Host headers.
+    The pinned URL itself carries the target IP, so the original hostname
+    must be set explicitly.
+    """
+    headers = {k: v for k, v in dict(request.headers).items() if k.lower() != "host"}
+    headers["Host"] = target.host_header
+    return headers
+
+
+def _pinned_extensions(request: httpx.Request, target: ResolvedTarget) -> dict:
     extensions = dict(request.extensions or {})
     if target.scheme == "https":
         extensions["sni_hostname"] = target.host
+    return extensions
 
+
+def _build_pinned_request(
+    request: httpx.Request, target: ResolvedTarget, ip: str, content: bytes | None
+) -> httpx.Request:
+    return httpx.Request(
+        request.method,
+        target.url_for_ip(ip),
+        headers=_pinned_headers(request, target),
+        content=content,
+        extensions=_pinned_extensions(request, target),
+    )
+
+
+async def _pinned_request(request: httpx.Request, target: ResolvedTarget, ip: str) -> httpx.Request:
+    """Rewrite ``request`` to connect to ``ip``, preserving host/SNI."""
     try:
         content = await request.aread()
     except httpx.StreamConsumed:  # pragma: no cover - fresh requests only
         content = None
-    return httpx.Request(
-        request.method,
-        target.url_for_ip(ip),
-        headers=headers,
-        content=content,
-        extensions=extensions,
-    )
+    return _build_pinned_request(request, target, ip, content)
+
+
+def _pinned_request_sync(request: httpx.Request, target: ResolvedTarget, ip: str) -> httpx.Request:
+    """Synchronous twin of :func:`_pinned_request`."""
+    try:
+        content = request.read()
+    except httpx.StreamConsumed:  # pragma: no cover - fresh requests only
+        content = None
+    return _build_pinned_request(request, target, ip, content)
 
 
 class GuardedPinnedTransport(httpx.AsyncBaseTransport):
@@ -221,6 +252,49 @@ class GuardedPinnedTransport(httpx.AsyncBaseTransport):
             self._inner = None
 
 
+class GuardedPinnedSyncTransport(httpx.BaseTransport):
+    """Synchronous twin of :class:`GuardedPinnedTransport`.
+
+    Needed for SDK clients that require a sync ``httpx.Client`` (e.g. the
+    sync ``OpenAI`` client used by the embedding provider) — the async
+    transport cannot be passed to them.
+    """
+
+    def __init__(self) -> None:
+        self._inner: httpx.Client | None = None
+
+    def _get_inner(self) -> httpx.Client:
+        if self._inner is None:
+            self._inner = httpx.Client(follow_redirects=False)
+        return self._inner
+
+    def handle_request(self, request: httpx.Request) -> httpx.Response:
+        target = resolve_validated_target(str(request.url))
+
+        client = self._get_inner()
+        last_error: Exception | None = None
+        for ip in target.ips:
+            pinned = _pinned_request_sync(request, target, ip)
+            try:
+                return client.send(pinned, stream=True)
+            except httpx.TransportError as error:  # try next validated IP
+                last_error = error
+                logger.debug(
+                    "Guarded fetch to %s via %s failed: %s",
+                    target.host,
+                    ip,
+                    error,
+                )
+        if last_error is not None:
+            raise last_error
+        raise httpx.ConnectError(f"No reachable address for {target.host}")
+
+    def close(self) -> None:
+        if self._inner is not None:
+            self._inner.close()
+            self._inner = None
+
+
 def build_guarded_http_client(**kwargs) -> httpx.AsyncClient:
     """Create an ``httpx.AsyncClient`` whose transport pins to validated IPs.
 
@@ -231,3 +305,10 @@ def build_guarded_http_client(**kwargs) -> httpx.AsyncClient:
     kwargs.setdefault("follow_redirects", False)
     kwargs["transport"] = GuardedPinnedTransport()
     return httpx.AsyncClient(**kwargs)
+
+
+def build_guarded_sync_http_client(**kwargs) -> httpx.Client:
+    """Synchronous twin of :func:`build_guarded_http_client` for sync SDKs."""
+    kwargs.setdefault("follow_redirects", False)
+    kwargs["transport"] = GuardedPinnedSyncTransport()
+    return httpx.Client(**kwargs)

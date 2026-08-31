@@ -40,11 +40,8 @@ def mcp_tool_requires_confirmation(tool: Any) -> bool:
         return True
     if _annotation_flag(annotations, "destructiveHint") is True:
         return True
-    read_only = _annotation_flag(annotations, "readOnlyHint")
-    if read_only is True:
-        return False
     # readOnlyHint absent or non-boolean: unknown -> require confirmation.
-    return True
+    return _annotation_flag(annotations, "readOnlyHint") is not True
 
 
 def mcp_transport_order(url: str) -> list[str]:

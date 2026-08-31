@@ -10,13 +10,14 @@ transcription with online providers:
 
 import asyncio
 import json
+from typing import Any
 
 import pytest
 
 from server.transcription.language import streaming_asr_language
 from server.transcription.live import (
-    FireworksLiveSession,
     SPEECHMATICS_DEFAULT_URL,
+    FireworksLiveSession,
     SpeechmaticsLiveSession,
     speechmatics_rt_url,
 )
@@ -56,7 +57,7 @@ async def test_speechmatics_session_builds_config_not_auto(monkeypatch):
     class _FakeClient:
         def __init__(self, **kwargs):
             captured["client_kwargs"] = kwargs
-            self._handlers: dict[object, object] = {}
+            self._handlers: dict = {}
 
         def on(self, event, callback=None):
             if callback is not None:
@@ -82,7 +83,7 @@ async def test_speechmatics_session_builds_config_not_auto(monkeypatch):
         def __init__(self, **kwargs):
             self.__dict__.update(kwargs)
 
-    fake_rt = types.ModuleType("speechmatics.rt")
+    fake_rt: Any = types.ModuleType("speechmatics.rt")
     fake_rt.AsyncClient = _FakeClient
     fake_rt.AudioEncoding = type("AudioEncoding", (), {"PCM_S16LE": "pcm_s16le"})
     fake_rt.AudioFormat = _FakeAudioFormat
@@ -112,7 +113,7 @@ async def test_speechmatics_session_builds_config_not_auto(monkeypatch):
     await asyncio.wait_for(session.start(), timeout=5)
 
     assert captured["client_kwargs"]["url"] == SPEECHMATICS_DEFAULT_URL
-    config: dict = captured["config"]
+    config: Any = captured["config"]
     assert config.language == "fa"
     assert config.enable_partials is True
     assert config.model == "enhanced"
@@ -127,7 +128,7 @@ async def test_speechmatics_live_rejects_melia1_batch_only():
     async def emit(_event):
         return None
 
-    fake_rt = types.ModuleType("speechmatics.rt")
+    fake_rt: Any = types.ModuleType("speechmatics.rt")
     fake_rt.AsyncClient = object
     fake_rt.AudioEncoding = type("AudioEncoding", (), {"PCM_S16LE": "pcm_s16le"})
     fake_rt.AudioFormat = object

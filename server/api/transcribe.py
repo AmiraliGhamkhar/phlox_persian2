@@ -18,8 +18,8 @@ from server.nlp_tools.document_processing import (
     _extract_demographics_from_text,
     extract_demographics_from_document,
     extract_demographics_from_visual_pages,
+    extract_text_from_document,
     process_document_text_with_template,
-    process_document_with_template,
     process_visual_document_with_template,
 )
 from server.schemas.documents import VisualDocumentPage
@@ -228,22 +228,33 @@ async def transcribe(
         # Create patient context
         patient_context = {"name": formatted_name, "dob": dob, "gender": gender}
 
-        # Process the transcription with template fields
-        processing_result = await process_transcription(
-            transcript_text=transcript_text,
-            template_fields=template_fields,
-            patient_context=patient_context,
-            is_ambient=isAmbient,
-            primary_condition=primary_condition,
-        )
-
-        # Return the response in the expected format
-        return TranscribeResponse(
-            fields=dict(processing_result["fields"]),
-            rawTranscription=transcript_text,
-            transcriptionDuration=transcription_duration,
-            processDuration=float(processing_result["process_duration"]),
-        )
+        # Process the transcription with template fields. If the LLM step
+        # fails AFTER a successful transcription, return the raw transcript
+        # flagged with the error instead of a 500: the ASR result has already
+        # been paid for and losing it would force a full re-transcription.
+        try:
+            processing_result = await process_transcription(
+                transcript_text=transcript_text,
+                template_fields=template_fields,
+                patient_context=patient_context,
+                is_ambient=isAmbient,
+                primary_condition=primary_condition,
+            )
+            return TranscribeResponse(
+                fields=dict(processing_result["fields"]),
+                rawTranscription=transcript_text,
+                transcriptionDuration=transcription_duration,
+                processDuration=float(processing_result["process_duration"]),
+            )
+        except Exception as processing_error:
+            logging.error(f"Transcription processing failed: {processing_error}")
+            return TranscribeResponse(
+                fields={},
+                rawTranscription=transcript_text,
+                transcriptionDuration=transcription_duration,
+                processDuration=0.0,
+                processingError=str(processing_error)[:300],
+            )
 
     except Exception as e:
         logging.error(f"Error occurred: {e}")
@@ -307,22 +318,32 @@ async def reprocess_transcription(
         # Create patient context
         patient_context = {"name": formatted_name, "dob": dob, "gender": gender}
 
-        # Process the transcription with template fields
-        processing_result = await process_transcription(
-            transcript_text=transcript_text,
-            template_fields=template_fields,
-            patient_context=patient_context,
-            is_ambient=isAmbient,
-            primary_condition=primary_condition,
-        )
-
-        # Return the response in the expected format
-        return TranscribeResponse(
-            fields=dict(processing_result["fields"]),
-            rawTranscription=transcript_text,
-            transcriptionDuration=original_transcription_duration or 0.0,
-            processDuration=float(processing_result["process_duration"]),
-        )
+        # Process the transcription with template fields. On failure, return
+        # the (already-provided) transcript flagged with the error so the
+        # user's text is not lost.
+        try:
+            processing_result = await process_transcription(
+                transcript_text=transcript_text,
+                template_fields=template_fields,
+                patient_context=patient_context,
+                is_ambient=isAmbient,
+                primary_condition=primary_condition,
+            )
+            return TranscribeResponse(
+                fields=dict(processing_result["fields"]),
+                rawTranscription=transcript_text,
+                transcriptionDuration=original_transcription_duration or 0.0,
+                processDuration=float(processing_result["process_duration"]),
+            )
+        except Exception as processing_error:
+            logging.error(f"Reprocessing failed: {processing_error}")
+            return TranscribeResponse(
+                fields={},
+                rawTranscription=transcript_text,
+                transcriptionDuration=original_transcription_duration or 0.0,
+                processDuration=0.0,
+                processingError=str(processing_error)[:300],
+            )
 
     except Exception as e:
         logging.error(f"Error occurred during reprocessing: {e}")
@@ -357,21 +378,34 @@ async def process_document(
         # Create patient context
         patient_context = {"name": formatted_name, "dob": dob, "gender": gender}
 
-        # Process the document
+        # Process the document. Text extraction runs first so that, if the
+        # LLM field-processing step fails, the extracted text is returned
+        # (flagged) for reprocessing instead of being lost.
         process_start = time.perf_counter()
-        result = await process_document_with_template(
-            document_buffer, content_type or "", template_fields, patient_context
-        )
-        process_end = time.perf_counter()
-        process_duration = process_end - process_start
-
-        # The result is already in the format of field key-value pairs
-        return TranscribeResponse(
-            fields=result,
-            rawTranscription="",  # We don't include raw transcription for document uploads
-            transcriptionDuration=0,  # No transcription for documents
-            processDuration=process_duration,
-        )
+        extracted_text = await extract_text_from_document(document_buffer, content_type or "")
+        try:
+            result = await process_document_text_with_template(
+                extracted_text=extracted_text,
+                template_fields=template_fields,
+                patient_context=patient_context,
+            )
+            process_end = time.perf_counter()
+            # The result is already in the format of field key-value pairs
+            return TranscribeResponse(
+                fields=result,
+                rawTranscription="",  # We don't include raw transcription for document uploads
+                transcriptionDuration=0,  # No transcription for documents
+                processDuration=process_end - process_start,
+            )
+        except Exception as processing_error:
+            logging.error(f"Document field processing failed: {processing_error}")
+            return TranscribeResponse(
+                fields={},
+                rawTranscription=extracted_text,
+                transcriptionDuration=0,
+                processDuration=time.perf_counter() - process_start,
+                processingError=str(processing_error)[:300],
+            )
     except Exception as e:
         logging.error(f"Error processing document: {e}")
         raise HTTPException(status_code=500, detail="Internal server error") from e
@@ -489,22 +523,33 @@ async def process_document_from_text(payload: ProcessDocumentFromTextRequest):
             "gender": payload.gender,
         }
 
-        # Process extracted text directly (no file/OCR step)
+        # Process extracted text directly (no file/OCR step). On failure,
+        # return the provided text flagged with the error for reprocessing.
         process_start = time.perf_counter()
-        result = await process_document_text_with_template(
-            extracted_text=extracted_text,
-            template_fields=template_fields,
-            patient_context=patient_context,
-        )
-        process_end = time.perf_counter()
-        process_duration = process_end - process_start
+        try:
+            result = await process_document_text_with_template(
+                extracted_text=extracted_text,
+                template_fields=template_fields,
+                patient_context=patient_context,
+            )
+            process_end = time.perf_counter()
+            process_duration = process_end - process_start
 
-        return TranscribeResponse(
-            fields=result,
-            rawTranscription="",
-            transcriptionDuration=0,
-            processDuration=process_duration,
-        )
+            return TranscribeResponse(
+                fields=result,
+                rawTranscription="",
+                transcriptionDuration=0,
+                processDuration=process_duration,
+            )
+        except Exception as processing_error:
+            logging.error(f"Extracted-text field processing failed: {processing_error}")
+            return TranscribeResponse(
+                fields={},
+                rawTranscription=extracted_text,
+                transcriptionDuration=0,
+                processDuration=time.perf_counter() - process_start,
+                processingError=str(processing_error)[:300],
+            )
     except HTTPException:
         raise
     except Exception as e:

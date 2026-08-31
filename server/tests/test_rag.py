@@ -114,3 +114,55 @@ def test_clear_database(monkeypatch):
     assert response.status_code == 200
     data = response.json()
     assert "cleared successfully" in data.get("message", "").lower()
+
+
+def test_embedding_provider_constructs_with_sync_guarded_client():
+    """Regression: the sync OpenAI client rejects an async http_client.
+
+    OpenAICompatibleProvider previously passed the *async* guarded client to
+    the sync ``OpenAI`` constructor, which raised TypeError and took the
+    entire vector store (and every RAG endpoint) down.
+    """
+    from server.rag.embeddings.providers import OpenAICompatibleProvider
+
+    provider = OpenAICompatibleProvider("http://127.0.0.1:9999", "key", "text-embedding-3-small")
+    assert provider.model_name == "text-embedding-3-small"
+
+
+def test_commit_direct_propagates_failure_as_500(monkeypatch):
+    """Regression: commit failures used to be swallowed and reported as 200
+    'Data committed ... successfully' even when nothing was stored."""
+    mock_vsm = MagicMock()
+    mock_vsm.commit_text_to_vectordb.side_effect = RuntimeError("embedding provider down")
+    _setup_rag_mocks(monkeypatch, mock_vsm)
+
+    response = client.post(
+        "/api/rag/commit-direct",
+        json={
+            "extracted_text": "some text",
+            "disease_name": "d",
+            "focus_area": "f",
+            "document_source": "s",
+            "filename": "f.txt",
+        },
+    )
+    assert response.status_code == 500
+    assert "embedding provider down" in response.json()["detail"]
+
+
+def test_commit_to_vectordb_propagates_failure_as_500(monkeypatch):
+    mock_vsm = MagicMock()
+    mock_vsm.commit_to_vectordb.side_effect = RuntimeError("storage error")
+    _setup_rag_mocks(monkeypatch, mock_vsm)
+
+    response = client.post(
+        "/api/rag/commit-to-vectordb",
+        json={
+            "disease_name": "d",
+            "focus_area": "f",
+            "document_source": "s",
+            "filename": "f.txt",
+        },
+    )
+    assert response.status_code == 500
+    assert "storage error" in response.json()["detail"]

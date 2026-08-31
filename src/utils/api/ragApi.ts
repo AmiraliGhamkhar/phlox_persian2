@@ -1,34 +1,15 @@
 // API functions for RAG related operations.
 import { handleApiRequest, universalFetch } from "../helpers/apiHelpers";
 import { buildApiUrl } from "../helpers/apiConfig";
+import { streamSSEEvents } from "./sseStream";
 
-async function* streamPostSSE(url) {
-    const response = await universalFetch(url, { method: "POST" });
-    if (!response.ok) {
-        throw new Error(`HTTP error! status: ${response.status}`);
-    }
-
-    const reader = response.body.getReader();
-    const decoder = new TextDecoder();
-
-    while (true) {
-        const { value, done } = await reader.read();
-        if (done) break;
-
-        const chunk = decoder.decode(value, { stream: true });
-        const lines = chunk.split("\n\n");
-
-        for (const line of lines) {
-            if (line.trim() && line.startsWith("data: ")) {
-                try {
-                    const data = JSON.parse(line.slice(6));
-                    yield data;
-                } catch (error) {
-                    console.error("Error parsing SSE chunk:", error, line);
-                }
-            }
-        }
-    }
+// Yields `any` (not `unknown`) so callers keep their existing untyped event
+// access (e.g. `event.type`) — same surface as the original parser.
+async function* streamPostSSE(url): AsyncGenerator<any> {
+    // Buffered SSE parsing: events split across TCP reads are reassembled
+    // (a per-read parser would silently drop them, e.g. the final progress
+    // frame of a re-embed).
+    yield* streamSSEEvents(url, { method: "POST" });
 }
 
 export const ragApi = {

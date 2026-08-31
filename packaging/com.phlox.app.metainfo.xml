@@ -25,12 +25,12 @@
     </p>
   </description>
   <launchable type="desktop-id">com.phlox.app.desktop</launchable>
-  <url type="homepage">https://github.com/bloodworks-io/phlox</url>
-  <url type="bugtracker">https://github.com/bloodworks-io/phlox/issues</url>
-  <url type="help">https://github.com/bloodworks-io/phlox#readme</url>
+  <url type="homepage">https://github.com/AmiraliGhamkhar/phlox_persian</url>
+  <url type="bugtracker">https://github.com/AmiraliGhamkhar/phlox_persian/issues</url>
+  <url type="help">https://github.com/AmiraliGhamkhar/phlox_persian#readme</url>
   <screenshots>
     <screenshot type="default">
-      <image>https://raw.githubusercontent.com/bloodworks-io/phlox/main/assets/readme_screenshot.png</image>
+      <image>https://raw.githubusercontent.com/AmiraliGhamkhar/phlox_persian/main/assets/readme_screenshot.png</image>
       <caption>Phlox main interface</caption>
     </screenshot>
   </screenshots>

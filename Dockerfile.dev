@@ -58,7 +58,7 @@ ENV DOCKER_CONTAINER=true \
     TIKTOKEN_CACHE_DIR=/usr/src/app/.cache/tiktoken
 
 # parallel  - runs Vite and uvicorn side by side in one container
-# tesseract - OCR used by document processing
+# tesseract - OCR used by document processing (fa + eng: Persian-first docs)
 # tzdata    - makes the TZ environment variable resolve to a real zone
 RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
     --mount=type=cache,target=/var/lib/apt,sharing=locked \
@@ -68,6 +68,7 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
         parallel \
         tesseract-ocr \
         tesseract-ocr-eng \
+        tesseract-ocr-fa \
         tzdata \
     && rm -rf /var/lib/apt/lists/*
 

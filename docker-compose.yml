@@ -10,7 +10,7 @@ name: phlox
 
 services:
     app:
-        image: ${PHLOX_IMAGE:-ghcr.io/bloodworks-io/phlox:latest}
+        image: ${PHLOX_IMAGE:-ghcr.io/amiralighamkhar/phlox_persian:latest}
         # Comment out `build` to always pull the published image instead.
         build:
             context: .

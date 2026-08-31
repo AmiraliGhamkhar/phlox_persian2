@@ -1,6 +1,7 @@
 import asyncio
 import io
 import logging
+import os
 from typing import Any
 
 from pydantic import BaseModel
@@ -37,6 +38,37 @@ from server.utils.helpers import calculate_age
 # Set up module-level logger
 logger = logging.getLogger(__name__)
 logger.setLevel(logging.INFO)
+
+# Tesseract language data for image OCR. Clinical documents in this app are
+# Persian-first, so prefer fa+eng (Persian text with embedded Latin drug
+# names / lab values). Override with TESSERACT_LANG if needed.
+TESSERACT_LANGS = os.getenv("TESSERACT_LANG", "fa+eng")
+
+
+def _ocr_languages() -> str | None:
+    """Resolve the preferred tesseract languages to what is actually installed.
+
+    Returns ``None`` when none of the requested language data is available so
+    tesseract falls back to its default (usually ``eng``) instead of failing;
+    this keeps desktop builds without ``tesseract-ocr-fa`` functional.
+    """
+    if pytesseract is None:
+        return None
+    try:
+        available = set(pytesseract.get_languages(config=""))
+    except Exception:
+        logger.warning("Could not enumerate tesseract languages; using default")
+        return None
+    requested = [lang for lang in TESSERACT_LANGS.split("+") if lang]
+    usable = [lang for lang in requested if lang in available]
+    if usable:
+        return "+".join(usable)
+    logger.warning(
+        "Tesseract language data %r not installed; falling back to %r",
+        TESSERACT_LANGS,
+        sorted(available),
+    )
+    return None
 
 
 async def extract_text_from_document(document_buffer: bytes, content_type: str) -> str:
@@ -92,7 +124,8 @@ async def extract_text_from_document(document_buffer: bytes, content_type: str) 
 
     logger.debug("Processing image document with Tesseract OCR")
     img = Image.open(io.BytesIO(document_buffer))  # ty: ignore
-    text = pytesseract.image_to_string(img)  # ty: ignore
+    lang = _ocr_languages()
+    text = pytesseract.image_to_string(img, lang=lang)  # ty: ignore
     return text
 
 

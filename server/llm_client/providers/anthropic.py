@@ -13,13 +13,12 @@ from typing import TYPE_CHECKING, Any
 
 import httpx
 
-from server.utils.ssrf import build_guarded_http_client
-
 from server.utils.http_retry import (
     ProviderHTTPError,
     sanitize_provider_error,
     with_retries,
 )
+from server.utils.ssrf import build_guarded_http_client
 
 if TYPE_CHECKING:
     from collections.abc import AsyncGenerator

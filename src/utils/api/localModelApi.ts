@@ -1,39 +1,16 @@
 import { handleApiRequest, universalFetch } from "../helpers/apiHelpers";
 import { buildApiUrl, isTauri } from "../helpers/apiConfig";
 import { invoke } from "@tauri-apps/api/core";
+import { streamSSEEvents } from "./sseStream";
 
 export const localModelApi = {
-  // Streaming download helper for SSE
-  streamSSE: async function* (url) {
-    const response = await universalFetch(url);
-    if (!response.ok) {
-      throw new Error(`HTTP error! status: ${response.status}`);
-    }
-
-    const reader = response.body.getReader();
-    const decoder = new TextDecoder();
-
-    while (true) {
-      const { value, done } = await reader.read();
-      if (done) break;
-
-      const chunk = decoder.decode(value, { stream: true });
-      const lines = chunk.split("\n\n");
-
-      for (const line of lines) {
-        if (line.trim() && line.startsWith("data: ")) {
-          // Skip keepalive comments
-          if (line.startsWith(": ")) continue;
-
-          try {
-            const data = JSON.parse(line.slice(6));
-            yield data;
-          } catch (error) {
-            console.error("Error parsing SSE chunk:", error, line);
-          }
-        }
-      }
-    }
+  // Streaming download helper for SSE. Buffered parsing so an event split
+  // across TCP reads is reassembled instead of dropped — losing the final
+  // "complete" frame would skip the sidecar restart and leave the UI stuck.
+  // Yields `any` (not `unknown`) so callers keep their existing untyped event
+  // access (e.g. `event.type`) — same surface as the original parser.
+  streamSSE: async function* (url): AsyncGenerator<any> {
+    yield* streamSSEEvents(url);
   },
 
   // LLM Model Management (llama-server)

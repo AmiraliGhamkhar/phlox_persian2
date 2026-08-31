@@ -2,6 +2,7 @@
 import { toaster } from "@/components/ui/toaster";
 import { handleApiRequest, universalFetch } from "../helpers/apiHelpers";
 import { buildApiUrl } from "../helpers/apiConfig";
+import { readSSEEvents } from "./sseStream";
 
 export const patientApi = {
   async savePatientData(saveRequest, toast, refreshSidebar) {
@@ -107,32 +108,33 @@ export const patientApi = {
       throw new Error(errorData.detail || "Failed to generate reasoning");
     }
 
-    const reader = response.body.getReader();
-    const decoder = new TextDecoder();
+    // Buffered SSE parsing: the final "result" frame carries the whole
+    // reasoning JSON and can span several TCP reads. A per-read parser drops
+    // it, which used to surface as a success toast with an empty panel.
     let result = null;
-
-    while (true) {
-      const { done, value } = await reader.read();
-      if (done) break;
-
-      const chunk = decoder.decode(value);
-      const lines = chunk.split("\n");
-
-      for (const line of lines) {
-        if (line.startsWith("data: ")) {
-          try {
-            const data = JSON.parse(line.slice(6));
-
-            if (data.type === "status" && onStatus) {
-              onStatus(data.message);
-            } else if (data.type === "result") {
-              result = data.data;
-            }
-          } catch {
-            // Ignore parse errors for incomplete chunks
-          }
-        }
+    // `any` (not `unknown`) to keep the original untyped event access.
+    const events = readSSEEvents(response.body.getReader()) as AsyncGenerator<any>;
+    for await (const data of events) {
+      if (data?.type === "status" && onStatus) {
+        onStatus(data.message);
+      } else if (data?.type === "result") {
+        result = data.data;
       }
+    }
+
+    if (result === null) {
+      const error = new Error(
+        "Reasoning stream ended without a result (پاسخ ناقص ماند).",
+      );
+      if (toast) {
+        toaster.create({
+          title: "Error",
+          description: error.message,
+          type: "error",
+          duration: 5000,
+        });
+      }
+      throw error;
     }
 
     if (toast) {

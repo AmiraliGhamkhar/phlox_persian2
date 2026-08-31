@@ -52,11 +52,10 @@ class AsyncLLMClient:
         self.api_key = api_key or "not-needed"
 
         if base_url:
-            self.base_url = (
-                base_url.rstrip("/")
-                if protocol == "anthropic"
-                else normalize_openai_base_url(base_url)
-            )
+            # Both protocols accept a user URL with or without a terminal
+            # /v1 (url_utils contract): normalise so the anthropic adapter
+            # never builds .../v1/v1/messages.
+            self.base_url = normalize_openai_base_url(base_url)
         else:
             self.base_url = None
 
@@ -77,7 +76,6 @@ class AsyncLLMClient:
         if self.protocol != "anthropic":
             try:
                 import httpx
-
                 from openai import AsyncOpenAI
 
                 from server.utils.ssrf import build_guarded_http_client

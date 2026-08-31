@@ -11,7 +11,11 @@ from server.chat.tools.sanitization import (
     sanitize_query_for_external_search,
     set_active_patient_context,
 )
-from server.utils.ssrf import validate_fetch_url
+from server.utils.ssrf import (
+    build_guarded_http_client,
+    build_guarded_sync_http_client,
+    validate_fetch_url,
+)
 
 
 class TestSanitizeQueryForExternalSearch:
@@ -54,9 +58,10 @@ class TestSanitizeQueryForExternalSearch:
         # callers skip the outbound request (LLM02:2026).
         assert sanitize_query_for_external_search("UR:123456") == ""
         assert sanitize_query_for_external_search("ali@example.com") == ""
-        assert sanitize_query_for_external_search(
-            "علی رضایی", patient_context={"name": "علی رضایی"}
-        ) == ""
+        assert (
+            sanitize_query_for_external_search("علی رضایی", patient_context={"name": "علی رضایی"})
+            == ""
+        )
 
 
 def test_sanitize_pubmed_query_keeps_covid19():
@@ -119,6 +124,90 @@ class TestSsrfGuard:
             else:
                 raise AssertionError(f"should be rejected: {url!r}")
 
+    @pytest.mark.asyncio
+    async def test_pinned_transport_sends_a_single_host_header(self):
+        """Regression: the pinned request must carry exactly one Host header.
+
+        ``dict(headers)`` lowercases keys, so a case-sensitive
+        ``setdefault("Host", ...)`` used to insert a *second* entry; h11 then
+        rejected the request on the wire ("Found multiple Host: headers") and
+        every guarded fetch (LLM chat, embeddings, external ASR, status
+        probes) failed.
+        """
+        import json
+        import threading
+        from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
+
+        seen: dict = {}
+
+        class Handler(BaseHTTPRequestHandler):
+            def do_GET(self):  # noqa: N802 - http.server API
+                seen["hosts"] = self.headers.get_all("Host")
+                body = json.dumps({"ok": True}).encode()
+                self.send_response(200)
+                self.send_header("Content-Type", "application/json")
+                self.send_header("Content-Length", str(len(body)))
+                self.end_headers()
+                self.wfile.write(body)
+
+            def log_message(self, format: str, *args: object) -> None:
+                pass
+
+        server = ThreadingHTTPServer(("127.0.0.1", 0), Handler)
+        port = server.server_address[1]
+        thread = threading.Thread(target=server.serve_forever, daemon=True)
+        thread.start()
+        try:
+            async with build_guarded_http_client() as client:
+                response = await client.get(f"http://127.0.0.1:{port}/v1/models", timeout=5.0)
+            assert response.status_code == 200
+            assert response.json() == {"ok": True}
+            # Exactly one Host header, echoing the original hostname:port.
+            assert seen["hosts"] == [f"127.0.0.1:{port}"]
+        finally:
+            server.shutdown()
+            server.server_close()
+
+    def test_sync_guarded_client_fetches_with_single_host_header(self):
+        """The sync twin (used by the sync OpenAI embedding client) must work.
+
+        Passing the *async* guarded client to the sync ``OpenAI`` constructor
+        raised ``TypeError`` at construction, which took down the whole vector
+        store — so the sync transport gets its own round-trip test.
+        """
+        import json
+        import threading
+        from http.server import BaseHTTPRequestHandler, ThreadingHTTPServer
+
+        seen: dict = {}
+
+        class Handler(BaseHTTPRequestHandler):
+            def do_GET(self):  # noqa: N802 - http.server API
+                seen["hosts"] = self.headers.get_all("Host")
+                body = json.dumps({"ok": True}).encode()
+                self.send_response(200)
+                self.send_header("Content-Type", "application/json")
+                self.send_header("Content-Length", str(len(body)))
+                self.end_headers()
+                self.wfile.write(body)
+
+            def log_message(self, format: str, *args: object) -> None:
+                pass
+
+        server = ThreadingHTTPServer(("127.0.0.1", 0), Handler)
+        port = server.server_address[1]
+        thread = threading.Thread(target=server.serve_forever, daemon=True)
+        thread.start()
+        try:
+            with build_guarded_sync_http_client() as client:
+                response = client.get(f"http://127.0.0.1:{port}/v1/embeddings", timeout=5.0)
+            assert response.status_code == 200
+            assert response.json() == {"ok": True}
+            assert seen["hosts"] == [f"127.0.0.1:{port}"]
+        finally:
+            server.shutdown()
+            server.server_close()
+
 
 class TestSanitizeFailsClosed:
     """The scrubber must never send the original query when it was all PHI."""
@@ -130,9 +219,10 @@ class TestSanitizeFailsClosed:
         # produce an empty string so callers skip the outbound request.
         assert sanitize_query_for_external_search("UR 4421") == ""
         assert sanitize_query_for_external_search("ali@example.com") == ""
-        assert sanitize_query_for_external_search(
-            "علی رضایی", patient_context={"name": "علی رضایی"}
-        ) == ""
+        assert (
+            sanitize_query_for_external_search("علی رضایی", patient_context={"name": "علی رضایی"})
+            == ""
+        )
 
     def test_mixed_query_keeps_non_phi(self):
         from server.chat.tools.sanitization import sanitize_query_for_external_search
@@ -164,13 +254,10 @@ class TestPubMedSanitization:
 
     @pytest.mark.asyncio
     async def test_search_pubmed_never_sends_phi(self):
-        import sys
         import types
         from unittest.mock import AsyncMock
 
         from server.chat.tools import pubmed_search
-
-        sent_params = {}
 
         class FakeResponse:
             def __init__(self, payload):
@@ -203,9 +290,7 @@ class TestPubMedSanitization:
         # scrubber strips the patient's name as well as generic PHI.
         set_active_patient_context({"name": "علی رضایی"})
         try:
-            result = await pubmed_search.search_pubmed(
-                "علی رضایی UR:4421 melanoma", max_results=3
-            )
+            result = await pubmed_search.search_pubmed("علی رضایی UR:4421 melanoma", max_results=3)
         finally:
             pubmed_search.httpx = original
             set_active_patient_context(None)

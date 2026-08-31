@@ -24,8 +24,8 @@ jobs:
                   LAST_RUN=$(gh api "repos/${{ github.repository }}/actions/workflows/nightly.yml/runs?status=success" \
                     --jq '.workflow_runs[0].updated_at // "1970-01-01T00:00:00Z"')
 
-                  # 2. Get the timestamp of the latest commit on the development branch
-                  LATEST_COMMIT=$(gh api repos/${{ github.repository }}/commits/development \
+                  # 2. Get the timestamp of the latest commit on the main branch
+                  LATEST_COMMIT=$(gh api repos/${{ github.repository }}/commits/main \
                     --jq '.commit.committer.date')
 
                   echo "Last successful run: $LAST_RUN"
@@ -51,7 +51,7 @@ jobs:
             - name: Checkout repository
               uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
               with:
-                  ref: development
+                  ref: main
 
             - name: Set up Docker Buildx
               uses: docker/setup-buildx-action@bb05f3f5519dd87d3ba754cc423b652a5edd6d2c # v4.2.0
@@ -68,7 +68,7 @@ jobs:
               with:
                   context: .
                   push: true
-                  tags: ghcr.io/bloodworks-io/phlox:nightly
+                  tags: ghcr.io/amiralighamkhar/phlox_persian:latest,ghcr.io/amiralighamkhar/phlox_persian:nightly
                   platforms: linux/amd64
                   cache-from: type=gha
                   cache-to: type=gha,mode=max

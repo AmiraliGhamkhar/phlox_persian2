@@ -12,6 +12,7 @@ in-progress PCM buffer.
 from __future__ import annotations
 
 import asyncio
+import contextlib
 import io
 import json
 import logging
@@ -289,13 +290,14 @@ class FireworksLiveSession(LiveSession):
         headers = {"Authorization": f"Bearer {api_key}"}
         try:
             self._ws = await websockets.connect(
-                url,  # ty: ignore (websockets>=14 arg name; older versions fall back below)
+                url,
                 additional_headers=headers,
                 max_size=8 * 1024 * 1024,
             )
         except TypeError:
+            # websockets <14 compatibility path (arg renamed in v14)
             self._ws = await websockets.connect(
-                url,  # ty: ignore (websockets<14 arg name kept for compat)
+                url,
                 extra_headers=headers,
                 max_size=8 * 1024 * 1024,
             )
@@ -387,10 +389,8 @@ class FireworksLiveSession(LiveSession):
                 logger.debug("Fireworks live end frame failed", exc_info=True)
             # Give the trailing finals a moment to arrive before closing.
             if self._receiver:
-                try:
+                with contextlib.suppress(TimeoutError):
                     await asyncio.wait_for(self._receiver, timeout=2.0)
-                except TimeoutError:
-                    pass
             try:
                 await self._ws.close()
             except Exception:
