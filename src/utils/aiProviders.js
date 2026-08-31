@@ -22,7 +22,12 @@ export const ASR_PROVIDER_DEFAULTS = {
     requiresKey: true,
   },
   whispercpp: { url: "http://127.0.0.1:2022", models: ["whisper-1"], requiresKey: false },
-  speechmatics: { url: "", models: ["enhanced", "standard"], requiresKey: true },
+  speechmatics: {
+    url: "wss://global.rt.speechmatics.com/v2",
+    batchUrl: "https://eu1.asr.api.speechmatics.com/v2",
+    models: ["enhanced", "standard"],
+    requiresKey: true,
+  },
   fireworks: {
     url: "https://audio-prod.api.fireworks.ai",
     models: ["fireworks-asr-v2", "fireworks-asr-large", "whisper-v3-turbo", "whisper-v3"],
@@ -69,6 +74,9 @@ export const applyAsrProviderDefaults = (providerId, handleConfigChange) => {
   handleConfigChange("ASR_PROVIDER", providerId);
   handleConfigChange("ASR_BASE_URL", defaults.url);
   handleConfigChange("WHISPER_BASE_URL", defaults.url);
+  if (defaults.batchUrl) {
+    handleConfigChange("ASR_BATCH_URL", defaults.batchUrl);
+  }
   const model = defaults.models[0] || "";
   handleConfigChange("ASR_MODEL", model);
   handleConfigChange("WHISPER_MODEL", model);

@@ -1,6 +1,8 @@
 import asyncio
 import io
+import json
 import logging
+import os
 import re
 import threading
 import time
@@ -9,6 +11,8 @@ from pathlib import Path
 from typing import Union
 
 import httpx
+
+from server.utils.ssrf import build_guarded_http_client
 
 from server.database.config.manager import config_manager
 from server.transcription.language import normalize_persian_text, resolve_asr_language
@@ -45,6 +49,32 @@ def _get_whisper_port() -> str:
     return str(get_whisper_port())
 
 
+def _validate_local_model_language(model_id: str, language: str) -> None:
+    """Reject language/model combinations the local engines cannot do.
+
+    The local catalog only ships three engines:
+    - Whisper large-v3-turbo: multilingual — fa, en, and mixed (``auto``).
+    - Parakeet TDT 0.6B v3: **not** a Persian model (25 European languages).
+    - Shenava Koochik: **Persian-only**.
+
+    Running Persian/auto through Parakeet or English through Shenava silently
+    produces garbage text, so fail with an actionable message instead.
+    """
+    if not model_id or not model_id.startswith(("shenava-", "parakeet-")):
+        return
+    if model_id.startswith("parakeet-") and language in {"fa", "auto"}:
+        raise ValueError(
+            "Parakeet is an English/European-language model and cannot transcribe "
+            "Persian or mixed Persian/English speech. Select a Whisper large-v3-turbo "
+            "model, Shenava (Persian only), or an online provider for this language."
+        )
+    if model_id.startswith("shenava-") and language == "en":
+        raise ValueError(
+            "Shenava is a Persian-only model and cannot transcribe English. "
+            "Select a Whisper large-v3-turbo model or an online provider for English."
+        )
+
+
 async def transcribe_audio(audio_buffer: bytes) -> dict[str, Union[str, float]]:
     """
     Transcribe an audio buffer using an OpenAI-compatible ASR endpoint.
@@ -73,6 +103,7 @@ async def transcribe_audio(audio_buffer: bytes) -> dict[str, Union[str, float]]:
                     model_id = asr_model_manager.get_selected_model_id() or ""
                 except Exception:
                     model_id = ""
+            _validate_local_model_language(model_id, resolve_asr_language(config))
             if model_id.startswith("shenava-"):
                 logger.info("Using local Shenava ASR for transcription")
                 return await _transcribe_local_shenava(audio_buffer, config)
@@ -82,7 +113,7 @@ async def transcribe_audio(audio_buffer: bytes) -> dict[str, Union[str, float]]:
             logger.info("Using local Whisper.cpp ASR for transcription")
             return await _transcribe_local_whisper(audio_buffer, config)
         if protocol == "speechmatics" or provider == "speechmatics":
-            logger.info("Using Speechmatics realtime ASR for transcription")
+            logger.info("Using Speechmatics Batch REST API for file transcription")
             return await _transcribe_speechmatics(audio_buffer, config)
         if protocol == "fireworks" or provider == "fireworks":
             logger.info("Using Fireworks ASR for transcription")
@@ -106,7 +137,7 @@ async def _transcribe_local_whisper(
 
     filename, content_type = _detect_audio_format(audio_buffer)
 
-    async with httpx.AsyncClient(timeout=httpx.Timeout(600.0)) as client:
+    async with build_guarded_http_client(timeout=httpx.Timeout(600.0)) as client:
         files = {"file": (filename, audio_buffer, content_type)}
         language = resolve_asr_language(_config)
         data = {
@@ -169,7 +200,7 @@ def _read_pcm_wav(audio_buffer: bytes) -> tuple[bytes, int]:
             sample_rate = wav.getframerate()
             frames = wav.readframes(wav.getnframes())
     except (wave.Error, EOFError) as error:
-        raise ValueError("Speechmatics and Shenava require a valid WAV recording") from error
+        raise ValueError("Shenava requires a valid uncompressed 16-bit PCM WAV recording") from error
 
     if channels == 1:
         return frames, sample_rate
@@ -187,79 +218,196 @@ def _read_pcm_wav(audio_buffer: bytes) -> tuple[bytes, int]:
     return mono.tobytes(), sample_rate
 
 
+# Speechmatics Batch REST API (per https://docs.speechmatics.com/batch.yaml).
+# The SaaS batch endpoint is EU1 for all customers; regional/enterprise or
+# on-prem runtimes can be configured via ASR_BATCH_URL / SPEECHMATICS_BATCH_URL.
+SPEECHMATICS_BATCH_DEFAULT_URL = "https://eu1.asr.api.speechmatics.com/v2"
+# Uploads can be long (e.g. clinic visits), so allow a generous window but
+# still make sure the request cannot hang forever.
+SPEECHMATICS_BATCH_POLL_SECONDS = 900
+SPEECHMATICS_BATCH_POLL_WAIT = 20
+
+
+def speechmatics_batch_url(config: dict) -> str:
+    """Resolve the Speechmatics Batch REST base URL for file transcription.
+
+    Priority: ``ASR_BATCH_URL`` config → ``SPEECHMATICS_BATCH_URL`` env →
+    an http(s) ``ASR_BASE_URL`` (custom/on-prem host) → the documented SaaS EU1
+    endpoint. A ``wss://`` realtime URL must NOT be reused: Batch and Realtime
+    are separate product surfaces with separate hosts.
+    """
+    url = str(config.get("ASR_BATCH_URL") or config.get("WHISPER_BATCH_URL") or "").strip()
+    if url:
+        return url.rstrip("/")
+    url = os.environ.get("SPEECHMATICS_BATCH_URL") or ""
+    if url.strip():
+        return url.strip().rstrip("/")
+    base = str(config.get("ASR_BASE_URL") or config.get("WHISPER_BASE_URL") or "").strip()
+    if base.lower().startswith(("http://", "https://")):
+        return base.rstrip("/")
+    return SPEECHMATICS_BATCH_DEFAULT_URL
+
+
+def _speechmatics_batch_key(config: dict) -> str:
+    """Return the Batch-scoped API key.
+
+    Speechmatics API keys are product-scoped (``type=rt`` vs ``type=batch``),
+    so the Realtime key may not work for Batch and vice versa. A dedicated
+    ``ASR_BATCH_KEY`` wins; the primary ``ASR_KEY`` is the fallback.
+    """
+    return str(
+        config.get("ASR_BATCH_KEY")
+        or config.get("WHISPER_BATCH_KEY")
+        or config.get("ASR_KEY")
+        or config.get("WHISPER_KEY")
+        or ""
+    ).strip()
+
+
 async def _transcribe_speechmatics(
     audio_buffer: bytes, config: dict
 ) -> dict[str, Union[str, float]]:
-    """Transcribe a complete recording through Speechmatics Realtime."""
-    try:
-        from speechmatics.rt import (
-            AsyncClient,
-            AudioEncoding,
-            AudioFormat,
-            Model,
-            ServerMessageType,
-            TranscriptionConfig,
-            TranscriptResult,
-        )
-    except ImportError as error:
-        raise ValueError("Speechmatics support is not installed in this server build") from error
+    """Transcribe a recording through the speechmatics Batch REST API.
 
-    api_key = str(config.get("ASR_KEY") or config.get("WHISPER_KEY") or "").strip()
+    Used for the after-the-fact file path (``/api/transcribe/audio``). Live
+    mic streaming uses ``server/transcription/live.py`` instead.
+
+    Flow (per batch.yaml):
+      1. POST ``/jobs`` (multipart: ``config`` JSON + ``data_file``)
+      2. GET  ``/jobs/{id}/transcript?format=txt&wait=…`` until 200
+      3. GET  ``/jobs/{id}`` for the audio duration
+    """
+    filename, content_type = _detect_audio_format(audio_buffer)
+    api_key = _speechmatics_batch_key(config)
     if not api_key:
-        raise ValueError("A Speechmatics API key is required for the selected ASR provider")
+        raise ValueError(
+            "A Speechmatics Batch API key is required for file transcription "
+            "(set ASR_BATCH_KEY or ASR_KEY in Settings)"
+        )
+    base_url = speechmatics_batch_url(config)
 
-    pcm, sample_rate = _read_pcm_wav(audio_buffer)
+    # Batch supports automatic language identification (``auto``), unlike
+    # Realtime. Pin the expected languages so the medical Persian/English mix
+    # is never transcribed as a third language, and fall back to Persian when
+    # confidence is low.
     language = resolve_asr_language(config)
-    # Speechmatics supports automatic language identification for the mixed
-    # Persian/English workflow. Keep an explicit ``fa`` or ``en`` hint when the
-    # user chooses one in settings.
-    speechmatics_language = "auto" if language == "auto" else language
-    # Map the configured operating point onto the v1 ``Model`` enum; any
-    # unrecognised value falls back to the default ``enhanced`` model.
-    model_name = str(config.get("ASR_MODEL") or "enhanced").strip().lower()
-    model = Model.STANDARD if model_name == "standard" else Model.ENHANCED
+    model = str(config.get("ASR_MODEL") or "enhanced").strip().lower()
+    if model not in {"standard", "enhanced", "melia-1"}:
+        model = "enhanced"
+    # Melia 1 is multilingual and switches languages automatically, but it does
+    # NOT support ``language``/``auto`` in the lang-identification sense: it
+    # accepts an ISO hint only. Also it is Batch-only (not available on the
+    # Realtime WebSocket SDK used for live transcription).
+    if model == "melia-1" and language == "auto":
+        language = "fa"
+        logger.info("Melia 1 does not support language identification; using Persian hint 'fa'")
+    job_config: dict[str, object] = {
+        "type": "transcription",
+        "transcription_config": {
+            "language": language,
+            "model": model,
+            "enable_entities": True,
+        },
+    }
+    if language == "auto":
+        job_config["language_identification_config"] = {
+            "expected_languages": ["fa", "en"],
+            "low_confidence_action": "use_default_language",
+            "default_language": "fa",
+        }
 
-    transcript_parts: list[str] = []
-
-    def handle_final(message: dict) -> None:
-        try:
-            result = TranscriptResult.from_message(message)
-            text = result.metadata.transcript
-            if text:
-                transcript_parts.append(text)
-        except (KeyError, TypeError, AttributeError):
-            logger.debug("Ignoring malformed Speechmatics transcript event", exc_info=True)
-
-    client_url = str(config.get("ASR_BASE_URL") or "").strip() or None
-    client = AsyncClient(api_key=api_key, url=client_url)
-    client.on(ServerMessageType.ADD_TRANSCRIPT, handle_final)
+    headers = {"Authorization": f"Bearer {api_key}"}
     started = time.perf_counter()
     try:
-        await client.transcribe(
-            io.BytesIO(pcm),
-            transcription_config=TranscriptionConfig(
-                language=speechmatics_language,
-                model=model,
-                enable_partials=False,
-            ),
-            audio_format=AudioFormat(
-                encoding=AudioEncoding.PCM_S16LE,
-                sample_rate=sample_rate,
-                chunk_size=4096,
-            ),
-            timeout=600.0,
-        )
-    except Exception as error:
-        raise ValueError(f"Speechmatics transcription failed: {error}") from error
-    finally:
-        await client.close()
+        async with build_guarded_http_client(timeout=httpx.Timeout(60.0)) as client:
+            try:
+                response = await _post_audio(
+                    client,
+                    f"{base_url}/jobs",
+                    data={"config": json.dumps(job_config)},
+                    files={"data_file": (filename, audio_buffer, content_type)},
+                    headers=headers,
+                )
+            except Exception as error:
+                raise ValueError(f"Speechmatics batch submit failed: {error}") from error
 
-    transcript_text = normalize_persian_text(_clean_repetitive_text("\n".join(transcript_parts)))
+            from server.utils.http_retry import sanitize_provider_error
+
+            if response.status_code != 201:
+                detail = sanitize_provider_error(response.text)
+                if response.status_code == 401:
+                    raise ValueError(
+                        "Speechmatics authentication failed (401): the API key is not "
+                        f"valid for the Batch API. Create a key with type=batch. {detail}"
+                    )
+                if response.status_code == 403:
+                    raise ValueError(f"Speechmatics request forbidden (403): {detail}")
+                if response.status_code == 429:
+                    raise ValueError(f"Speechmatics rate limited (429): {detail}")
+                raise ValueError(
+                    f"Speechmatics batch job rejected ({response.status_code}): {detail}"
+                )
+
+            try:
+                job_id = str(response.json()["id"])
+            except Exception as error:
+                raise ValueError(f"Speechmatics batch response missing job id: {error}") from error
+
+            # Poll the transcript endpoint. ``wait`` blocks server-side, so the
+            # loop is quiet while the job is being processed.
+            transcript_text: str | None = None
+            deadline = time.monotonic() + SPEECHMATICS_BATCH_POLL_SECONDS
+            while time.monotonic() < deadline:
+                transcript_response = await client.get(
+                    f"{base_url}/jobs/{job_id}/transcript",
+                    params={"format": "txt", "wait": SPEECHMATICS_BATCH_POLL_WAIT},
+                    headers=headers,
+                )
+                if transcript_response.status_code == 200:
+                    transcript_text = transcript_response.text
+                    break
+                if transcript_response.status_code in (404, 423):
+                    await asyncio.sleep(0.5)
+                    continue
+                if transcript_response.status_code == 429:
+                    await asyncio.sleep(2.0)
+                    continue
+                detail = sanitize_provider_error(transcript_response.text)
+                if transcript_response.status_code == 401:
+                    raise ValueError(
+                        "Speechmatics authentication failed (401) while fetching "
+                        f"the batch transcript: {detail}"
+                    )
+                raise ValueError(
+                    "Speechmatics batch transcript fetch failed "
+                    f"({transcript_response.status_code}): {detail}"
+                )
+            if transcript_text is None:
+                raise ValueError(
+                    "Speechmatics batch transcription timed out after "
+                    f"{SPEECHMATICS_BATCH_POLL_SECONDS}s; the job may still be running"
+                )
+
+            # Report the real audio duration when the provider gives it.
+            duration = 0.0
+            try:
+                job_response = await client.get(f"{base_url}/jobs/{job_id}", headers=headers)
+                if job_response.status_code == 200:
+                    duration = float(
+                        (job_response.json().get("job") or {}).get("duration") or 0
+                    )
+            except Exception:
+                logger.debug("Speechmatics job details fetch failed", exc_info=True)
+    except httpx.RequestError as error:
+        raise ValueError(f"Speechmatics batch transcription failed: {error}") from error
+
+    transcript_text = normalize_persian_text(_clean_repetitive_text(transcript_text))
     if not transcript_text:
         raise ValueError("Speechmatics returned no transcript")
     return {
         "text": transcript_text,
-        "transcriptionDuration": float(f"{time.perf_counter() - started:.2f}"),
+        "transcriptionDuration": duration
+        or float(f"{time.perf_counter() - started:.2f}"),
     }
 
 
@@ -495,14 +643,19 @@ async def _transcribe_fireworks(audio_buffer: bytes, config: dict) -> dict[str, 
         raise ValueError("A Fireworks API key is required for the selected ASR provider")
 
     language = resolve_asr_language(config)
+    if language == "auto":
+        # Fireworks' documented language list has no ``auto``; omitting the
+        # field can fall back to the provider default (English), which would
+        # mangle Persian. This app is Persian-first, so pin ``fa`` and keep
+        # true mixed fa/en detection to Speechmatics Batch or local Whisper.
+        language = "fa"
     data = {
         "model": model,
         "temperature": "0.0",
         "response_format": "verbose_json",
         "task": "transcribe",
+        "language": language,
     }
-    if language != "auto":
-        data["language"] = language
 
     headers = {"Authorization": f"Bearer {api_key}"}
     base_url = _fireworks_batch_url(config).rstrip("/")
@@ -510,7 +663,7 @@ async def _transcribe_fireworks(audio_buffer: bytes, config: dict) -> dict[str, 
         base_url = base_url[:-3]
 
     transcription_start = time.perf_counter()
-    async with httpx.AsyncClient(timeout=httpx.Timeout(600.0)) as client:
+    async with build_guarded_http_client(timeout=httpx.Timeout(600.0)) as client:
         try:
             response = await _post_audio(
                 client,
@@ -556,7 +709,7 @@ async def _transcribe_external_api(
 ) -> dict[str, Union[str, float]]:
     """Transcribe using an external OpenAI-compatible ASR API."""
     filename, content_type = _detect_audio_format(audio_buffer)
-    async with httpx.AsyncClient(timeout=httpx.Timeout(600.0)) as client:
+    async with build_guarded_http_client(timeout=httpx.Timeout(600.0)) as client:
         files = {"file": (filename, audio_buffer, content_type)}
         language = resolve_asr_language(config)
         data = {
