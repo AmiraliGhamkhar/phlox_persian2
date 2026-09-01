@@ -87,7 +87,10 @@ def speechmatics_medical_domain(model: str, language: str) -> str | None:
     a fixed set of languages; for everything else (including Persian, which has
     no medical domain) the plain enhanced model must be used.
     """
-    if str(model).strip().lower() == "enhanced" and language in SPEECHMATICS_MEDICAL_DOMAIN_LANGUAGES:
+    if (
+        str(model).strip().lower() == "enhanced"
+        and language in SPEECHMATICS_MEDICAL_DOMAIN_LANGUAGES
+    ):
         return "medical"
     return None
 

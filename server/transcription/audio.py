@@ -426,9 +426,7 @@ async def _transcribe_speechmatics(
                     # not already failed, so a rejected/expired/deleted job
                     # surfaces its reason immediately instead of polling for
                     # up to SPEECHMATICS_BATCH_POLL_SECONDS.
-                    await _raise_if_speechmatics_job_failed(
-                        client, base_url, job_id, headers
-                    )
+                    await _raise_if_speechmatics_job_failed(client, base_url, job_id, headers)
                     await asyncio.sleep(0.5)
                     continue
                 if transcript_response.status_code == 429:
