@@ -129,6 +129,8 @@ const SplashScreen = ({ onComplete }) => {
         ASR_MODEL: transcriptionData.whisperModel,
         ASR_LANGUAGE: transcriptionData.asrLanguage || "auto",
         ASR_KEY: transcriptionData.asrApiKey || "",
+        ASR_BATCH_URL: transcriptionData.asrBatchUrl || "",
+        ASR_BATCH_KEY: transcriptionData.asrBatchKey || "",
         // Keep the legacy keys synchronized for older bundled components.
         WHISPER_BASE_URL: transcriptionData.whisperBaseUrl,
         WHISPER_MODEL: transcriptionData.whisperModel,

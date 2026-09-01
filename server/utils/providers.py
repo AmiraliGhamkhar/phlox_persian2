@@ -286,7 +286,7 @@ ASR_PROVIDERS: dict[str, dict[str, Any]] = {
         "supports_live": True,
         "help": "Speechmatics Realtime WebSocket. Partials stream while you speak.",
         "help_fa": "وب‌سوکت بلادرنگ Speechmatics. نتایج جزئی هنگام صحبت نمایش داده می‌شوند.",
-        "default_models": ["enhanced", "standard"],
+        "default_models": ["enhanced", "standard", "melia-1"],
     },
     "fireworks": {
         "id": "fireworks",

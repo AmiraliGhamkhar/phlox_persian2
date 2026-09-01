@@ -211,6 +211,7 @@ const WhisperTab = ({
                             >
                                 <option value="enhanced">حالت پیشرفته؛ دقت بالاتر</option>
                                 <option value="standard">حالت استاندارد؛ سرعت بالاتر</option>
+                                <option value="melia-1">چندزبانه Melia 1؛ فقط دسته‌ای</option>
                             </NativeSelect.Field>
                             <NativeSelect.Indicator />
                         </NativeSelect.Root>

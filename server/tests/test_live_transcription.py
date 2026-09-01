@@ -121,6 +121,149 @@ async def test_speechmatics_session_builds_config_not_auto(monkeypatch):
 
 
 @pytest.mark.asyncio
+async def test_speechmatics_english_session_uses_medical_domain(monkeypatch):
+    """English + enhanced selects the Enhanced Medical domain for live ASR."""
+    import types
+
+    captured: dict = {}
+
+    class _FakeClient:
+        def __init__(self, **kwargs):
+            captured["client_kwargs"] = kwargs
+            self._handlers: dict = {}
+
+        def on(self, event, callback=None):
+            if callback is not None:
+                self._handlers[event] = callback
+            return callback
+
+        async def transcribe(self, _source, **kwargs):
+            captured["config"] = kwargs["transcription_config"]
+            started_handler = self._handlers.get("RecognitionStarted")
+            if started_handler:
+                started_handler({})
+
+        async def close(self):
+            return None
+
+    class _FakeConfig:
+        def __init__(self, **kwargs):
+            self.__dict__.update(kwargs)
+
+    class _FakeAudioFormat:
+        def __init__(self, **kwargs):
+            self.__dict__.update(kwargs)
+
+    fake_rt: Any = types.ModuleType("speechmatics.rt")
+    fake_rt.AsyncClient = _FakeClient
+    fake_rt.AudioEncoding = type("AudioEncoding", (), {"PCM_S16LE": "pcm_s16le"})
+    fake_rt.AudioFormat = _FakeAudioFormat
+    fake_rt.Model = type("Model", (), {"STANDARD": "standard", "ENHANCED": "enhanced"})
+    fake_rt.ServerMessageType = type(
+        "ServerMessageType",
+        (),
+        {
+            "ADD_PARTIAL_TRANSCRIPT": "AddPartialTranscript",
+            "ADD_TRANSCRIPT": "AddTranscript",
+            "RECOGNITION_STARTED": "RecognitionStarted",
+        },
+    )
+    fake_rt.TranscriptionConfig = _FakeConfig
+    fake_rt.TranscriptResult = type("TranscriptResult", (), {})
+    monkeypatch.setitem(__import__("sys").modules, "speechmatics.rt", fake_rt)
+
+    async def emit(_event):
+        return None
+
+    session = SpeechmaticsLiveSession(
+        {
+            "ASR_PROVIDER": "speechmatics",
+            "ASR_KEY": "k",
+            "ASR_MODEL": "enhanced",
+            "ASR_LANGUAGE": "en",
+        },
+        emit,
+    )
+    await asyncio.wait_for(session.start(), timeout=5)
+
+    config: Any = captured["config"]
+    assert config.language == "en"
+    assert config.model == "enhanced"
+    assert config.domain == "medical"
+
+
+@pytest.mark.asyncio
+async def test_speechmatics_persian_session_has_no_medical_domain(monkeypatch):
+    """Persian has no Enhanced Medical variant; domain must stay None."""
+    import types
+
+    captured: dict = {}
+
+    class _FakeClient:
+        def __init__(self, **kwargs):
+            captured["client_kwargs"] = kwargs
+            self._handlers: dict = {}
+
+        def on(self, event, callback=None):
+            if callback is not None:
+                self._handlers[event] = callback
+            return callback
+
+        async def transcribe(self, _source, **kwargs):
+            captured["config"] = kwargs["transcription_config"]
+            started_handler = self._handlers.get("RecognitionStarted")
+            if started_handler:
+                started_handler({})
+
+        async def close(self):
+            return None
+
+    class _FakeConfig:
+        def __init__(self, **kwargs):
+            self.__dict__.update(kwargs)
+
+    class _FakeAudioFormat:
+        def __init__(self, **kwargs):
+            self.__dict__.update(kwargs)
+
+    fake_rt: Any = types.ModuleType("speechmatics.rt")
+    fake_rt.AsyncClient = _FakeClient
+    fake_rt.AudioEncoding = type("AudioEncoding", (), {"PCM_S16LE": "pcm_s16le"})
+    fake_rt.AudioFormat = _FakeAudioFormat
+    fake_rt.Model = type("Model", (), {"STANDARD": "standard", "ENHANCED": "enhanced"})
+    fake_rt.ServerMessageType = type(
+        "ServerMessageType",
+        (),
+        {
+            "ADD_PARTIAL_TRANSCRIPT": "AddPartialTranscript",
+            "ADD_TRANSCRIPT": "AddTranscript",
+            "RECOGNITION_STARTED": "RecognitionStarted",
+        },
+    )
+    fake_rt.TranscriptionConfig = _FakeConfig
+    fake_rt.TranscriptResult = type("TranscriptResult", (), {})
+    monkeypatch.setitem(__import__("sys").modules, "speechmatics.rt", fake_rt)
+
+    async def emit(_event):
+        return None
+
+    session = SpeechmaticsLiveSession(
+        {
+            "ASR_PROVIDER": "speechmatics",
+            "ASR_KEY": "k",
+            "ASR_MODEL": "enhanced",
+            "ASR_LANGUAGE": "fa",
+        },
+        emit,
+    )
+    await asyncio.wait_for(session.start(), timeout=5)
+
+    config: Any = captured["config"]
+    assert config.language == "fa"
+    assert getattr(config, "domain", None) is None
+
+
+@pytest.mark.asyncio
 async def test_speechmatics_live_rejects_melia1_batch_only():
     """Melia 1 is not in the Realtime SDK Model enum; live must fail clearly."""
     import types

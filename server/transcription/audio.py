@@ -13,7 +13,11 @@ from typing import Union
 import httpx
 
 from server.database.config.manager import config_manager
-from server.transcription.language import normalize_persian_text, resolve_asr_language
+from server.transcription.language import (
+    normalize_persian_text,
+    resolve_asr_language,
+    speechmatics_medical_domain,
+)
 from server.utils.ssrf import build_guarded_http_client
 
 logger = logging.getLogger(__name__)
@@ -228,6 +232,10 @@ SPEECHMATICS_BATCH_DEFAULT_URL = "https://eu1.asr.api.speechmatics.com/v2"
 SPEECHMATICS_BATCH_POLL_SECONDS = 900
 SPEECHMATICS_BATCH_POLL_WAIT = 20
 
+# Job statuses that mean the transcript will never become available; polling
+# for these is pointless, so surface the provider's reason right away.
+SPEECHMATICS_TERMINAL_FAILURE_STATUSES = {"rejected", "expired", "deleted"}
+
 
 def speechmatics_batch_url(config: dict) -> str:
     """Resolve the Speechmatics Batch REST base URL for file transcription.
@@ -265,6 +273,39 @@ def _speechmatics_batch_key(config: dict) -> str:
     ).strip()
 
 
+async def _raise_if_speechmatics_job_failed(
+    client: httpx.AsyncClient, base_url: str, job_id: str, headers: dict
+) -> None:
+    """Fail fast when a Batch job has reached a terminal failure status.
+
+    A transcript request that returns 404 normally means "not ready yet", but it
+    also means "never will be" once the job is ``rejected``/``expired``/
+    ``deleted``. Inspect the job and surface the provider's error detail (when
+    available) instead of letting the caller poll until its own timeout.
+    """
+    try:
+        response = await client.get(f"{base_url}/jobs/{job_id}", headers=headers)
+    except httpx.RequestError:
+        return  # network hiccup; the polling loop will retry
+    if response.status_code != 200:
+        return
+    try:
+        job = response.json().get("job") or {}
+    except (ValueError, AttributeError):
+        return
+    status = str(job.get("status") or "")
+    if status not in SPEECHMATICS_TERMINAL_FAILURE_STATUSES:
+        return
+    errors = job.get("errors") or []
+    messages = [
+        str(error.get("message") or "").strip()
+        for error in errors
+        if isinstance(error, dict) and str(error.get("message") or "").strip()
+    ]
+    detail = "; ".join(messages) or "no detail provided"
+    raise ValueError(f"Speechmatics batch job {status}: {detail}")
+
+
 async def _transcribe_speechmatics(
     audio_buffer: bytes, config: dict
 ) -> dict[str, Union[str, float]]:
@@ -276,7 +317,8 @@ async def _transcribe_speechmatics(
     Flow (per batch.yaml):
       1. POST ``/jobs`` (multipart: ``config`` JSON + ``data_file``)
       2. GET  ``/jobs/{id}/transcript?format=txt&wait=…`` until 200
-      3. GET  ``/jobs/{id}`` for the audio duration
+      3. GET  ``/jobs/{id}`` for the audio duration, failing fast if the job
+         was rejected/expired/deleted instead of polling until timeout.
     """
     filename, content_type = _detect_audio_format(audio_buffer)
     api_key = _speechmatics_batch_key(config)
@@ -295,22 +337,34 @@ async def _transcribe_speechmatics(
     model = str(config.get("ASR_MODEL") or "enhanced").strip().lower()
     if model not in {"standard", "enhanced", "melia-1"}:
         model = "enhanced"
-    # Melia 1 is multilingual and switches languages automatically, but it does
-    # NOT support ``language``/``auto`` in the lang-identification sense: it
-    # accepts an ISO hint only. Also it is Batch-only (not available on the
-    # Realtime WebSocket SDK used for live transcription).
-    if model == "melia-1" and language == "auto":
-        language = "fa"
-        logger.info("Melia 1 does not support language identification; using Persian hint 'fa'")
+
+    transcription_config: dict[str, object] = {
+        "language": language,
+        "model": model,
+        "enable_entities": True,
+    }
+    effective_language = language
+    if model == "melia-1":
+        # Melia 1 is multilingual and rejects the ``auto`` value with an error;
+        # ``multi`` enables automatic code-switching. An explicit ISO code is
+        # kept as a hint. Entity detection is not yet supported by Melia 1, so
+        # drop ``enable_entities`` rather than send unsupported config.
+        if language == "auto":
+            effective_language = "multi"
+            transcription_config["language"] = "multi"
+        transcription_config.pop("enable_entities", None)
+    else:
+        domain = speechmatics_medical_domain(model, language)
+        if domain:
+            # Enhanced Medical model for clinical audio (English and the other
+            # documented medical-domain languages; Persian has no such variant).
+            transcription_config["domain"] = domain
+
     job_config: dict[str, object] = {
         "type": "transcription",
-        "transcription_config": {
-            "language": language,
-            "model": model,
-            "enable_entities": True,
-        },
+        "transcription_config": transcription_config,
     }
-    if language == "auto":
+    if effective_language == "auto":
         job_config["language_identification_config"] = {
             "expected_languages": ["fa", "en"],
             "low_confidence_action": "use_default_language",
@@ -368,6 +422,11 @@ async def _transcribe_speechmatics(
                     transcript_text = transcript_response.text
                     break
                 if transcript_response.status_code in (404, 423):
+                    # The transcript is not ready yet — but confirm the job has
+                    # not already failed, so a rejected/expired/deleted job
+                    # surfaces its reason immediately instead of polling for
+                    # up to SPEECHMATICS_BATCH_POLL_SECONDS.
+                    await _raise_if_speechmatics_job_failed(client, base_url, job_id, headers)
                     await asyncio.sleep(0.5)
                     continue
                 if transcript_response.status_code == 429:

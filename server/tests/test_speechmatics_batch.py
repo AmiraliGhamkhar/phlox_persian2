@@ -57,7 +57,7 @@ def _mock_client(responses):
 
 @pytest.mark.asyncio
 async def test_transcribe_speechmatics_uses_batch_rest_and_polls():
-    """Submit → poll transcript (404 then 200) → fetch duration."""
+    """Submit → poll transcript (404 → status check → 200) → fetch duration."""
     config = {
         "ASR_PROVIDER": "speechmatics",
         "ASR_BATCH_KEY": "batch-key",
@@ -67,6 +67,7 @@ async def test_transcribe_speechmatics_uses_batch_rest_and_polls():
     responses = [
         _fake_response(201, {"id": "job-123"}),
         _fake_response(404),  # transcript not ready yet
+        _fake_response(200, {"job": {"id": "job-123", "status": "running"}}),  # status check
         _fake_response(200, text="سلام این یک آزمایش است."),
         _fake_response(200, {"job": {"id": "job-123", "duration": 12}}),
     ]
@@ -149,3 +150,83 @@ async def test_batch_authentication_failure_is_explicit():
 async def test_batch_requires_a_key():
     with pytest.raises(ValueError, match="Batch API key"):
         await _transcribe_speechmatics(b"RIFF....WAVEdata", {"ASR_PROVIDER": "speechmatics"})
+
+
+@pytest.mark.asyncio
+async def test_enhanced_english_uses_medical_domain():
+    """English + enhanced selects the documented Enhanced Medical domain."""
+    config = {
+        "ASR_PROVIDER": "speechmatics",
+        "ASR_BATCH_KEY": "batch-key",
+        "ASR_MODEL": "enhanced",
+        "ASR_LANGUAGE": "en",
+    }
+    responses = [
+        _fake_response(201, {"id": "job-en"}),
+        _fake_response(200, text="The patient reports chest pain."),
+        _fake_response(200, {"job": {"id": "job-en", "duration": 3}}),
+    ]
+    mock_client = _mock_client(responses)
+    with patch("httpx.AsyncClient", return_value=mock_client):
+        result = await _transcribe_speechmatics(b"RIFF....WAVEdata", config)
+
+    sent_config = json.loads(mock_client.post.call_args.kwargs["data"]["config"])
+    assert sent_config["transcription_config"]["language"] == "en"
+    assert sent_config["transcription_config"]["model"] == "enhanced"
+    assert sent_config["transcription_config"]["domain"] == "medical"
+    assert "language_identification_config" not in sent_config
+    assert result["text"] == "The patient reports chest pain."
+
+
+@pytest.mark.asyncio
+async def test_persian_never_uses_medical_domain():
+    """Persian has no Enhanced Medical variant; domain must be omitted."""
+    config = {
+        "ASR_PROVIDER": "speechmatics",
+        "ASR_BATCH_KEY": "batch-key",
+        "ASR_MODEL": "enhanced",
+        "ASR_LANGUAGE": "fa",
+    }
+    responses = [
+        _fake_response(201, {"id": "job-fa"}),
+        _fake_response(200, text="سلام"),
+        _fake_response(200, {"job": {"id": "job-fa", "duration": 2}}),
+    ]
+    mock_client = _mock_client(responses)
+    with patch("httpx.AsyncClient", return_value=mock_client):
+        await _transcribe_speechmatics(b"RIFF....WAVEdata", config)
+
+    sent_config = json.loads(mock_client.post.call_args.kwargs["data"]["config"])
+    assert sent_config["transcription_config"]["language"] == "fa"
+    assert "domain" not in sent_config["transcription_config"]
+
+
+@pytest.mark.asyncio
+async def test_batch_rejected_job_fails_fast():
+    """A rejected job surfaces its reason instead of polling until timeout."""
+    config = {
+        "ASR_PROVIDER": "speechmatics",
+        "ASR_BATCH_KEY": "batch-key",
+        "ASR_MODEL": "enhanced",
+        "ASR_LANGUAGE": "fa",
+    }
+    responses = [
+        _fake_response(201, {"id": "job-rej"}),
+        _fake_response(404),  # transcript never becomes available
+        _fake_response(
+            200,
+            {
+                "job": {
+                    "id": "job-rej",
+                    "status": "rejected",
+                    "errors": [{"message": "The audio file could not be processed"}],
+                }
+            },
+        ),
+    ]
+    mock_client = _mock_client(responses)
+    with (
+        patch("httpx.AsyncClient", return_value=mock_client),
+        pytest.raises(ValueError, match="rejected.*could not be processed"),
+    ):
+        await _transcribe_speechmatics(b"RIFF....WAVEdata", config)

@@ -5,7 +5,8 @@ Verifies the guarantees the rest of the app relies on:
   Shenava ≠ English).
 - Online providers with no ``auto`` option get an explicit, Persian-first code
   when the user left the default ``auto``.
-- Melia 1 (Batch-only, multilingual) is never sent ``language=auto``.
+- Melia 1 (Batch-only, multilingual) is never sent ``language=auto``; the
+  default ``auto`` maps to ``multi`` (Melia 1 rejects ``auto``).
 """
 
 import json
@@ -80,8 +81,8 @@ async def test_fireworks_batch_maps_auto_to_persian():
 
 
 @pytest.mark.asyncio
-async def test_speechmatics_batch_melia1_gets_language_hint():
-    """Melia 1 supports no ``auto``; use a Persian hint and skip lang-id."""
+async def test_speechmatics_batch_melia1_gets_multi_language():
+    """Melia 1 rejects ``auto``; the default maps to ``multi`` and skips lang-id."""
     config = {
         "ASR_PROVIDER": "speechmatics",
         "ASR_BATCH_KEY": "batch-key",
@@ -98,6 +99,8 @@ async def test_speechmatics_batch_melia1_gets_language_hint():
         result = await _transcribe_speechmatics(b"RIFF....WAVEdata", config)
     assert result["text"] == "سلام"
     sent = json.loads(mock_client.post.call_args.kwargs["data"]["config"])
-    assert sent["transcription_config"]["language"] == "fa"
+    assert sent["transcription_config"]["language"] == "multi"
     assert sent["transcription_config"]["model"] == "melia-1"
+    # Melia 1 has no entity detection and no language identification.
+    assert "enable_entities" not in sent["transcription_config"]
     assert "language_identification_config" not in sent

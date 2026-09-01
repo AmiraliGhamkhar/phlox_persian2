@@ -22,7 +22,11 @@ import wave
 from collections.abc import Awaitable, Callable
 from typing import Any
 
-from server.transcription.language import normalize_persian_text, streaming_asr_language
+from server.transcription.language import (
+    normalize_persian_text,
+    speechmatics_medical_domain,
+    streaming_asr_language,
+)
 from server.utils.providers import ASR_PROVIDERS, resolve_asr_connection
 
 logger = logging.getLogger(__name__)
@@ -131,7 +135,9 @@ class SpeechmaticsLiveSession(LiveSession):
         if model_name == "melia-1":
             raise ValueError(
                 "Melia 1 is a Batch-only model and is not available for live "
-                "(Realtime) transcription. Use 'enhanced' or 'standard' for live, "
+                "transcription on the production Realtime endpoint (an early "
+                "Realtime preview runs at wss://preview.rt.speechmatics.com/v2 "
+                "with language 'multi'). Use 'enhanced' or 'standard' for live, "
                 "or upload the recording and let the Batch path handle it."
             )
         model = Model.STANDARD if model_name == "standard" else Model.ENHANCED
@@ -194,6 +200,7 @@ class SpeechmaticsLiveSession(LiveSession):
                         model=model,
                         enable_partials=True,
                         max_delay=SPEECHMATICS_MAX_DELAY_SECONDS,
+                        domain=speechmatics_medical_domain(model_name, speechmatics_language),
                     ),
                     audio_format=AudioFormat(
                         encoding=AudioEncoding.PCM_S16LE,

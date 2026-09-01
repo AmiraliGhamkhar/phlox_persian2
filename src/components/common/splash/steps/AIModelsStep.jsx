@@ -84,6 +84,10 @@ export const AIModelsStep = ({ llm, transcription }) => {
     setAsrProvider,
     asrApiKey,
     setAsrApiKey,
+    asrBatchUrl,
+    setAsrBatchUrl,
+    asrBatchKey,
+    setAsrBatchKey,
     availableWhisperModels,
     whisperModelListAvailable,
     isFetchingWhisperModels,
@@ -553,6 +557,10 @@ export const AIModelsStep = ({ llm, transcription }) => {
           setAsrProvider={setAsrProvider}
           asrApiKey={asrApiKey}
           setAsrApiKey={setAsrApiKey}
+          asrBatchUrl={asrBatchUrl}
+          setAsrBatchUrl={setAsrBatchUrl}
+          asrBatchKey={asrBatchKey}
+          setAsrBatchKey={setAsrBatchKey}
           availableWhisperModels={availableWhisperModels}
           whisperModelListAvailable={whisperModelListAvailable}
           isFetchingWhisperModels={isFetchingWhisperModels}
