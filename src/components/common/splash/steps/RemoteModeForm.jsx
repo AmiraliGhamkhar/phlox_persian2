@@ -31,6 +31,10 @@ export const RemoteModeForm = ({
   setAsrProvider,
   asrApiKey,
   setAsrApiKey,
+  asrBatchUrl,
+  setAsrBatchUrl,
+  asrBatchKey,
+  setAsrBatchKey,
   availableWhisperModels,
   whisperModelListAvailable,
   isFetchingWhisperModels,
@@ -225,6 +229,43 @@ export const RemoteModeForm = ({
             />
           </Field.Root>
         )}
+        {asrProvider === "speechmatics" && (
+          <>
+            <Text fontSize="xs" color="textSecondary">
+              فایل‌های ضبط‌شده با API دسته‌ای (Batch) پردازش می‌شوند. کلیدها
+              محصول‌محور هستند؛ اگر کلید اصلی فقط Realtime (type=rt) است، برای
+              فایل‌ها یک کلید Batch جداگانه وارد کنید.
+            </Text>
+            <Field.Root>
+              <Field.Label fontSize="sm" color="textSecondary">
+                نشانی API دسته‌ای (فایل‌ها) — اختیاری
+              </Field.Label>
+              <Input
+                type="url"
+                data-ltr="true"
+                dir="ltr"
+                placeholder="https://eu1.asr.api.speechmatics.com/v2"
+                value={asrBatchUrl}
+                onChange={(e) => setAsrBatchUrl(e.target.value)}
+                className="input-style"
+                size="sm"
+              />
+            </Field.Root>
+            <Field.Root>
+              <Field.Label fontSize="sm" color="textSecondary">
+                کلید Batch API — اختیاری
+              </Field.Label>
+              <Input
+                type="password"
+                placeholder="کلید Batch (type=batch)"
+                value={asrBatchKey}
+                onChange={(e) => setAsrBatchKey(e.target.value)}
+                className="input-style"
+                size="sm"
+              />
+            </Field.Root>
+          </>
+        )}
         {(asrProvider === "speechmatics" ||
           asrProvider === "fireworks" ||
           whisperBaseUrl.trim()) && (
@@ -242,6 +283,7 @@ export const RemoteModeForm = ({
                 >
                   <option value="enhanced">حالت پیشرفته؛ دقت بالاتر</option>
                   <option value="standard">حالت استاندارد؛ سرعت بالاتر</option>
+                  <option value="melia-1">چندزبانه Melia 1؛ فقط دسته‌ای</option>
                 </NativeSelect.Field>
                 <NativeSelect.Indicator />
               </NativeSelect.Root>

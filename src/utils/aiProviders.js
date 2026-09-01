@@ -25,7 +25,7 @@ export const ASR_PROVIDER_DEFAULTS = {
   speechmatics: {
     url: "wss://global.rt.speechmatics.com/v2",
     batchUrl: "https://eu1.asr.api.speechmatics.com/v2",
-    models: ["enhanced", "standard"],
+    models: ["enhanced", "standard", "melia-1"],
     requiresKey: true,
   },
   fireworks: {

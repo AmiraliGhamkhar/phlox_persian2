@@ -74,13 +74,41 @@ def test_sanitize_pubmed_query_removes_bare_year():
 
 class TestSsrfGuard:
     def test_rejects_non_http_scheme(self):
-        for url in ("ftp://example.com", "file:///etc/passwd", "gopher://x"):
+        for url in ("ftp://example.com", "file:///etc/passwd", "gopher://x", "ws://example.com"):
             try:
                 validate_fetch_url(url)
             except ValueError:
                 pass
             else:
                 raise AssertionError(f"scheme should be rejected: {url}")
+
+    def test_allows_wss_for_realtime_asr(self, monkeypatch):
+        # Speechmatics Realtime endpoints are stored as wss:// ASR base URLs;
+        # the host must still be resolvable and pass the blocked-range checks.
+        import socket
+
+        monkeypatch.setattr(
+            "server.utils.ssrf.socket_getaddrinfo",
+            lambda _host, _port=None: [(socket.AF_INET, 1, 6, "", ("34.107.0.0", 0))],
+        )
+        validate_fetch_url("wss://global.rt.speechmatics.com/v2")
+
+    def test_wss_link_local_is_still_blocked(self):
+        import socket
+
+        orig = validate_fetch_url.__globals__["socket_getaddrinfo"]
+        validate_fetch_url.__globals__["socket_getaddrinfo"] = lambda _host, _port=None: [
+            (socket.AF_INET, 1, 6, "", ("169.254.169.254", 0))
+        ]
+        try:
+            try:
+                validate_fetch_url("wss://169.254.169.254/v2")
+            except ValueError:
+                pass
+            else:
+                raise AssertionError("wss to link-local metadata should be blocked")
+        finally:
+            validate_fetch_url.__globals__["socket_getaddrinfo"] = orig
 
     def test_rejects_link_local_metadata(self):
         # Link-local is where cloud metadata services live (169.254.169.254).

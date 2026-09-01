@@ -4,7 +4,9 @@ Endpoints such as ``/api/config/validate-url`` and the vision-capability probe
 fetch arbitrary URLs configured by the user. Local/LAN model servers (Ollama,
 llama.cpp) are a legitimate target, so loopback and RFC1918 ranges stay
 allowed — but cloud metadata (link-local), broadcast, reserved and multicast
-targets are blocked. Scheme is restricted to http/https.
+targets are blocked. Scheme is restricted to http/https, plus ``wss`` for
+Speechmatics Realtime endpoints (opened by the ASR SDK, never by the guarded
+HTTP transport below).
 
 Beyond the static ``validate_fetch_url`` check, this module ships a
 DNS-rebinding-safe transport: every request is resolved **once**, validated,
@@ -31,7 +33,10 @@ import httpx
 
 logger = logging.getLogger(__name__)
 
-ALLOWED_SCHEMES = {"http", "https"}
+# ``wss`` is the Speechmatics Realtime scheme: it is stored as ASR_BASE_URL and
+# consumed by the ``speechmatics.rt`` SDK (a client-side WebSocket), never by
+# this module's guarded HTTP transport, which only ever receives http/https.
+ALLOWED_SCHEMES = {"http", "https", "wss"}
 
 
 @dataclass(frozen=True)
@@ -90,7 +95,7 @@ def _parse_and_validate(url: str) -> ResolvedTarget:
         raise ValueError("URL could not be parsed") from e
 
     if parts.scheme.lower() not in ALLOWED_SCHEMES:
-        raise ValueError("Only http:// and https:// URLs are allowed")
+        raise ValueError("Only http://, https://, and wss:// URLs are allowed")
 
     host = parts.hostname
     if not host:
@@ -100,7 +105,8 @@ def _parse_and_validate(url: str) -> ResolvedTarget:
     if "@" in (parts.netloc or ""):
         raise ValueError("URLs with embedded credentials are not allowed")
 
-    port = parts.port or (443 if parts.scheme.lower() == "https" else 80)
+    # wss is TLS WebSocket, so it uses the same default port as https.
+    port = parts.port or (443 if parts.scheme.lower() in {"https", "wss"} else 80)
 
     try:
         addr_infos = socket_getaddrinfo(host, port)
@@ -173,7 +179,7 @@ def _pinned_headers(request: httpx.Request, target: ResolvedTarget) -> dict[str,
 
 def _pinned_extensions(request: httpx.Request, target: ResolvedTarget) -> dict:
     extensions = dict(request.extensions or {})
-    if target.scheme == "https":
+    if target.scheme in {"https", "wss"}:
         extensions["sni_hostname"] = target.host
     return extensions
 

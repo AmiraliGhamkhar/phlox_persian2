@@ -23,6 +23,11 @@ export const useTranscriptionStep = (currentStep, inferenceMode = "remote") => {
     // browser bundle. Keys are entered here and persisted only by the
     // encrypted backend configuration endpoint.
     const [asrApiKey, setAsrApiKey] = useState("");
+    // Speechmatics keys are product-scoped (type=rt vs type=batch): a separate
+    // Batch key/URL may be needed for recorded-file transcription. Both are
+    // optional; the server falls back to ASR_KEY and its Batch default URL.
+    const [asrBatchUrl, setAsrBatchUrl] = useState("");
+    const [asrBatchKey, setAsrBatchKey] = useState("");
 
     // Remote mode state
     const [whisperBaseUrl, setWhisperBaseUrl] = useState(
@@ -180,6 +185,9 @@ export const useTranscriptionStep = (currentStep, inferenceMode = "remote") => {
         const defaults = ASR_PROVIDER_DEFAULTS[provider];
         if (!defaults) return;
         setWhisperBaseUrl(defaults.url || "");
+        if (defaults.batchUrl) {
+            setAsrBatchUrl(defaults.batchUrl);
+        }
         if (defaults.models[0]) {
             setWhisperModel(defaults.models[0]);
         }
@@ -230,6 +238,8 @@ export const useTranscriptionStep = (currentStep, inferenceMode = "remote") => {
                 asrLanguage,
                 asrProvider,
                 asrApiKey,
+                asrBatchUrl,
+                asrBatchKey,
             };
         }
     }, [
@@ -240,6 +250,8 @@ export const useTranscriptionStep = (currentStep, inferenceMode = "remote") => {
         asrLanguage,
         asrProvider,
         asrApiKey,
+        asrBatchUrl,
+        asrBatchKey,
     ]);
 
     // Local-mode fetch on step/mode change (remote is handled by useSWR)
@@ -264,6 +276,10 @@ export const useTranscriptionStep = (currentStep, inferenceMode = "remote") => {
         setAsrProvider: handleSetAsrProvider,
         asrApiKey,
         setAsrApiKey,
+        asrBatchUrl,
+        setAsrBatchUrl,
+        asrBatchKey,
+        setAsrBatchKey,
         availableWhisperModels,
         whisperModelListAvailable,
         isFetchingWhisperModels,

@@ -70,6 +70,28 @@ def resolve_asr_language(config: dict) -> str:
     return language
 
 
+# Languages for which Speechmatics provides the Enhanced Medical domain model
+# (https://docs.speechmatics.com/speech-to-text/models#healthcare-domain).
+# The app exposes Persian and English; English is the only selectable language
+# with a medical domain. The other documented languages are listed so the guard
+# is future-proof, not because the UI currently offers them.
+SPEECHMATICS_MEDICAL_DOMAIN_LANGUAGES = frozenset(
+    {"en", "da", "nl", "de", "fi", "fr", "no", "es", "sv"}
+)
+
+
+def speechmatics_medical_domain(model: str, language: str) -> str | None:
+    """Return ``"medical"`` when the Enhanced Medical domain applies.
+
+    Speechmatics only offers the medical domain for the ``enhanced`` model and
+    a fixed set of languages; for everything else (including Persian, which has
+    no medical domain) the plain enhanced model must be used.
+    """
+    if str(model).strip().lower() == "enhanced" and language in SPEECHMATICS_MEDICAL_DOMAIN_LANGUAGES:
+        return "medical"
+    return None
+
+
 def streaming_asr_language(config: dict) -> str:
     """Return the language for a *streaming* (Realtime) ASR session.
 
