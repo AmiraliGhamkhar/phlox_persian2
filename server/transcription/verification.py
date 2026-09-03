@@ -345,15 +345,29 @@ class VerificationReport:
     unsupported: list[dict[str, Any]] = field(default_factory=list)
     number_problems: list[dict[str, Any]] = field(default_factory=list)
     negation_problems: list[dict[str, Any]] = field(default_factory=list)
+    # Fields where the refinement pass drifted from the draft content and was
+    # reverted to the draft (plan ref B6).
+    refinement_reverts: list[dict[str, Any]] = field(default_factory=list)
+    # Optional independent LLM entailment pass (plan ref B2).
+    entailment: dict[str, Any] | None = None
 
     @property
     def flagged(self) -> bool:
-        return bool(self.unsupported or self.number_problems or self.negation_problems)
+        entailment_bad = bool(self.entailment and self.entailment.get("counts", {}).get("flagged"))
+        return bool(
+            self.unsupported or self.number_problems or self.negation_problems or entailment_bad
+        )
 
     def to_dict(self) -> dict[str, Any]:
-        if not (self.unsupported or self.number_problems or self.negation_problems):
+        if not (
+            self.unsupported
+            or self.number_problems
+            or self.negation_problems
+            or self.refinement_reverts
+            or self.entailment
+        ):
             return {}
-        return {
+        payload: dict[str, Any] = {
             "mode": self.mode,
             "quoteChecked": self.quote_checked,
             "unsupportedQuotes": self.unsupported[:12],
@@ -367,6 +381,11 @@ class VerificationReport:
                 for n in self.negation_problems[:12]
             ],
         }
+        if self.refinement_reverts:
+            payload["refinementReverts"] = self.refinement_reverts[:12]
+        if self.entailment:
+            payload["entailment"] = self.entailment
+        return payload
 
 
 def verify_draft(
@@ -424,3 +443,45 @@ def verify_note(fields: dict[str, str], transcript: str) -> VerificationReport:
     """Standalone verification of final fields (used by reprocess/save paths)."""
     report = VerificationReport(mode=verify_mode())
     return verify_final_fields(fields, transcript, report)
+
+
+def entity_drift(draft: str, refined: str) -> list[str]:
+    """Content-preservation diff between a draft and its refined version.
+
+    Refinement may reformat, never re-content: numbers that appeared or
+    vanished and polarity flips (refined asserting what the draft negated,
+    or vice versa) are returned as drift reasons (plan ref B6). Used to
+    revert refinement on drift instead of shipping it.
+    """
+    problems: list[str] = []
+    draft_values = {f["value"] for f in extract_numbers(draft)}
+    refined_values = {f["value"] for f in extract_numbers(refined)}
+    for value in sorted(refined_values - draft_values):
+        problems.append(f"number_added:{value}")
+    for value in sorted(draft_values - refined_values):
+        problems.append(f"number_dropped:{value}")
+    if negation_conflicts(split_bullets(refined), draft):
+        problems.append("negation_flip")
+    if negation_conflicts(split_bullets(draft), refined):
+        problems.append("negation_added")
+    return problems
+
+
+def example_leakage(
+    instruction: str, sources: list[str], min_tokens: int = 6, max_overlap: float = 0.6
+) -> bool:
+    """True when a generated instruction copies visit content from *sources*.
+
+    Adaptive refinement instructions must be general style guidance; an
+    instruction that quotes this encounter's content leaks patient detail
+    into every future note (plan ref B7). Measured as word-trigram overlap,
+    the same primitive the quote validator uses.
+    """
+    n = normalize_for_match(instruction)
+    tokens = n.split()
+    if len(tokens) < min_tokens:
+        return False
+    combined = normalize_for_match(" \n ".join(source for source in sources if source))
+    trigrams = _build_trigrams(combined)
+    hits = sum(1 for i in range(len(tokens) - 2) if tuple(tokens[i : i + 3]) in trigrams)
+    return hits / (len(tokens) - 2) >= max_overlap

@@ -155,6 +155,33 @@ class ProposedJob(BaseModel):
     )
 
 
+class EntailmentVerdict(BaseModel):
+    """One claim-level fact-check verdict against the transcript only."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    claim_index: int = Field(description="Zero-based index of the claim in the provided list")
+    verdict: Literal["supported", "unsupported", "contradicted"] = Field(
+        description=(
+            "supported = transcript explicitly states it; contradicted = transcript states "
+            "the opposite or negates it; unsupported = no explicit evidence (absence of "
+            "evidence IS unsupported)"
+        )
+    )
+    evidence: str | None = Field(
+        default=None,
+        description="Short exact quote from the transcript backing the verdict (empty for unsupported)",
+    )
+
+
+class EntailmentReport(BaseModel):
+    """Verdicts for every claim, one per index; never merge or skip claims."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    verdicts: list[EntailmentVerdict]
+
+
 class JobExtractionResult(BaseModel):
     """Structured result of extracting curated jobs from a plan."""
 

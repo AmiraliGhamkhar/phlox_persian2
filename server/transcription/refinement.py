@@ -12,6 +12,7 @@ from server.schemas.grammars import (
 )
 from server.schemas.templates import TemplateField
 from server.transcription.hygiene import deterministic_options
+from server.transcription.verification import entity_drift
 
 # Set up module-level logger
 logger = logging.getLogger(__name__)
@@ -19,11 +20,19 @@ logger.setLevel(logging.INFO)
 
 
 async def refine_field_content(
-    content: Any, field: TemplateField, is_ambient: bool = True
+    content: Any,
+    field: TemplateField,
+    is_ambient: bool = True,
+    drift_sink: list[dict] | None = None,
 ) -> Union[str, dict]:
     """
     Refine the content of a single field using style examples and format schema.
     Handles special case for thinking models via the client abstraction.
+
+    ``drift_sink`` (plan ref B6): when provided and the refined text changes
+    clinical content relative to the draft (numbers appear/vanish, polarity
+    flips), the refined text is REVERTED to the draft and an event describing
+    the drift is appended to the sink for the verification report.
     """
 
     max_retries = 1
@@ -73,7 +82,27 @@ async def refine_field_content(
 
             # Reuse existing formatter by wrapping the JSON string
             pseudo_response = {"message": {"content": response_json}}
-            return format_refined_response(pseudo_response, field, format_details)
+            refined = format_refined_response(pseudo_response, field, format_details)
+
+            # Entity-diff guard (plan ref B6): refinement polishes style and
+            # must never move clinical facts. Measured failure mode (JMIR
+            # psychiatric-document conversion study): polish passes alter
+            # numbers/negations and silently fabricate detail. On drift we
+            # revert this field to the draft — the verified text — and record
+            # the event for review.
+            if isinstance(refined, str) and isinstance(content, str) and content.strip():
+                drift = entity_drift(content, refined)
+                if drift:
+                    logger.warning(
+                        "Refinement drift for field %s (%s); reverted to draft content",
+                        field.field_key,
+                        ", ".join(drift[:4]),
+                    )
+                    if drift_sink is not None:
+                        drift_sink.append({"field": field.field_key, "drift": drift[:6]})
+                    return content
+
+            return refined
 
         except Exception as e:
             if attempt < max_retries:

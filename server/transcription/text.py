@@ -1,14 +1,18 @@
 import asyncio
 import hashlib
 import logging
+import os
 import time
 from typing import Any
+
+from rapidfuzz import fuzz
 
 from server.database.config.manager import config_manager
 from server.llm_client import repair_json
 from server.llm_client.client import get_llm_client
 from server.schemas.grammars import MultiFieldResponse
 from server.schemas.templates import TemplateField, TemplateResponse
+from server.transcription.entailment import maybe_check_claims
 from server.transcription.hygiene import deterministic_options
 from server.transcription.refinement import refine_field_content
 from server.transcription.verification import (
@@ -75,9 +79,15 @@ async def process_transcription(
 
         # Refine all results concurrently
         logger.info(f"Refining {total_fields} fields...")
+        refinement_reverts: list[dict] = []
         refined_results = await asyncio.gather(
             *[
-                refine_field_content(result.content, field, is_ambient=is_ambient)
+                refine_field_content(
+                    result.content,
+                    field,
+                    is_ambient=is_ambient,
+                    drift_sink=refinement_reverts,
+                )
                 for result, field in zip(raw_results, non_persistent_fields, strict=True)
             ]
         )
@@ -98,11 +108,23 @@ async def process_transcription(
                 transcript_text,
                 verification_report or VerificationReport(mode=verify_mode()),
             )
+            if refinement_reverts:
+                verification_report.refinement_reverts = refinement_reverts
+
+            # B2: independent entailment pass (separate call, claims judged
+            # against the transcript alone). Gated + fail-open: it can only
+            # add review findings, never block or rewrite the note.
+            entailment = await maybe_check_claims(processed_fields, transcript_text)
+            if entailment:
+                verification_report.entailment = entailment
+
             if verification_report.flagged:
                 logger.warning(
-                    "Transcript verification: %d numeric and %d negation issue(s) in final fields",
+                    "Transcript verification: %d numeric and %d negation issue(s), "
+                    "%d entailment flag(s) in final fields",
                     len(verification_report.number_problems),
                     len(verification_report.negation_problems),
+                    int((entailment or {}).get("counts", {}).get("flagged") or 0),
                 )
 
         process_duration = time.perf_counter() - process_start
@@ -119,6 +141,35 @@ async def process_transcription(
         raise
 
 
+def _vote_k() -> int:
+    """Self-consistency sample count (plan ref B9); 1 = disabled (default).
+
+    With the deterministic defaults (temperature 0, seed 0) repeated draws are
+    identical, so voting only makes sense on sampling endpoints — that is
+    exactly why it stays opt-in via PHLOX_ASR_VOTE_K (2..5).
+    """
+    try:
+        return max(1, min(5, int(os.environ.get("PHLOX_ASR_VOTE_K", "1"))))
+    except (TypeError, ValueError):
+        return 1
+
+
+def _consensus(results: list[dict[str, str]]) -> dict[str, str]:
+    """Pick the medoid draft per field: the variant most consistent with the
+    others wins; agreement across independent draws is the support signal."""
+
+    keys = list(results[0].keys())
+    consensus: dict[str, str] = {}
+    for key in keys:
+        variants = [result.get(key, "") for result in results]
+        if len(set(variants)) <= 1:
+            consensus[key] = variants[0]
+            continue
+        scores = [sum(fuzz.token_set_ratio(a, b) for b in variants) for a in variants]
+        consensus[key] = variants[max(range(len(scores)), key=scores.__getitem__)]
+    return consensus
+
+
 async def process_all_fields_concurrently(
     transcript_text: str,
     fields: list[TemplateField],
@@ -126,6 +177,47 @@ async def process_all_fields_concurrently(
     is_ambient: bool = True,
     primary_condition: str | None = None,
     intro_override: str | None = None,
+) -> dict[str, str]:
+    """Process all template fields in one (or, when voting is enabled, k) LLM
+    call(s) and return the consensus draft."""
+    vote_k = _vote_k()
+    if vote_k <= 1:
+        return await _extraction_single(
+            transcript_text,
+            fields,
+            patient_context,
+            is_ambient,
+            primary_condition,
+            intro_override,
+        )
+    results = await asyncio.gather(
+        *[
+            _extraction_single(
+                transcript_text,
+                fields,
+                patient_context,
+                is_ambient,
+                primary_condition,
+                intro_override,
+                sampling_seed=seed,
+            )
+            for seed in range(vote_k)
+        ]
+    )
+    results = [result for result in results if result]
+    if not results:
+        return {}
+    return _consensus(results)
+
+
+async def _extraction_single(
+    transcript_text: str,
+    fields: list[TemplateField],
+    patient_context: dict[str, str | None],
+    is_ambient: bool = True,
+    primary_condition: str | None = None,
+    intro_override: str | None = None,
+    sampling_seed: int | None = None,
 ) -> dict[str, str]:
     """
     Process all template fields in a single LLM call using structured output.
@@ -142,6 +234,11 @@ async def process_all_fields_concurrently(
             options = deterministic_options(
                 config_manager.get_prompts_and_options()["options"]["general"]
             )
+            if sampling_seed is not None:
+                # Self-consistency voting needs variance; distinct seeds with
+                # a mild temperature produce genuinely independent hypotheses
+                # whose agreement we then measure (plan ref B9).
+                options = {**options, "temperature": 0.7, "seed": sampling_seed}
 
             client = get_llm_client()
             response_format = MultiFieldResponse.model_json_schema()

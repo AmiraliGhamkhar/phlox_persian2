@@ -35,6 +35,42 @@ from server.utils.request_limits import (
 router = APIRouter()
 
 
+def _record_generation_report(
+    *,
+    note_id: int | None,
+    template_key: str | None,
+    transcript_text: str,
+    processing_result: dict,
+    asr_segments: list | None = None,
+    asr_flags: list | None = None,
+) -> None:
+    """Persist the per-generation quality report (plan refs B2/C3).
+
+    File-based and strictly best-effort: telemetry failures must never
+    affect what the clinician receives.
+    """
+    try:
+        from server.database.config.manager import config_manager
+        from server.utils.generation_reports import record_generation
+
+        try:
+            model = config_manager.get_config().get("PRIMARY_MODEL")
+        except Exception:
+            model = None
+        record_generation(
+            note_id=note_id,
+            template_key=template_key,
+            transcript=transcript_text,
+            fields=dict(processing_result.get("fields") or {}),
+            verification=processing_result.get("verification") or {},
+            asr_flags=asr_flags,
+            asr_segments=asr_segments,
+            model=model,
+        )
+    except Exception:
+        logging.debug("generation report skipped", exc_info=True)
+
+
 def _format_patient_display_name(name: str | None) -> str:
     """Format a "Last, First" patient name into "First Last" for display."""
     if not name:
@@ -266,6 +302,14 @@ async def transcribe(
                 is_ambient=isAmbient,
                 primary_condition=primary_condition,
             )
+            _record_generation_report(
+                note_id=noteId,
+                template_key=templateKey,
+                transcript_text=transcript_text,
+                processing_result=processing_result,
+                asr_segments=asr_segments,
+                asr_flags=asr_flags,
+            )
             return TranscribeResponse(
                 fields=dict(processing_result["fields"]),
                 rawTranscription=transcript_text,
@@ -360,6 +404,12 @@ async def reprocess_transcription(
                 patient_context=patient_context,
                 is_ambient=isAmbient,
                 primary_condition=primary_condition,
+            )
+            _record_generation_report(
+                note_id=noteId,
+                template_key=templateKey,
+                transcript_text=transcript_text,
+                processing_result=processing_result,
             )
             return TranscribeResponse(
                 fields=dict(processing_result["fields"]),
