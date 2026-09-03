@@ -1,7 +1,7 @@
 # ASR model benchmark (plan ref A7)
 
 Compare candidate speech-to-text engines on the *same* audio and references,
-then score with `scripts/bench_asr_models.py` (WER / CER / Missed-Entity
+then score with `server/bench/asr_scorer.py` (WER / CER / Missed-Entity
 Rate). No training happens here — this is an evaluation matrix only.
 
 ## Layout
@@ -44,14 +44,16 @@ Guidelines for a fair matrix (all follow the precision plan):
 ## Scoring
 
 ```bash
-python scripts/bench_asr_models.py --refs bench-run/refs \
+python -m server.bench.asr_scorer --refs bench-run/refs \
     --hyp bench-run/hyp_whisper-large-v3 bench-run/hyp_faster-whisper \
     --json bench-run/report.json
 
 # gate mode (e.g. nightly): fail if a candidate regresses
-python scripts/bench_asr_models.py --from-fixtures server/bench/fixtures/precision_fa_en.jsonl \
+python -m server.bench.asr_scorer --from-fixtures server/bench/fixtures/precision_fa_en.jsonl \
     --hyp bench-run/hyp_candidate --max-wer 0.25 --max-mer 0.10
 ```
+
+(`scripts/bench_asr_models.py` is a compatibility shim for the same tool.)
 
 `MER` counts reference numeric facts (doses, values) and salient Latin terms
 that are missing or altered in the hypothesis — the clinical-error proxy the

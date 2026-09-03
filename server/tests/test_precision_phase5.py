@@ -1,29 +1,29 @@
 """Phase 5 tests — ASR comparison scorer (plan ref A7).
 
-Covers the metric functions and the CLI of scripts/bench_asr_models.py:
+Covers the metric functions and the CLI of ``server.bench.asr_scorer``:
 WER/CER/MER behavior on Persian folding, entity miss counting, fixture
-mode and gate exits.
+mode and gate exits. The scorer lives inside the server package on purpose:
+the CI test image only carries ``server/``, so every path here resolves from
+installed modules, never from repo-root files.
 """
 
-import importlib.util
 import json
+import os
 import subprocess
 import sys
 from pathlib import Path
 
-REPO = Path(__file__).resolve().parents[2]
-SCRIPT = REPO / "scripts" / "bench_asr_models.py"
+import server.bench.asr_scorer as S
 
 
-def _load_scorer():
-    spec = importlib.util.spec_from_file_location("bench_asr_models", SCRIPT)
-    module = importlib.util.module_from_spec(spec)
-    sys.modules[spec.name] = module
-    spec.loader.exec_module(module)
-    return module
-
-
-S = _load_scorer()
+def _run_cli(*args: str) -> subprocess.CompletedProcess:
+    return subprocess.run(
+        [sys.executable, "-m", "server.bench.asr_scorer", *args],
+        capture_output=True,
+        text=True,
+        timeout=120,
+        env={**os.environ, "PYTHONPATH": str(Path(S.__file__).resolve().parents[2])},
+    )
 
 
 class TestMetrics:
@@ -59,11 +59,6 @@ class TestMetrics:
 
 
 class TestCli:
-    def _run(self, *args: str) -> subprocess.CompletedProcess:
-        return subprocess.run(
-            [sys.executable, str(SCRIPT), *args], capture_output=True, text=True, timeout=120
-        )
-
     def test_dirs_mode_and_json(self, tmp_path):
         refs = tmp_path / "refs"
         hyp = tmp_path / "hyp_x"
@@ -76,7 +71,7 @@ class TestCli:
         (hyp / "a.txt").write_text("بیمار درد شکم دارد و ۸۰ میلی گرم مصرف می کند", encoding="utf-8")
         (hyp / "b.txt").write_text("patient takes omeprazole 40 mg nightly", encoding="utf-8")
         out = tmp_path / "report.json"
-        result = self._run("--refs", str(refs), "--hyp", str(hyp), "--json", str(out))
+        result = _run_cli("--refs", str(refs), "--hyp", str(hyp), "--json", str(out))
         assert result.returncode == 0, result.stderr
         report = json.loads(out.read_text(encoding="utf-8"))
         agg = report["hyp_x"]["aggregate"]
@@ -94,13 +89,13 @@ class TestCli:
         hyp.mkdir()
         (refs / "a.txt").write_text("الف ب ج د ه و ز ح", encoding="utf-8")
         (hyp / "a.txt").write_text("ت ث ج خ د ذ ر ز س ش", encoding="utf-8")
-        result = self._run("--refs", str(refs), "--hyp", str(hyp), "--max-wer", "0.1")
+        result = _run_cli("--refs", str(refs), "--hyp", str(hyp), "--max-wer", "0.1")
         assert result.returncode == 1
 
     def test_from_fixtures_missing_hypothesis_errors(self, tmp_path):
         empty = tmp_path / "nothing"
         empty.mkdir()
-        fixtures = REPO / "server" / "bench" / "fixtures" / "precision_fa_en.jsonl"
-        result = self._run("--from-fixtures", str(fixtures), "--hyp", str(empty))
+        fixtures = Path(S.__file__).resolve().parent / "fixtures" / "precision_fa_en.jsonl"
+        result = _run_cli("--from-fixtures", str(fixtures), "--hyp", str(empty))
         assert result.returncode == 1
         assert "missing hypothesis" in result.stderr

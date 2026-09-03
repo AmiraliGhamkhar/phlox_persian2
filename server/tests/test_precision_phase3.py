@@ -148,6 +148,7 @@ class TestEntailment:
         report = await ent_mod.check_claims(
             fields, "بیمار از درد شکم شکایت دارد", client=FakeClient(), model="m"
         )
+        assert report is not None
         assert report["counts"]["checked"] == 2
         assert report["counts"]["flagged"] == 2  # unjudged claim + unsupported claim
         verdicts = {v["claim"]: v["verdict"] for v in report["flaggedClaims"]}

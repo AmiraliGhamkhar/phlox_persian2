@@ -15,6 +15,8 @@ ROOT = Path(__file__).resolve().parents[2]
 
 def load(name, rel):
     spec = importlib.util.spec_from_file_location(name, ROOT / rel)
+    if spec is None or spec.loader is None:
+        raise SystemExit(f"cannot load {rel}")
     mod = importlib.util.module_from_spec(spec)
     sys.modules[name] = mod
     spec.loader.exec_module(mod)

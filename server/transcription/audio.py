@@ -8,7 +8,7 @@ import threading
 import time
 import wave
 from pathlib import Path
-from typing import Union
+from typing import Any
 
 import httpx
 
@@ -87,7 +87,7 @@ def _validate_local_model_language(model_id: str, language: str) -> None:
 async def transcribe_audio(
     audio_buffer: bytes,
     bias_terms: list[str] | None = None,
-) -> dict[str, Union[str, float, list, dict, None]]:
+) -> dict[str, Any]:
     """
     Transcribe an audio buffer using an OpenAI-compatible ASR endpoint.
 
@@ -166,7 +166,7 @@ async def _transcribe_local_whisper(
     audio_buffer: bytes,
     _config: dict,
     bias_terms: list[str] | None = None,
-) -> dict[str, Union[str, float]]:
+) -> dict[str, Any]:
     """Transcribe using the local whisper.cpp OpenAI-compatible server."""
     whisper_port = _get_whisper_port()
     whisper_url = f"http://127.0.0.1:{whisper_port}/v1/audio/transcriptions"
@@ -349,7 +349,7 @@ async def _transcribe_speechmatics(
     audio_buffer: bytes,
     config: dict,
     bias_terms: list[str] | None = None,
-) -> dict[str, Union[str, float]]:
+) -> dict[str, Any]:
     """Transcribe a recording through the speechmatics Batch REST API.
 
     Used for the after-the-fact file path (``/api/transcribe/audio``). Live
@@ -690,9 +690,7 @@ def _run_shenava_inference(audio_buffer: bytes, config: dict) -> str:
     return normalize_persian_text(_clean_repetitive_text(text))
 
 
-async def _transcribe_local_shenava(
-    audio_buffer: bytes, config: dict
-) -> dict[str, Union[str, float]]:
+async def _transcribe_local_shenava(audio_buffer: bytes, config: dict) -> dict[str, Any]:
     """Transcribe with Shenava without requiring a running C++ sidecar."""
     started = time.perf_counter()
     text = await asyncio.to_thread(_run_shenava_inference, audio_buffer, config)
@@ -704,9 +702,7 @@ async def _transcribe_local_shenava(
     }
 
 
-async def _transcribe_local_parakeet(
-    audio_buffer: bytes, config: dict
-) -> dict[str, Union[str, float]]:
+async def _transcribe_local_parakeet(audio_buffer: bytes, config: dict) -> dict[str, Any]:
     """Transcribe with local Parakeet TDT ONNX (no whisper.cpp sidecar)."""
     from server.transcription.parakeet import run_parakeet_inference
 
@@ -739,7 +735,7 @@ async def _transcribe_fireworks(
     audio_buffer: bytes,
     config: dict,
     bias_terms: list[str] | None = None,
-) -> dict[str, Union[str, float]]:
+) -> dict[str, Any]:
     """Transcribe via Fireworks batch Whisper v3 / turbo HTTP API."""
     filename, content_type = _detect_audio_format(audio_buffer)
     model = str(config.get("ASR_MODEL") or config.get("WHISPER_MODEL") or "whisper-v3")
@@ -819,7 +815,7 @@ async def _transcribe_external_api(
     audio_buffer: bytes,
     config: dict,
     bias_terms: list[str] | None = None,
-) -> dict[str, Union[str, float]]:
+) -> dict[str, Any]:
     """Transcribe using an external OpenAI-compatible ASR API."""
     filename, content_type = _detect_audio_format(audio_buffer)
     async with build_guarded_http_client(timeout=httpx.Timeout(600.0)) as client:

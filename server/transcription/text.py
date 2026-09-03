@@ -93,8 +93,10 @@ async def process_transcription(
         )
         logger.info(f"Successfully refined {total_fields} fields")
 
-        # Combine results into a dictionary
-        processed_fields = {
+        # Combine results into a dictionary (values are strings for
+        # ambient/list fields; structured fields may pass through as dicts —
+        # the verifiers below guard on that themselves).
+        processed_fields: dict[str, Any] = {
             field.field_key: refined_content
             for field, refined_content in zip(non_persistent_fields, refined_results, strict=True)
         }

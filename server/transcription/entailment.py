@@ -59,18 +59,20 @@ def enabled() -> bool:
     return flag.strip().lower() not in {"0", "false", "off", "no"}
 
 
-def collect_claims(fields: dict[str, str]) -> list[tuple[str, str]]:
+def collect_claims(fields: dict[str, Any]) -> list[tuple[str, str]]:
     """(field_key, claim) pairs — each bullet of each final field is one claim."""
     claims: list[tuple[str, str]] = []
     for key, content in fields.items():
-        for point in split_bullets(content or ""):
+        if not isinstance(content, str):
+            continue  # structured fields carry no bullet text to check
+        for point in split_bullets(content):
             if point.strip():
                 claims.append((key, point))
     return claims
 
 
 async def check_claims(
-    fields: dict[str, str], transcript: str, client: Any = None, model: str | None = None
+    fields: dict[str, Any], transcript: str, client: Any = None, model: str | None = None
 ) -> dict[str, Any] | None:
     """Run the entailment pass; returns a compact report dict or None if empty."""
     from server.database.config.manager import config_manager
@@ -154,7 +156,7 @@ def _default_client() -> Any:
     return get_llm_client()
 
 
-async def maybe_check_claims(fields: dict[str, str], transcript: str) -> dict[str, Any] | None:
+async def maybe_check_claims(fields: dict[str, Any], transcript: str) -> dict[str, Any] | None:
     """Config-gated, timeout-capped, fail-open wrapper for the note pipeline."""
     if not enabled() or not transcript.strip():
         return None

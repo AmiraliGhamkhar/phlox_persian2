@@ -197,7 +197,7 @@ class TestResponsePlumbing:
             verification={"mode": "flag", "unsupportedQuotes": []},
         )
         assert resp.draftFields == {"a": "• x"}
-        assert resp.verification["mode"] == "flag"
+        assert (resp.verification or {})["mode"] == "flag"
         plain = TranscribeResponse(
             fields={"a": "x"},
             rawTranscription="t",

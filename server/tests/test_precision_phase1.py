@@ -207,7 +207,7 @@ class TestBiasTerms:
 
     def test_additional_vocab_splits_words(self):
         vocab = build_additional_vocab(["داروی خاص تست", "ab", "insulin"])
-        words = [entry["content"] for entry in vocab]
+        words = [entry["content"] for entry in (vocab or [])]
         assert "insulin" in words
         assert "ab" not in words  # too short
         assert "داروی" in words and "خاص" in words
@@ -332,5 +332,5 @@ class TestTranscribeResponseSchema:
             segments=[{"id": 0, "text": "t", "confidence": "low_confidence"}],
             flags=[{"segment": 0, "reason": "low_confidence", "text": "t"}],
         )
-        assert resp2.segments[0]["confidence"] == "low_confidence"
-        assert resp2.flags[0]["reason"] == "low_confidence"
+        assert (resp2.segments or [])[0]["confidence"] == "low_confidence"
+        assert (resp2.flags or [])[0]["reason"] == "low_confidence"

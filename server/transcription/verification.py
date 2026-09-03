@@ -339,7 +339,7 @@ def quote_support(point: str, transcript_norm: str, trigrams: set[tuple[str, str
 
 def _build_trigrams(transcript_norm: str) -> set[tuple[str, str, str]]:
     words = transcript_norm.split()
-    return {tuple(words[i : i + 3]) for i in range(max(0, len(words) - 2))}  # type: ignore[misc]
+    return {(words[i], words[i + 1], words[i + 2]) for i in range(max(0, len(words) - 2))}
 
 
 # ---------------------------------------------------------------- bullet utils
@@ -444,14 +444,14 @@ def verify_draft(
 
 
 def verify_final_fields(
-    fields: dict[str, str], transcript: str, report: VerificationReport
+    fields: dict[str, Any], transcript: str, report: VerificationReport
 ) -> VerificationReport:
     """A6 numeric + negation trace on the final (refined) field contents."""
     transcript_norm = normalize_for_match(transcript)
     transcript_values = {f["value"] for f in extract_numbers(transcript)}
     for key, content in fields.items():
-        if not content:
-            continue
+        if not isinstance(content, str) or not content:
+            continue  # structured (dict) fields are not traced as text
         bullets = split_bullets(content)
         for point in bullets:
             problems = number_mismatches(point, transcript_values, transcript_norm)
@@ -463,7 +463,7 @@ def verify_final_fields(
     return report
 
 
-def verify_note(fields: dict[str, str], transcript: str) -> VerificationReport:
+def verify_note(fields: dict[str, Any], transcript: str) -> VerificationReport:
     """Standalone verification of final fields (used by reprocess/save paths)."""
     report = VerificationReport(mode=verify_mode())
     return verify_final_fields(fields, transcript, report)
