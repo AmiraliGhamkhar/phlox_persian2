@@ -125,7 +125,17 @@ async def extract_text_from_document(document_buffer: bytes, content_type: str) 
     logger.debug("Processing image document with Tesseract OCR")
     img = Image.open(io.BytesIO(document_buffer))  # ty: ignore
     lang = _ocr_languages()
-    text = pytesseract.image_to_string(img, lang=lang)  # ty: ignore
+    try:
+        text = pytesseract.image_to_string(img, lang=lang)  # ty: ignore
+    except OSError as error:
+        # pytesseract raises TesseractNotFoundError (an OSError) when the
+        # tesseract *binary* is missing; the package imports fine, so the
+        # OCR_AVAILABLE check above cannot cover it. Normalise to the
+        # documented RuntimeError contract so callers answer 503 instead
+        # of an opaque 500.
+        raise RuntimeError(
+            "Image document processing requires the tesseract binary on PATH."
+        ) from error
     return text
 
 

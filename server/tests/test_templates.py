@@ -24,6 +24,18 @@ def test_set_default_template(monkeypatch):
     assert "Set phlox_01" in data.get("message", "")
 
 
+def test_set_default_missing_template_returns_404(monkeypatch):
+    """A missing or deleted template is a client-visible 404, not a 500."""
+
+    def fake_set_default_template(_template_key: str):
+        raise ValueError("Template with key ghost does not exist")
+
+    monkeypatch.setattr("server.api.templates.set_default_template", fake_set_default_template)
+    response = client.post("/api/templates/default/ghost")
+    assert response.status_code == 404
+    assert "does not exist" in response.json()["detail"]
+
+
 def test_get_default_template(monkeypatch):
     # Patch get_default_template to return a dummy value
     def fake_get_default_template():
