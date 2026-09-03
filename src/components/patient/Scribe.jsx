@@ -224,7 +224,12 @@ export const useScribe = ({
         } catch (error) {
             console.error("Error starting recording:", error);
             closeLiveSession();
-            alert("دسترسی به میکروفون ممکن نبود. لطفاً مجوزها را بررسی کنید.");
+            toaster.create({
+                title: "دسترسی به میکروفون ممکن نبود",
+                description: "لطفاً مجوزهای مرورگر برای میکروفون را بررسی کنید.",
+                type: "warning",
+                duration: 6000,
+            });
         }
     }, [closeLiveSession]);
 

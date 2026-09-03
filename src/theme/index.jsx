@@ -119,6 +119,19 @@ for (let i = 1; i <= 8; i++) {
     };
 }
 
+// Respect the OS "reduce motion" preference. The app uses entrance
+// animations, staggered lists and a pulsing record button; for
+// motion-sensitive (and vestibular-disorder) users these should settle
+// immediately instead of animating.
+globalCss["@media (prefers-reduced-motion: reduce)"] = {
+    "*, *::before, *::after": {
+        animationDuration: "0.01ms !important",
+        animationIterationCount: "1 !important",
+        transitionDuration: "0.01ms !important",
+        scrollBehavior: "auto !important",
+    },
+};
+
 export const system = createSystem(defaultConfig, {
     globalCss,
     theme: {

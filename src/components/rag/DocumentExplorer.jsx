@@ -2,13 +2,17 @@
 import React, { useState, useEffect } from "react";
 import {
     Box,
+    Button,
     Text,
     HStack,
     Flex,
     List,
     Collapsible,
     IconButton,
+    Input,
     Spinner,
+    Dialog,
+    Portal,
 } from "@chakra-ui/react";
 import { toaster } from "@/components/ui/toaster";
 import { Tooltip } from "@/components/ui/tooltip";
@@ -34,12 +38,41 @@ const DocumentExplorer = ({
     setItemToDelete,
 }) => {
     const [expandedCollections, setExpandedCollections] = useState({});
+    // In-app rename dialog state (replaces the browser prompt(), which
+    // ignored theming, RTL and validation).
+    const [renameTarget, setRenameTarget] = useState(null);
+    const [renameValue, setRenameValue] = useState("");
 
     useEffect(() => {
         if (collections.length > 0 && collections.every((c) => !c.loaded)) {
             setExpandedCollections({});
         }
     }, [collections]);
+
+    const openRenameDialog = (collectionName) => {
+        setRenameTarget(collectionName);
+        setRenameValue(collectionName);
+    };
+
+    const submitRename = () => {
+        const newName = renameValue.trim();
+        if (!renameTarget) return;
+        if (!newName) {
+            toaster.create({
+                title: "خطا",
+                description: "نام مجموعه نمی‌تواند خالی باشد.",
+                type: "warning",
+                duration: 3000,
+            });
+            return;
+        }
+        if (newName === renameTarget) {
+            setRenameTarget(null);
+            return;
+        }
+        setRenameTarget(null);
+        handleRenameCollection(renameTarget, newName);
+    };
 
     const toggleCollection = async (collectionName) => {
         setExpandedCollections((prev) => ({
@@ -230,17 +263,11 @@ const DocumentExplorer = ({
                                                 >
                                                     <IconButton
                                                         aria-label="تغییر نام مجموعه"
-                                                        onClick={() => {
-                                                            const newName =
-                                                                prompt(
-                                                                    "Enter new name:",
-                                                                    collection.name,
-                                                                );
-                                                            handleRenameCollection(
+                                                        onClick={() =>
+                                                            openRenameDialog(
                                                                 collection.name,
-                                                                newName,
-                                                            );
-                                                        }}
+                                                            )
+                                                        }
                                                         size="sm"
                                                         variant="ghost"
                                                         colorPalette="blue"
@@ -455,6 +482,60 @@ const DocumentExplorer = ({
                     )}
                 </Collapsible.Content>
             </Collapsible.Root>
+
+            {/* Rename collection dialog — themed, RTL-aware and validated */}
+            <Dialog.Root
+                open={renameTarget !== null}
+                onOpenChange={(e) => {
+                    if (!e.open) setRenameTarget(null);
+                }}
+            >
+                <Portal>
+                    <Dialog.Backdrop />
+                    <Dialog.Positioner>
+                        <Dialog.Content className="modal-style">
+                            <Dialog.Header>تغییر نام مجموعه</Dialog.Header>
+                            <Dialog.CloseTrigger />
+                            <Dialog.Body>
+                                <Text fontSize="sm" color="textSecondary" mb={3}>
+                                    نام تازه‌ای برای این مجموعه وارد کنید.
+                                </Text>
+                                <Input
+                                    autoFocus
+                                    aria-label="نام تازه مجموعه"
+                                    placeholder="نام مجموعه"
+                                    value={renameValue}
+                                    onChange={(e) =>
+                                        setRenameValue(e.target.value)
+                                    }
+                                    onKeyDown={(e) => {
+                                        if (e.key === "Enter") {
+                                            e.preventDefault();
+                                            submitRename();
+                                        }
+                                    }}
+                                    className="input-style"
+                                />
+                            </Dialog.Body>
+                            <Dialog.Footer>
+                                <Button
+                                    className="green-button"
+                                    mr={3}
+                                    onClick={submitRename}
+                                >
+                                    ذخیره
+                                </Button>
+                                <Button
+                                    className="grey-button"
+                                    onClick={() => setRenameTarget(null)}
+                                >
+                                    لغو
+                                </Button>
+                            </Dialog.Footer>
+                        </Dialog.Content>
+                    </Dialog.Positioner>
+                </Portal>
+            </Dialog.Root>
         </Box>
     );
 };

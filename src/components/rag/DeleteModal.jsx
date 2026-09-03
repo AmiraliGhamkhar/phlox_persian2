@@ -25,12 +25,9 @@ const DeleteModal = ({ isOpen, onClose, onDelete, item }) => {
                                 <Spinner size="md" />
                             ) : (
                                 <Text>
-                                    Are you sure you want to delete the{" "}
-                                    {item.type === "file" ? "file" : "collection"} "
-                                    {item.name}"
-                                    {item.type === "file" &&
-                                        ` from the collection "${item.collection}"`}
-                                    ?
+                                    {item.type === "file"
+                                        ? `آیا از حذف فایل «${item.name}» از مجموعه «${item.collection}» مطمئن هستید؟ این عمل قابل بازگشت نیست.`
+                                        : `آیا از حذف مجموعه «${item.name}» و همه فایل‌های آن مطمئن هستید؟ این عمل قابل بازگشت نیست.`}
                                 </Text>
                             )}
                         </Dialog.Body>
@@ -48,7 +45,7 @@ const DeleteModal = ({ isOpen, onClose, onDelete, item }) => {
                                 onClick={onClose}
                                 disabled={isDeleting}
                             >
-                                Cancel
+                                لغو
                             </Button>
                         </Dialog.Footer>
                     </Dialog.Content>

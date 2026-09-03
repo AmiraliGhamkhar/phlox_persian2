@@ -6,6 +6,7 @@ import { SWRConfig } from "swr";
 import App from "./App";
 import "./index.css";
 import { setPersianDocument } from "./i18n/fa";
+import { AppErrorBoundary } from "./components/common/AppErrorBoundary";
 
 setPersianDocument();
 
@@ -33,7 +34,10 @@ import { ServerConnectionCheck } from "./components/common/ServerConnectionCheck
 
 const root = ReactDOM.createRoot(document.getElementById("root"));
 root.render(
-  <Provider>
+  // Outermost so render crashes anywhere (including providers/router) show
+  // the Persian recovery screen instead of a blank page.
+  <AppErrorBoundary>
+    <Provider>
     <SWRConfig
       value={{
         revalidateOnFocus: false,
@@ -50,5 +54,6 @@ root.render(
       </Router>
     </SWRConfig>
     <Toaster />
-  </Provider>,
+    </Provider>
+  </AppErrorBoundary>,
 );

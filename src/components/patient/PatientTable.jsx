@@ -376,6 +376,7 @@ const PatientTable = ({
                         <IconButton
                             size="sm"
                             variant="ghost"
+                            aria-label="بازنشانی کارها"
                             onClick={() => {
                                 play(SFX.reset);
                                 resetJobsItems(
