@@ -85,6 +85,10 @@ replace-imports-with-any = [
     "sqlite_vec.**",
     "mcp.**",
     "numpy.**",
+    # onnxruntime is an optional `asr` extra; the CI lint job type-checks
+    # without it installed, so its function-local imports would otherwise
+    # fail module resolution.
+    "onnxruntime.**",
     # openai>=3 types its http_client parameter as httpx2, but its runtime
     # explicitly accepts legacy httpx clients (is_legacy_httpx_*_client), so
     # the httpx 0.x types would otherwise clash with openai's stubs.
