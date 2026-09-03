@@ -65,6 +65,7 @@ const WhisperTab = ({
                                 )
                             }
                             className="input-style"
+                            data-testid="asr-provider-select"
                         >
                             {(asrProviders.length
                                 ? asrProviders
@@ -102,6 +103,7 @@ const WhisperTab = ({
                                 handleConfigChange("WHISPER_LANGUAGE", event.target.value);
                             }}
                             className="input-style"
+                            data-testid="asr-language-select"
                         >
                             <option value="auto">تشخیص خودکار؛ فارسی و انگلیسی ترکیبی</option>
                             <option value="fa">فارسی</option>
@@ -141,6 +143,7 @@ const WhisperTab = ({
                                 }}
                                 placeholder={urlPlaceholder}
                                 className="input-style"
+                                data-testid="asr-base-url-input"
                             />
                         </InputGroup>
                     </Box>
@@ -170,6 +173,7 @@ const WhisperTab = ({
                                 }
                                 placeholder={selectedAsr?.batch_placeholder_url || "https://eu1.asr.api.speechmatics.com/v2"}
                                 className="input-style"
+                                data-testid="asr-batch-url-input"
                             />
                         </Box>
                         <Box>
@@ -189,12 +193,13 @@ const WhisperTab = ({
                                 }
                                 placeholder="کلید Batch (type=batch)"
                                 className="input-style"
+                                data-testid="asr-batch-key-input"
                             />
                         </Box>
                     </>
                 )}
 
-                <Box>
+                <Box data-testid="asr-model-control">
                     <Tooltip content="مدلی را انتخاب کنید که برای پیاده‌سازی گفتار استفاده می‌شود.">
                         <Text fontSize="sm" mb="1" fontWeight="bold">
                             مدل ASR
@@ -291,6 +296,7 @@ const WhisperTab = ({
                                     : "کلید API، در صورت نیاز"
                             }
                             className="input-style"
+                            data-testid="asr-api-key-input"
                         />
                     </Box>
                 )}
