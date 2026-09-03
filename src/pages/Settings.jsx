@@ -15,7 +15,7 @@ import UserSettingsPanel from "../components/settings/UserSettingsPanel";
 import ModelSettingsPanel from "../components/settings/ModelSettingsPanel";
 import PromptSettingsPanel from "../components/settings/PromptSettingsPanel";
 import { SPECIALTIES } from "../utils/constants";
-import { templateService } from "../utils/services/templateService";
+import { templateService } from "../utils/templates/templateService";
 import { localModelApi } from "../utils/api/localModelApi";
 import { isTauri } from "../utils/helpers/apiConfig";
 import { useDebounce } from "../utils/hooks/useDebounce";
