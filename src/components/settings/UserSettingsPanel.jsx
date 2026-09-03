@@ -76,33 +76,33 @@ const UserSettingsPanel = ({
         <Collapsible.Content>
           <Tabs.Root variant='enclosed' mt={4} defaultValue="0">
             <Tabs.List>
-              <Tabs.Trigger className="tab-style" value="0">
+              <Tabs.Trigger className="tab-style" value="0" data-testid="user-tab-general">
                 <HStack>
                   <FaUser />
                   <Text>عمومی</Text>
                 </HStack>
               </Tabs.Trigger>
-              <Tabs.Trigger className="tab-style" value="2">
+              <Tabs.Trigger className="tab-style" value="2" data-testid="user-tab-note-templates">
                 <HStack>
                   <FaFileAlt />
                   <Text>قالب‌های یادداشت</Text>
                 </HStack>
               </Tabs.Trigger>
-              <Tabs.Trigger className="tab-style" value="3">
+              <Tabs.Trigger className="tab-style" value="3" data-testid="user-tab-letter-templates">
                 <HStack>
                   <FaEnvelopeOpenText />
                   <Text>قالب‌های نامه</Text>
                 </HStack>
               </Tabs.Trigger>
               {isChatEnabled() && (
-                <Tabs.Trigger className="tab-style" value="4">
+                <Tabs.Trigger className="tab-style" value="4" data-testid="user-tab-quick-chat">
                   <HStack>
                     <FaComments />
                     <Text>گفت‌وگوی سریع</Text>
                   </HStack>
                 </Tabs.Trigger>
               )}
-              <Tabs.Trigger className="tab-style" value="1">
+              <Tabs.Trigger className="tab-style" value="1" data-testid="user-tab-advanced">
                 <HStack>
                   <FaCog />
                   <Text>پیشرفته</Text>
@@ -127,6 +127,7 @@ const UserSettingsPanel = ({
                       }
                       className="input-style"
                       placeholder="نام خود را وارد کنید"
+                      data-testid="user-name-input"
                     />
                   </Box>
                   <Box>
@@ -144,7 +145,8 @@ const UserSettingsPanel = ({
                           }))
                         }
                         className="input-style"
-                        placeholder="تخصص خود را انتخاب کنید">
+                        placeholder="تخصص خود را انتخاب کنید"
+                        data-testid="user-specialty-select">
                         {specialties.map((specialty) => (
                           <option key={specialty} value={specialty}>
                             {specialty}
@@ -164,7 +166,8 @@ const UserSettingsPanel = ({
                         value={userSettings.default_template || ""}
                         onChange={(e) => handleDefaultTemplateChange(e.target.value)}
                         className="input-style"
-                        placeholder="قالب پیش‌فرض را انتخاب کنید">
+                        placeholder="قالب پیش‌فرض را انتخاب کنید"
+                        data-testid="user-default-template-select">
                         {/* Change this part to map over templates array correctly */}
                         {templates.map((template) => (
                           <option
@@ -190,7 +193,8 @@ const UserSettingsPanel = ({
                           handleDefaultLetterTemplateChange(e.target.value)
                         }
                         className="input-style"
-                        placeholder="قالب پیش‌فرض نامه را انتخاب کنید">
+                        placeholder="قالب پیش‌فرض نامه را انتخاب کنید"
+                        data-testid="user-default-letter-template-select">
                         {letterTemplates.map((template) => (
                           <option key={template.id} value={template.id}>
                             {template.name}
@@ -220,6 +224,7 @@ const UserSettingsPanel = ({
                       </Box>
                       <Switch.Root
                         size="sm"
+                        data-testid={`user-advanced-option-${option.key}`}
                         checked={
                           userSettings.advanced_options?.[option.key] ??
                           option.defaultValue
