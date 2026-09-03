@@ -213,6 +213,7 @@ const ModelSettingsPanel = ({
                                         <Tabs.Trigger
                                             className="tab-style"
                                             value="0"
+                                            data-testid="local-tab-models"
                                         >
                                             <HStack>
                                                 <FaDesktop />
@@ -224,6 +225,7 @@ const ModelSettingsPanel = ({
                                         <Tabs.Trigger
                                             className="tab-style"
                                             value="1"
+                                            data-testid="local-tab-tools"
                                         >
                                             <HStack>
                                                 <FaPuzzlePiece />
@@ -255,6 +257,7 @@ const ModelSettingsPanel = ({
                                         <Tabs.Trigger
                                             className="tab-style"
                                             value="0"
+                                            data-testid="remote-tab-asr"
                                         >
                                             <HStack>
                                                 <FaMicrophone />
@@ -266,6 +269,7 @@ const ModelSettingsPanel = ({
                                         <Tabs.Trigger
                                             className="tab-style"
                                             value="1"
+                                            data-testid="remote-tab-llm"
                                         >
                                             <HStack>
                                                 <FaBrain />
@@ -278,6 +282,7 @@ const ModelSettingsPanel = ({
                                             <Tabs.Trigger
                                                 className="tab-style"
                                                 value="2"
+                                                data-testid="remote-tab-rag"
                                             >
                                                 <HStack>
                                                     <FaDatabase />
@@ -290,6 +295,7 @@ const ModelSettingsPanel = ({
                                         <Tabs.Trigger
                                             className="tab-style"
                                             value="3"
+                                            data-testid="remote-tab-tools"
                                         >
                                             <HStack>
                                                 <FaPuzzlePiece />
