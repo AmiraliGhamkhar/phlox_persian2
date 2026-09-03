@@ -11,6 +11,14 @@ from server.schemas.grammars import MultiFieldResponse
 from server.schemas.templates import TemplateField, TemplateResponse
 from server.transcription.hygiene import deterministic_options
 from server.transcription.refinement import refine_field_content
+from server.transcription.verification import (
+    VerificationReport,
+    join_bullets,
+    split_bullets,
+    verify_draft,
+    verify_final_fields,
+    verify_mode,
+)
 
 logger = logging.getLogger(__name__)
 
@@ -39,6 +47,26 @@ async def process_transcription(
         raw_results_dict = await process_all_fields_concurrently(
             transcript_text, non_persistent_fields, patient_context, is_ambient, primary_condition
         )
+
+        # Quote-first verification of the DRAFT against the transcript, run
+        # before refinement so paraphrasing cannot mask fabrication
+        # (plan ref B1). Default policy flags; strict mode drops the
+        # unsupported draft bullets instead.
+        draft_contents = dict(raw_results_dict)
+        verification_report = None
+        if transcript_text and transcript_text.strip():
+            per_field_points = {k: split_bullets(v) for k, v in raw_results_dict.items()}
+            kept_points, verification_report = verify_draft(per_field_points, transcript_text)
+            for key, points in kept_points.items():
+                if points != per_field_points[key]:
+                    raw_results_dict[key] = join_bullets(points)
+            if verification_report.flagged:
+                logger.warning(
+                    "Transcript verification flagged %d unsupported draft bullet(s) (mode=%s)",
+                    len(verification_report.unsupported),
+                    verification_report.mode,
+                )
+
         # Convert to list of TemplateResponse for compatibility with refinement step
         raw_results = [
             TemplateResponse(field_key=k, content=v) for k, v in raw_results_dict.items()
@@ -61,10 +89,28 @@ async def process_transcription(
             for field, refined_content in zip(non_persistent_fields, refined_results, strict=True)
         }
 
+        # Numeric / negation trace over the FINAL text (plan ref A6): digits
+        # and polarity must survive extraction AND refinement unchanged; any
+        # drift is surfaced for clinician review, never silently rewritten.
+        if transcript_text and transcript_text.strip():
+            verification_report = verify_final_fields(
+                processed_fields,
+                transcript_text,
+                verification_report or VerificationReport(mode=verify_mode()),
+            )
+            if verification_report.flagged:
+                logger.warning(
+                    "Transcript verification: %d numeric and %d negation issue(s) in final fields",
+                    len(verification_report.number_problems),
+                    len(verification_report.negation_problems),
+                )
+
         process_duration = time.perf_counter() - process_start
 
         return {
             "fields": processed_fields,
+            "draft_fields": draft_contents,
+            "verification": verification_report.to_dict() if verification_report else {},
             "process_duration": float(f"{process_duration:.2f}"),
         }
 

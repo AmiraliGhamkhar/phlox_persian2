@@ -1,7 +1,7 @@
 import { useState } from "react";
 import { Box, Flex, IconButton, Text, HStack, Spinner } from "@chakra-ui/react";
 import { Tooltip } from '@/components/ui/tooltip';
-import { FaSync, FaClock, FaCogs, FaCheck } from "react-icons/fa";
+import { FaSync, FaClock, FaCogs, FaCheck, FaExclamationTriangle } from "react-icons/fa";
 import { useTranscription } from "../../../utils/hooks/useTranscription";
 import FloatingPanel from "../../common/FloatingPanel";
 
@@ -9,6 +9,8 @@ const TranscriptionPanel = ({
   isOpen,
   _onClose,
   rawTranscription,
+  asrFlags,
+  asrVerification,
   transcriptionDuration,
   processDuration,
   isTranscribing: _parentIsTranscribing,
@@ -21,6 +23,32 @@ const TranscriptionPanel = ({
   noteId,
 }) => {
   const [showSuccess, setShowSuccess] = useState(false);
+
+  // Review items from ASR hygiene (low-confidence / artifact segments) and
+  // from the transcript-verification pass (unsupported quotes, drifted
+  // numbers, possible negation flips). These are *flags for the clinician*,
+  // the content itself is intentionally left in place.
+  const reviewItems = [];
+  (asrFlags || []).forEach((f) =>
+    reviewItems.push({ label: f.reason, text: f.text || "" })
+  );
+  if (asrVerification) {
+    (asrVerification.unsupportedQuotes || []).forEach((v) =>
+      reviewItems.push({ label: "outside_transcript", text: v.point || "" })
+    );
+    (asrVerification.numberProblems || []).forEach((v) =>
+      reviewItems.push({
+        label: "number",
+        text: `${v.value} — ${v.point || ""}`,
+      })
+    );
+    (asrVerification.negationProblems || []).forEach((v) =>
+      reviewItems.push({
+        label: "negation",
+        text: v.transcriptClause || v.point || "",
+      })
+    );
+  }
   const { reprocessTranscription, isTranscribing } = useTranscription(onReprocess, () => {});
 
   const handleReprocess = async () => {
@@ -90,6 +118,45 @@ const TranscriptionPanel = ({
 
         {rawTranscription ? (
           <>
+            {reviewItems.length > 0 && (
+              <Box
+                mb={2}
+                p={2}
+                borderRadius="lg"
+                bg="rgba(214, 158, 46, 0.12)"
+                border="1px solid rgba(214, 158, 46, 0.4)"
+              >
+                <Flex align="center" gap={1.5} mb={1}>
+                  <Box size="10px" asChild color="#D69E2E">
+                    <FaExclamationTriangle />
+                  </Box>
+                  <Text fontSize="10px" fontWeight="600" color="#B7791F">
+                    {`${reviewItems.length} مورد نیازمند بازبینی`}
+                  </Text>
+                </Flex>
+                <Box maxHeight="64px" overflowY="auto">
+                  {reviewItems.slice(0, 4).map((item, idx) => (
+                    <Text
+                      key={`${item.label}-${idx}`}
+                      fontSize="10px"
+                      color="overlay0"
+                      whiteSpace="nowrap"
+                      overflow="hidden"
+                      textOverflow="ellipsis"
+                      dir="auto"
+                    >
+                      {item.text || item.label}
+                    </Text>
+                  ))}
+                  {reviewItems.length > 4 && (
+                    <Text fontSize="10px" color="#B7791F">
+                      {`و ${reviewItems.length - 4} مورد دیگر`}
+                    </Text>
+                  )}
+                </Box>
+              </Box>
+            )}
+
             {/* Transcription text - scrollable */}
             <Box
               maxHeight="180px"

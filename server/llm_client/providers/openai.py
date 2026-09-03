@@ -6,6 +6,41 @@ from typing import Any
 logger = logging.getLogger(__name__)
 
 
+def _strict_compatible(schema: Any) -> bool:
+    """Whether a JSON schema satisfies OpenAI structured-output strictness:
+    every object node declares additionalProperties=false (or none) and lists
+    all of its properties as required. Recurses through properties/items/
+    additionalProperties/anyOf."""
+    if not isinstance(schema, dict):
+        return True
+    typ = schema.get("type")
+    if typ == "object" or "properties" in schema:
+        props = schema.get("properties", {})
+        required = set(schema.get("required", []))
+        if not set(props.keys()) <= required:
+            return False
+        if schema.get("additionalProperties", False) is not False:
+            if isinstance(schema.get("additionalProperties"), dict):
+                # OpenAI strict allows typed additionalProperties (maps).
+                pass
+            elif "additionalProperties" not in schema:
+                return False
+        for sub in list(props.values()) + (
+            [schema["additionalProperties"]]
+            if isinstance(schema.get("additionalProperties"), dict)
+            else []
+        ):
+            if not _strict_compatible(sub):
+                return False
+    if isinstance(schema.get("items"), dict) and not _strict_compatible(schema["items"]):
+        return False
+    # Referenced sub-schemas must be strict too, not just the inline tree.
+    for sub_schema in schema.get("$defs", {}).values():
+        if not _strict_compatible(sub_schema):
+            return False
+    return all(_strict_compatible(alt) for alt in schema.get("anyOf", []) + schema.get("oneOf", []))
+
+
 async def openai_compatible_chat(
     client,
     model: str,
@@ -46,12 +81,21 @@ async def openai_compatible_chat(
         # Handle format (for JSON responses)
         if format:
             schema_name = format.get("title", "response")
+            json_schema: dict[str, Any] = {
+                "name": schema_name,
+                "schema": format,
+            }
+            # Strict mode (plan ref B5) makes OpenAI-compatible endpoints
+            # reject any key our grammar does not define, which is exactly
+            # the class of drift ("helpful" extra fields, renamed keys) that
+            # corrupts downstream processing. Schemas that are not strict-
+            # compatible (optional keys, permissive objects) keep the old
+            # non-strict behaviour so providers are never broken.
+            if _strict_compatible(format):
+                json_schema["strict"] = True
             params["response_format"] = {
                 "type": "json_schema",
-                "json_schema": {
-                    "name": schema_name,
-                    "schema": format,
-                },
+                "json_schema": json_schema,
             }
 
         # Add stream parameter if needed

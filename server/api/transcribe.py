@@ -273,6 +273,8 @@ async def transcribe(
                 processDuration=float(processing_result["process_duration"]),
                 segments=asr_segments,
                 flags=asr_flags,
+                draftFields=processing_result.get("draft_fields") or None,
+                verification=processing_result.get("verification") or None,
             )
         except Exception as processing_error:
             logging.error(f"Transcription processing failed: {processing_error}")
@@ -364,6 +366,8 @@ async def reprocess_transcription(
                 rawTranscription=transcript_text,
                 transcriptionDuration=original_transcription_duration or 0.0,
                 processDuration=float(processing_result["process_duration"]),
+                draftFields=processing_result.get("draft_fields") or None,
+                verification=processing_result.get("verification") or None,
             )
         except Exception as processing_error:
             logging.error(f"Reprocessing failed: {processing_error}")

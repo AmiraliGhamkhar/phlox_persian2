@@ -1,6 +1,6 @@
 from typing import Literal
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, ConfigDict, Field
 
 
 # RAG Collection Management
@@ -37,6 +37,8 @@ class FieldResponse(BaseModel):
     is in its own entry in the list.
     """
 
+    model_config = ConfigDict(extra="forbid")
+
     key_points: list[str] = Field(
         description="Individual discussion points extracted from the transcript"
     )
@@ -47,6 +49,8 @@ class MultiFieldResponse(BaseModel):
     Structured model for processing multiple template fields in a single LLM call.
     Each field key maps to its extracted key points.
     """
+
+    model_config = ConfigDict(extra="forbid")
 
     field_summaries: dict[str, list[str]] = Field(
         description="Dictionary mapping field_key to list of extracted discussion points"
@@ -59,6 +63,8 @@ class RefinedResponse(BaseModel):
     is in its own entry in the list.
     """
 
+    model_config = ConfigDict(extra="forbid")
+
     key_points: list[str]
 
 
@@ -66,6 +72,8 @@ class NarrativeResponse(BaseModel):
     """
     Structured model where the content is returned as a narrative paragraph.
     """
+
+    model_config = ConfigDict(extra="forbid")
 
     narrative: str = Field(
         description="A narrative paragraph summarizing the content in a cohesive, flowing text"
