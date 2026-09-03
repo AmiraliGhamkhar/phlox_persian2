@@ -64,7 +64,6 @@ const Settings = () => {
         userSettings: false,
         modelSettings: true,
         promptSettings: true,
-        localModels: true,
     });
 
     // Track default_template separately — it persists via a different endpoint
