@@ -130,7 +130,7 @@ jobs:
             | tar xz -C /tmp
           install -m755 "$(find /tmp -type f -name cargo-audit | head -1)" /usr/local/bin/cargo-audit
           cargo audit --json --file src-tauri/Cargo.lock > /tmp/audit.json || true
-          test "$(jq -r '.vulnerabilities.found // "PARSE_ERROR"' /tmp/audit.json)" = "false"
+          jq -e '.vulnerabilities and (.vulnerabilities.found == false)' /tmp/audit.json > /dev/null
 
       - name: Fail if an audit found vulnerabilities
         if: always() && (steps.npm-audit.outcome == 'failure' || steps.pip-audit.outcome == 'failure' || steps.cargo-audit.outcome == 'failure')
