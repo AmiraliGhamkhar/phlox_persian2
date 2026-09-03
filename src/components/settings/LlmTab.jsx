@@ -118,6 +118,7 @@ const LlmTab = ({
                                 )
                             }
                             className="input-style"
+                            data-testid="llm-provider-select"
                         >
                             {(llmProviders.length
                                 ? llmProviders
@@ -181,6 +182,7 @@ const LlmTab = ({
                                 "https://api.example.com"
                             }
                             className="input-style"
+                            data-testid="llm-base-url-input"
                         />
                     </InputGroup>
                 </Box>
@@ -200,6 +202,7 @@ const LlmTab = ({
                         }
                         placeholder="sk-..."
                         className="input-style"
+                        data-testid="llm-api-key-input"
                     />
                 </Box>
 
@@ -229,6 +232,7 @@ const LlmTab = ({
                                 }
                                 placeholder="انتخاب مدل"
                                 className="input-style"
+                                data-testid="llm-primary-model-select"
                             >
                                 {modelOptions.map((model) => (
                                     <option key={model} value={model}>
@@ -267,6 +271,7 @@ const LlmTab = ({
                                 }
                                 placeholder="انتخاب مدل"
                                 className="input-style"
+                                data-testid="llm-secondary-model-select"
                             >
                                 {modelOptions.map((model) => (
                                     <option key={model} value={model}>
@@ -298,6 +303,7 @@ const LlmTab = ({
                                 )
                             }
                             className="input-style"
+                            data-testid="llm-processing-mode-select"
                         >
                             <option value="auto">
                                 Auto (prefer visual if available)
@@ -327,6 +333,7 @@ const LlmTab = ({
                             variant="outline"
                             onClick={handleProbeVisionCapability}
                             loading={isProbingVision}
+                            data-testid="llm-vision-probe-button"
                         >
                             Test Vision Support
                         </Button>
