@@ -76,6 +76,18 @@ describe("ModelSettingsPanel — control inventory", () => {
         expect(selected[0]).toBe(tabs[0]);
     });
 
+    it("remote mode: the LLM tab is first and precedes the ASR tab", () => {
+        renderPanel({ LLM_PROVIDER: "openai_compatible" });
+
+        const tabs = screen.getAllByRole("tab");
+        expect(tabs.map((t) => t.dataset.testid)).toEqual([
+            "remote-tab-llm",
+            "remote-tab-asr",
+            "remote-tab-rag",
+            "remote-tab-tools",
+        ]);
+    });
+
     it("local mode offers the Models and Tools tabs only", () => {
         renderPanel({ LLM_PROVIDER: "local" });
 

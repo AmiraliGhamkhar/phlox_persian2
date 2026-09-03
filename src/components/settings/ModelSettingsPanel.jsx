@@ -253,27 +253,27 @@ const ModelSettingsPanel = ({
                                 defaultValue="0"
                             >
                                 <Tabs.List>
-                                    <Tooltip content="پیکربندی سرویس تشخیص گفتار">
-                                        <Tabs.Trigger
-                                            className="tab-style"
-                                            value="0"
-                                            data-testid="remote-tab-asr"
-                                        >
-                                            <HStack>
-                                                <FaMicrophone />
-                                                <Text>تشخیص گفتار</Text>
-                                            </HStack>
-                                        </Tabs.Trigger>
-                                    </Tooltip>
                                     <Tooltip content="پیکربندی ارائه‌دهنده مدل زبانی">
                                         <Tabs.Trigger
                                             className="tab-style"
-                                            value="1"
+                                            value="0"
                                             data-testid="remote-tab-llm"
                                         >
                                             <HStack>
                                                 <FaBrain />
                                                 <Text>مدل زبانی</Text>
+                                            </HStack>
+                                        </Tabs.Trigger>
+                                    </Tooltip>
+                                    <Tooltip content="پیکربندی سرویس تشخیص گفتار">
+                                        <Tabs.Trigger
+                                            className="tab-style"
+                                            value="1"
+                                            data-testid="remote-tab-asr"
+                                        >
+                                            <HStack>
+                                                <FaMicrophone />
+                                                <Text>تشخیص گفتار</Text>
                                             </HStack>
                                         </Tabs.Trigger>
                                     </Tooltip>
@@ -308,6 +308,19 @@ const ModelSettingsPanel = ({
                                     className="floating-main"
                                     value="0"
                                 >
+                                    <LlmTab
+                                        config={config}
+                                        handleConfigChange={handleConfigChange}
+                                        modelOptions={modelOptions}
+                                        llmModelsLoading={llmModelsLoading}
+                                        urlStatus={urlStatus}
+                                        llmProviders={llmProviders}
+                                    />
+                                </Tabs.Content>
+                                <Tabs.Content
+                                    className="floating-main"
+                                    value="1"
+                                >
                                     <WhisperTab
                                         config={config}
                                         handleConfigChange={handleConfigChange}
@@ -322,19 +335,6 @@ const ModelSettingsPanel = ({
                                         }
                                         urlStatus={urlStatus}
                                         asrProviders={asrProviders}
-                                    />
-                                </Tabs.Content>
-                                <Tabs.Content
-                                    className="floating-main"
-                                    value="1"
-                                >
-                                    <LlmTab
-                                        config={config}
-                                        handleConfigChange={handleConfigChange}
-                                        modelOptions={modelOptions}
-                                        llmModelsLoading={llmModelsLoading}
-                                        urlStatus={urlStatus}
-                                        llmProviders={llmProviders}
                                     />
                                 </Tabs.Content>
                                 {isRagEnabled() && (
