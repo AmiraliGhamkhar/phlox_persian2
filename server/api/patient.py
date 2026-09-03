@@ -120,6 +120,13 @@ async def save_patient_data(request: SavePatientRequest, background_tasks: Backg
             task_token=task_token,
         )
 
+        # Save-time verification audit (deterministic, no LLM; plan ref C3)
+        background_tasks.add_task(
+            process_generation_save_audit,
+            note_id=note_id,
+            patient_data=patient,
+        )
+
         # Process adaptive refinement if provided (also non-blocking)
         if request.adaptive_refinement:
             background_tasks.add_task(
@@ -135,6 +142,22 @@ async def save_patient_data(request: SavePatientRequest, background_tasks: Backg
     except Exception as e:
         logging.error(f"Error processing patient data: {e}")
         raise HTTPException(status_code=500, detail="Internal server error") from e
+
+
+async def process_generation_save_audit(note_id: int, patient_data: Patient) -> None:
+    """Compare generation-time findings with what the clinician actually saved."""
+    try:
+        from server.utils.generation_reports import record_save
+
+        await asyncio.to_thread(
+            record_save,
+            note_id=note_id,
+            template_key=patient_data.template_key,
+            transcript=patient_data.raw_transcription or "",
+            fields=dict(patient_data.template_data or {}),
+        )
+    except Exception as e:
+        logging.debug(f"save audit skipped for note {note_id}: {e}")
 
 
 async def process_encounter_summarization(

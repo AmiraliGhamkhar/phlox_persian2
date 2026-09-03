@@ -179,7 +179,14 @@ _NEGATION_CUES = (
     "resolved",
 )
 
-_CLAUSE_SPLIT_RE = re.compile(r"[\n.!?;!]")
+# Sentence boundaries must be split on RAW text: normalization strips the very
+# punctuation that ends sentences, and splitting after it merges the whole
+# transcript into one clause (a single "ندارد"/"denies" would then negate
+# everything). ".!?؛؟;" + newlines; decimal dots between digits survive.
+_CLAUSE_SPLIT_RE = re.compile(r"[.!?؛؟;\n]+")
+
+# Persian/English "and" joining clauses inside one sentence.
+_CONJUNCT_RE = re.compile(r"\s(?:و|and)\s")
 
 
 def _make_cue_matcher(cues: tuple[str, ...]):
@@ -215,7 +222,8 @@ _has_negation_cue = _make_cue_matcher(_NEGATION_CUES)
 
 
 def _clauses(text: str) -> list[str]:
-    return [c.strip() for c in _CLAUSE_SPLIT_RE.split(text) if c.strip()]
+    """Sentence-ish clauses of the RAW text (before normalization)."""
+    return [c.strip() for c in _CLAUSE_SPLIT_RE.split(text) if c and c.strip()]
 
 
 def _content_words(clause: str) -> set[str]:
@@ -258,25 +266,41 @@ def negation_conflicts(points: list[str], transcript: str) -> list[dict[str, str
     negation cue in the note clause itself.
     """
     negated: list[tuple[set[str], str]] = []
-    for clause in _clauses(normalize_for_match(transcript)):
-        if _has_negation_cue(clause):
-            words = _content_words(clause)
-            if words:
-                negated.append((words, clause))
+    for raw_clause in _clauses(transcript):
+        clause = normalize_for_match(raw_clause)
+        if not clause or not _has_negation_cue(clause):
+            continue
+        # Scope negation per conjunct: in "CT is normal and no mass" only the
+        # cue-bearing phrase counts as negated, and words that are explicitly
+        # ASSERTED in another conjunct of the same sentence are removed from
+        # the negated set. Without this split one "denies/ندارد" would poison
+        # every word of the sentence (and false-flag perfectly good bullets).
+        conjuncts = [c for c in _CONJUNCT_RE.split(clause) if c.strip()] or [clause]
+        neg_words: set[str] = set()
+        asserted_words: set[str] = set()
+        for conjunct in conjuncts:
+            if _has_negation_cue(conjunct):
+                neg_words |= _content_words(conjunct)
+            else:
+                asserted_words |= _content_words(conjunct)
+        neg_words -= asserted_words
+        if neg_words:
+            negated.append((neg_words, clause))
     if not negated:
         return []
 
     conflicts: list[dict[str, str]] = []
     for point in points:
-        for clause in _clauses(normalize_for_match(point)):
-            if _has_negation_cue(clause):
+        for raw_clause in _clauses(point):
+            clause = normalize_for_match(raw_clause)
+            if not clause or _has_negation_cue(clause):
                 continue  # the note itself hedges/negates: fine
             words = _content_words(clause)
             if len(words) < 2:
                 continue
             for neg_words, neg_clause in negated:
                 shared = words & neg_words
-                if len(shared) >= 2 and len(shared) >= 0.6 * len(words):
+                if len(shared) >= 2 and len(shared) >= 0.4 * len(words):
                     conflicts.append(
                         {
                             "point": point,
