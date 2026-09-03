@@ -37,6 +37,8 @@ const Summary = forwardRef(
       selectTemplate,
       isSearchedPatient,
       isEncounterSaved = false,
+      asrVerification = null,
+      asrDraftFields = null,
     },
     ref,
   ) => {
@@ -47,6 +49,44 @@ const Summary = forwardRef(
     } = useTemplateSelection();
 
     const textareasRefs = useRef({});
+    const [showDraft, setShowDraft] = useState(false);
+
+    // Verification findings mapped per field (plan ref D1). These are review
+    // hints from the deterministic guards and the independent entailment
+    // pass — the text itself is always left editable.
+    const fieldIssues = {};
+    const pushIssue = (key, label, text) => {
+      if (!key) return;
+      (fieldIssues[key] = fieldIssues[key] || []).push({ label, text });
+    };
+    if (asrVerification) {
+      (asrVerification.unsupportedQuotes || []).forEach((v) =>
+        pushIssue(v.field, "خارج از متن", v.point || ""),
+      );
+      (asrVerification.numberProblems || []).forEach((v) =>
+        pushIssue(v.field, "عدد تایید نشده", `${v.value}${v.point ? ` — ${v.point}` : ""}`),
+      );
+      (asrVerification.negationProblems || []).forEach((v) =>
+        pushIssue(v.field, "تضاد نفی", v.point || v.transcriptClause || ""),
+      );
+      (asrVerification.refinementReverts || []).forEach((v) =>
+        pushIssue(v.field, "بازگردش ویرایش", (v.drift || []).join("، ")),
+      );
+      ((asrVerification.entailment && asrVerification.entailment.flaggedClaims) || []).forEach(
+        (v) =>
+          pushIssue(
+            v.field,
+            "بدون پشتوانه (بررسی مستقل)",
+            v.evidence ? `${v.claim} — ${v.evidence}` : v.claim || "",
+          ),
+      );
+    }
+    const totalIssues = Object.values(fieldIssues).reduce((n, l) => n + l.length, 0);
+    const hasDraft =
+      Boolean(asrDraftFields) &&
+      Object.keys(asrDraftFields || {}).some(
+        (k) => asrDraftFields[k] && asrDraftFields[k] !== patient?.template_data?.[k],
+      );
     const [isTemplateChangeModalOpen, setIsTemplateChangeModalOpen] =
       useState(false);
     const [pendingTemplateKey, setPendingTemplateKey] = useState(null);
@@ -139,18 +179,53 @@ const Summary = forwardRef(
         </Tooltip>
       ) : null;
 
+      const issues = fieldIssues[field.field_key] || [];
+      const draftValue = asrDraftFields?.[field.field_key];
+      const showingDraft = showDraft && Boolean(draftValue);
+
       return (
         <Box key={field.field_key} className="cohesive-field">
           <Text className="cohesive-field-label">
             {field.field_name}:{persistentMarker}
+            {showingDraft ? " (پیش‌نویس)" : ""}
           </Text>
+          {issues.length > 0 && !showingDraft && (
+            <HStack gap={1.5} mb={1} flexWrap="wrap">
+              {issues.map((issue, idx) => (
+                <Tooltip
+                  key={`${field.field_key}-issue-${idx}`}
+                  content={issue.text || issue.label}
+                  positioning={{ placement: "top" }}
+                >
+                  <Box
+                    as="span"
+                    fontSize="9px"
+                    px={1.5}
+                    py={0.5}
+                    borderRadius="full"
+                    bg="rgba(214, 158, 46, 0.12)"
+                    color="#B7791F"
+                    dir="auto"
+                  >
+                    {issue.label}
+                  </Box>
+                </Tooltip>
+              ))}
+            </HStack>
+          )}
           <TextareaAutosize
             placeholder="متن را وارد کنید..."
-            value={patient.template_data?.[field.field_key] || ""}
+            value={
+              showingDraft
+                ? draftValue
+                : patient.template_data?.[field.field_key] || ""
+            }
+            readOnly={showingDraft}
             onChange={(e) => {
               handleTemplateDataChange(field.field_key, e.target.value);
             }}
             className="cohesive-textarea"
+            style={showingDraft ? { opacity: 0.75, fontStyle: "italic" } : undefined}
             ref={(el) => (textareasRefs.current[field.field_key] = el)}
           />
         </Box>
@@ -187,6 +262,41 @@ const Summary = forwardRef(
               <HStack gap={2}>
                 <EditIcon size="1.2em" />
                 <Text as="h3">یادداشت</Text>
+                {totalIssues > 0 && (
+                  <Tooltip
+                    content="موارد شناسایی‌شده در بازبینی خودکار؛ متن دست‌نخورده و قابل ویرایش است"
+                    positioning={{ placement: "bottom" }}
+                  >
+                    <Box
+                      as="span"
+                      fontSize="10px"
+                      px={2}
+                      py={0.5}
+                      borderRadius="full"
+                      bg="rgba(214, 158, 46, 0.14)"
+                      color="#B7791F"
+                      border="1px solid rgba(214, 158, 46, 0.4)"
+                    >
+                      {`${totalIssues} نکته نیازمند بازبینی`}
+                    </Box>
+                  </Tooltip>
+                )}
+                {hasDraft && (
+                  <Box
+                    as="button"
+                    type="button"
+                    fontSize="10px"
+                    px={2}
+                    py={0.5}
+                    borderRadius="full"
+                    border="1px solid var(--chakra-colors-border-translucent)"
+                    color="overlay0"
+                    cursor="pointer"
+                    onClick={() => setShowDraft((v) => !v)}
+                  >
+                    {showDraft ? "نمایش متن نهایی" : "نمایش پیش‌نویس"}
+                  </Box>
+                )}
               </HStack>
             </Flex>
             <Tooltip

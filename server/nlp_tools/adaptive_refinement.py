@@ -81,6 +81,9 @@ async def generate_adaptive_refinement_suggestions(
             model_name=model_name,
         )
         consolidated = consolidation_result["consolidated_instructions"]
+        consolidated = _filter_leaked_instructions(
+            consolidated, existing_instructions, initial_content, modified_content
+        )
         logger.info(f"Consolidated instructions: {consolidated}")
         return consolidated
 
@@ -153,12 +156,48 @@ async def generate_adaptive_refinement_suggestions(
             response, current_instructions, client, model_name, options
         )
 
+        updated_instructions = _filter_leaked_instructions(
+            updated_instructions, existing_instructions, initial_content, modified_content
+        )
         logger.info(f"Final updated instructions: {updated_instructions}")
         return updated_instructions
 
     except Exception as e:
         logger.error(f"Error during LLM call or processing: {e}", exc_info=True)
         return existing_instructions or []
+
+
+def _filter_leaked_instructions(
+    instructions: list[str],
+    existing_instructions: list[str] | None,
+    initial_content: str,
+    modified_content: str,
+) -> list[str]:
+    """Drop NEW instructions that quote encounter content (plan ref B7).
+
+    An instruction carrying this patient's facts would silently propagate
+    them into unrelated future notes; existing instructions pass through
+    unchanged so one leak cannot retroactively destroy the stored list.
+    """
+    try:
+        from server.transcription.verification import example_leakage
+
+        existing = {str(item).strip() for item in existing_instructions or []}
+        kept: list[str] = []
+        for instruction in instructions or []:
+            if str(instruction).strip() in existing or not example_leakage(
+                str(instruction), [initial_content, modified_content]
+            ):
+                kept.append(instruction)
+            else:
+                logger.warning(
+                    "Dropped adaptive instruction that leaked encounter content: %r",
+                    str(instruction)[:120],
+                )
+        return kept
+    except Exception:  # noqa: BLE001 — guard must never break refinement
+        logger.debug("adaptive leakage guard skipped", exc_info=True)
+        return list(instructions or [])
 
 
 def _get_instruction_management_tools():

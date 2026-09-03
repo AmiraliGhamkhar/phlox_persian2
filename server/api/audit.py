@@ -26,6 +26,20 @@ def list_audit(
     return {"events": get_events(limit=limit, offset=offset, from_date=from_date, to_date=to_date)}
 
 
+@router.get("/generation-stats")
+def generation_stats(limit: int = Query(200, ge=1, le=1000)):
+    """Aggregate generation-quality telemetry (plan ref C3).
+
+    Counts from the file-based generation reports: how many processed notes
+    carried verification findings, and how many flagged points persisted into
+    the saved note versus were resolved by clinician edits. Read-only; no
+    clinical content is exposed — only counters and reasons.
+    """
+    from server.utils.generation_reports import stats
+
+    return stats(limit=limit)
+
+
 @router.get("/export")
 def export_audit(format: str = Query("csv", pattern="^(csv|json)$")):
     """Stream the full audit log as CSV (default) or JSON lines."""

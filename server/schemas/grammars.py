@@ -1,6 +1,6 @@
 from typing import Literal
 
-from pydantic import BaseModel, Field
+from pydantic import BaseModel, ConfigDict, Field
 
 
 # RAG Collection Management
@@ -37,6 +37,8 @@ class FieldResponse(BaseModel):
     is in its own entry in the list.
     """
 
+    model_config = ConfigDict(extra="forbid")
+
     key_points: list[str] = Field(
         description="Individual discussion points extracted from the transcript"
     )
@@ -47,6 +49,8 @@ class MultiFieldResponse(BaseModel):
     Structured model for processing multiple template fields in a single LLM call.
     Each field key maps to its extracted key points.
     """
+
+    model_config = ConfigDict(extra="forbid")
 
     field_summaries: dict[str, list[str]] = Field(
         description="Dictionary mapping field_key to list of extracted discussion points"
@@ -59,6 +63,8 @@ class RefinedResponse(BaseModel):
     is in its own entry in the list.
     """
 
+    model_config = ConfigDict(extra="forbid")
+
     key_points: list[str]
 
 
@@ -66,6 +72,8 @@ class NarrativeResponse(BaseModel):
     """
     Structured model where the content is returned as a narrative paragraph.
     """
+
+    model_config = ConfigDict(extra="forbid")
 
     narrative: str = Field(
         description="A narrative paragraph summarizing the content in a cohesive, flowing text"
@@ -145,6 +153,33 @@ class ProposedJob(BaseModel):
         default=None,
         description="One short clause justifying the classification.",
     )
+
+
+class EntailmentVerdict(BaseModel):
+    """One claim-level fact-check verdict against the transcript only."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    claim_index: int = Field(description="Zero-based index of the claim in the provided list")
+    verdict: Literal["supported", "unsupported", "contradicted"] = Field(
+        description=(
+            "supported = transcript explicitly states it; contradicted = transcript states "
+            "the opposite or negates it; unsupported = no explicit evidence (absence of "
+            "evidence IS unsupported)"
+        )
+    )
+    evidence: str | None = Field(
+        default=None,
+        description="Short exact quote from the transcript backing the verdict (empty for unsupported)",
+    )
+
+
+class EntailmentReport(BaseModel):
+    """Verdicts for every claim, one per index; never merge or skip claims."""
+
+    model_config = ConfigDict(extra="forbid")
+
+    verdicts: list[EntailmentVerdict]
 
 
 class JobExtractionResult(BaseModel):

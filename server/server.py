@@ -13,9 +13,10 @@ from typing import Any
 
 import uvicorn
 from apscheduler.schedulers.asyncio import AsyncIOScheduler
-from fastapi import FastAPI, HTTPException
+from fastapi import FastAPI, HTTPException, Request
+from fastapi.exceptions import RequestValidationError
 from fastapi.middleware.cors import CORSMiddleware
-from fastapi.responses import FileResponse
+from fastapi.responses import FileResponse, JSONResponse
 from fastapi.staticfiles import StaticFiles
 
 from server.constants import (
@@ -125,6 +126,31 @@ def initialize_and_get_app():
         title=APP_NAME,
         lifespan=lifespan,  # Add the lifespan context manager
     )
+
+    # A malformed request whose validation errors carry non-JSON-safe values
+    # (e.g. the raw bytes of a bad file upload, or a bound method in a
+    # custom-validator context) makes FastAPI's default 422 encoder die with
+    # a UnicodeDecodeError/TypeError — turning a routine 422 into a 500 and
+    # hiding the actual problem. Replace binary/non-serializable values with
+    # safe placeholders so clients always get the structured 422.
+    @app.exception_handler(RequestValidationError)
+    async def _safe_validation_error_handler(
+        request: Request,  # noqa: ARG001 - required by the handler signature
+        exc: RequestValidationError,
+    ):
+        def _sanitise(value: object) -> object:
+            if isinstance(value, (bytes, bytearray, memoryview)):
+                return f"<binary payload: {len(value)} bytes>"
+            if isinstance(value, dict):
+                return {str(key): _sanitise(item) for key, item in value.items()}
+            if isinstance(value, (list, tuple, set, frozenset)):
+                return [_sanitise(item) for item in value]
+            if value is None or isinstance(value, (str, int, float, bool)):
+                return value
+            return str(value)
+
+        detail = [_sanitise(dict(error)) for error in exc.errors()]
+        return JSONResponse(status_code=422, content={"detail": detail})
 
     # CORS configuration - restrict via environment variable.
     # Default (unset/empty) = same-origin only: no CORS middleware is added and

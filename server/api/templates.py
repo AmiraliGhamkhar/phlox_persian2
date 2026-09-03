@@ -26,6 +26,9 @@ def set_default_template_endpoint(template_key: str):
     try:
         set_default_template(template_key)
         return JSONResponse(content={"message": f"Set {template_key} as default template"})
+    except ValueError as e:
+        # Missing or soft-deleted template is a client-visible 404, not a 500.
+        raise HTTPException(status_code=404, detail=str(e)) from e
     except Exception as e:
         logging.error(f"Error setting default template: {e}")
         raise HTTPException(status_code=500, detail="Internal server error") from e

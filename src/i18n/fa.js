@@ -798,6 +798,89 @@ const UI_TRANSLATIONS = {
     "Respiratory Medicine": "بیماری‌های تنفسی",
     Rheumatology: "روماتولوژی",
     Urology: "اورولوژی",
+
+    // Onboarding, setup and encryption screens.
+    "Finding the best model for your Mac...":
+        "در حال یافتن بهترین مدل برای دستگاه شما...",
+    "Powers your clinical notes, chat, and medical queries. Smaller = faster; larger = smarter.":
+        "یادداشت‌های بالینی، گفت‌وگو و پرسش‌های پزشکی را توانمند می‌کند. کوچک‌تر = سریع‌تر؛ بزرگ‌تر = هوشمندتر.",
+    "Est. time": "زمان تقریبی",
+    "Enter your passphrase to decrypt and access your patient data.":
+        "برای رمزگشایی و دسترسی به داده‌های بیماران، عبارت عبور خود را وارد کنید.",
+    "If you forget your passphrase, your data cannot be recovered.":
+        "اگر عبارت عبور را فراموش کنید، داده‌های شما قابل بازیابی نخواهند بود.",
+    Unlocked: "قفل باز شد",
+    "Use at least 12 characters": "حداقل ۱۲ نویسه استفاده کنید",
+    "16+ characters is better": "بیش از ۱۶ نویسه بهتر است",
+    "Mix uppercase and lowercase": "حروف بزرگ و کوچک را ترکیب کنید",
+    "Add numbers": "عدد اضافه کنید",
+    "Add special characters": "نویسه‌های ویژه اضافه کنید",
+    "Looks good!": "خوب به نظر می‌رسد!",
+    Weak: "ضعیف",
+    Fair: "متوسط",
+    Good: "خوب",
+    Strong: "قوی",
+
+    // Empty states and helper copy across panels, settings and modals.
+    "No files found.": "فایلی پیدا نشد.",
+    "No tasks yet.": "هنوز کاری ثبت نشده است.",
+    "No previous visit summary available.":
+        "خلاصه‌ای از ویزیت قبلی در دسترس نیست.",
+    "No previous visit note content available.":
+        "متن یادداشت ویزیت قبلی در دسترس نیست.",
+    "No form templates yet. Upload a PDF to get started.":
+        "هنوز قالب فرمی وجود ندارد. برای شروع، یک PDF بارگذاری کنید.",
+    "This template has no fields defined yet.":
+        "برای این قالب هنوز فیلدی تعریف نشده است.",
+    "Phlox may make mistakes. Always verify critical information.":
+        "فلوکس ممکن است اشتباه کند. همیشه اطلاعات مهم را بررسی کنید.",
+    "Are you sure you want to leave this page? Unsaved changes will be lost.":
+        "آیا مطمئنید می‌خواهید این صفحه را ترک کنید؟ تغییرات ذخیره‌نشده از بین می‌روند.",
+    "Extracting tasks from the plan...":
+        "در حال استخراج کارها از برنامه درمانی...",
+    "Generate an analysis of the case using your model's reasoning capabilities.":
+        "با استفاده از توان استدلال مدل، تحلیلی از پرونده تولید کنید.",
+    "Select a field to edit its properties, or draw a new field on the PDF.":
+        "برای ویرایش ویژگی‌ها یک فیلد را انتخاب کنید یا فیلد تازه‌ای روی PDF رسم کنید.",
+    "Page metadata will be extracted automatically by the browser.":
+        "مشخصات صفحه به‌طور خودکار توسط مرورگر استخراج می‌شود.",
+    "PDF form · filled": "فرم PDF · تکمیل‌شده",
+    "Letter templates define the tone and content of generated letters.":
+        "قالب‌های نامه، لحن و محتوای نامه‌های تولیدشده را تعیین می‌کنند.",
+    "Configure the language model provider for generating responses":
+        "پیکربندی ارائه‌دهنده مدل زبانی برای تولید پاسخ‌ها",
+    "Auto uses visual processing when vision capability is detected; otherwise it falls back to OCR-compatible endpoints.":
+        "حالت خودکار در صورت تشخیص قابلیت بینایی از پردازش تصویری استفاده می‌کند؛ در غیر این صورت به نقاط پایانی سازگار با OCR بازمی‌گردد.",
+    "Configure the embedding model used for knowledge base searches":
+        "پیکربندی مدل بردارسازی مورد استفاده در جست‌وجوهای پایگاه دانش",
+    "Re-embedding documents with the new model…":
+        "در حال بردارسازی دوباره اسناد با مدل جدید…",
+    "Changing the embedding model will re-embed all existing document collections with the new model. Your documents and collections will be preserved.":
+        "با تغییر مدل بردارسازی، همه مجموعه‌های سند با مدل جدید دوباره بردارسازی می‌شوند. اسناد و مجموعه‌های شما حفظ خواهند شد.",
+    "Templates control the structure of generated notes. Defaults can be edited but not removed.":
+        "قالب‌ها ساختار یادداشت‌های تولیدشده را تعیین می‌کنند. قالب‌های پیش‌فرض قابل ویرایش هستند ولی حذف نمی‌شوند.",
+    "Ambient mode - click for Dictate":
+        "حالت محیطی؛ برای دیکته کلیک کنید",
+    "Dictate mode - click for Ambient":
+        "حالت دیکته؛ برای محیطی کلیک کنید",
+    "Phlox Logo": "نشان فلوکس",
+    "Phlox logo": "نشان فلوکس",
+
+    // Toast and dialog copy still authored in English in a few places.
+    "Request Timeout": "مهلت درخواست به پایان رسید",
+    "Failed to download PDF": "دانلود PDF ناموفق بود",
+    "Failed to rename collection": "تغییر نام مجموعه ناموفق بود",
+    "Chart insights generated successfully.":
+        "تحلیل پرونده با موفقیت تولید شد.",
+    "Patient data saved successfully": "اطلاعات بیمار با موفقیت ذخیره شد",
+    "Failed to save patient data": "ذخیره اطلاعات بیمار ناموفق بود",
+    "Template Error": "خطای قالب",
+    "Server Error": "خطای سرور",
+    "Failed to start the server": "راه‌اندازی سرور ناموفق بود",
+    "Failed to reset letter templates": "بازنشانی قالب‌های نامه ناموفق بود",
+    "Couldn't save demographics": "ذخیره مشخصات بیمار ناموفق بود",
+    "Error fetching collection files": "دریافت فایل‌های مجموعه ناموفق بود",
+    "Error fetching updated collection list": "به‌روزرسانی فهرست مجموعه‌ها ناموفق بود",
 };
 
 const DYNAMIC_TRANSLATIONS = [
@@ -834,6 +917,16 @@ const DYNAMIC_TRANSLATIONS = [
     [
         /^Failed to download model: (.+)$/,
         (_match, error) => `دانلود مدل ناموفق بود: ${error}`,
+    ],
+    [
+        /^The request took too long to complete \((\d+(?:\.\d+)?)s timeout\)$/,
+        (_match, seconds) =>
+            `درخواست بیش از حد مجاز طول کشید (مهلت ${toPersianDigits(seconds)} ثانیه)`,
+    ],
+    [
+        /^Request timed out after (\d+(?:\.\d+)?) seconds$/,
+        (_match, seconds) =>
+            `مهلت درخواست پس از ${toPersianDigits(seconds)} ثانیه به پایان رسید`,
     ],
 ];
 

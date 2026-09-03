@@ -8,11 +8,17 @@ import threading
 import time
 import wave
 from pathlib import Path
-from typing import Union
+from typing import Any
 
 import httpx
 
 from server.database.config.manager import config_manager
+from server.transcription.asr_context import (
+    build_bias_terms,
+    build_custom_vocabulary,
+    build_initial_prompt,
+)
+from server.transcription.hygiene import build_hygiene_result, prepare_audio
 from server.transcription.language import (
     normalize_persian_text,
     resolve_asr_language,
@@ -78,16 +84,39 @@ def _validate_local_model_language(model_id: str, language: str) -> None:
         )
 
 
-async def transcribe_audio(audio_buffer: bytes) -> dict[str, Union[str, float]]:
+async def transcribe_audio(
+    audio_buffer: bytes,
+    bias_terms: list[str] | None = None,
+) -> dict[str, Any]:
     """
     Transcribe an audio buffer using an OpenAI-compatible ASR endpoint.
 
     The endpoint is instructed to transcribe (never translate) and receives
     either Persian (``fa``), English (``en``), or no language hint (``auto``)
     for mixed Persian/English recordings.
+
+    Precision passes (see docs/phlox-accuracy-hallucination-plan.md):
+    * ``prepare_audio`` trims leading/trailing silence (the strongest known
+      trigger of Whisper hallucinations) when the buffer is decodable.
+    * ``bias_terms`` is an acoustic context prior sent as ``initial_prompt``
+      (whisper/OpenAI/Fireworks) or ``custom_vocabulary`` (Speechmatics).
+      When omitted, a conservative clinic-wide list is built from stored
+      settings; failures here must never break transcription.
+    * Results are decorated with per-segment confidence classes and hygiene
+      flags so low-confidence or artifact-looking spans can be surfaced for
+      review instead of being silently trusted downstream.
     """
     try:
         config = config_manager.get_config()
+
+        audio_buffer, vad_meta = prepare_audio(audio_buffer)
+
+        if bias_terms is None:
+            try:
+                bias_terms = build_bias_terms(config=config)
+            except Exception:  # noqa: BLE001 — biasing is strictly best-effort
+                logger.debug("ASR bias terms unavailable", exc_info=True)
+                bias_terms = []
 
         from server.utils.providers import resolve_asr_connection
 
@@ -109,29 +138,35 @@ async def transcribe_audio(audio_buffer: bytes) -> dict[str, Union[str, float]]:
             _validate_local_model_language(model_id, resolve_asr_language(config))
             if model_id.startswith("shenava-"):
                 logger.info("Using local Shenava ASR for transcription")
-                return await _transcribe_local_shenava(audio_buffer, config)
-            if model_id.startswith("parakeet-"):
+                result = await _transcribe_local_shenava(audio_buffer, config)
+            elif model_id.startswith("parakeet-"):
                 logger.info("Using local Parakeet ASR for transcription")
-                return await _transcribe_local_parakeet(audio_buffer, config)
-            logger.info("Using local Whisper.cpp ASR for transcription")
-            return await _transcribe_local_whisper(audio_buffer, config)
-        if protocol == "speechmatics" or provider == "speechmatics":
+                result = await _transcribe_local_parakeet(audio_buffer, config)
+            else:
+                logger.info("Using local Whisper.cpp ASR for transcription")
+                result = await _transcribe_local_whisper(audio_buffer, config, bias_terms)
+        elif protocol == "speechmatics" or provider == "speechmatics":
             logger.info("Using Speechmatics Batch REST API for file transcription")
-            return await _transcribe_speechmatics(audio_buffer, config)
-        if protocol == "fireworks" or provider == "fireworks":
+            result = await _transcribe_speechmatics(audio_buffer, config, bias_terms)
+        elif protocol == "fireworks" or provider == "fireworks":
             logger.info("Using Fireworks ASR for transcription")
-            return await _transcribe_fireworks(audio_buffer, config)
+            result = await _transcribe_fireworks(audio_buffer, config, bias_terms)
+        else:
+            logger.info("Using external OpenAI-compatible ASR API for transcription")
+            result = await _transcribe_external_api(audio_buffer, config, bias_terms)
 
-        logger.info("Using external OpenAI-compatible ASR API for transcription")
-        return await _transcribe_external_api(audio_buffer, config)
+        result["vad"] = vad_meta
+        return result
     except Exception as error:
         logger.error(f"Error in transcribe_audio function: {error}")
         raise
 
 
 async def _transcribe_local_whisper(
-    audio_buffer: bytes, _config: dict
-) -> dict[str, Union[str, float]]:
+    audio_buffer: bytes,
+    _config: dict,
+    bias_terms: list[str] | None = None,
+) -> dict[str, Any]:
     """Transcribe using the local whisper.cpp OpenAI-compatible server."""
     whisper_port = _get_whisper_port()
     whisper_url = f"http://127.0.0.1:{whisper_port}/v1/audio/transcriptions"
@@ -152,6 +187,12 @@ async def _transcribe_local_whisper(
         # auto-detection available for mixed Persian/English recordings.
         if language != "auto":
             data["language"] = language
+        # Acoustic context prior (plan ref A2): a term list of names and
+        # clinical vocabulary the audio is likely to contain. Older local
+        # servers ignore unknown fields, so this degrades to no biasing.
+        prompt = build_initial_prompt(bias_terms or [])
+        if prompt:
+            data["prompt"] = prompt
 
         transcription_start = time.perf_counter()
 
@@ -175,19 +216,17 @@ async def _transcribe_local_whisper(
             if "text" not in result:
                 raise ValueError("No text in whisper.cpp response")
 
-            if "segments" in result:
-                transcript_text = "\n".join(
-                    segment["text"].strip() for segment in result["segments"]
-                )
-            else:
-                transcript_text = result["text"]
-
-            # Clean repetitive text patterns
-            transcript_text = normalize_persian_text(_clean_repetitive_text(transcript_text))
+            # Per-segment confidence + artifact flags (plan refs A4/A5): the
+            # joined text keeps exactly the previous behaviour, while the
+            # extra keys let the UI surface weak spans for review.
+            hygiene = build_hygiene_result(result)
+            transcript_text = normalize_persian_text(_clean_repetitive_text(hygiene.text))
 
             return {
                 "text": transcript_text,
                 "transcriptionDuration": float(f"{transcription_duration:.2f}"),
+                "segments": hygiene.segments,
+                "flags": hygiene.flags,
             }
         except httpx.RequestError as e:
             raise ValueError(f"Cannot connect to local ASR server: {e}") from e
@@ -307,8 +346,10 @@ async def _raise_if_speechmatics_job_failed(
 
 
 async def _transcribe_speechmatics(
-    audio_buffer: bytes, config: dict
-) -> dict[str, Union[str, float]]:
+    audio_buffer: bytes,
+    config: dict,
+    bias_terms: list[str] | None = None,
+) -> dict[str, Any]:
     """Transcribe a recording through the speechmatics Batch REST API.
 
     Used for the after-the-fact file path (``/api/transcribe/audio``). Live
@@ -359,6 +400,12 @@ async def _transcribe_speechmatics(
             # Enhanced Medical model for clinical audio (English and the other
             # documented medical-domain languages; Persian has no such variant).
             transcription_config["domain"] = domain
+
+    # Speechmatics exposes first-class biasing; unlike a whisper prompt
+    # these are hard vocabulary entries (max 300 terms per docs).
+    custom_vocab = build_custom_vocabulary(bias_terms or [])
+    if custom_vocab:
+        transcription_config["custom_vocabulary"] = custom_vocab
 
     job_config: dict[str, object] = {
         "type": "transcription",
@@ -643,9 +690,7 @@ def _run_shenava_inference(audio_buffer: bytes, config: dict) -> str:
     return normalize_persian_text(_clean_repetitive_text(text))
 
 
-async def _transcribe_local_shenava(
-    audio_buffer: bytes, config: dict
-) -> dict[str, Union[str, float]]:
+async def _transcribe_local_shenava(audio_buffer: bytes, config: dict) -> dict[str, Any]:
     """Transcribe with Shenava without requiring a running C++ sidecar."""
     started = time.perf_counter()
     text = await asyncio.to_thread(_run_shenava_inference, audio_buffer, config)
@@ -657,9 +702,7 @@ async def _transcribe_local_shenava(
     }
 
 
-async def _transcribe_local_parakeet(
-    audio_buffer: bytes, config: dict
-) -> dict[str, Union[str, float]]:
+async def _transcribe_local_parakeet(audio_buffer: bytes, config: dict) -> dict[str, Any]:
     """Transcribe with local Parakeet TDT ONNX (no whisper.cpp sidecar)."""
     from server.transcription.parakeet import run_parakeet_inference
 
@@ -688,7 +731,11 @@ def _fireworks_batch_url(config: dict) -> str:
     return configured or str(info["default_base_url"])
 
 
-async def _transcribe_fireworks(audio_buffer: bytes, config: dict) -> dict[str, Union[str, float]]:
+async def _transcribe_fireworks(
+    audio_buffer: bytes,
+    config: dict,
+    bias_terms: list[str] | None = None,
+) -> dict[str, Any]:
     """Transcribe via Fireworks batch Whisper v3 / turbo HTTP API."""
     filename, content_type = _detect_audio_format(audio_buffer)
     model = str(config.get("ASR_MODEL") or config.get("WHISPER_MODEL") or "whisper-v3")
@@ -713,6 +760,10 @@ async def _transcribe_fireworks(audio_buffer: bytes, config: dict) -> dict[str, 
         "task": "transcribe",
         "language": language,
     }
+    # Context biasing when the deployment supports the whisper ``prompt`` field.
+    prompt = build_initial_prompt(bias_terms or [])
+    if prompt:
+        data["prompt"] = prompt
 
     headers = {"Authorization": f"Bearer {api_key}"}
     base_url = _fireworks_batch_url(config).rstrip("/")
@@ -750,20 +801,21 @@ async def _transcribe_fireworks(audio_buffer: bytes, config: dict) -> dict[str, 
         raise ValueError(f"Failed to parse Fireworks response: {error}") from error
     if "text" not in result:
         raise ValueError("Fireworks returned no transcript")
-    if "segments" in result:
-        transcript_text = "\n".join(segment["text"].strip() for segment in result["segments"])
-    else:
-        transcript_text = result["text"]
-    transcript_text = normalize_persian_text(_clean_repetitive_text(transcript_text))
+    hygiene = build_hygiene_result(result)
+    transcript_text = normalize_persian_text(_clean_repetitive_text(hygiene.text))
     return {
         "text": transcript_text,
         "transcriptionDuration": float(f"{time.perf_counter() - transcription_start:.2f}"),
+        "segments": hygiene.segments,
+        "flags": hygiene.flags,
     }
 
 
 async def _transcribe_external_api(
-    audio_buffer: bytes, config: dict
-) -> dict[str, Union[str, float]]:
+    audio_buffer: bytes,
+    config: dict,
+    bias_terms: list[str] | None = None,
+) -> dict[str, Any]:
     """Transcribe using an external OpenAI-compatible ASR API."""
     filename, content_type = _detect_audio_format(audio_buffer)
     async with build_guarded_http_client(timeout=httpx.Timeout(600.0)) as client:
@@ -781,6 +833,11 @@ async def _transcribe_external_api(
         # Persian/English recording. ``fa`` gives Persian-first decoding.
         if language != "auto":
             data["language"] = language
+        # ``prompt`` is the documented OpenAI/Whisper field for domain and
+        # name biasing; endpoints that do not implement it ignore the field.
+        prompt = build_initial_prompt(bias_terms or [])
+        if prompt:
+            data["prompt"] = prompt
 
         transcription_start = time.perf_counter()
 
@@ -824,18 +881,16 @@ async def _transcribe_external_api(
         if "text" not in result:
             raise ValueError("Transcription failed, no text in response")
 
-        if "segments" in result:
-            # Extract text from each segment and join with newlines
-            transcript_text = "\n".join(segment["text"].strip() for segment in result["segments"])
-        else:
-            transcript_text = result["text"]
-
-        # Clean repetitive text patterns and normalize Arabic/Persian Unicode.
-        transcript_text = normalize_persian_text(_clean_repetitive_text(transcript_text))
+        # Join per-segment text and normalise, while exposing confidence and
+        # hygiene flags for review (plan refs A4/A5).
+        hygiene = build_hygiene_result(result)
+        transcript_text = normalize_persian_text(_clean_repetitive_text(hygiene.text))
 
         return {
             "text": transcript_text,
             "transcriptionDuration": float(f"{transcription_duration:.2f}"),
+            "segments": hygiene.segments,
+            "flags": hygiene.flags,
         }
 
 

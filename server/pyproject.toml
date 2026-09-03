@@ -22,7 +22,7 @@ dependencies = [
 rag = [
     "mcp==1.28.1",
     "numpy==2.5.1",
-    "pypdf==6.14.2",
+    "pypdf==6.16.1",
     "sqlite-vec==0.1.9",
     "tiktoken==0.12.0",
 ]
@@ -85,6 +85,9 @@ replace-imports-with-any = [
     "sqlite_vec.**",
     "mcp.**",
     "numpy.**",
+    # onnxruntime is the optional `asr` extra (Shenava/Parakeet); it is not
+    # installed for lint, so its unresolved import must not fail `ty check`.
+    "onnxruntime.**",
     # openai>=3 types its http_client parameter as httpx2, but its runtime
     # explicitly accepts legacy httpx clients (is_legacy_httpx_*_client), so
     # the httpx 0.x types would otherwise clash with openai's stubs.

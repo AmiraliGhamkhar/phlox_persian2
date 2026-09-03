@@ -52,6 +52,13 @@ export const useScribe = ({
             rawTranscription: data.rawTranscription,
             transcriptionDuration: data.transcriptionDuration,
             processDuration: data.processDuration,
+            // ASR precision extras (may be absent on degraded paths):
+            // hygiene flags, per-segment confidence, verification report and
+            // the pre-refinement draft for the draft/polished toggle.
+            segments: data.segments,
+            flags: data.flags,
+            verification: data.verification,
+            draftFields: data.draftFields,
         });
     }, setLoading);
 
@@ -224,7 +231,12 @@ export const useScribe = ({
         } catch (error) {
             console.error("Error starting recording:", error);
             closeLiveSession();
-            alert("دسترسی به میکروفون ممکن نبود. لطفاً مجوزها را بررسی کنید.");
+            toaster.create({
+                title: "دسترسی به میکروفون ممکن نبود",
+                description: "لطفاً مجوزهای مرورگر برای میکروفون را بررسی کنید.",
+                type: "warning",
+                duration: 6000,
+            });
         }
     }, [closeLiveSession]);
 

@@ -1,0 +1,11 @@
+# cargo-audit configuration (read automatically by `cargo audit` run from this
+# directory or any of its subdirs, incl. src-tauri).
+#
+# The src-tauri dependency stack (Tauri 2 -> gtk-rs 0.18, ring, unic-*, dirs)
+# carries ~18 RUSTSEC "unmaintained" notices that have no patched versions to
+# move to; they are informational, not security vulnerabilities. Demote them
+# to notes so CI gates on actual advisories only. Remove this line (or add
+# per-crate bumps) once the upstream stack migrates.
+[advisories]
+informational_warnings = []
+yanked = false

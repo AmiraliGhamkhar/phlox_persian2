@@ -10,6 +10,21 @@ permissions:
     actions: read
 
 jobs:
+    # --- JOB 0: Deterministic hallucination-precision gate ---
+    # Runs the offline benchmark (server/bench): planted fabrication/number-
+    # drift/negation-flip/artifact fixtures MUST all be caught by the
+    # verification guards. No LLM, no DB, no Docker — plain stdlib only, so a
+    # regression in the guards fails the nightly even when builds succeed.
+    precision_gate:
+        runs-on: ubuntu-latest
+        steps:
+            - name: Checkout repository
+              uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+              with:
+                  ref: main
+            - name: Offline precision gate (benchmark fixtures)
+              run: python3 -m server.bench.run_bench --mode offline --verbose
+
     # --- JOB 1: Check if there are new commits ---
     check_changes:
         runs-on: ubuntu-latest

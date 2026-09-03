@@ -65,6 +65,11 @@ const PatientDetails = ({
 
     const previousTranscriptionRef = useRef(null);
 
+    // ASR precision metadata for the current transcription (flags, segment
+    // confidence, verification report, pre-refinement draft). Cleared on
+    // patient switch and never persisted; purely a review surface.
+    const [asrMeta, setAsrMeta] = useState(null);
+
     const { setIsLetterModified, setIsSummaryModified } = useModificationFlags(
         initialPatient?.id,
         setParentIsModified,
@@ -201,6 +206,7 @@ const PatientDetails = ({
         summary.setIsCollapsed(false);
         closeAll();
         resetDocumentState();
+        setAsrMeta(null);
         // eslint-disable-next-line react-hooks/exhaustive-deps -- summary/closeAll/resetDocumentState come from hooks that return fresh object literals each render; this effect intentionally fires only on patient/template/isNewPatient changes
     }, [patient?.id, currentTemplate, isNewPatient]);
 
@@ -211,6 +217,20 @@ const PatientDetails = ({
     const handleTranscriptionComplete = (data, triggerResize = false) => {
         const isRestoration = data.isRestoration === true;
         previousTranscriptionRef.current = patient?.raw_transcription;
+
+        if (!isRestoration) {
+            setAsrMeta({
+                flags: Array.isArray(data.flags) && data.flags.length ? data.flags : null,
+                segments: Array.isArray(data.segments) && data.segments.length ? data.segments : null,
+                verification:
+                    data.verification && Object.keys(data.verification).length
+                        ? data.verification
+                        : null,
+                draftFields: data.draftFields || null,
+            });
+        } else {
+            setAsrMeta(null);
+        }
 
         if (
             !hasTranscriptionOccurred &&
@@ -383,6 +403,8 @@ const PatientDetails = ({
                     isSummaryCollapsed={summary.isCollapsed}
                     patient={patient}
                     setPatient={setPatient}
+                    asrVerification={asrMeta?.verification}
+                    asrDraftFields={asrMeta?.draftFields}
                     handleGenerateLetterClick={letter.handleGenerateLetterClick}
                     handleSavePatientData={handleSavePatientData}
                     onWrapUp={wrapUp.openWrapUp}
@@ -504,6 +526,8 @@ const PatientDetails = ({
                 isOpen={isOpen("transcription")}
                 onClose={() => close("transcription")}
                 rawTranscription={patient.raw_transcription}
+                asrFlags={asrMeta?.flags}
+                asrVerification={asrMeta?.verification}
                 transcriptionDuration={patient.transcription_duration}
                 processDuration={patient.process_duration}
                 onReprocess={handleTranscriptionComplete}
