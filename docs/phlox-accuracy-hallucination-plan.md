@@ -27,7 +27,7 @@ never blocked by the safety layer itself.
 | 2 — verification core (B1 quote validation, A5 confidence surfacing, A6 number/negation trace, B5 strict outputs) | ✅ shipped | `server/transcription/verification.py`, `providers/openai.py` (strict-gate), `schemas/grammars.py`, `TranscribeResponse.segments/flags`, TranscriptionPanel amber box |
 | 3 — independent checking (B2 CoVe entailment, B6 refinement revert, B7 leakage guard, B9 opt-in voting) | ✅ shipped | `server/transcription/entailment.py` (env `PHLOX_ENTAILMENT_CHECK`, fail-open), `refinement.py` drift-revert, `adaptive_refinement.py` guard, `text.py` voting (`PHLOX_ASR_VOTE_K`, default off), `server/utils/generation_reports.py` |
 | 4 — measurement (C1 bench, C2 nightly gate, C3 stats + save audit, D1–D3 UI) | ✅ shipped | `server/bench/` (offline gate: 20/20 planted failures caught), `nightly.yml` `precision_gate` job, `GET /api/audit/generation-stats`, Summary review chips + draft toggle |
-| 5 — model matrix (A7) | ✅ shipped | `scripts/bench_asr_models.py` (WER/CER/MER) + `docs/asr-benchmark.md`; evaluation only — no training |
+| 5 — model matrix (A7) | ✅ shipped | `server/bench/asr_scorer.py` (WER/CER/MER; `scripts/bench_asr_models.py` is a shim) + `docs/asr-benchmark.md`; evaluation only — no training |
 
 Tunables: `PHLOX_QUOTE_THRESHOLD` (0.85), `PHLOX_VERIFY_MODE` (flag|strict),
 `PHLOX_ASR_LOW_LOGPROB` / `PHLOX_ASR_NO_SPEECH_THRESH`,
