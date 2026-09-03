@@ -7,9 +7,9 @@
 
 <div align="center" dir="rtl">
 
-[![وضعیت CI](https://github.com/AmiraliGhamkhar/phlox_persian/actions/workflows/ci.yml/badge.svg)](https://github.com/AmiraliGhamkhar/phlox_persian/actions/workflows/ci.yml)
-[![وضعیت پوشش آزمون](https://coveralls.io/repos/github/AmiraliGhamkhar/phlox_persian/badge.svg?branch=main)](https://coveralls.io/github/AmiraliGhamkhar/phlox_persian?branch=main)
-[![CodeQL](https://github.com/AmiraliGhamkhar/phlox_persian/actions/workflows/github-code-scanning/codeql/badge.svg)](https://github.com/AmiraliGhamkhar/phlox_persian/actions/workflows/github-code-scanning/codeql)
+[![وضعیت CI](https://github.com/AmiraliGhamkhar/phlox_persian2/actions/workflows/ci.yml/badge.svg)](https://github.com/AmiraliGhamkhar/phlox_persian2/actions/workflows/ci.yml)
+[![وضعیت پوشش آزمون](https://coveralls.io/repos/github/AmiraliGhamkhar/phlox_persian2/badge.svg?branch=main)](https://coveralls.io/github/AmiraliGhamkhar/phlox_persian2?branch=main)
+[![CodeQL](https://github.com/AmiraliGhamkhar/phlox_persian2/actions/workflows/codeql/badge.svg)](https://github.com/AmiraliGhamkhar/phlox_persian2/actions/workflows/codeql)
 [![سبک کد: ruff](https://img.shields.io/endpoint?url=https://raw.githubusercontent.com/astral-sh/ruff/main/assets/badge/v2.json)](https://github.com/astral-sh/ruff)
 [![مجوز: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 [![مستندات](https://img.shields.io/badge/docs-phlox.bloodworks.io-blue)](https://phlox.bloodworks.io/docs)
@@ -42,7 +42,7 @@
 
 ### برنامه دسکتاپ
 
-نسخه‌های آماده برای Apple Silicon در macOS و Flatpak برای Linux با پشتیبانی Vulkan از [صفحه انتشارهای GitHub](https://github.com/AmiraliGhamkhar/phlox_persian/releases) در دسترس هستند.
+نسخه‌های آماده برای Apple Silicon در macOS و Flatpak برای Linux با پشتیبانی Vulkan از [صفحه انتشارهای GitHub](https://github.com/AmiraliGhamkhar/phlox_persian2/releases) در دسترس هستند.
 
 برنامه دسکتاپ موتورهای `llama.cpp` و `whisper.cpp` را همراه دارد. مدل‌ها را از داخل برنامه دانلود و فعال کنید. برای ASR محلی، سه نسخه از Whisper large-v3-turbo در دسترس است:
 
@@ -123,7 +123,7 @@ Frontend (React / Tauri)
   → FastAPI (/api/*) + auth / validation / audit
   → domain services (chat, transcription, letters, RAG)
   → get_llm_client / resolve_asr_connection / resolve_embedding_connection
-  → provider adapter (OpenAI-compatible, Anthropic Messages, STT, embeddings)
+  → provider adapter (OpenAI-compatible, Anthropic Messages, ASR, embeddings)
   → SQLCipher + sqlite-vec
 ```
 
@@ -183,4 +183,3 @@ flowchart TD
 [راهنمای مشارکت](.github/CONTRIBUTING.md)
 
 این مخزن با کمک ابزارهای توسعه هوش مصنوعی ساخته شده است. همه مشارکت‌کنندگان باید پیش از ارسال تغییرات، کد تولیدشده و اثر آن بر حریم خصوصی و ایمنی داده‌های بالینی را بررسی کنند.
-"# phlox_persian2" 
