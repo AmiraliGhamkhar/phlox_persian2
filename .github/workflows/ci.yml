@@ -121,6 +121,18 @@ jobs:
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           working-directory: src-tauri
+          # Informational-only "unmaintained" notices for transitive deps of the
+          # Tauri/GTK stack (gtk-rs 0.18 line, ring, unic-*, dirs, and the
+          # proc-macro-error family). None has a patched version to move to, and
+          # cargo-audit fails the run on unignored warnings even though no
+          # security vulnerability exists. Ignoring them per advisory id keeps
+          # this gate meaningful: any new or real advisory still fails it.
+          ignore: >-
+            RUSTSEC-2020-0053, RUSTSEC-2024-0370, RUSTSEC-2024-0411, RUSTSEC-2024-0412,
+            RUSTSEC-2024-0413, RUSTSEC-2024-0414, RUSTSEC-2024-0415, RUSTSEC-2024-0416,
+            RUSTSEC-2024-0417, RUSTSEC-2024-0418, RUSTSEC-2024-0419, RUSTSEC-2024-0420,
+            RUSTSEC-2025-0007, RUSTSEC-2025-0075, RUSTSEC-2025-0080, RUSTSEC-2025-0081,
+            RUSTSEC-2025-0098, RUSTSEC-2025-0100
 
       - name: Fail if an audit found vulnerabilities
         if: always() && (steps.npm-audit.outcome == 'failure' || steps.pip-audit.outcome == 'failure' || steps.cargo-audit.outcome == 'failure')
