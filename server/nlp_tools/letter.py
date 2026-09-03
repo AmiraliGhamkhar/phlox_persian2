@@ -167,25 +167,3 @@ async def generate_letter_content(
     except Exception as e:
         logging.error(f"Error generating letter content: {e}")
         raise HTTPException(status_code=500, detail=f"Error generating letter content: {e}") from e
-
-
-def _format_name(patient_name):
-    """
-    Formats the patient's name from 'Last, First' to 'First Last' format.
-
-    Args:
-        patient_name (str): The patient's name in 'Last, First' format.
-
-    Returns:
-        str: The formatted name in 'First Last' format.
-
-    Raises:
-        HTTPException: If the patient name is not provided.
-    """
-    if not patient_name:
-        raise HTTPException(status_code=400, detail="Patient name is required")
-
-    name_parts = patient_name.split(",")
-    last_name = name_parts[0].strip()
-    first_name = name_parts[1].strip()
-    return f"{first_name} {last_name}"
