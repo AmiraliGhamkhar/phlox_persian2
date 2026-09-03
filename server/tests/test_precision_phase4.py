@@ -98,6 +98,7 @@ class TestGenerationReports:
         import server.transcription.verification as v
 
         def boom(*args, **kwargs):
+            del args, kwargs
             raise RuntimeError("nope")
 
         monkeypatch.setattr(v, "verify_note", boom)
@@ -141,12 +142,13 @@ class TestNightlyWiring:
         import subprocess
         import sys
 
+        repo = str(Path(__file__).resolve().parents[2])
         code = (
             "import sys, json; "
-            "sys.path.insert(0, %r); "
+            f"sys.path.insert(0, {repo!r}); "
             "import server.bench.run_bench as rb; "
             "mods=[m for m in sys.modules if m.startswith('server.')]; "
-            "print(json.dumps(sorted(mods)))" % str(Path(__file__).resolve().parents[2])
+            "print(json.dumps(sorted(mods)))"
         )
         result = subprocess.run(
             [sys.executable, "-c", code], capture_output=True, text=True, timeout=60

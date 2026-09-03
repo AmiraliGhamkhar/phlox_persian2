@@ -13,6 +13,33 @@ and *surfaced to the clinician*, never silently embedded in a note.
 
 ---
 
+
+## ۰/0. Implementation Status (as of 2026-09-03)
+
+All five phases are implemented. Honest framing preserved throughout: the
+pipeline **reduces and flags** hallucination risk; it never claims to
+eliminate it, and every guard degrades fail-open so the clinician's note is
+never blocked by the safety layer itself.
+
+| Phase | Status | Where |
+| --- | --- | --- |
+| 1 — quick wins (A1 VAD, A2 biasing, A3 greedy decode, A4 artifact flags, B3 guardrails, B4 determinism, B8 fencing) | ✅ shipped | `server/transcription/hygiene.py`, `asr_context.py`, `audio.py`, `text.py`, `refinement.py`, `live.py`, `src-tauri/src/pm.rs`¹ |
+| 2 — verification core (B1 quote validation, A5 confidence surfacing, A6 number/negation trace, B5 strict outputs) | ✅ shipped | `server/transcription/verification.py`, `providers/openai.py` (strict-gate), `schemas/grammars.py`, `TranscribeResponse.segments/flags`, TranscriptionPanel amber box |
+| 3 — independent checking (B2 CoVe entailment, B6 refinement revert, B7 leakage guard, B9 opt-in voting) | ✅ shipped | `server/transcription/entailment.py` (env `PHLOX_ENTAILMENT_CHECK`, fail-open), `refinement.py` drift-revert, `adaptive_refinement.py` guard, `text.py` voting (`PHLOX_ASR_VOTE_K`, default off), `server/utils/generation_reports.py` |
+| 4 — measurement (C1 bench, C2 nightly gate, C3 stats + save audit, D1–D3 UI) | ✅ shipped | `server/bench/` (offline gate: 20/20 planted failures caught), `nightly.yml` `precision_gate` job, `GET /api/audit/generation-stats`, Summary review chips + draft toggle |
+| 5 — model matrix (A7) | ✅ shipped | `scripts/bench_asr_models.py` (WER/CER/MER) + `docs/asr-benchmark.md`; evaluation only — no training |
+
+Tunables: `PHLOX_QUOTE_THRESHOLD` (0.85), `PHLOX_VERIFY_MODE` (flag|strict),
+`PHLOX_ASR_LOW_LOGPROB` / `PHLOX_ASR_NO_SPEECH_THRESH`,
+`PHLOX_ASR_BEAM_SIZE` (desktop default 1), `PHLOX_ENTAILMENT_CHECK`,
+`PHLOX_ASR_VOTE_K`.
+
+¹ The `pm.rs` change (greedy beam + `--suppress-nst` launch args) could not
+be compiled in the environment where it was written; it is minimal and
+additive but awaits verification in a desktop build. The Rust `whisper`
+spawn path only: nothing else in `src-tauri` was touched.
+
+
 ## 1. Why errors must be fixed at both stages
 
 The LLM never hears the audio. It treats the transcript as ground truth, so ASR entity
