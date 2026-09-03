@@ -1,7 +1,7 @@
-import { Box, Text, InputGroup, Input, NativeSelect, VStack, HStack, Badge, Button, Alert, Spinner } from "@chakra-ui/react";
+import { Box, Flex, Text, InputGroup, Input, NativeSelect, VStack, HStack, Badge, Button, Alert, Spinner, Collapsible } from "@chakra-ui/react";
 import { toaster } from "@/components/ui/toaster";
 import { Tooltip } from "@/components/ui/tooltip";
-import { CheckCircleIcon } from "../common/icons";
+import { CheckCircleIcon, ChevronRightIcon, ChevronDownIcon } from "../common/icons";
 import { useState, useEffect } from "react";
 import { chatApi } from "../../utils/api/chatApi";
 import { applyLlmProviderDefaults } from "../../utils/aiProviders";
@@ -19,6 +19,9 @@ const LlmTab = ({
     const [visionProbeStatus, setVisionProbeStatus] = useState("info");
     const [currentVisionCapability, setCurrentVisionCapability] =
         useState(null);
+    // Expert/rarely-touched controls (secondary model, processing mode,
+    // vision probe) start collapsed; current values are always preserved.
+    const [isAdvancedOpen, setIsAdvancedOpen] = useState(false);
     const selectedProvider = llmProviders.find(
         (item) => item.id === (config?.LLM_PROVIDER || "ollama"),
     );
@@ -245,6 +248,28 @@ const LlmTab = ({
                     )}
                 </Box>
 
+                <Collapsible.Root open={isAdvancedOpen}>
+                    <Flex align="center">
+                        <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => setIsAdvancedOpen(!isAdvancedOpen)}
+                            className="collapse-toggle"
+                            data-testid="llm-advanced-toggle"
+                            aria-expanded={isAdvancedOpen}
+                        >
+                            {isAdvancedOpen ? (
+                                <ChevronDownIcon />
+                            ) : (
+                                <ChevronRightIcon />
+                            )}
+                            <Text fontSize="sm" fontWeight="bold" ml="1">
+                                گزارش پیشرفته
+                            </Text>
+                        </Button>
+                    </Flex>
+                    <Collapsible.Content>
+                        <VStack gap={3} align="stretch" mt={2}>
                 <Box>
                     <Tooltip content="مدل ثانویه برای کارهای با قابلیت متفاوت یا مقایسه">
                         <Text fontSize="sm" mb="1" fontWeight={"bold"}>
@@ -376,6 +401,9 @@ const LlmTab = ({
                         </Alert.Root>
                     ) : null}
                 </Box>
+                        </VStack>
+                    </Collapsible.Content>
+                </Collapsible.Root>
             </VStack>
         </VStack>
     );

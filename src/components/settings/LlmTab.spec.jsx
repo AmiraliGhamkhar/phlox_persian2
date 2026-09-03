@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, afterEach } from "vitest";
-import { screen, cleanup } from "@testing-library/react";
+import { screen, cleanup, fireEvent, waitFor } from "@testing-library/react";
 import { renderWithProviders } from "../../test/utils";
 import LlmTab from "./LlmTab";
 
@@ -85,6 +85,59 @@ describe("LlmTab — control inventory", () => {
             SECONDARY_MODEL: "model-a",
             DOCUMENT_IMAGE_PROCESSING_MODE: "vision",
         });
+        expect(screen.getByTestId("llm-secondary-model-select")).toHaveValue(
+            "model-a",
+        );
+        expect(screen.getByTestId("llm-processing-mode-select")).toHaveValue(
+            "vision",
+        );
+    });
+
+    it("keeps the expert controls collapsed behind the Advanced toggle", () => {
+        renderLlmTab();
+
+        const toggle = screen.getByTestId("llm-advanced-toggle");
+        expect(toggle).toBeVisible();
+        expect(toggle).toHaveAttribute("aria-expanded", "false");
+        for (const id of [
+            "llm-secondary-model-select",
+            "llm-processing-mode-select",
+            "llm-vision-probe-button",
+        ]) {
+            expect(screen.getByTestId(id)).not.toBeVisible();
+        }
+    });
+
+    it("reveals the expert controls on toggle and preserves their values", async () => {
+        renderLlmTab({
+            SECONDARY_MODEL: "model-a",
+            DOCUMENT_IMAGE_PROCESSING_MODE: "vision",
+        });
+
+        fireEvent.click(screen.getByTestId("llm-advanced-toggle"));
+        await waitFor(() =>
+            expect(screen.getByTestId("llm-advanced-toggle")).toHaveAttribute(
+                "aria-expanded",
+                "true",
+            ),
+        );
+        // Chakra's collapsible machine syncs the controlled `open` prop
+        // asynchronously (zag microtask), so wait for the content state.
+        const content = screen
+            .getByTestId("llm-secondary-model-select")
+            .closest("[data-state]");
+        await waitFor(() =>
+            expect(content).toHaveAttribute("data-state", "open"),
+        );
+        expect(content).not.toHaveAttribute("hidden");
+        for (const id of [
+            "llm-secondary-model-select",
+            "llm-processing-mode-select",
+            "llm-vision-probe-button",
+        ]) {
+            expect(screen.getByTestId(id)).toBeInTheDocument();
+        }
+        // Values survived the collapse/expand round-trip
         expect(screen.getByTestId("llm-secondary-model-select")).toHaveValue(
             "model-a",
         );
