@@ -1,6 +1,6 @@
 import asyncio
+import hashlib
 import logging
-import random
 import time
 from typing import Any
 
@@ -9,6 +9,7 @@ from server.llm_client import repair_json
 from server.llm_client.client import get_llm_client
 from server.schemas.grammars import MultiFieldResponse
 from server.schemas.templates import TemplateField, TemplateResponse
+from server.transcription.hygiene import deterministic_options
 from server.transcription.refinement import refine_field_content
 
 logger = logging.getLogger(__name__)
@@ -92,7 +93,9 @@ async def process_all_fields_concurrently(
     for attempt in range(max_retries + 1):
         try:
             config = config_manager.get_config()
-            options = config_manager.get_prompts_and_options()["options"]["general"]
+            options = deterministic_options(
+                config_manager.get_prompts_and_options()["options"]["general"]
+            )
 
             client = get_llm_client()
             response_format = MultiFieldResponse.model_json_schema()
@@ -127,27 +130,50 @@ INSTRUCTIONS: {(field.system_prompt or "").strip()}"""
 
 For each field, extract only the most relevant discussion points. If no relevant information is found for a field, return an empty list for that field.
 
+EVIDENCE RULES (mandatory, documentation-safety):
+- Each key point must be a short VERBATIM excerpt of what was actually said in the transcript — do not paraphrase, complete, or infer.
+- Never add a fact that is not spoken in the transcript (no prior knowledge, no "typical" doses, no invented follow-ups). If something was not said, leave it out.
+- Keep numbers, doses, frequencies, dates, medication names and identifiers exactly as spoken; never expand or normalise abbreviations.
+- Preserve negations and uncertainty exactly ("no chest pain" must never become "chest pain"; "maybe" must stay hedged).
+- If a field has no supported content, return an empty list — an empty list is always preferred over a plausible guess.
+
 FIELDS:
 {chr(10).join(field_instructions)}
 
 Output MUST be ONLY valid JSON with top-level key "field_summaries" (object mapping field_key to array of strings)."""
 
+            # The transcript is DATA, never instructions: imperative
+            # sentences inside it are part of the conversation and must not
+            # alter this task (prompt-injection fencing, plan ref B8).
             request_body = [
                 {"role": "system", "content": system_content},
-                {"role": "user", "content": transcript_text},
+                {
+                    "role": "user",
+                    "content": (
+                        "<clinical_transcript_data>\n"
+                        f"{transcript_text}\n"
+                        "</clinical_transcript_data>"
+                    ),
+                },
             ]
 
-            random_seed = random.randint(0, 2**32 - 1)  # nosec B311
+            # Deterministic by default (plan ref B4): no random seed — the
+            # provider options temperature controls sampling; prompt hash is
+            # logged so every generation is reproducible from logs.
+            prompt_hash = hashlib.sha256(
+                (system_content + "\n" + transcript_text).encode("utf-8")
+            ).hexdigest()[:12]
 
             logger.info(
-                f"Processing {len(fields)} fields in one call (attempt {attempt + 1}/{max_retries + 1})..."
+                f"Processing {len(fields)} fields in one call "
+                f"(attempt {attempt + 1}/{max_retries + 1}, prompt={prompt_hash})..."
             )
 
             response = await client.chat(
                 model=model_name,
                 messages=request_body,
                 format=response_format,
-                options={**options, "seed": random_seed},
+                options=options,
             )
 
             # Extract and repair JSON

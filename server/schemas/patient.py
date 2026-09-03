@@ -107,6 +107,11 @@ class TranscribeResponse(BaseModel):
     rawTranscription: str
     transcriptionDuration: float
     processDuration: float
+    # ASR hygiene extras (optional, fail-open): per-segment confidence
+    # classes and review flags produced by the hygiene pass. The UI shows
+    # them as amber "needs review" markers; older clients ignore them.
+    segments: list[dict[str, Any]] | None = None
+    flags: list[dict[str, Any]] | None = None
     # Set when the transcript was obtained but the LLM field-processing step
     # failed: the raw text is preserved (fields empty) so the user can
     # reprocess it without transcribing again.

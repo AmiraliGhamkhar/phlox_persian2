@@ -204,11 +204,6 @@ async def transcribe(
         # Process the name if provided
         formatted_name = _format_patient_display_name(name)
 
-        # Perform transcription
-        transcription_result = await transcribe_audio(audio_buffer)
-        transcript_text = str(transcription_result["text"])
-        transcription_duration = float(transcription_result["transcriptionDuration"])
-
         # Get template fields if template key is provided
         template_fields = []
         if templateKey:
@@ -228,6 +223,37 @@ async def transcribe(
         # Create patient context
         patient_context = {"name": formatted_name, "dob": dob, "gender": gender}
 
+        # ASR acoustic-context prior (plan ref A2): patient identity and
+        # active problems first, then the clinic-wide lexicon. Fail-open.
+        bias_terms = None
+        try:
+            from server.database.config.manager import config_manager
+            from server.transcription.asr_context import (
+                build_bias_terms,
+                load_patient_bias_terms,
+            )
+
+            user = config_manager.get_user_settings() or {}
+            terms = load_patient_bias_terms(noteId) + build_bias_terms(
+                patient_context,
+                primary_condition,
+                {
+                    "CLINICIAN_NAME": user.get("name"),
+                    "CLINICIAN_SPECIALTY": user.get("specialty"),
+                },
+            )
+            seen: set[str] = set()
+            bias_terms = [t for t in terms if not (t in seen or seen.add(t))][:60]
+        except Exception:
+            logging.debug("ASR bias term assembly failed", exc_info=True)
+
+        # Perform transcription
+        transcription_result = await transcribe_audio(audio_buffer, bias_terms=bias_terms)
+        transcript_text = str(transcription_result["text"])
+        transcription_duration = float(transcription_result["transcriptionDuration"])
+        asr_segments = transcription_result.get("segments") or None
+        asr_flags = transcription_result.get("flags") or None
+
         # Process the transcription with template fields. If the LLM step
         # fails AFTER a successful transcription, return the raw transcript
         # flagged with the error instead of a 500: the ASR result has already
@@ -245,6 +271,8 @@ async def transcribe(
                 rawTranscription=transcript_text,
                 transcriptionDuration=transcription_duration,
                 processDuration=float(processing_result["process_duration"]),
+                segments=asr_segments,
+                flags=asr_flags,
             )
         except Exception as processing_error:
             logging.error(f"Transcription processing failed: {processing_error}")
@@ -254,6 +282,8 @@ async def transcribe(
                 transcriptionDuration=transcription_duration,
                 processDuration=0.0,
                 processingError=str(processing_error)[:300],
+                segments=asr_segments,
+                flags=asr_flags,
             )
 
     except Exception as e:

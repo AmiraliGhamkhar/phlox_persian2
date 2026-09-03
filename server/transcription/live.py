@@ -193,15 +193,31 @@ class SpeechmaticsLiveSession(LiveSession):
                     return chunk
 
             try:
+                # Context biasing for live sessions too (plan ref A2): the
+                # clinic lexicon and clinician identity. Fail-open — a
+                # vocabulary problem must never kill the microphone path.
+                additional_vocab = None
+                try:
+                    from server.transcription.asr_context import (
+                        build_additional_vocab,
+                        build_bias_terms,
+                    )
+
+                    additional_vocab = build_additional_vocab(build_bias_terms(config=self.config))
+                except Exception:  # pragma: no cover - defensive
+                    logger.debug("Live ASR bias vocabulary failed; continuing unbiased", True)
+                transcription_kwargs: dict = {
+                    "language": speechmatics_language,
+                    "model": model,
+                    "enable_partials": True,
+                    "max_delay": SPEECHMATICS_MAX_DELAY_SECONDS,
+                    "domain": speechmatics_medical_domain(model_name, speechmatics_language),
+                }
+                if additional_vocab:
+                    transcription_kwargs["additional_vocab"] = additional_vocab
                 await client.transcribe(
                     _QueueAudio(self._queue),  # ty: ignore (SDK types `source` as BinaryIO but accepts any binary read()-able object, incl. async reads)
-                    transcription_config=TranscriptionConfig(
-                        language=speechmatics_language,
-                        model=model,
-                        enable_partials=True,
-                        max_delay=SPEECHMATICS_MAX_DELAY_SECONDS,
-                        domain=speechmatics_medical_domain(model_name, speechmatics_language),
-                    ),
+                    transcription_config=TranscriptionConfig(**transcription_kwargs),
                     audio_format=AudioFormat(
                         encoding=AudioEncoding.PCM_S16LE,
                         sample_rate=SAMPLE_RATE,

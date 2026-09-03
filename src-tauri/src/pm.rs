@@ -357,6 +357,19 @@ fn start_whisper(port: Option<u16>) -> Result<ManagedProcess, String> {
         .arg("--model")
         .arg(model_path.to_string_lossy().as_ref());
 
+    // ASR decoding precision (accuracy plan ref A3): greedy decoding
+    // (beam_size=1) measurably reduces Whisper hallucination verbosity
+    // compared with wider beams, and non-speech-token suppression removes
+    // the <|blank|>/<|nospeech|> artifacts that seed repeated output.
+    // PHLOX_ASR_BEAM_SIZE overrides for benchmarking (clamped 1..=10).
+    let beam_size: i32 = std::env::var("PHLOX_ASR_BEAM_SIZE")
+        .ok()
+        .and_then(|v| v.trim().parse::<i32>().ok())
+        .filter(|v| (1..=10).contains(v))
+        .unwrap_or(1);
+    cmd.arg("--beam-size").arg(beam_size.to_string());
+    cmd.arg("--suppress-nst");
+
     #[cfg(unix)]
     {
         use std::os::unix::process::CommandExt;
