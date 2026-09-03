@@ -1,5 +1,7 @@
 import {
     Box,
+    Button,
+    Flex,
     HStack,
     Input,
     InputGroup,
@@ -7,9 +9,11 @@ import {
     Spinner,
     Text,
     VStack,
+    Collapsible,
 } from "@chakra-ui/react";
 import { Tooltip } from "@/components/ui/tooltip";
-import { CheckCircleIcon } from "../common/icons";
+import { CheckCircleIcon, ChevronRightIcon, ChevronDownIcon } from "../common/icons";
+import { useState } from "react";
 import { applyAsrProviderDefaults } from "../../utils/aiProviders";
 
 const WhisperTab = ({
@@ -21,6 +25,9 @@ const WhisperTab = ({
     urlStatus = { whisper: false },
     asrProviders = [],
 }) => {
+    // Expert/rarely-touched ASR controls (URL/key/model) start collapsed;
+    // provider + language stay visible. Current values are always preserved.
+    const [isAdvancedOpen, setIsAdvancedOpen] = useState(false);
     const provider = config?.ASR_PROVIDER || "openai_compatible";
     const isExternalProvider = provider !== "local";
     const modelValue = config?.ASR_MODEL || config?.WHISPER_MODEL || "";
@@ -113,6 +120,28 @@ const WhisperTab = ({
                     </NativeSelect.Root>
                 </Box>
 
+                <Collapsible.Root open={isAdvancedOpen}>
+                    <Flex align="center">
+                        <Button
+                            variant="ghost"
+                            size="sm"
+                            onClick={() => setIsAdvancedOpen(!isAdvancedOpen)}
+                            className="collapse-toggle"
+                            data-testid="asr-advanced-toggle"
+                            aria-expanded={isAdvancedOpen}
+                        >
+                            {isAdvancedOpen ? (
+                                <ChevronDownIcon />
+                            ) : (
+                                <ChevronRightIcon />
+                            )}
+                            <Text fontSize="sm" fontWeight="bold" ml="1">
+                                گزارش پیشرفته
+                            </Text>
+                        </Button>
+                    </Flex>
+                    <Collapsible.Content>
+                        <VStack gap={3} align="stretch" mt={2}>
                 {["openai_compatible", "openai", "whispercpp", "fireworks", "speechmatics"].includes(
                     provider,
                 ) && (
@@ -300,6 +329,9 @@ const WhisperTab = ({
                         />
                     </Box>
                 )}
+                        </VStack>
+                    </Collapsible.Content>
+                </Collapsible.Root>
             </VStack>
         </VStack>
     );

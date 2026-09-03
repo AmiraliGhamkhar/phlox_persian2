@@ -1,5 +1,5 @@
 import { describe, it, expect, vi, afterEach } from "vitest";
-import { screen, cleanup, fireEvent } from "@testing-library/react";
+import { screen, cleanup, fireEvent, waitFor } from "@testing-library/react";
 import { renderWithProviders } from "../../test/utils";
 import WhisperTab from "./WhisperTab";
 
@@ -121,5 +121,59 @@ describe("WhisperTab — control inventory", () => {
             "WHISPER_MODEL",
             "whisper-large-v3",
         );
+    });
+
+    it("keeps the URL/key/model trio collapsed; provider and language stay visible", () => {
+        renderWhisperTab({ ASR_PROVIDER: "openai_compatible" });
+
+        const toggle = screen.getByTestId("asr-advanced-toggle");
+        expect(toggle).toBeVisible();
+        expect(toggle).toHaveAttribute("aria-expanded", "false");
+        for (const id of [
+            "asr-base-url-input",
+            "asr-model-control",
+            "asr-api-key-input",
+        ]) {
+            expect(screen.getByTestId(id)).not.toBeVisible();
+        }
+        expect(screen.getByTestId("asr-provider-select")).toBeVisible();
+        expect(screen.getByTestId("asr-language-select")).toBeVisible();
+    });
+
+    it("reveals the trio on toggle and preserves their values", async () => {
+        renderWhisperTab({
+            ASR_PROVIDER: "openai_compatible",
+            ASR_BASE_URL: "https://x.example/v1",
+            ASR_KEY: "k123",
+        });
+
+        fireEvent.click(screen.getByTestId("asr-advanced-toggle"));
+        await waitFor(() =>
+            expect(screen.getByTestId("asr-advanced-toggle")).toHaveAttribute(
+                "aria-expanded",
+                "true",
+            ),
+        );
+        // Chakra's collapsible machine syncs the controlled `open` prop
+        // asynchronously (zag microtask), so wait for the content state.
+        const content = screen
+            .getByTestId("asr-base-url-input")
+            .closest("[data-state]");
+        await waitFor(() =>
+            expect(content).toHaveAttribute("data-state", "open"),
+        );
+        expect(content).not.toHaveAttribute("hidden");
+        for (const id of [
+            "asr-base-url-input",
+            "asr-model-control",
+            "asr-api-key-input",
+        ]) {
+            expect(screen.getByTestId(id)).toBeInTheDocument();
+        }
+        // Values survived the collapse/expand round-trip
+        expect(screen.getByTestId("asr-base-url-input")).toHaveValue(
+            "https://x.example/v1",
+        );
+        expect(screen.getByTestId("asr-api-key-input")).toHaveValue("k123");
     });
 });
