@@ -85,6 +85,9 @@ replace-imports-with-any = [
     "sqlite_vec.**",
     "mcp.**",
     "numpy.**",
+    # onnxruntime is the optional `asr` extra (Shenava/Parakeet); it is not
+    # installed for lint, so its unresolved import must not fail `ty check`.
+    "onnxruntime.**",
     # openai>=3 types its http_client parameter as httpx2, but its runtime
     # explicitly accepts legacy httpx clients (is_legacy_httpx_*_client), so
     # the httpx 0.x types would otherwise clash with openai's stubs.
