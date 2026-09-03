@@ -55,8 +55,8 @@ const LlmTab = ({
             const detail =
                 result?.detail ||
                 (capable
-                    ? "Vision input accepted by endpoint/model."
-                    : "Vision input was not accepted by endpoint/model.");
+                    ? "ورودی تصویری توسط نقطه پایانی/مدل پذیرفته شد."
+                    : "ورودی تصویری توسط نقطه پایانی/مدل پذیرفته نشد.");
 
             if (!config?.DOCUMENT_IMAGE_PROCESSING_MODE) {
                 handleConfigChange("DOCUMENT_IMAGE_PROCESSING_MODE", "auto");
@@ -69,21 +69,21 @@ const LlmTab = ({
 
             toaster.create({
                 title: capable
-                    ? "Vision capability detected"
-                    : "Vision capability not detected",
+                    ? "قابلیت تصویری شناسایی شد"
+                    : "قابلیت تصویری شناسایی نشد",
                 description: detail,
                 status: capable ? "success" : "warning",
                 duration: 4500,
             });
         } catch (error) {
             const detail =
-                error?.message || "Failed to probe visual capability.";
+                error?.message || "آزمون قابلیت تصویری ناموفق بود.";
             setVisionProbeStatus("error");
             setVisionProbeDetail(detail);
             setCurrentVisionCapability(null);
 
             toaster.create({
-                title: "Vision capability probe failed",
+                title: "آزمون قابلیت تصویری ناموفق بود",
                 description: detail,
                 type: "error",
                 duration: 5000,
@@ -97,11 +97,10 @@ const LlmTab = ({
         <VStack gap={4} align="stretch">
             <Box>
                 <Text fontSize="md" fontWeight="bold">
-                    Large Language Model (LLM)
+                    مدل زبانی بزرگ (LLM)
                 </Text>
                 <Text fontSize="sm" color="overlay0">
-                    Configure the language model provider for generating
-                    responses
+                    ارائه‌دهنده مدل زبانی برای تولید پاسخ‌ها را پیکربندی کنید.
                 </Text>
             </Box>
 
@@ -159,7 +158,7 @@ const LlmTab = ({
                 <Box>
                     <Tooltip content="نشانی پایه نقطه پایانی API مدل زبانی سازگار با OpenAI/Ollama">
                         <Text fontSize="sm" mb="1" fontWeight={"bold"}>
-                            OpenAI/Ollama API Base URL
+                            نشانی پایه API سازگار با OpenAI/Ollama
                         </Text>
                     </Tooltip>
                     <InputGroup
@@ -193,7 +192,7 @@ const LlmTab = ({
                 <Box>
                     <Tooltip content="کلید API برای احراز هویت سرویس سازگار با OpenAI/Ollama">
                         <Text fontSize="sm" mb="1" fontWeight={"bold"}>
-                            API Key
+                            کلید API
                         </Text>
                     </Tooltip>
                     <Input
@@ -212,14 +211,14 @@ const LlmTab = ({
                 <Box>
                     <Tooltip content="مدل اصلی برای تولید پاسخ‌ها و یادداشت‌های بالینی">
                         <Text fontSize="sm" mb="1" fontWeight={"bold"}>
-                            Primary Model
+                            مدل اصلی
                         </Text>
                     </Tooltip>
                     {llmModelsLoading ? (
                         <HStack gap="2">
                             <Spinner size="sm" />
                             <Text fontSize="sm" color="overlay0">
-                                Loading models...
+                                در حال بارگذاری مدل‌ها...
                             </Text>
                         </HStack>
                     ) : (
@@ -273,14 +272,14 @@ const LlmTab = ({
                 <Box>
                     <Tooltip content="مدل ثانویه برای کارهای با قابلیت متفاوت یا مقایسه">
                         <Text fontSize="sm" mb="1" fontWeight={"bold"}>
-                            Secondary Model
+                            مدل ثانویه
                         </Text>
                     </Tooltip>
                     {llmModelsLoading ? (
                         <HStack gap="2">
                             <Spinner size="sm" />
                             <Text fontSize="sm" color="overlay0">
-                                Loading models...
+                                در حال بارگذاری مدل‌ها...
                             </Text>
                         </HStack>
                     ) : (
@@ -312,7 +311,7 @@ const LlmTab = ({
                 <Box>
                     <Tooltip content="نحوه پردازش PDF و تصویر را انتخاب کنید: مدل زبانی تصویری، جایگزین OCR یا انتخاب خودکار">
                         <Text fontSize="sm" mb="1" fontWeight={"bold"}>
-                            Document/Image Processing Mode
+                            حالت پردازش سند/تصویر
                         </Text>
                     </Tooltip>
                     <NativeSelect.Root>
@@ -331,7 +330,7 @@ const LlmTab = ({
                             data-testid="llm-processing-mode-select"
                         >
                             <option value="auto">
-                                Auto (prefer visual if available)
+                                خودکار (در صورت امکان تصویری را ترجیح بده)
                             </option>
                             <option value="vision">فقط تصویری</option>
                             <option value="ocr">فقط OCR</option>
@@ -339,16 +338,16 @@ const LlmTab = ({
                         <NativeSelect.Indicator />
                     </NativeSelect.Root>
                     <Text fontSize="xs" color="overlay0" mt="1">
-                        Auto uses visual processing when vision capability is
-                        detected; otherwise it falls back to OCR-compatible
-                        endpoints.
+                        حالت خودکار در صورت شناسایی قابلیت تصویری، پردازش
+                        تصویری را به‌کار می‌برد؛ در غیر این صورت به نقاط پایانی
+                        سازگار با OCR برمی‌گردد.
                     </Text>
                 </Box>
 
                 <Box>
                     <Tooltip content="ارسال یک تصویر آزمایشی کوچک برای بررسی پشتیبانی نقطه پایانی یا مدل انتخاب‌شده از تصویر">
                         <Text fontSize="sm" mb="1" fontWeight={"bold"}>
-                            Vision Capability Probe
+                            آزمون قابلیت تصویری
                         </Text>
                     </Tooltip>
 
@@ -360,7 +359,7 @@ const LlmTab = ({
                             loading={isProbingVision}
                             data-testid="llm-vision-probe-button"
                         >
-                            Test Vision Support
+                            آزمایش پشتیبانی تصویری
                         </Button>
                         <Badge
                             colorPalette={
@@ -375,15 +374,15 @@ const LlmTab = ({
                                 ? currentVisionCapability.vision_capable
                                     ? "دارای قابلیت تصویری"
                                     : "بدون قابلیت تصویری"
-                                    : "Unknown"}
+                                    : "نامشخص"}
                         </Badge>
                     </HStack>
                     {currentVisionCapability ? (
                         <Text fontSize="xs" color="overlay0" mb={2}>
-                            Source:{" "}
+                            منبع:{" "}
                             {currentVisionCapability.source || "cache"}
                             {currentVisionCapability.probed_at
-                                ? ` • Probed: ${currentVisionCapability.probed_at}`
+                                ? ` • بررسی‌شده در: ${currentVisionCapability.probed_at}`
                                 : ""}
                         </Text>
                     ) : null}

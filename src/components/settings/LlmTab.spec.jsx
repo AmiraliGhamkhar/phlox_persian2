@@ -93,6 +93,20 @@ describe("LlmTab — control inventory", () => {
         );
     });
 
+    it("renders the field labels in Persian (T1-4 copy pass)", () => {
+        renderLlmTab();
+
+        expect(screen.getByText("مدل اصلی")).toBeInTheDocument();
+        expect(screen.getByText("کلید API")).toBeInTheDocument();
+        expect(screen.getByText("مدل زبانی بزرگ (LLM)")).toBeInTheDocument();
+        // No English field-label remnants
+        expect(screen.queryByText("API Key")).not.toBeInTheDocument();
+        expect(screen.queryByText("Primary Model")).not.toBeInTheDocument();
+        expect(
+            screen.queryByText("Large Language Model (LLM)"),
+        ).not.toBeInTheDocument();
+    });
+
     it("keeps the expert controls collapsed behind the Advanced toggle", () => {
         renderLlmTab();
 

@@ -228,7 +228,7 @@ const PromptSettingsPanel = ({
                 <VStack gap={6} align="stretch">
                   <Flex justify="space-between" align="center">
                     <Text fontSize="md" fontWeight="bold">
-                      Model Configuration
+                      پیکربندی مدل
                     </Text>
                     <ResetToDefaultButton
                       onClick={() =>
@@ -239,10 +239,10 @@ const PromptSettingsPanel = ({
 
                   <Box>
                     <Text fontSize="sm" fontWeight="bold" mb={2}>
-                      Primary Model
+                      مدل اصلی
                     </Text>
                     <Text fontSize="xs" color="overlay0" mb={2}>
-                      Context window size for the primary model
+                      اندازه پنجرهٔ بافت (Context Window) مدل اصلی
                     </Text>
                     <HStack>
                       <Text fontSize="sm">num_ctx</Text>
@@ -260,10 +260,10 @@ const PromptSettingsPanel = ({
 
                   <Box>
                     <Text fontSize="sm" fontWeight="bold" mb={2}>
-                      Secondary Model
+                      مدل ثانویه
                     </Text>
                     <Text fontSize="xs" color="overlay0" mb={2}>
-                      Context window size for the secondary model
+                      اندازه پنجرهٔ بافت (Context Window) مدل ثانویه
                     </Text>
                     <HStack>
                       <Text fontSize="sm">num_ctx</Text>
@@ -281,10 +281,10 @@ const PromptSettingsPanel = ({
 
                   <Box>
                     <Text fontSize="sm" fontWeight="bold" mb={2}>
-                      Letter Generation
+                      تولید نامه
                     </Text>
                     <Text fontSize="xs" color="overlay0" mb={2}>
-                      Temperature setting for the letter generation model
+                      دمای مدل تولید نامه
                     </Text>
                     <HStack>
                       <Text fontSize="sm">temperature</Text>

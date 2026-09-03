@@ -146,7 +146,7 @@ const ModelSettingsPanel = ({
                                         fontWeight="bold"
                                         mb="3"
                                     >
-                                        Inference Type
+                                        نوع استنتاج
                                     </Text>
                                 </Tooltip>
                                 <Flex
@@ -182,7 +182,7 @@ const ModelSettingsPanel = ({
                                                 }
                                             >
                                                 <FaDesktop />
-                                                Local
+                                                محلی
                                             </Button>
                                         </Tooltip>
                                         <Tooltip content="اتصال به APIهای خارجی سازگار با OpenAI/Ollama">
@@ -195,7 +195,7 @@ const ModelSettingsPanel = ({
                                                 }
                                             >
                                                 <FaCloud />
-                                                Remote
+                                                دورانه
                                             </Button>
                                         </Tooltip>
                                     </Flex>

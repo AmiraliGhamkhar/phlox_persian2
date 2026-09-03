@@ -63,11 +63,11 @@ const RagTab = ({
             <VStack gap={4} align="stretch">
                 <Box>
                     <Text fontSize="md" fontWeight="bold">
-                        Knowledge Base (RAG)
+                        پایگاه دانش (RAG)
                     </Text>
                     <Text fontSize="sm" color="overlay0">
-                        Configure the embedding model used for knowledge base
-                        searches
+                        مدل بردارسازی استفاده‌شده برای جست‌وجوهای پایگاه دانش را
+                        پیکربندی کنید.
                     </Text>
                 </Box>
 
@@ -138,14 +138,14 @@ const RagTab = ({
                 <Box>
                     <Tooltip content="مدل تولیدکننده بردارهای RAG؛ تغییر آن همه اسناد را دوباره بردارسازی می‌کند">
                         <Text fontSize="sm" mb="2" fontWeight={"bold"}>
-                            Embedding Model
+                            مدل بردارسازی
                         </Text>
                     </Tooltip>
                     {llmModelsLoading ? (
                         <HStack gap="2">
                             <Spinner size="sm" />
                             <Text fontSize="sm" color="overlay0">
-                                Loading models...
+                                در حال بارگذاری مدل‌ها...
                             </Text>
                         </HStack>
                     ) : embeddingModelOptions.length > 0 ? (
@@ -189,8 +189,8 @@ const RagTab = ({
                         mt="2"
                         fontWeight="medium"
                     >
-                        ⚠️ Changing the embedding model will re-embed all
-                        documents automatically
+                        ⚠️ با تغییر مدل بردارسازی، همه اسناد به‌صورت خودکار
+                        دوباره بردارسازی می‌شوند
                     </Text>
                 </Box>
             </VStack>
