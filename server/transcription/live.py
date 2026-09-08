@@ -2,6 +2,7 @@
 
 Native streaming:
 - Speechmatics Realtime with ``enable_partials``
+- AssemblyAI Realtime (Universal-2 / Universal-3.5 Pro)
 - Fireworks Audio Streaming WebSocket
 
 Fallback for batch-only engines (Whisper.cpp, OpenAI Audio, Parakeet,
@@ -22,6 +23,12 @@ import wave
 from collections.abc import Awaitable, Callable
 from typing import Any
 
+from server.transcription.assemblyai import (
+    assemblyai_api_key,
+    assemblyai_live_model,
+    assemblyai_model,
+    assemblyai_streaming_url,
+)
 from server.transcription.language import (
     normalize_persian_text,
     speechmatics_medical_domain,
@@ -274,6 +281,133 @@ class SpeechmaticsLiveSession(LiveSession):
         return normalize_persian_text(_compose(self._finals, self._partial))
 
 
+class AssemblyAILiveSession(LiveSession):
+    """AssemblyAI Realtime streaming (Universal-2 / Universal-3.5 Pro).
+
+    Config is carried entirely in the connect query string
+    (``wss://streaming.assemblyai.com/v3/ws?sample_rate=16000&speech_model=…``);
+    there is no ``configure`` JSON frame. Audio is streamed as raw s16le PCM
+    and the server replies with ``message_type`` frames such as
+    ``SessionBegins``, ``PartialTranscript`` and ``FinalTranscript``.
+
+    Auth uses the **raw API key with no ``Bearer`` prefix** on the WebSocket
+    upgrade, matching the REST header form.
+    """
+
+    def __init__(self, config: dict[str, Any], emit: EmitFn):
+        self.config = config
+        self.emit = emit
+        self._pcm = bytearray()
+        self._finals: list[str] = []
+        self._partial = ""
+        self._ws = None
+        self._receiver: asyncio.Task | None = None
+        self._error: str | None = None
+
+    async def start(self) -> None:
+        try:
+            import websockets
+        except ImportError as error:
+            raise ValueError(
+                "AssemblyAI live transcription requires the websockets package"
+            ) from error
+
+        api_key = assemblyai_api_key(self.config)
+        if not api_key:
+            raise ValueError("An AssemblyAI API key is required for live transcription")
+
+        model = assemblyai_live_model(assemblyai_model(self.config))
+        url = assemblyai_streaming_url(self.config)
+        params = [f"sample_rate={SAMPLE_RATE}", f"speech_model={model}"]
+        # ``mode=balanced`` is the documented operating mode for the realtime
+        # flagship; it only applies to Universal-3.5 Pro.
+        if model == "universal-3-5-pro":
+            params.append("mode=balanced")
+        url = f"{url}?{'&'.join(params)}"
+
+        headers = {"Authorization": api_key}  # raw key — no Bearer prefix.
+        try:
+            self._ws = await websockets.connect(
+                url,
+                additional_headers=headers,
+                max_size=8 * 1024 * 1024,
+            )
+        except TypeError:
+            # websockets <14 compatibility path (arg renamed in v14).
+            self._ws = await websockets.connect(
+                url,
+                extra_headers=headers,
+                max_size=8 * 1024 * 1024,
+            )
+
+        async def _receive() -> None:
+            ws = self._ws
+            assert ws is not None  # only reachable after start() assigned _ws above
+            try:
+                async for message in ws:
+                    if isinstance(message, bytes):
+                        continue
+                    await self._handle_message(message)
+            except Exception as error:  # noqa: BLE001 - surface as live error
+                logger.debug("AssemblyAI live receive ended: %s", error)
+                self._error = str(error)
+
+        self._receiver = asyncio.create_task(_receive())
+
+    async def _handle_message(self, message: str) -> None:
+        try:
+            payload = json.loads(message)
+        except json.JSONDecodeError:
+            return
+        if not isinstance(payload, dict):
+            return
+
+        # Realtime frames carry a ``message_type``; tolerate a bare ``type``.
+        message_type = str(
+            payload.get("message_type") or payload.get("type") or ""
+        ).lower()
+
+        if message_type in ("partialtranscript", "transcript"):
+            if payload.get("text"):
+                self._partial = str(payload["text"]).strip()
+                await self.emit({"type": "partial", "text": _compose(self._finals, self._partial)})
+            return
+        if message_type == "finaltranscript":
+            text = str(payload.get("text") or "").strip()
+            if text:
+                self._finals.append(text)
+                self._partial = ""
+                await self.emit({"type": "final", "text": _compose(self._finals, "")})
+            return
+
+    async def feed_pcm(self, pcm: bytes) -> None:
+        self._pcm.extend(pcm)
+        if self._ws is not None:
+            await self._ws.send(pcm)
+
+    async def stop(self) -> str:
+        if self._ws is not None:
+            try:
+                # Signal the end of audio so trailing finals are flushed before
+                # the socket closes (universal streaming finalizes on this).
+                await self._ws.send(b"")
+            except Exception:
+                logger.debug("AssemblyAI live end frame failed", exc_info=True)
+            if self._receiver:
+                with contextlib.suppress(TimeoutError):
+                    await asyncio.wait_for(self._receiver, timeout=3.0)
+            try:
+                await self._ws.close()
+            except Exception:
+                logger.debug("AssemblyAI live close failed", exc_info=True)
+        if self._receiver:
+            try:
+                await asyncio.wait_for(self._receiver, timeout=5)
+            except TimeoutError:
+                self._receiver.cancel()
+        return normalize_persian_text(_compose(self._finals, self._partial))
+
+
 class FireworksLiveSession(LiveSession):
     """Fireworks streaming ASR over WebSocket (PCM s16le 16 kHz)."""
 
@@ -498,6 +632,8 @@ def create_live_session(config: dict[str, Any], emit: EmitFn) -> LiveSession:
     model = connection["model"]
     if protocol == "speechmatics":
         return SpeechmaticsLiveSession(config, emit)
+    if protocol == "assemblyai":
+        return AssemblyAILiveSession(config, emit)
     if protocol == "fireworks" and not str(model).startswith("whisper-"):
         return FireworksLiveSession(config, emit)
     return RollingWindowLiveSession(config, emit)
@@ -508,6 +644,6 @@ def live_is_authoritative(config: dict[str, Any]) -> bool:
     connection = resolve_asr_connection(config)
     protocol = connection["protocol"]
     model = connection["model"]
-    return protocol == "speechmatics" or (
+    return protocol in ("speechmatics", "assemblyai") or (
         protocol == "fireworks" and not str(model).startswith("whisper-")
     )

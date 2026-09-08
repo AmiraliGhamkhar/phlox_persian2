@@ -28,6 +28,11 @@ export const ASR_PROVIDER_DEFAULTS = {
     models: ["enhanced", "standard", "melia-1"],
     requiresKey: true,
   },
+  assemblyai: {
+    url: "https://api.assemblyai.com",
+    models: ["universal-3-5-pro", "universal-2"],
+    requiresKey: true,
+  },
   fireworks: {
     url: "https://audio-prod.api.fireworks.ai",
     models: ["fireworks-asr-v2", "fireworks-asr-large", "whisper-v3-turbo", "whisper-v3"],

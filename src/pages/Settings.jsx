@@ -164,6 +164,7 @@ const Settings = () => {
             if (
                 debouncedWhisperUrl &&
                 debouncedAsrProvider !== "speechmatics" &&
+                debouncedAsrProvider !== "assemblyai" &&
                 debouncedAsrProvider !== "local"
             ) {
                 const whisperValid = await settingsApi.validateUrl(
@@ -207,6 +208,15 @@ const Settings = () => {
                     setWhisperModelOptions([]);
                     setWhisperModelListAvailable(false);
                 }
+                return;
+            }
+
+            if (debouncedAsrProvider === "assemblyai") {
+                // AssemblyAI has no public model-listing endpoint; show the
+                // documented operating points instead.
+                setWhisperModelsLoading(false);
+                setWhisperModelOptions(["universal-3-5-pro", "universal-2"]);
+                setWhisperModelListAvailable(true);
                 return;
             }
 

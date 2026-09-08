@@ -18,6 +18,12 @@ from server.transcription.asr_context import (
     build_custom_vocabulary,
     build_initial_prompt,
 )
+from server.transcription.assemblyai import (
+    assemblyai_api_key,
+    assemblyai_batch_speech_models,
+    assemblyai_model,
+    assemblyai_rest_url,
+)
 from server.transcription.hygiene import build_hygiene_result, prepare_audio
 from server.transcription.language import (
     normalize_persian_text,
@@ -148,6 +154,9 @@ async def transcribe_audio(
         elif protocol == "speechmatics" or provider == "speechmatics":
             logger.info("Using Speechmatics Batch REST API for file transcription")
             result = await _transcribe_speechmatics(audio_buffer, config, bias_terms)
+        elif protocol == "assemblyai" or provider == "assemblyai":
+            logger.info("Using AssemblyAI REST API for file transcription")
+            result = await _transcribe_assemblyai(audio_buffer, config)
         elif protocol == "fireworks" or provider == "fireworks":
             logger.info("Using Fireworks ASR for transcription")
             result = await _transcribe_fireworks(audio_buffer, config, bias_terms)
@@ -274,6 +283,12 @@ SPEECHMATICS_BATCH_POLL_WAIT = 20
 # Job statuses that mean the transcript will never become available; polling
 # for these is pointless, so surface the provider's reason right away.
 SPEECHMATICS_TERMINAL_FAILURE_STATUSES = {"rejected", "expired", "deleted"}
+
+# AssemblyAI pre-recorded REST (per https://www.assemblyai.com/docs/llms.txt).
+# Jobs are submitted to /v2/transcript and polled to completion; there is no
+# server-side blocking ``wait`` param, so poll with a bounded deadline.
+ASSEMBLYAI_BATCH_POLL_SECONDS = 900
+ASSEMBLYAI_BATCH_POLL_INTERVAL = 3.0
 
 
 def speechmatics_batch_url(config: dict) -> str:
@@ -808,6 +823,166 @@ async def _transcribe_fireworks(
         "transcriptionDuration": float(f"{time.perf_counter() - transcription_start:.2f}"),
         "segments": hygiene.segments,
         "flags": hygiene.flags,
+    }
+
+
+async def _transcribe_assemblyai(
+    audio_buffer: bytes,
+    config: dict,
+) -> dict[str, Any]:
+    """Transcribe a recording through the AssemblyAI pre-recorded REST API.
+
+    Used for the after-the-fact file path (``/api/transcribe/audio``). Live
+    mic streaming uses ``server/transcription/live.py`` instead.
+
+    Flow (per https://www.assemblyai.com/docs/llms.txt):
+      1. POST ``/v2/upload`` (raw bytes body, no multipart) -> ``upload_url``
+      2. POST ``/v2/transcript`` -> transcript ``{id, status: queued}``
+      3. GET  ``/v2/transcript/{id}`` until ``completed`` (or ``error``)
+
+    Auth is the **raw API key with no ``Bearer`` prefix** — this is the one
+    provider where adding ``Bearer`` breaks every request.
+    """
+    from server.utils.http_retry import sanitize_provider_error
+
+    api_key = assemblyai_api_key(config)
+    if not api_key:
+        raise ValueError(
+            "An AssemblyAI API key is required for file transcription "
+            "(set ASR_KEY in Settings)"
+        )
+    base_url = assemblyai_rest_url(config)
+    language = resolve_asr_language(config)
+    model = assemblyai_model(config)
+    speech_models = assemblyai_batch_speech_models(model)
+
+    headers = {"Authorization": api_key}  # raw key — no Bearer prefix.
+    started = time.perf_counter()
+    try:
+        async with build_guarded_http_client(timeout=httpx.Timeout(600.0)) as client:
+            # 1) Upload the raw recording bytes.
+            try:
+                response = await _post_audio(
+                    client,
+                    f"{base_url}/v2/upload",
+                    content=audio_buffer,
+                    headers={**headers, "Content-Type": "application/octet-stream"},
+                )
+            except Exception as error:
+                raise ValueError(f"AssemblyAI upload failed: {error}") from error
+            if response.status_code != 200:
+                detail = sanitize_provider_error(response.text)
+                if response.status_code == 401:
+                    raise ValueError(
+                        "AssemblyAI authentication failed (401): check the API key in "
+                        f"Settings. {detail}"
+                    )
+                if response.status_code == 403:
+                    raise ValueError(f"AssemblyAI upload forbidden (403): {detail}")
+                if response.status_code == 429:
+                    raise ValueError(f"AssemblyAI rate limited (429): {detail}")
+                raise ValueError(
+                    f"AssemblyAI upload failed ({response.status_code}): {detail}"
+                )
+            try:
+                upload_url = str(response.json()["upload_url"])
+            except Exception as error:
+                raise ValueError(
+                    f"AssemblyAI upload response missing upload_url: {error}"
+                ) from error
+
+            # 2) Submit the transcription job. ``speech_models`` is a *fallback*
+            # list: universal-3-5-pro first, universal-2 for Persian (and any
+            # language outside its 18 native ones). ``auto`` omits
+            # ``language_code`` so the multilingual model code-switches the
+            # medical Persian/English mix itself.
+            transcript_config: dict[str, object] = {
+                "audio_url": upload_url,
+                "speech_models": speech_models,
+            }
+            if language != "auto":
+                transcript_config["language_code"] = language
+            try:
+                response = await _post_audio(
+                    client,
+                    f"{base_url}/v2/transcript",
+                    json=transcript_config,
+                    headers=headers,
+                )
+            except Exception as error:
+                raise ValueError(f"AssemblyAI job submit failed: {error}") from error
+            if response.status_code not in (200, 201):
+                detail = sanitize_provider_error(response.text)
+                if response.status_code == 401:
+                    raise ValueError(
+                        "AssemblyAI authentication failed (401) while submitting the "
+                        f"job: {detail}"
+                    )
+                raise ValueError(
+                    f"AssemblyAI job rejected ({response.status_code}): {detail}"
+                )
+            try:
+                transcript_id = str(response.json()["id"])
+            except Exception as error:
+                raise ValueError(
+                    f"AssemblyAI job response missing transcript id: {error}"
+                ) from error
+
+            # 3) Poll until the transcript is ready.
+            deadline = time.monotonic() + ASSEMBLYAI_BATCH_POLL_SECONDS
+            while True:
+                if time.monotonic() >= deadline:
+                    raise ValueError(
+                        "AssemblyAI transcription timed out after "
+                        f"{ASSEMBLYAI_BATCH_POLL_SECONDS}s; the job may still be running"
+                    )
+                try:
+                    response = await client.get(
+                        f"{base_url}/v2/transcript/{transcript_id}",
+                        headers=headers,
+                    )
+                except httpx.RequestError as error:
+                    raise ValueError(
+                        f"AssemblyAI transcript fetch failed: {error}"
+                    ) from error
+                if response.status_code != 200:
+                    raise ValueError(
+                        "AssemblyAI transcript fetch failed "
+                        f"({response.status_code}): {sanitize_provider_error(response.text)}"
+                    )
+                try:
+                    job = response.json()
+                except Exception as error:
+                    raise ValueError(f"Failed to parse AssemblyAI transcript: {error}") from error
+
+                status = str(job.get("status") or "")
+                if status == "completed":
+                    break
+                if status == "error":
+                    raise ValueError(
+                        f"AssemblyAI transcription failed: "
+                        f"{job.get('error') or 'no error detail provided'}"
+                    )
+                await asyncio.sleep(ASSEMBLYAI_BATCH_POLL_INTERVAL)
+
+            audio_duration = 0.0
+            try:
+                audio_duration = float(job.get("audio_duration") or 0)
+            except (TypeError, ValueError):
+                audio_duration = 0.0
+
+            transcript_text = str(job.get("text") or "").strip()
+    except httpx.RequestError as error:
+        raise ValueError(f"AssemblyAI transcription failed: {error}") from error
+
+    transcript_text = normalize_persian_text(_clean_repetitive_text(transcript_text))
+    if not transcript_text:
+        raise ValueError("AssemblyAI returned no transcript")
+    return {
+        "text": transcript_text,
+        # Prefer the provider's measured audio duration; fall back to wall time.
+        "transcriptionDuration": audio_duration
+        or float(f"{time.perf_counter() - started:.2f}"),
     }
 
 

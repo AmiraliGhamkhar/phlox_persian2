@@ -25,7 +25,8 @@ class Config(BaseModel):
         ASR_BATCH_KEY (str): Speechmatics Batch API key; only needed when the primary
             key is Realtime-scoped (keys are product-scoped: ``type=rt`` vs ``type=batch``).
         ASR_LANGUAGE (str): ASR language hint: ``fa``, ``en``, or ``auto`` for mixed audio.
-        ASR_PROVIDER (str): ASR provider (local, openai, fireworks, speechmatics, ...).
+        ASR_PROVIDER (str): ASR provider (local, openai, fireworks, speechmatics,
+            assemblyai, ...).
         REASONING_MODEL (str): Model used for reasoning/analysis tasks.
         REASONING_ENABLED (bool): Toggle to enable or disable reasoning features.
         DAILY_SUMMARY (str): Optional daily summary configuration/prompt value.

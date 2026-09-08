@@ -74,6 +74,7 @@ const WhisperTab = ({
                                       { id: "openai", name_fa: "OpenAI Audio" },
                                       { id: "whispercpp", name_fa: "سرور Whisper.cpp" },
                                       { id: "speechmatics", name_fa: "Speechmatics؛ بلادرنگ" },
+                                      { id: "assemblyai", name_fa: "AssemblyAI" },
                                       { id: "fireworks", name_fa: "Fireworks AI ASR" },
                                   ]
                             ).map((item) => (
@@ -111,7 +112,7 @@ const WhisperTab = ({
                     </NativeSelect.Root>
                 </Box>
 
-                {["openai_compatible", "openai", "whispercpp", "fireworks", "speechmatics"].includes(
+                {["openai_compatible", "openai", "whispercpp", "fireworks", "speechmatics", "assemblyai"].includes(
                     provider,
                 ) && (
                     <Box>
@@ -149,6 +150,12 @@ const WhisperTab = ({
                 {provider === "speechmatics" && (
                     <Text fontSize="xs" color="overlay0">
                         Speechmatics در حالت بلادرنگ از شناسایی خودکار زبان پشتیبانی نمی‌کند؛ حالت «تشخیص خودکار» در حالت زنده به فارسی (fa) نگاشت می‌شود. فایل‌های ضبط‌شده با API دسته‌ای (Batch) پردازش می‌شوند که خودکار تشخیص زبان را پشتیبانی می‌کند. API Keys محصول‌محور هستند؛ کلید Realtime (rt) برای زنده و کلید Batch برای فایل‌ها لازم است.
+                    </Text>
+                )}
+
+                {provider === "assemblyai" && (
+                    <Text fontSize="xs" color="overlay0">
+                        AssemblyAI با یک کلید هم فایل‌های ضبط‌شده و هم جریان بلادرنگ را پشتیبانی می‌کند؛ کلید بدون پیشوند Bearer ارسال می‌شود (هیچ گزینه‌ای از ASR_BATCH_KEY لازم نیست). «تشخیص خودکار» در فایل‌ها اجازه‌ی جابه‌جایی زبان بین فارسی و انگلیسی را می‌دهد؛ در حالت زنده مدل به‌طور خودکار زبان را تشخیص می‌دهد. برای فارسی از universal-2 (پشتیبانی از ۹۹ زبان) استفاده کنید؛ universal-3-5-pro در زبان‌های خارج از ۱۸ زبان بومی به‌طور خودکار به universal-2 برمی‌گردد.
                     </Text>
                 )}
 
@@ -212,6 +219,19 @@ const WhisperTab = ({
                                 <option value="enhanced">حالت پیشرفته؛ دقت بالاتر</option>
                                 <option value="standard">حالت استاندارد؛ سرعت بالاتر</option>
                                 <option value="melia-1">چندزبانه Melia 1؛ فقط دسته‌ای</option>
+                            </NativeSelect.Field>
+                            <NativeSelect.Indicator />
+                        </NativeSelect.Root>
+                    ) : provider === "assemblyai" ? (
+                        <NativeSelect.Root>
+                            <NativeSelect.Field
+                                size="sm"
+                                value={modelValue || "universal-3-5-pro"}
+                                onChange={(event) => updateModel(event.target.value)}
+                                className="input-style"
+                            >
+                                <option value="universal-3-5-pro">Universal-3.5 Pro (فایل‌ها و زنده)</option>
+                                <option value="universal-2">Universal-2 (۹۹ زبان؛ توصیه برای فارسی)</option>
                             </NativeSelect.Field>
                             <NativeSelect.Indicator />
                         </NativeSelect.Root>
@@ -288,7 +308,9 @@ const WhisperTab = ({
                             placeholder={
                                 provider === "speechmatics"
                                     ? "کلید Speechmatics"
-                                    : "کلید API، در صورت نیاز"
+                                    : provider === "assemblyai"
+                                      ? "کلید AssemblyAI"
+                                      : "کلید API، در صورت نیاز"
                             }
                             className="input-style"
                         />

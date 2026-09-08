@@ -17,10 +17,25 @@ import pytest
 from server.transcription.language import streaming_asr_language
 from server.transcription.live import (
     SPEECHMATICS_DEFAULT_URL,
+    AssemblyAILiveSession,
     FireworksLiveSession,
     SpeechmaticsLiveSession,
+    create_live_session,
+    live_is_authoritative,
     speechmatics_rt_url,
 )
+
+
+def test_assemblyai_live_session_is_native_and_authoritative():
+    """AssemblyAI is a native streaming provider wired into the live dispatcher."""
+    config = {"ASR_PROVIDER": "assemblyai", "ASR_KEY": "sm", "ASR_MODEL": "universal-3-5-pro"}
+    assert isinstance(create_live_session(config, _async_noop), AssemblyAILiveSession)
+    assert live_is_authoritative(config) is True
+
+
+async def _async_noop(_event: dict) -> None:  # type: ignore[no-untyped-def]
+    """Async no-op emitter for constructing live sessions."""
+    return None
 
 
 def test_streaming_language_maps_auto_to_fa():

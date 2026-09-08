@@ -288,6 +288,30 @@ ASR_PROVIDERS: dict[str, dict[str, Any]] = {
         "help_fa": "وب‌سوکت بلادرنگ Speechmatics. نتایج جزئی هنگام صحبت نمایش داده می‌شوند.",
         "default_models": ["enhanced", "standard", "melia-1"],
     },
+    "assemblyai": {
+        "id": "assemblyai",
+        "name": "AssemblyAI",
+        "name_fa": "AssemblyAI",
+        "category": "cloud",
+        "protocol": "assemblyai",
+        "default_base_url": "https://api.assemblyai.com",
+        "placeholder_url": "https://api.assemblyai.com",
+        "requires_api_key": True,
+        "supports_streaming": True,
+        "supports_model_list": False,
+        "supports_live": True,
+        # Single key covers both pre-recorded (REST) and realtime (WebSocket).
+        # The header is the raw key with no ``Bearer`` prefix.
+        "help": "AssemblyAI Speech-to-Text: pre-recorded universal-3-5-pro plus realtime streaming. The API key is sent as-is (no Bearer prefix).",
+        "help_fa": "تشخیص گفتار AssemblyAI؛ مدل پیش‌ثبت universal-3-5-pro و جریان بلادرنگ. کلید API بدون پیشوند Bearer ارسال می‌شود.",
+        # Batch uses the *plural* ``speech_models`` fallback list; the first
+        # entry is attempted first, falling back to the next when unavailable.
+        # universal-3-5-pro falls back to universal-2 (99 languages, incl.
+        # Persian) automatically when Persian audio is not in its 18 native
+        # languages. Realtime uses a singular ``speech_model`` string.
+        "default_models": ["universal-3-5-pro", "universal-2"],
+        "streaming_url": "wss://streaming.assemblyai.com/v3/ws",
+    },
     "fireworks": {
         "id": "fireworks",
         "name": "Fireworks AI ASR",
