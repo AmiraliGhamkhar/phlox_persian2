@@ -6,9 +6,10 @@ with the integration). AssemblyAI auth is the raw API key with no ``Bearer``
 prefix, and pre-recorded jobs use the *plural* ``speech_models`` fallback list.
 """
 
+from unittest.mock import AsyncMock, MagicMock, patch
+
 import httpx
 import pytest
-from unittest.mock import AsyncMock, MagicMock, patch
 
 from server.transcription import assemblyai as aai
 from server.transcription.audio import _transcribe_assemblyai
@@ -181,6 +182,8 @@ async def test_transcribe_assemblyai_error_status_is_raised():
     ]
     mock_client = _mock_client(responses[0], responses[1], [])
 
-    with patch("httpx.AsyncClient", return_value=mock_client):
-        with pytest.raises(ValueError, match="[Aa]uthentication failed"):
-            await _transcribe_assemblyai(b"data", config)
+    with (
+        patch("httpx.AsyncClient", return_value=mock_client),
+        pytest.raises(ValueError, match="[Aa]uthentication failed"),
+    ):
+        await _transcribe_assemblyai(b"data", config)
