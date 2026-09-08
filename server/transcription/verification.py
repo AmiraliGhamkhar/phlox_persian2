@@ -332,7 +332,18 @@ def quote_support(point: str, transcript_norm: str, trigrams: set[tuple[str, str
         return 1.0
     tokens = p.split()
     if len(tokens) < 3:
-        return 0.4
+        # Trigram matching needs at least three words, so 1–2 token bullets
+        # must be judged another way. A fixed low score here auto-flagged —
+        # and in strict mode *dropped* — any short bullet that is accurate
+        # but not a verbatim substring (e.g. "فشار خون" vs spoken "با
+        # فشارِ خونِ بالا"). Score by word presence in the transcript
+        # instead: every content word spoken earns full support.
+        content_words = {t for t in tokens if len(t) >= 2}
+        if not content_words:
+            return 0.4
+        transcript_words = set(transcript_norm.split())
+        hits = sum(1 for t in content_words if t in transcript_words)
+        return hits / len(content_words)
     hits = sum(1 for i in range(len(tokens) - 2) if tuple(tokens[i : i + 3]) in trigrams)
     return hits / (len(tokens) - 2)
 

@@ -122,11 +122,13 @@ class AsyncLLMClient:
         else:
             raise RuntimeError("Expected dict response, got async generator")
 
-        # Handle emdashes and en-dashes (can cause JSON parsing issues)
-        # Preserve UTF-8 characters for international language support
-        response_str = message_content.replace("—", "-").replace("–", "-")
+        if message_content is None:
+            return ""
 
-        return repair_json(response_str)
+        # Dashes (em/en) are legal JSON string characters; rewriting them
+        # would silently alter clinical text, so the payload is repaired for
+        # JSON only — never for content.
+        return repair_json(str(message_content))
 
     async def chat(
         self,
