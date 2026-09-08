@@ -24,6 +24,7 @@ from __future__ import annotations
 
 import os
 from typing import Any
+from urllib.parse import urlsplit
 
 # REST hosts (pre-recorded upload/submit/poll).
 ASSEMBLYAI_DEFAULT_URL = "https://api.assemblyai.com"
@@ -79,12 +80,32 @@ def assemblyai_streaming_url(config: dict[str, Any]) -> str:
     if url:
         return url
     rest = assemblyai_rest_url(config)
-    lowered = rest.lower()
-    if ".eu." in lowered or lowered.endswith("eu.assemblyai.com"):
+    region = _assemblyai_region(rest)
+    if region == "eu":
         return ASSEMBLYAI_EU_STREAMING_URL
-    if ".us." in lowered or lowered.endswith("us.assemblyai.com"):
+    if region == "us":
         return ASSEMBLYAI_US_STREAMING_URL
     return ASSEMBLYAI_STREAMING_URL
+
+
+def _assemblyai_region(url: str) -> str | None:
+    """Return the AssemblyAI data region in a REST host, if any.
+
+    Only the region-adjacent subdomain of the ``assemblyai.com`` registrable
+    domain is honoured, so a crafted host such as ``eu.evil.example.com`` or
+    ``notassemblyai.com`` never selects a regional endpoint.
+    """
+    try:
+        host = (urlsplit(url).hostname or "").lower().rstrip(".")
+    except ValueError:
+        return None
+    labels = host.split(".")
+    if len(labels) < 3 or labels[-2:] != ["assemblyai", "com"]:
+        return None
+    region = labels[-3]
+    if region in {"eu", "us"}:
+        return region
+    return None
 
 
 def assemblyai_model(config: dict[str, Any]) -> str:

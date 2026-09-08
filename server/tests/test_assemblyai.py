@@ -59,6 +59,16 @@ def test_assemblyai_url_helpers():
         aai.assemblyai_streaming_url({"ASR_BASE_URL": "https://api.assemblyai.com"})
         == aai.ASSEMBLYAI_STREAMING_URL
     )
+    # A crafted host whose suffix merely contains "assemblyai.com" must not
+    # select a regional endpoint (the registrable domain has to match exactly).
+    assert (
+        aai.assemblyai_streaming_url({"ASR_BASE_URL": "https://eu.evil.example.com"})
+        == aai.ASSEMBLYAI_STREAMING_URL
+    )
+    assert (
+        aai.assemblyai_streaming_url({"ASR_BASE_URL": "https://api.assemblyai.com.evil.com"})
+        == aai.ASSEMBLYAI_STREAMING_URL
+    )
 
 
 def test_assemblyai_speech_model_mapping():
