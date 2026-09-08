@@ -152,7 +152,9 @@ async def test_transcribe_assemblyai_explicit_language_and_key_required():
     responses = [
         _fake_response(200, {"upload_url": "https://cdn.assemblyai.com/upload/u2"}),
         _fake_response(200, {"id": "t-2", "status": "queued"}),
-        _fake_response(200, {"id": "t-2", "status": "completed", "text": "سلام", "audio_duration": 2.0}),
+        _fake_response(
+            200, {"id": "t-2", "status": "completed", "text": "سلام", "audio_duration": 2.0}
+        ),
     ]
     mock_client = _mock_client(responses[0], responses[1], responses[2:])
 

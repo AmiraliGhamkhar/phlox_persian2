@@ -848,8 +848,7 @@ async def _transcribe_assemblyai(
     api_key = assemblyai_api_key(config)
     if not api_key:
         raise ValueError(
-            "An AssemblyAI API key is required for file transcription "
-            "(set ASR_KEY in Settings)"
+            "An AssemblyAI API key is required for file transcription (set ASR_KEY in Settings)"
         )
     base_url = assemblyai_rest_url(config)
     language = resolve_asr_language(config)
@@ -881,9 +880,7 @@ async def _transcribe_assemblyai(
                     raise ValueError(f"AssemblyAI upload forbidden (403): {detail}")
                 if response.status_code == 429:
                     raise ValueError(f"AssemblyAI rate limited (429): {detail}")
-                raise ValueError(
-                    f"AssemblyAI upload failed ({response.status_code}): {detail}"
-                )
+                raise ValueError(f"AssemblyAI upload failed ({response.status_code}): {detail}")
             try:
                 upload_url = str(response.json()["upload_url"])
             except Exception as error:
@@ -915,12 +912,9 @@ async def _transcribe_assemblyai(
                 detail = sanitize_provider_error(response.text)
                 if response.status_code == 401:
                     raise ValueError(
-                        "AssemblyAI authentication failed (401) while submitting the "
-                        f"job: {detail}"
+                        f"AssemblyAI authentication failed (401) while submitting the job: {detail}"
                     )
-                raise ValueError(
-                    f"AssemblyAI job rejected ({response.status_code}): {detail}"
-                )
+                raise ValueError(f"AssemblyAI job rejected ({response.status_code}): {detail}")
             try:
                 transcript_id = str(response.json()["id"])
             except Exception as error:
@@ -942,9 +936,7 @@ async def _transcribe_assemblyai(
                         headers=headers,
                     )
                 except httpx.RequestError as error:
-                    raise ValueError(
-                        f"AssemblyAI transcript fetch failed: {error}"
-                    ) from error
+                    raise ValueError(f"AssemblyAI transcript fetch failed: {error}") from error
                 if response.status_code != 200:
                     raise ValueError(
                         "AssemblyAI transcript fetch failed "
@@ -981,8 +973,7 @@ async def _transcribe_assemblyai(
     return {
         "text": transcript_text,
         # Prefer the provider's measured audio duration; fall back to wall time.
-        "transcriptionDuration": audio_duration
-        or float(f"{time.perf_counter() - started:.2f}"),
+        "transcriptionDuration": audio_duration or float(f"{time.perf_counter() - started:.2f}"),
     }
 
 

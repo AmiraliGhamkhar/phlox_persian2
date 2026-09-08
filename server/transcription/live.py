@@ -363,9 +363,7 @@ class AssemblyAILiveSession(LiveSession):
             return
 
         # Realtime frames carry a ``message_type``; tolerate a bare ``type``.
-        message_type = str(
-            payload.get("message_type") or payload.get("type") or ""
-        ).lower()
+        message_type = str(payload.get("message_type") or payload.get("type") or "").lower()
 
         if message_type in ("partialtranscript", "transcript"):
             if payload.get("text"):
