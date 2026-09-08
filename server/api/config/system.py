@@ -41,6 +41,11 @@ def _get_whisper_status_url(config: dict) -> str | None:
         # Speechmatics has no public models listing; a configured key is enough.
         return None
 
+    if protocol == "assemblyai":
+        # AssemblyAI has no public model-listing endpoint; a configured key is
+        # enough. Cloud status is reported as "up" when a key is set.
+        return None
+
     if protocol == "fireworks":
         return None
 
@@ -128,7 +133,7 @@ async def get_server_status():
 
         whisper_url = _get_whisper_status_url(config)
         asr = resolve_asr_connection(config)
-        if asr["provider"] in {"speechmatics", "fireworks"}:
+        if asr["provider"] in {"speechmatics", "fireworks", "assemblyai"}:
             # Cloud providers are "up" when a key is configured. Speechmatics
             # keys are product-scoped, so also accept the Batch key.
             batch_key = config.get("ASR_BATCH_KEY") or config.get("WHISPER_BATCH_KEY")

@@ -78,11 +78,15 @@ export const useTranscriptionStep = (currentStep, inferenceMode = "remote") => {
         if (asrProvider === "speechmatics") {
             return ASR_PROVIDER_DEFAULTS.speechmatics.models;
         }
+        if (asrProvider === "assemblyai") {
+            return ASR_PROVIDER_DEFAULTS.assemblyai.models;
+        }
         return whisperData?.models || [];
     }, [asrProvider, whisperData]);
     const whisperModelListAvailable =
         asrProvider === "fireworks" ||
         asrProvider === "speechmatics" ||
+        asrProvider === "assemblyai" ||
         whisperData?.listAvailable ||
         false;
 

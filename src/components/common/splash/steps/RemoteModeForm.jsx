@@ -172,6 +172,7 @@ export const RemoteModeForm = ({
               <option value="openai">OpenAI Audio</option>
               <option value="whispercpp">سرور Whisper.cpp</option>
               <option value="speechmatics">Speechmatics؛ بلادرنگ</option>
+              <option value="assemblyai">AssemblyAI</option>
               <option value="fireworks">Fireworks AI ASR</option>
             </NativeSelect.Field>
             <NativeSelect.Indicator />
@@ -196,7 +197,7 @@ export const RemoteModeForm = ({
           </NativeSelect.Root>
         </Field.Root>
 
-        {["openai_compatible", "openai", "whispercpp", "fireworks"].includes(
+        {["openai_compatible", "openai", "whispercpp", "assemblyai", "fireworks"].includes(
           asrProvider,
         ) && (
           <Field.Root>
@@ -214,7 +215,7 @@ export const RemoteModeForm = ({
             />
           </Field.Root>
         )}
-        {["speechmatics", "fireworks", "openai"].includes(asrProvider) && (
+        {["speechmatics", "assemblyai", "fireworks", "openai"].includes(asrProvider) && (
           <Field.Root>
             <Field.Label fontSize="sm" color="textSecondary">
               کلید API سرویس ASR
@@ -266,7 +267,17 @@ export const RemoteModeForm = ({
             </Field.Root>
           </>
         )}
+        {asrProvider === "assemblyai" && (
+          <Text fontSize="xs" color="textSecondary">
+            AssemblyAI از فایلهای ضبطشده و جریان بلادرنگ با یک کلید پشتیبانی
+            میکند؛ کلید بدون پیشوند Bearer ارسال میشود. برای فارسی از مدل
+            universal-2 (پشتیبانی از ۹۹ زبان) استفاده کنید؛
+            universal-3-5-pro برای زبانهای خارج از ۱۸ زبان بومی بهطور خودکار
+            به universal-2 برمیگردد.
+          </Text>
+        )}
         {(asrProvider === "speechmatics" ||
+          asrProvider === "assemblyai" ||
           asrProvider === "fireworks" ||
           whisperBaseUrl.trim()) && (
           <Field.Root>
@@ -299,6 +310,19 @@ export const RemoteModeForm = ({
                   <option value="fireworks-asr-large">Fireworks ASR Large (زنده)</option>
                   <option value="whisper-v3-turbo">Whisper v3 Turbo (دسته‌ای)</option>
                   <option value="whisper-v3">Whisper v3 (دسته‌ای)</option>
+                </NativeSelect.Field>
+                <NativeSelect.Indicator />
+              </NativeSelect.Root>
+            ) : asrProvider === "assemblyai" ? (
+              <NativeSelect.Root>
+                <NativeSelect.Field
+                  value={whisperModel || "universal-3-5-pro"}
+                  onChange={(e) => setWhisperModel(e.target.value)}
+                  className="input-style"
+                  size="sm"
+                >
+                  <option value="universal-3-5-pro">Universal-3.5 Pro (فایل‌ها و زنده)</option>
+                  <option value="universal-2">Universal-2 (۹۹ زبان؛ توصیه برای فارسی)</option>
                 </NativeSelect.Field>
                 <NativeSelect.Indicator />
               </NativeSelect.Root>

@@ -209,7 +209,7 @@ async def get_whisper_models(
     """
     try:
         provider_id = normalize_provider_id(provider, "asr") if provider else ""
-        if provider_id in {"speechmatics", "fireworks"}:
+        if provider_id in {"speechmatics", "fireworks", "assemblyai"}:
             info = ASR_PROVIDERS.get(provider_id) or {}
             return {
                 "models": list(info.get("default_models") or []),
