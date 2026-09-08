@@ -36,7 +36,10 @@ def test_every_file_is_a_valid_json_array():
         assert isinstance(data, list), f"{path.name} must be a JSON array"
         assert data, f"{path.name} is empty"
         for i, entry in enumerate(data):
-            assert set(entry) == {"fa", "en", "cat"}, f"{path.name}[{i}] has extra/missing keys: {entry}"
+            assert isinstance(entry, dict), f"{path.name}[{i}] entry is not an object"
+            assert set(entry) == {"fa", "en", "cat"}, (
+                f"{path.name}[{i}] has extra/missing keys: {entry}"
+            )
 
 
 def test_full_validation_passes():

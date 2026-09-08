@@ -82,9 +82,9 @@ class VectorStoreManager:
     def _config_fingerprint(self) -> tuple:
         """Cheap identity of the LLM/prompt state the manager depends on."""
         config = config_manager.get_config()
-        prompt = (config_manager.get_prompts_and_options().get("prompts", {}).get("chat", {}) or {}).get(
-            "system", ""
-        )
+        prompt = (
+            config_manager.get_prompts_and_options().get("prompts", {}).get("chat", {}) or {}
+        ).get("system", "")
         return (
             config.get("LLM_PROVIDER"),
             config.get("LLM_BASE_URL"),

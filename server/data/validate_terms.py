@@ -38,14 +38,73 @@ _FA_ALLOWED_EXTRA = re.compile(r"^[\u0600-\u06FF\u0660-\u0669A-Za-z0-9\u200c \-/
 # (virus letters, acronyms, unit-ish symbols). Longer Latin runs inside the
 # Persian field are a corruption signal (e.g. 'اسکab') and fail validation.
 _FA_LATIN_WHITELIST = {
-    "A", "B", "C", "D", "E", "F", "G", "K", "Rh",
-    "IV", "CT", "MRI", "ECG", "EKG",
-    "DNA", "RNA", "PCR", "HIV", "HBV", "HCV", "HBSAG", "HCC", "COPD",
-    "GERD", "IBS", "IBD", "RA", "OA", "TIA", "DVT", "PE", "MI", "DKA",
-    "CKD", "AKI", "CVD", "SLE", "PTSD", "GAD", "OCD", "PCOS", "BPH",
-    "ALS", "CPK", "TSH", "FT4", "FT3", "INR", "PT", "aPTT", "CRP",
-    "ESR", "ANA", "HLA", "IgA", "IgG", "IgM", "eGFR", "HbA1c", "CBC",
-    "M", "ISS", "R", "S", "CRAB", "PSA", "PET", "DNA", "RNA", "PCR",
+    "A",
+    "B",
+    "C",
+    "D",
+    "E",
+    "F",
+    "G",
+    "K",
+    "Rh",
+    "IV",
+    "CT",
+    "MRI",
+    "ECG",
+    "EKG",
+    "DNA",
+    "RNA",
+    "PCR",
+    "HIV",
+    "HBV",
+    "HCV",
+    "HBSAG",
+    "HCC",
+    "COPD",
+    "GERD",
+    "IBS",
+    "IBD",
+    "RA",
+    "OA",
+    "TIA",
+    "DVT",
+    "PE",
+    "MI",
+    "DKA",
+    "CKD",
+    "AKI",
+    "CVD",
+    "SLE",
+    "PTSD",
+    "GAD",
+    "OCD",
+    "PCOS",
+    "BPH",
+    "ALS",
+    "CPK",
+    "TSH",
+    "FT4",
+    "FT3",
+    "INR",
+    "PT",
+    "aPTT",
+    "CRP",
+    "ESR",
+    "ANA",
+    "HLA",
+    "IgA",
+    "IgG",
+    "IgM",
+    "eGFR",
+    "HbA1c",
+    "CBC",
+    "M",
+    "ISS",
+    "R",
+    "S",
+    "CRAB",
+    "PSA",
+    "PET",
 }
 _LATIN_RUN = re.compile(r"[A-Za-z]{1,}")
 _WS = re.compile(r"\s{2,}")
@@ -68,6 +127,8 @@ def load_raw_terms(terms_dir: Path | None = None) -> list[dict]:
         if not isinstance(data, list):
             raise TermValidationError(f"{path.name}: expected a JSON array")
         for i, entry in enumerate(data):
+            if not isinstance(entry, dict):
+                raise TermValidationError(f"{path.name}[{i}]: entry is not an object")
             entry = dict(entry)
             entry["_file"] = path.name
             entry["_index"] = i
@@ -91,9 +152,12 @@ def validate_terms(entries: list[dict] | None = None) -> list[dict]:
         en = e.get("en")
         cat = e.get("cat")
 
-        for field, value in (("fa", fa), ("en", en), ("cat", cat)):
-            if not isinstance(value, str) or not value.strip():
-                raise TermValidationError(f"{loc}: field '{field}' missing or empty")
+        if not isinstance(fa, str) or not fa.strip():
+            raise TermValidationError(f"{loc}: field 'fa' missing or empty")
+        if not isinstance(en, str) or not en.strip():
+            raise TermValidationError(f"{loc}: field 'en' missing or empty")
+        if not isinstance(cat, str) or not cat.strip():
+            raise TermValidationError(f"{loc}: field 'cat' missing or empty")
 
         fa = fa.strip()
         en = en.strip()

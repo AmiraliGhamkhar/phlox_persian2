@@ -120,8 +120,11 @@ def search(query: str, limit: int = 10, threshold: int = 55) -> list[dict[str, A
     if not entries:
         return []
 
+    fuzz: Any | None = None
     try:
-        from rapidfuzz import fuzz
+        from rapidfuzz import fuzz as _fuzz_module
+
+        fuzz = _fuzz_module
     except Exception:  # pragma: no cover - rapidfuzz is a hard dependency
         fuzz = None
 
@@ -148,9 +151,9 @@ def search(query: str, limit: int = 10, threshold: int = 55) -> list[dict[str, A
             # whole word, so "pe" matches "pulmonary embolism (PE)" but not
             # "...topenic purpura".
             short, long_ = (q_norm, side) if len(q_norm) <= len(side) else (side, q_norm)
-            contained = re.search(
-                r"(?<![a-z0-9])" + re.escape(short) + r"(?![a-z0-9])", long_
-            ) is not None
+            contained = (
+                re.search(r"(?<![a-z0-9])" + re.escape(short) + r"(?![a-z0-9])", long_) is not None
+            )
         else:
             # Short Persian tokens (قلب, گرم) never get a containment boost:
             # 2-3 char words would light up whole categories.
@@ -219,7 +222,7 @@ def terms_for_context(text: str, max_terms: int = MAX_CONTEXT_TERMS) -> list[dic
     # More specific (longer) terms first; then by frequency; then alphabetical.
     matches.sort(key=lambda m: (m["_len"], m["occurrences"], m["en"]), reverse=True)
     out = []
-    seen: set[str] = set()
+    seen: set[tuple[str, str]] = set()
     for m in matches:
         key = (m["fa"].casefold(), m["en"].casefold())
         if key in seen:
