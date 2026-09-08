@@ -236,6 +236,14 @@ async def execute_tool_streaming(
         ):
             yield result
 
+    elif function_name == "search_medical_dictionary":
+        from .medical_dictionary import execute
+
+        async for result in execute(
+            tool_call, llm_client, config, message_list, context_question_options
+        ):
+            yield result
+
     elif function_name == "get_relevant_literature":
         from .direct_response import execute as execute_direct
         from .literature_search import execute as execute_literature

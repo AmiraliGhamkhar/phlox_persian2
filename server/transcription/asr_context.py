@@ -109,6 +109,20 @@ def build_bias_terms(
     except Exception:  # noqa: BLE001 — biasing is best-effort, never fatal
         logger.debug("ASR bias lexicon skipped", exc_info=True)
 
+    # Base medical-terminology layer from the bundled Persian-English
+    # dictionary: patient-specific terms above keep priority, and common
+    # clinical vocabulary (symptoms, conditions, meds, labs, oncology) fills
+    # whatever capacity remains. Best-effort — never fatal.
+    try:
+        from server.data.medical_dictionary import asr_bias_terms
+
+        for term in asr_bias_terms():
+            value = _clean_term(term)
+            if value:
+                cleaned.append(value)
+    except Exception:  # noqa: BLE001 — biasing is best-effort, never fatal
+        logger.debug("ASR dictionary bias layer skipped", exc_info=True)
+
     return _dedupe(cleaned)[:_MAX_TERMS]
 
 

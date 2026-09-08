@@ -1,0 +1,287 @@
+[
+  {
+    "fa": "آرنج",
+    "en": "elbow",
+    "cat": "anatomy"
+  },
+  {
+    "fa": "استخوان",
+    "en": "bone",
+    "cat": "anatomy"
+  },
+  {
+    "fa": "بافت",
+    "en": "tissue",
+    "cat": "anatomy"
+  },
+  {
+    "fa": "بینی",
+    "en": "nose",
+    "cat": "anatomy"
+  },
+  {
+    "fa": "تخمدان",
+    "en": "ovary",
+    "cat": "anatomy"
+  },
+  {
+    "fa": "تیموس",
+    "en": "thymus",
+    "cat": "anatomy"
+  },
+  {
+    "fa": "حالب",
+    "en": "ureter",
+    "cat": "anatomy"
+  },
+  {
+    "fa": "خون",
+    "en": "blood",
+    "cat": "anatomy"
+  },
+  {
+    "fa": "دریچه قلب",
+    "en": "heart valve",
+    "cat": "anatomy"
+  },
+  {
+    "fa": "دست",
+    "en": "hand",
+    "cat": "anatomy"
+  },
+  {
+    "fa": "دهان",
+    "en": "mouth",
+    "cat": "anatomy"
+  },
+  {
+    "fa": "دوازدهه",
+    "en": "duodenum",
+    "cat": "anatomy"
+  },
+  {
+    "fa": "دیواره قلب",
+    "en": "heart wall",
+    "cat": "anatomy"
+  },
+  {
+    "fa": "رحم",
+    "en": "uterus",
+    "cat": "anatomy"
+  },
+  {
+    "fa": "روده باریک",
+    "en": "small intestine",
+    "cat": "anatomy"
+  },
+  {
+    "fa": "روده بزرگ",
+    "en": "large intestine",
+    "cat": "anatomy"
+  },
+  {
+    "fa": "رکتوم",
+    "en": "rectum",
+    "cat": "anatomy"
+  },
+  {
+    "fa": "رگ",
+    "en": "blood vessel",
+    "cat": "anatomy"
+  },
+  {
+    "fa": "ریه",
+    "en": "lung",
+    "cat": "anatomy"
+  },
+  {
+    "fa": "زانو",
+    "en": "knee",
+    "cat": "anatomy"
+  },
+  {
+    "fa": "ستون فقرات",
+    "en": "spine",
+    "cat": "anatomy"
+  },
+  {
+    "fa": "سر",
+    "en": "head",
+    "cat": "anatomy"
+  },
+  {
+    "fa": "سلول",
+    "en": "cell",
+    "cat": "anatomy"
+  },
+  {
+    "fa": "شانه",
+    "en": "shoulder",
+    "cat": "anatomy"
+  },
+  {
+    "fa": "شریان",
+    "en": "artery",
+    "cat": "anatomy"
+  },
+  {
+    "fa": "شریان کرونر",
+    "en": "coronary artery",
+    "cat": "anatomy"
+  },
+  {
+    "fa": "شکم",
+    "en": "abdomen",
+    "cat": "anatomy"
+  },
+  {
+    "fa": "صورت",
+    "en": "face",
+    "cat": "anatomy"
+  },
+  {
+    "fa": "طحال",
+    "en": "spleen",
+    "cat": "anatomy"
+  },
+  {
+    "fa": "عصب",
+    "en": "nerve",
+    "cat": "anatomy"
+  },
+  {
+    "fa": "عضله",
+    "en": "muscle",
+    "cat": "anatomy"
+  },
+  {
+    "fa": "غدد لنفاوی",
+    "en": "lymph node",
+    "cat": "anatomy"
+  },
+  {
+    "fa": "غدد پاراتیروئید",
+    "en": "parathyroid gland",
+    "cat": "anatomy"
+  },
+  {
+    "fa": "غده تیروئید",
+    "en": "thyroid gland",
+    "cat": "anatomy"
+  },
+  {
+    "fa": "قفسه سینه",
+    "en": "chest",
+    "cat": "anatomy"
+  },
+  {
+    "fa": "قلب",
+    "en": "heart",
+    "cat": "anatomy"
+  },
+  {
+    "fa": "لنفاوی",
+    "en": "lymphatic",
+    "cat": "anatomy"
+  },
+  {
+    "fa": "لوزالمعده",
+    "en": "pancreas",
+    "cat": "anatomy"
+  },
+  {
+    "fa": "مثانه",
+    "en": "bladder",
+    "cat": "anatomy"
+  },
+  {
+    "fa": "مری",
+    "en": "esophagus",
+    "cat": "anatomy"
+  },
+  {
+    "fa": "معده",
+    "en": "stomach",
+    "cat": "anatomy"
+  },
+  {
+    "fa": "مغز",
+    "en": "brain",
+    "cat": "anatomy"
+  },
+  {
+    "fa": "مغز استخوان",
+    "en": "bone marrow",
+    "cat": "anatomy"
+  },
+  {
+    "fa": "مفصل",
+    "en": "joint",
+    "cat": "anatomy"
+  },
+  {
+    "fa": "مچ دست",
+    "en": "wrist",
+    "cat": "anatomy"
+  },
+  {
+    "fa": "نخاع",
+    "en": "spinal cord",
+    "cat": "anatomy"
+  },
+  {
+    "fa": "ورید",
+    "en": "vein",
+    "cat": "anatomy"
+  },
+  {
+    "fa": "پا",
+    "en": "foot",
+    "cat": "anatomy"
+  },
+  {
+    "fa": "پروستات",
+    "en": "prostate",
+    "cat": "anatomy"
+  },
+  {
+    "fa": "پوست",
+    "en": "skin",
+    "cat": "anatomy"
+  },
+  {
+    "fa": "کبد",
+    "en": "liver",
+    "cat": "anatomy"
+  },
+  {
+    "fa": "کلیه",
+    "en": "kidney",
+    "cat": "anatomy"
+  },
+  {
+    "fa": "کمر",
+    "en": "lumbar region",
+    "cat": "anatomy"
+  },
+  {
+    "fa": "کیسه صفرا",
+    "en": "gallbladder",
+    "cat": "anatomy"
+  },
+  {
+    "fa": "گردن",
+    "en": "neck",
+    "cat": "anatomy"
+  },
+  {
+    "fa": "گلو",
+    "en": "throat",
+    "cat": "anatomy"
+  },
+  {
+    "fa": "گوش",
+    "en": "ear",
+    "cat": "anatomy"
+  }
+]

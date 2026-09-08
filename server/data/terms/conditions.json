@@ -1,0 +1,1252 @@
+[
+  {
+    "fa": "آبسه",
+    "en": "abscess",
+    "cat": "conditions"
+  },
+  {
+    "fa": "آبله‌مرغان",
+    "en": "varicella",
+    "cat": "conditions"
+  },
+  {
+    "fa": "آترواسکلروز",
+    "en": "atherosclerosis",
+    "cat": "conditions"
+  },
+  {
+    "fa": "آتلیکتازی",
+    "en": "atelectasis",
+    "cat": "conditions"
+  },
+  {
+    "fa": "آرتروز",
+    "en": "osteoarthritis",
+    "cat": "conditions"
+  },
+  {
+    "fa": "آرتریت روماتوئید",
+    "en": "rheumatoid arthritis",
+    "cat": "conditions"
+  },
+  {
+    "fa": "آرتریت پسوریاتیک",
+    "en": "psoriatic arthritis",
+    "cat": "conditions"
+  },
+  {
+    "fa": "آریتمی قلبی",
+    "en": "arrhythmia",
+    "cat": "conditions"
+  },
+  {
+    "fa": "آسم",
+    "en": "asthma",
+    "cat": "conditions"
+  },
+  {
+    "fa": "آسیت",
+    "en": "ascites",
+    "cat": "conditions"
+  },
+  {
+    "fa": "آلرژی",
+    "en": "allergy",
+    "cat": "conditions"
+  },
+  {
+    "fa": "آلرژی دارویی",
+    "en": "drug allergy",
+    "cat": "conditions"
+  },
+  {
+    "fa": "آلزایمر",
+    "en": "Alzheimer disease",
+    "cat": "conditions"
+  },
+  {
+    "fa": "آمبولی ریوی",
+    "en": "pulmonary embolism",
+    "cat": "conditions"
+  },
+  {
+    "fa": "آنافیلاکسی",
+    "en": "anaphylaxis",
+    "cat": "conditions"
+  },
+  {
+    "fa": "آنفلوانزا",
+    "en": "influenza",
+    "cat": "conditions"
+  },
+  {
+    "fa": "آنوریسم آئورت",
+    "en": "aortic aneurysm",
+    "cat": "conditions"
+  },
+  {
+    "fa": "آنژین صدری",
+    "en": "angina pectoris",
+    "cat": "conditions"
+  },
+  {
+    "fa": "آنژین ناپایدار",
+    "en": "unstable angina",
+    "cat": "conditions"
+  },
+  {
+    "fa": "آنگددم",
+    "en": "angioedema",
+    "cat": "conditions"
+  },
+  {
+    "fa": "آپلازی سلول قرمز خالص",
+    "en": "pure red cell aplasia",
+    "cat": "conditions"
+  },
+  {
+    "fa": "آپنه انسدادی خواب",
+    "en": "obstructive sleep apnea",
+    "cat": "conditions"
+  },
+  {
+    "fa": "آکرومگالی",
+    "en": "acromegaly",
+    "cat": "conditions"
+  },
+  {
+    "fa": "آکنه",
+    "en": "acne",
+    "cat": "conditions"
+  },
+  {
+    "fa": "اختلال اضطراب فراگیر",
+    "en": "generalized anxiety disorder",
+    "cat": "conditions"
+  },
+  {
+    "fa": "اختلال دوقطبی",
+    "en": "bipolar disorder",
+    "cat": "conditions"
+  },
+  {
+    "fa": "اختلال هراس",
+    "en": "panic disorder",
+    "cat": "conditions"
+  },
+  {
+    "fa": "اختلال وسواسی اجباری",
+    "en": "obsessive-compulsive disorder",
+    "cat": "conditions"
+  },
+  {
+    "fa": "استئوآرتریت",
+    "en": "osteoarthritis",
+    "cat": "conditions"
+  },
+  {
+    "fa": "استئومیلیت",
+    "en": "osteomyelitis",
+    "cat": "conditions"
+  },
+  {
+    "fa": "استنوز دریچه آئورت",
+    "en": "aortic stenosis",
+    "cat": "conditions"
+  },
+  {
+    "fa": "استنوز دریچه میترال",
+    "en": "mitral stenosis",
+    "cat": "conditions"
+  },
+  {
+    "fa": "اسپلنومگالی",
+    "en": "splenomegaly",
+    "cat": "conditions"
+  },
+  {
+    "fa": "اسپوندیلوز",
+    "en": "spondylosis",
+    "cat": "conditions"
+  },
+  {
+    "fa": "اسپوندیلیت آنکیلوزان",
+    "en": "ankylosing spondylitis",
+    "cat": "conditions"
+  },
+  {
+    "fa": "اسکلروز سیستمیک",
+    "en": "systemic sclerosis",
+    "cat": "conditions"
+  },
+  {
+    "fa": "اسکلروز چندگانه",
+    "en": "multiple sclerosis",
+    "cat": "conditions"
+  },
+  {
+    "fa": "اسکیزوفرنی",
+    "en": "schizophrenia",
+    "cat": "conditions"
+  },
+  {
+    "fa": "اسیدوز",
+    "en": "acidosis",
+    "cat": "conditions"
+  },
+  {
+    "fa": "افت سدیم خون",
+    "en": "hyponatremia",
+    "cat": "conditions"
+  },
+  {
+    "fa": "افت پتاسیم خون",
+    "en": "hypokalemia",
+    "cat": "conditions"
+  },
+  {
+    "fa": "افزایش پتاسیم خون",
+    "en": "hyperkalemia",
+    "cat": "conditions"
+  },
+  {
+    "fa": "افسردگی",
+    "en": "depression",
+    "cat": "conditions"
+  },
+  {
+    "fa": "التهاب پرده شش",
+    "en": "pleuritis",
+    "cat": "conditions"
+  },
+  {
+    "fa": "اندوکاردیت",
+    "en": "endocarditis",
+    "cat": "conditions"
+  },
+  {
+    "fa": "انسفالیت",
+    "en": "encephalitis",
+    "cat": "conditions"
+  },
+  {
+    "fa": "انعقاد درون‌عروقی منتشر",
+    "en": "disseminated intravascular coagulation",
+    "cat": "conditions"
+  },
+  {
+    "fa": "ايزوفاجیت",
+    "en": "esophagitis",
+    "cat": "conditions"
+  },
+  {
+    "fa": "اگزما",
+    "en": "eczema",
+    "cat": "conditions"
+  },
+  {
+    "fa": "برادیکاردی",
+    "en": "bradycardia",
+    "cat": "conditions"
+  },
+  {
+    "fa": "برونشکتازی",
+    "en": "bronchiectasis",
+    "cat": "conditions"
+  },
+  {
+    "fa": "برونشیت",
+    "en": "bronchitis",
+    "cat": "conditions"
+  },
+  {
+    "fa": "برونشیولیت",
+    "en": "bronchiolitis",
+    "cat": "conditions"
+  },
+  {
+    "fa": "بزرگی خوش‌خیم پروستات",
+    "en": "benign prostatic hyperplasia",
+    "cat": "conditions"
+  },
+  {
+    "fa": "بیماری آدیسون",
+    "en": "Addison disease",
+    "cat": "conditions"
+  },
+  {
+    "fa": "بیماری دریچه قلب",
+    "en": "valvular heart disease",
+    "cat": "conditions"
+  },
+  {
+    "fa": "بیماری رفلاکس گاسترواستزوفاجیل",
+    "en": "GERD",
+    "cat": "conditions"
+  },
+  {
+    "fa": "بیماری سل صدفی",
+    "en": "sickle cell disease",
+    "cat": "conditions"
+  },
+  {
+    "fa": "بیماری سلیاک",
+    "en": "celiac disease",
+    "cat": "conditions"
+  },
+  {
+    "fa": "بیماری شریان محیطی",
+    "en": "peripheral artery disease",
+    "cat": "conditions"
+  },
+  {
+    "fa": "بیماری فون ویلهبراند",
+    "en": "von Willebrand disease",
+    "cat": "conditions"
+  },
+  {
+    "fa": "بیماری مزمن انسدادی ریه",
+    "en": "COPD",
+    "cat": "conditions"
+  },
+  {
+    "fa": "بیماری کرون",
+    "en": "Crohn disease",
+    "cat": "conditions"
+  },
+  {
+    "fa": "بیماری کلیوی مزمن",
+    "en": "chronic kidney disease",
+    "cat": "conditions"
+  },
+  {
+    "fa": "بیماری کلیوی پلی‌کیستیک",
+    "en": "polycystic kidney disease",
+    "cat": "conditions"
+  },
+  {
+    "fa": "بیماری گریوز",
+    "en": "Graves disease",
+    "cat": "conditions"
+  },
+  {
+    "fa": "تالاسمی",
+    "en": "thalassemia",
+    "cat": "conditions"
+  },
+  {
+    "fa": "تالاسمی ماژور",
+    "en": "thalassemia major",
+    "cat": "conditions"
+  },
+  {
+    "fa": "تاکیکاردی",
+    "en": "tachycardia",
+    "cat": "conditions"
+  },
+  {
+    "fa": "تب تیفوئید",
+    "en": "typhoid fever",
+    "cat": "conditions"
+  },
+  {
+    "fa": "تب روماتیسمی",
+    "en": "rheumatic fever",
+    "cat": "conditions"
+  },
+  {
+    "fa": "ترومبوز وریدی عمقی",
+    "en": "deep vein thrombosis",
+    "cat": "conditions"
+  },
+  {
+    "fa": "ترومبوسیتوز",
+    "en": "thrombocytosis",
+    "cat": "conditions"
+  },
+  {
+    "fa": "ترومبوسیتوپنی",
+    "en": "thrombocytopenia",
+    "cat": "conditions"
+  },
+  {
+    "fa": "ترومبوسیتوپنی ناشی از هپارین",
+    "en": "heparin-induced thrombocytopenia",
+    "cat": "conditions"
+  },
+  {
+    "fa": "ترومبوفلبیت",
+    "en": "thrombophlebitis",
+    "cat": "conditions"
+  },
+  {
+    "fa": "تونسیلیت",
+    "en": "tonsillitis",
+    "cat": "conditions"
+  },
+  {
+    "fa": "تیروئیدیت",
+    "en": "thyroiditis",
+    "cat": "conditions"
+  },
+  {
+    "fa": "تیروئیدیت هاشیموتو",
+    "en": "Hashimoto thyroiditis",
+    "cat": "conditions"
+  },
+  {
+    "fa": "جدا شدن شبکیه",
+    "en": "retinal detachment",
+    "cat": "conditions"
+  },
+  {
+    "fa": "حمله عروقی مغزی گذرا",
+    "en": "transient ischemic attack",
+    "cat": "conditions"
+  },
+  {
+    "fa": "حمله قلبی",
+    "en": "myocardial infarction",
+    "cat": "conditions"
+  },
+  {
+    "fa": "خشکی چشم",
+    "en": "dry eye",
+    "cat": "conditions"
+  },
+  {
+    "fa": "درماتومیوزیت",
+    "en": "dermatomyositis",
+    "cat": "conditions"
+  },
+  {
+    "fa": "درماتیت",
+    "en": "dermatitis",
+    "cat": "conditions"
+  },
+  {
+    "fa": "درماتیت آتوپیک",
+    "en": "atopic dermatitis",
+    "cat": "conditions"
+  },
+  {
+    "fa": "درماتیت تماسی",
+    "en": "contact dermatitis",
+    "cat": "conditions"
+  },
+  {
+    "fa": "دیابت",
+    "en": "diabetes",
+    "cat": "conditions"
+  },
+  {
+    "fa": "دیابت بارداری",
+    "en": "gestational diabetes",
+    "cat": "conditions"
+  },
+  {
+    "fa": "دیابت نوع دو",
+    "en": "type 2 diabetes",
+    "cat": "conditions"
+  },
+  {
+    "fa": "دیابت نوع یک",
+    "en": "type 1 diabetes",
+    "cat": "conditions"
+  },
+  {
+    "fa": "دیستروفی عضلانی بکر",
+    "en": "Becker muscular dystrophy",
+    "cat": "conditions"
+  },
+  {
+    "fa": "دیستروفی عضلانی دوشن",
+    "en": "Duchenne muscular dystrophy",
+    "cat": "conditions"
+  },
+  {
+    "fa": "دیسکشن آئورت",
+    "en": "aortic dissection",
+    "cat": "conditions"
+  },
+  {
+    "fa": "دیفتری",
+    "en": "diphtheria",
+    "cat": "conditions"
+  },
+  {
+    "fa": "دیورتیکولیت",
+    "en": "diverticulitis",
+    "cat": "conditions"
+  },
+  {
+    "fa": "رادیکولوپاتی",
+    "en": "radiculopathy",
+    "cat": "conditions"
+  },
+  {
+    "fa": "رتینوپاتی دیابتی",
+    "en": "diabetic retinopathy",
+    "cat": "conditions"
+  },
+  {
+    "fa": "رفلاکس معده به مری",
+    "en": "gastroesophageal reflux disease",
+    "cat": "conditions"
+  },
+  {
+    "fa": "روزاسه",
+    "en": "rosacea",
+    "cat": "conditions"
+  },
+  {
+    "fa": "رینیت آلرژیک",
+    "en": "allergic rhinitis",
+    "cat": "conditions"
+  },
+  {
+    "fa": "زخم دوازدهه",
+    "en": "duodenal ulcer",
+    "cat": "conditions"
+  },
+  {
+    "fa": "زخم معده",
+    "en": "gastric ulcer",
+    "cat": "conditions"
+  },
+  {
+    "fa": "زوال عقل",
+    "en": "dementia",
+    "cat": "conditions"
+  },
+  {
+    "fa": "زونا",
+    "en": "shingles",
+    "cat": "conditions"
+  },
+  {
+    "fa": "سارکوئیدوز",
+    "en": "sarcoidosis",
+    "cat": "conditions"
+  },
+  {
+    "fa": "سرخک",
+    "en": "measles",
+    "cat": "conditions"
+  },
+  {
+    "fa": "سردرد تنشی",
+    "en": "tension-type headache",
+    "cat": "conditions"
+  },
+  {
+    "fa": "سرفه سگی",
+    "en": "pertussis",
+    "cat": "conditions"
+  },
+  {
+    "fa": "سل",
+    "en": "tuberculosis",
+    "cat": "conditions"
+  },
+  {
+    "fa": "سلولیت",
+    "en": "cellulitis",
+    "cat": "conditions"
+  },
+  {
+    "fa": "سندرم استرس پس از سانحه",
+    "en": "post-traumatic stress disorder",
+    "cat": "conditions"
+  },
+  {
+    "fa": "سندرم تخمدان پلی‌کیستیک",
+    "en": "polycystic ovary syndrome",
+    "cat": "conditions"
+  },
+  {
+    "fa": "سندرم ترنر",
+    "en": "Turner syndrome",
+    "cat": "conditions"
+  },
+  {
+    "fa": "سندرم تونل کارپال",
+    "en": "carpal tunnel syndrome",
+    "cat": "conditions"
+  },
+  {
+    "fa": "سندرم داون",
+    "en": "Down syndrome",
+    "cat": "conditions"
+  },
+  {
+    "fa": "سندرم روده تحریک‌پذیر",
+    "en": "irritable bowel syndrome",
+    "cat": "conditions"
+  },
+  {
+    "fa": "سندرم شوگرن",
+    "en": "Sjogren syndrome",
+    "cat": "conditions"
+  },
+  {
+    "fa": "سندرم مارفان",
+    "en": "Marfan syndrome",
+    "cat": "conditions"
+  },
+  {
+    "fa": "سندرم نارسایی تنفسی حاد",
+    "en": "acute respiratory distress syndrome",
+    "cat": "conditions"
+  },
+  {
+    "fa": "سندرم نفروتیک",
+    "en": "nephrotic syndrome",
+    "cat": "conditions"
+  },
+  {
+    "fa": "سندرم کلاینفلتر",
+    "en": "Klinefelter syndrome",
+    "cat": "conditions"
+  },
+  {
+    "fa": "سندرم کورنری حاد",
+    "en": "acute coronary syndrome",
+    "cat": "conditions"
+  },
+  {
+    "fa": "سندرم کوشیگ",
+    "en": "Cushing syndrome",
+    "cat": "conditions"
+  },
+  {
+    "fa": "سندرم گیلن‌باره",
+    "en": "Guillain-Barre syndrome",
+    "cat": "conditions"
+  },
+  {
+    "fa": "سنگ کلیه",
+    "en": "kidney stone",
+    "cat": "conditions"
+  },
+  {
+    "fa": "سنگ کیسه صفرا",
+    "en": "gallstone",
+    "cat": "conditions"
+  },
+  {
+    "fa": "سپسیس",
+    "en": "sepsis",
+    "cat": "conditions"
+  },
+  {
+    "fa": "سکته قلبی",
+    "en": "myocardial infarction",
+    "cat": "conditions"
+  },
+  {
+    "fa": "سکته مغزی",
+    "en": "stroke",
+    "cat": "conditions"
+  },
+  {
+    "fa": "سیروز کبدی",
+    "en": "liver cirrhosis",
+    "cat": "conditions"
+  },
+  {
+    "fa": "سیستیت",
+    "en": "cystitis",
+    "cat": "conditions"
+  },
+  {
+    "fa": "سیفلیس",
+    "en": "syphilis",
+    "cat": "conditions"
+  },
+  {
+    "fa": "سینوزیت",
+    "en": "sinusitis",
+    "cat": "conditions"
+  },
+  {
+    "fa": "شوک",
+    "en": "shock",
+    "cat": "conditions"
+  },
+  {
+    "fa": "شوک سپتیک",
+    "en": "septic shock",
+    "cat": "conditions"
+  },
+  {
+    "fa": "صدمه‌پذیری",
+    "en": "epilepsy",
+    "cat": "conditions"
+  },
+  {
+    "fa": "عصب سیاتیک",
+    "en": "sciatica",
+    "cat": "conditions"
+  },
+  {
+    "fa": "عفونت ریه",
+    "en": "lung infection",
+    "cat": "conditions"
+  },
+  {
+    "fa": "عفونت قارچی",
+    "en": "fungal infection",
+    "cat": "conditions"
+  },
+  {
+    "fa": "عفونت مجاری ادراری",
+    "en": "urinary tract infection",
+    "cat": "conditions"
+  },
+  {
+    "fa": "عفونت گوش میانی",
+    "en": "otitis media",
+    "cat": "conditions"
+  },
+  {
+    "fa": "فالینگیت",
+    "en": "pharyngitis",
+    "cat": "conditions"
+  },
+  {
+    "fa": "فشار خون بالا",
+    "en": "hypertension",
+    "cat": "conditions"
+  },
+  {
+    "fa": "فشار خون ریوی",
+    "en": "pulmonary hypertension",
+    "cat": "conditions"
+  },
+  {
+    "fa": "فشار خون مقاوم",
+    "en": "resistant hypertension",
+    "cat": "conditions"
+  },
+  {
+    "fa": "فلج بل",
+    "en": "Bell palsy",
+    "cat": "conditions"
+  },
+  {
+    "fa": "فیبروز ریه",
+    "en": "pulmonary fibrosis",
+    "cat": "conditions"
+  },
+  {
+    "fa": "فیبرومیالژیا",
+    "en": "fibromyalgia",
+    "cat": "conditions"
+  },
+  {
+    "fa": "فیبریلاسیون دهلیزی",
+    "en": "atrial fibrillation",
+    "cat": "conditions"
+  },
+  {
+    "fa": "قارچ پا",
+    "en": "athlete's foot",
+    "cat": "conditions"
+  },
+  {
+    "fa": "قلیوز",
+    "en": "alkalosis",
+    "cat": "conditions"
+  },
+  {
+    "fa": "لارنژیت",
+    "en": "laryngitis",
+    "cat": "conditions"
+  },
+  {
+    "fa": "لنفدم",
+    "en": "lymphedema",
+    "cat": "conditions"
+  },
+  {
+    "fa": "لوپوس",
+    "en": "lupus",
+    "cat": "conditions"
+  },
+  {
+    "fa": "لوپوس اریتماتوز سیستمیک",
+    "en": "systemic lupus erythematosus",
+    "cat": "conditions"
+  },
+  {
+    "fa": "لوکوپنی",
+    "en": "leukopenia",
+    "cat": "conditions"
+  },
+  {
+    "fa": "لکوسیتوز",
+    "en": "leukocytosis",
+    "cat": "conditions"
+  },
+  {
+    "fa": "مایستنی گراویس",
+    "en": "myasthenia gravis",
+    "cat": "conditions"
+  },
+  {
+    "fa": "ملاریا",
+    "en": "malaria",
+    "cat": "conditions"
+  },
+  {
+    "fa": "ملانوما",
+    "en": "melanoma",
+    "cat": "conditions"
+  },
+  {
+    "fa": "مننژیت",
+    "en": "meningitis",
+    "cat": "conditions"
+  },
+  {
+    "fa": "مونونوکلئوز",
+    "en": "mononucleosis",
+    "cat": "conditions"
+  },
+  {
+    "fa": "میوکاردیت",
+    "en": "myocarditis",
+    "cat": "conditions"
+  },
+  {
+    "fa": "میگرن",
+    "en": "migraine",
+    "cat": "conditions"
+  },
+  {
+    "fa": "نارسایی تنفسی",
+    "en": "respiratory failure",
+    "cat": "conditions"
+  },
+  {
+    "fa": "نارسایی دریچه آئورت",
+    "en": "aortic regurgitation",
+    "cat": "conditions"
+  },
+  {
+    "fa": "نارسایی دریچه میترال",
+    "en": "mitral regurgitation",
+    "cat": "conditions"
+  },
+  {
+    "fa": "نارسایی قلبی",
+    "en": "heart failure",
+    "cat": "conditions"
+  },
+  {
+    "fa": "نارسایی قلبی مزمن",
+    "en": "chronic heart failure",
+    "cat": "conditions"
+  },
+  {
+    "fa": "نارسایی مغز استخوان",
+    "en": "bone marrow failure",
+    "cat": "conditions"
+  },
+  {
+    "fa": "نارسایی کلیه",
+    "en": "renal failure",
+    "cat": "conditions"
+  },
+  {
+    "fa": "نارسایی کلیوی حاد",
+    "en": "acute kidney injury",
+    "cat": "conditions"
+  },
+  {
+    "fa": "نارسایی کورتکوال",
+    "en": "adrenal insufficiency",
+    "cat": "conditions"
+  },
+  {
+    "fa": "نخجیر",
+    "en": "scabies",
+    "cat": "conditions"
+  },
+  {
+    "fa": "نفروپاتی دیابتی",
+    "en": "diabetic nephropathy",
+    "cat": "conditions"
+  },
+  {
+    "fa": "نقرس",
+    "en": "gout",
+    "cat": "conditions"
+  },
+  {
+    "fa": "نوتروپنی تب‌دار",
+    "en": "febrile neutropenia",
+    "cat": "conditions"
+  },
+  {
+    "fa": "نوروپاتی دیابتی",
+    "en": "diabetic neuropathy",
+    "cat": "conditions"
+  },
+  {
+    "fa": "نوروپاتی محیطی",
+    "en": "peripheral neuropathy",
+    "cat": "conditions"
+  },
+  {
+    "fa": "هرنی دیسک",
+    "en": "herniated disc",
+    "cat": "conditions"
+  },
+  {
+    "fa": "هرپس",
+    "en": "herpes simplex",
+    "cat": "conditions"
+  },
+  {
+    "fa": "هلیکوباکتر پیلوری",
+    "en": "Helicobacter pylori",
+    "cat": "conditions"
+  },
+  {
+    "fa": "هموفیلی",
+    "en": "hemophilia",
+    "cat": "conditions"
+  },
+  {
+    "fa": "هموفیلی A",
+    "en": "hemophilia A",
+    "cat": "conditions"
+  },
+  {
+    "fa": "هموفیلی B",
+    "en": "hemophilia B",
+    "cat": "conditions"
+  },
+  {
+    "fa": "هپاتومگالی",
+    "en": "hepatomegaly",
+    "cat": "conditions"
+  },
+  {
+    "fa": "هپاتیت",
+    "en": "hepatitis",
+    "cat": "conditions"
+  },
+  {
+    "fa": "هپاتیت B",
+    "en": "hepatitis B",
+    "cat": "conditions"
+  },
+  {
+    "fa": "هپاتیت C",
+    "en": "hepatitis C",
+    "cat": "conditions"
+  },
+  {
+    "fa": "هیپرگلیسمی",
+    "en": "hyperglycemia",
+    "cat": "conditions"
+  },
+  {
+    "fa": "هیپوگلیسمی",
+    "en": "hypoglycemia",
+    "cat": "conditions"
+  },
+  {
+    "fa": "واریس",
+    "en": "varicose veins",
+    "cat": "conditions"
+  },
+  {
+    "fa": "واریس مری",
+    "en": "esophageal varices",
+    "cat": "conditions"
+  },
+  {
+    "fa": "واسکولیت",
+    "en": "vasculitis",
+    "cat": "conditions"
+  },
+  {
+    "fa": "ویتیلیگو",
+    "en": "vitiligo",
+    "cat": "conditions"
+  },
+  {
+    "fa": "پارکینسون",
+    "en": "Parkinson disease",
+    "cat": "conditions"
+  },
+  {
+    "fa": "پانکراتیت",
+    "en": "pancreatitis",
+    "cat": "conditions"
+  },
+  {
+    "fa": "پانکراتیت حاد",
+    "en": "acute pancreatitis",
+    "cat": "conditions"
+  },
+  {
+    "fa": "پانکراتیت مزمن",
+    "en": "chronic pancreatitis",
+    "cat": "conditions"
+  },
+  {
+    "fa": "پای دیابتی",
+    "en": "diabetic foot",
+    "cat": "conditions"
+  },
+  {
+    "fa": "پدیده رینود",
+    "en": "Raynaud phenomenon",
+    "cat": "conditions"
+  },
+  {
+    "fa": "پروستاتیت",
+    "en": "prostatitis",
+    "cat": "conditions"
+  },
+  {
+    "fa": "پرکاری تیروئید",
+    "en": "hyperthyroidism",
+    "cat": "conditions"
+  },
+  {
+    "fa": "پرکاری پاراتیروئید",
+    "en": "hyperparathyroidism",
+    "cat": "conditions"
+  },
+  {
+    "fa": "پریکاردیت",
+    "en": "pericarditis",
+    "cat": "conditions"
+  },
+  {
+    "fa": "پسوریازیس",
+    "en": "psoriasis",
+    "cat": "conditions"
+  },
+  {
+    "fa": "پلورزی",
+    "en": "pleurisy",
+    "cat": "conditions"
+  },
+  {
+    "fa": "پنوموتوراکس",
+    "en": "pneumothorax",
+    "cat": "conditions"
+  },
+  {
+    "fa": "پنومونی",
+    "en": "pneumonia",
+    "cat": "conditions"
+  },
+  {
+    "fa": "پورپورا ترومبوپنیک ترومبوتیک",
+    "en": "thrombotic thrombocytopenic purpura",
+    "cat": "conditions"
+  },
+  {
+    "fa": "پوکی استخوان",
+    "en": "osteoporosis",
+    "cat": "conditions"
+  },
+  {
+    "fa": "پیلونفریت",
+    "en": "pyelonephritis",
+    "cat": "conditions"
+  },
+  {
+    "fa": "چاقی",
+    "en": "obesity",
+    "cat": "conditions"
+  },
+  {
+    "fa": "کاتاراکت",
+    "en": "cataract",
+    "cat": "conditions"
+  },
+  {
+    "fa": "کاردیومیوپاتی",
+    "en": "cardiomyopathy",
+    "cat": "conditions"
+  },
+  {
+    "fa": "کاردیومیوپاتی ایسدمیک",
+    "en": "ischemic cardiomyopathy",
+    "cat": "conditions"
+  },
+  {
+    "fa": "کاردیومیوپاتی دیلاته",
+    "en": "dilated cardiomyopathy",
+    "cat": "conditions"
+  },
+  {
+    "fa": "کاردیومیوپاتی هیپرتروفیک",
+    "en": "hypertrophic cardiomyopathy",
+    "cat": "conditions"
+  },
+  {
+    "fa": "کارسینوم سلول سنگفرشی",
+    "en": "squamous cell carcinoma",
+    "cat": "conditions"
+  },
+  {
+    "fa": "کارسینوم سلول پایه",
+    "en": "basal cell carcinoma",
+    "cat": "conditions"
+  },
+  {
+    "fa": "کاندیدیازیس",
+    "en": "candidiasis",
+    "cat": "conditions"
+  },
+  {
+    "fa": "کبد چرب",
+    "en": "fatty liver",
+    "cat": "conditions"
+  },
+  {
+    "fa": "کبد چرب غیرالکلی",
+    "en": "nonalcoholic fatty liver disease",
+    "cat": "conditions"
+  },
+  {
+    "fa": "کتواسیدوز دیابتی",
+    "en": "diabetic ketoacidosis",
+    "cat": "conditions"
+  },
+  {
+    "fa": "کزاز",
+    "en": "tetanus",
+    "cat": "conditions"
+  },
+  {
+    "fa": "کلامیدیا",
+    "en": "chlamydia",
+    "cat": "conditions"
+  },
+  {
+    "fa": "کم‌آبی",
+    "en": "dehydration",
+    "cat": "conditions"
+  },
+  {
+    "fa": "کم‌تغذیه",
+    "en": "malnutrition",
+    "cat": "conditions"
+  },
+  {
+    "fa": "کم‌خونی",
+    "en": "anemia",
+    "cat": "conditions"
+  },
+  {
+    "fa": "کم‌خونی آپلاستیک",
+    "en": "aplastic anemia",
+    "cat": "conditions"
+  },
+  {
+    "fa": "کم‌خونی داسی",
+    "en": "sickle cell anemia",
+    "cat": "conditions"
+  },
+  {
+    "fa": "کم‌خونی فقر آهن",
+    "en": "iron deficiency anemia",
+    "cat": "conditions"
+  },
+  {
+    "fa": "کم‌خونی مگالوبلاستیک",
+    "en": "megaloblastic anemia",
+    "cat": "conditions"
+  },
+  {
+    "fa": "کم‌خونی همولیتیک",
+    "en": "hemolytic anemia",
+    "cat": "conditions"
+  },
+  {
+    "fa": "کم‌کاری تیروئید",
+    "en": "hypothyroidism",
+    "cat": "conditions"
+  },
+  {
+    "fa": "کم‌کاری پاراتیروئید",
+    "en": "hypoparathyroidism",
+    "cat": "conditions"
+  },
+  {
+    "fa": "کنژنکتیویت",
+    "en": "conjunctivitis",
+    "cat": "conditions"
+  },
+  {
+    "fa": "کواگولوپاتی",
+    "en": "coagulopathy",
+    "cat": "conditions"
+  },
+  {
+    "fa": "کوله‌سیستیت",
+    "en": "cholecystitis",
+    "cat": "conditions"
+  },
+  {
+    "fa": "کوله‌لیتیازیس",
+    "en": "cholelithiasis",
+    "cat": "conditions"
+  },
+  {
+    "fa": "کولیت اولسراتیو",
+    "en": "ulcerative colitis",
+    "cat": "conditions"
+  },
+  {
+    "fa": "گاستروانتریت",
+    "en": "gastroenteritis",
+    "cat": "conditions"
+  },
+  {
+    "fa": "گاستریت",
+    "en": "gastritis",
+    "cat": "conditions"
+  },
+  {
+    "fa": "گلوکوم",
+    "en": "glaucoma",
+    "cat": "conditions"
+  },
+  {
+    "fa": "گنوره",
+    "en": "gonorrhea",
+    "cat": "conditions"
+  },
+  {
+    "fa": "گواتر",
+    "en": "goiter",
+    "cat": "conditions"
+  },
+  {
+    "fa": "گواتر چندگره",
+    "en": "multinodular goiter",
+    "cat": "conditions"
+  },
+  {
+    "fa": "گژنگ",
+    "en": "delirium",
+    "cat": "conditions"
+  },
+  {
+    "fa": "یائسگی",
+    "en": "menopause",
+    "cat": "conditions"
+  }
+]

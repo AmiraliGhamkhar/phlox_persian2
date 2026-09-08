@@ -1,0 +1,92 @@
+[
+  {
+    "fa": "آموزش بیمار",
+    "en": "patient education",
+    "cat": "plan"
+  },
+  {
+    "fa": "ارجاع",
+    "en": "referral",
+    "cat": "plan"
+  },
+  {
+    "fa": "استراحت",
+    "en": "rest",
+    "cat": "plan"
+  },
+  {
+    "fa": "برنامه درمانی",
+    "en": "treatment plan",
+    "cat": "plan"
+  },
+  {
+    "fa": "بستری",
+    "en": "hospitalization",
+    "cat": "plan"
+  },
+  {
+    "fa": "بستری شدن",
+    "en": "admission",
+    "cat": "plan"
+  },
+  {
+    "fa": "ترخیص",
+    "en": "discharge",
+    "cat": "plan"
+  },
+  {
+    "fa": "تغذیه",
+    "en": "diet",
+    "cat": "plan"
+  },
+  {
+    "fa": "فعالیت بدنی",
+    "en": "physical activity",
+    "cat": "plan"
+  },
+  {
+    "fa": "مراقبت",
+    "en": "care",
+    "cat": "plan"
+  },
+  {
+    "fa": "مشاوره",
+    "en": "consultation",
+    "cat": "plan"
+  },
+  {
+    "fa": "مصرف دارو",
+    "en": "medication use",
+    "cat": "plan"
+  },
+  {
+    "fa": "معاینه",
+    "en": "examination",
+    "cat": "plan"
+  },
+  {
+    "fa": "معاینه مجدد",
+    "en": "re-examination",
+    "cat": "plan"
+  },
+  {
+    "fa": "نسخه",
+    "en": "prescription",
+    "cat": "plan"
+  },
+  {
+    "fa": "ویزیت",
+    "en": "visit",
+    "cat": "plan"
+  },
+  {
+    "fa": "پیگیری",
+    "en": "follow-up",
+    "cat": "plan"
+  },
+  {
+    "fa": "پیگیری مجدد",
+    "en": "follow-up review",
+    "cat": "plan"
+  }
+]

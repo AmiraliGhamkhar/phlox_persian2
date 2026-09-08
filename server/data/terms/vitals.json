@@ -1,0 +1,157 @@
+[
+  {
+    "fa": "ارتفاع",
+    "en": "height",
+    "cat": "vitals"
+  },
+  {
+    "fa": "اسپارکسمتری",
+    "en": "oximetry",
+    "cat": "vitals"
+  },
+  {
+    "fa": "اندیکس توده بدنی",
+    "en": "body mass index",
+    "cat": "vitals"
+  },
+  {
+    "fa": "اکسیژن",
+    "en": "oxygen",
+    "cat": "vitals"
+  },
+  {
+    "fa": "تنفس",
+    "en": "respiration",
+    "cat": "vitals"
+  },
+  {
+    "fa": "درصد",
+    "en": "percent",
+    "cat": "vitals"
+  },
+  {
+    "fa": "دمای بدن",
+    "en": "body temperature",
+    "cat": "vitals"
+  },
+  {
+    "fa": "دمای محیط",
+    "en": "ambient temperature",
+    "cat": "vitals"
+  },
+  {
+    "fa": "سانتی‌متر",
+    "en": "centimeter",
+    "cat": "vitals"
+  },
+  {
+    "fa": "سیرابی اکسیژن",
+    "en": "oxygen saturation",
+    "cat": "vitals"
+  },
+  {
+    "fa": "ضربان قلب",
+    "en": "heart rate",
+    "cat": "vitals"
+  },
+  {
+    "fa": "فشار خون",
+    "en": "blood pressure",
+    "cat": "vitals"
+  },
+  {
+    "fa": "فشار خون دایاستولیک",
+    "en": "diastolic blood pressure",
+    "cat": "vitals"
+  },
+  {
+    "fa": "فشار خون سیستولیک",
+    "en": "systolic blood pressure",
+    "cat": "vitals"
+  },
+  {
+    "fa": "لیتر",
+    "en": "liter",
+    "cat": "vitals"
+  },
+  {
+    "fa": "متر",
+    "en": "meter",
+    "cat": "vitals"
+  },
+  {
+    "fa": "میدان",
+    "en": "degree",
+    "cat": "vitals"
+  },
+  {
+    "fa": "میدان سانتیگراد",
+    "en": "degree Celsius",
+    "cat": "vitals"
+  },
+  {
+    "fa": "میلی",
+    "en": "milli",
+    "cat": "vitals"
+  },
+  {
+    "fa": "میلی‌لیتر",
+    "en": "milliliter",
+    "cat": "vitals"
+  },
+  {
+    "fa": "میلی‌گرم",
+    "en": "milligram",
+    "cat": "vitals"
+  },
+  {
+    "fa": "میکرولیتر",
+    "en": "microliter",
+    "cat": "vitals"
+  },
+  {
+    "fa": "میکروگرم",
+    "en": "microgram",
+    "cat": "vitals"
+  },
+  {
+    "fa": "نانومتر",
+    "en": "nanometer",
+    "cat": "vitals"
+  },
+  {
+    "fa": "نرخ تنفس",
+    "en": "respiratory rate",
+    "cat": "vitals"
+  },
+  {
+    "fa": "واحد",
+    "en": "unit",
+    "cat": "vitals"
+  },
+  {
+    "fa": "واحد بین‌المللی",
+    "en": "international unit",
+    "cat": "vitals"
+  },
+  {
+    "fa": "وزن",
+    "en": "weight",
+    "cat": "vitals"
+  },
+  {
+    "fa": "پالس",
+    "en": "pulse",
+    "cat": "vitals"
+  },
+  {
+    "fa": "کیلوگرم",
+    "en": "kilogram",
+    "cat": "vitals"
+  },
+  {
+    "fa": "گرم",
+    "en": "gram",
+    "cat": "vitals"
+  }
+]

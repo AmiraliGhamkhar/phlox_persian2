@@ -22,6 +22,9 @@ const getClinicianToolActionLabel = (toolName = "") => {
     if (normalized.includes("literature")) {
         return "Searching medical literature";
     }
+    if (normalized.includes("dictionary")) {
+        return "Looking up medical term";
+    }
 
     // Transcript
     if (normalized.includes("transcript")) {

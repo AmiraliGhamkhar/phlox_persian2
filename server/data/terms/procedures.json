@@ -1,0 +1,537 @@
+[
+  {
+    "fa": "PET اسکن",
+    "en": "PET scan",
+    "cat": "procedures"
+  },
+  {
+    "fa": "آزمایش ادرار",
+    "en": "urinalysis",
+    "cat": "procedures"
+  },
+  {
+    "fa": "آزمایش ادرار",
+    "en": "urine test",
+    "cat": "procedures"
+  },
+  {
+    "fa": "آزمایش خون",
+    "en": "blood test",
+    "cat": "procedures"
+  },
+  {
+    "fa": "آسون مغز استخوان",
+    "en": "bone marrow aspiration",
+    "cat": "procedures"
+  },
+  {
+    "fa": "آندوسکوپی",
+    "en": "endoscopy",
+    "cat": "procedures"
+  },
+  {
+    "fa": "آندوسکوپی فوقانی",
+    "en": "upper endoscopy",
+    "cat": "procedures"
+  },
+  {
+    "fa": "آنژیوپلاستی",
+    "en": "angioplasty",
+    "cat": "procedures"
+  },
+  {
+    "fa": "آپاندیکتومی",
+    "en": "appendectomy",
+    "cat": "procedures"
+  },
+  {
+    "fa": "آژیوگرافی",
+    "en": "angiography",
+    "cat": "procedures"
+  },
+  {
+    "fa": "استنت‌گذاری",
+    "en": "stent placement",
+    "cat": "procedures"
+  },
+  {
+    "fa": "اسپلنکتومی",
+    "en": "splenectomy",
+    "cat": "procedures"
+  },
+  {
+    "fa": "اسکن استخوان",
+    "en": "bone scan",
+    "cat": "procedures"
+  },
+  {
+    "fa": "اسکن قلب",
+    "en": "cardiac scan",
+    "cat": "procedures"
+  },
+  {
+    "fa": "الکتروکاردیوگرافی",
+    "en": "electrocardiography",
+    "cat": "procedures"
+  },
+  {
+    "fa": "الکتروکاردیوگرام",
+    "en": "electrocardiogram",
+    "cat": "procedures"
+  },
+  {
+    "fa": "ام‌آرآی",
+    "en": "magnetic resonance imaging",
+    "cat": "procedures"
+  },
+  {
+    "fa": "ام‌آرآی ستون فقرات",
+    "en": "spine MRI",
+    "cat": "procedures"
+  },
+  {
+    "fa": "ام‌آرآی قفسه سینه",
+    "en": "chest MRI",
+    "cat": "procedures"
+  },
+  {
+    "fa": "ام‌آرآی مغز",
+    "en": "brain MRI",
+    "cat": "procedures"
+  },
+  {
+    "fa": "انژیوگرافی عروق کرونر",
+    "en": "coronary angiography",
+    "cat": "procedures"
+  },
+  {
+    "fa": "اکسیژن‌دهی",
+    "en": "oxygen therapy",
+    "cat": "procedures"
+  },
+  {
+    "fa": "اکوکاردیوگرافی",
+    "en": "echocardiography",
+    "cat": "procedures"
+  },
+  {
+    "fa": "اکوکاردیوگرافی دوپلر",
+    "en": "doppler echocardiography",
+    "cat": "procedures"
+  },
+  {
+    "fa": "اینتوباسیون",
+    "en": "intubation",
+    "cat": "procedures"
+  },
+  {
+    "fa": "بازبینی",
+    "en": "review",
+    "cat": "procedures"
+  },
+  {
+    "fa": "بازبینی بستری",
+    "en": "inpatient review",
+    "cat": "procedures"
+  },
+  {
+    "fa": "بازبینی سرپایی",
+    "en": "outpatient review",
+    "cat": "procedures"
+  },
+  {
+    "fa": "بازبینی پس از عمل",
+    "en": "postoperative review",
+    "cat": "procedures"
+  },
+  {
+    "fa": "بازدید",
+    "en": "follow-up",
+    "cat": "procedures"
+  },
+  {
+    "fa": "بازگشت",
+    "en": "return",
+    "cat": "procedures"
+  },
+  {
+    "fa": "بخیه",
+    "en": "suture",
+    "cat": "procedures"
+  },
+  {
+    "fa": "برش جراحی",
+    "en": "surgical incision",
+    "cat": "procedures"
+  },
+  {
+    "fa": "برونکوسکوپی",
+    "en": "bronchoscopy",
+    "cat": "procedures"
+  },
+  {
+    "fa": "بیهوشی",
+    "en": "anesthesia",
+    "cat": "procedures"
+  },
+  {
+    "fa": "بیهوشی عمومی",
+    "en": "general anesthesia",
+    "cat": "procedures"
+  },
+  {
+    "fa": "بیهوشی موضعی",
+    "en": "local anesthesia",
+    "cat": "procedures"
+  },
+  {
+    "fa": "بیوپسی",
+    "en": "biopsy",
+    "cat": "procedures"
+  },
+  {
+    "fa": "بیوپسی پوست",
+    "en": "skin biopsy",
+    "cat": "procedures"
+  },
+  {
+    "fa": "ترانسفوژن",
+    "en": "transfusion",
+    "cat": "procedures"
+  },
+  {
+    "fa": "ترانسپلنت",
+    "en": "transplantation",
+    "cat": "procedures"
+  },
+  {
+    "fa": "ترومبکتومی",
+    "en": "thrombectomy",
+    "cat": "procedures"
+  },
+  {
+    "fa": "تزریق",
+    "en": "injection",
+    "cat": "procedures"
+  },
+  {
+    "fa": "تزریق زیرجلدی",
+    "en": "subcutaneous injection",
+    "cat": "procedures"
+  },
+  {
+    "fa": "تزریق عضلانی",
+    "en": "intramuscular injection",
+    "cat": "procedures"
+  },
+  {
+    "fa": "تزریق وریدی",
+    "en": "intravenous injection",
+    "cat": "procedures"
+  },
+  {
+    "fa": "تصویربرداری تشدید مغناطیسی",
+    "en": "MRI",
+    "cat": "procedures"
+  },
+  {
+    "fa": "تنفس مصنوعی",
+    "en": "mechanical ventilation",
+    "cat": "procedures"
+  },
+  {
+    "fa": "توموگرافی کامپیوتری",
+    "en": "computed tomography",
+    "cat": "procedures"
+  },
+  {
+    "fa": "جراحی",
+    "en": "surgery",
+    "cat": "procedures"
+  },
+  {
+    "fa": "جراحی لاپاراسکوپی",
+    "en": "laparoscopic surgery",
+    "cat": "procedures"
+  },
+  {
+    "fa": "خون‌شناسی",
+    "en": "hematology",
+    "cat": "procedures"
+  },
+  {
+    "fa": "دیالیز",
+    "en": "dialysis",
+    "cat": "procedures"
+  },
+  {
+    "fa": "دیالیز کمری",
+    "en": "peritoneal dialysis",
+    "cat": "procedures"
+  },
+  {
+    "fa": "رادیوتراپی",
+    "en": "radiotherapy",
+    "cat": "procedures"
+  },
+  {
+    "fa": "سوند محیطی",
+    "en": "peripheral line",
+    "cat": "procedures"
+  },
+  {
+    "fa": "سوند مرکزی",
+    "en": "central line",
+    "cat": "procedures"
+  },
+  {
+    "fa": "سونوگرافی",
+    "en": "ultrasound",
+    "cat": "procedures"
+  },
+  {
+    "fa": "سونوگرافی دوپلر",
+    "en": "Doppler ultrasound",
+    "cat": "procedures"
+  },
+  {
+    "fa": "سونوگرافی شکم",
+    "en": "abdominal ultrasound",
+    "cat": "procedures"
+  },
+  {
+    "fa": "سونوگرافی قلب",
+    "en": "echocardiography",
+    "cat": "procedures"
+  },
+  {
+    "fa": "سی‌تی اسکن",
+    "en": "CT scan",
+    "cat": "procedures"
+  },
+  {
+    "fa": "سی‌تی اسکن",
+    "en": "computed tomography",
+    "cat": "procedures"
+  },
+  {
+    "fa": "سی‌تی اسکن مغز",
+    "en": "brain CT",
+    "cat": "procedures"
+  },
+  {
+    "fa": "شیمی‌درمانی",
+    "en": "chemotherapy",
+    "cat": "procedures"
+  },
+  {
+    "fa": "شیمی‌درمانی سیستمیک",
+    "en": "systemic chemotherapy",
+    "cat": "procedures"
+  },
+  {
+    "fa": "عکس قفسه سینه",
+    "en": "chest X-ray",
+    "cat": "procedures"
+  },
+  {
+    "fa": "لاپاروتومی",
+    "en": "laparotomy",
+    "cat": "procedures"
+  },
+  {
+    "fa": "لوبکتومی",
+    "en": "lobectomy",
+    "cat": "procedures"
+  },
+  {
+    "fa": "مراجعه",
+    "en": "visit",
+    "cat": "procedures"
+  },
+  {
+    "fa": "مراجعه مجدد",
+    "en": "return visit",
+    "cat": "procedures"
+  },
+  {
+    "fa": "مراقبت‌های ویژه",
+    "en": "intensive care",
+    "cat": "procedures"
+  },
+  {
+    "fa": "موی‌توگرافی",
+    "en": "mammography",
+    "cat": "procedures"
+  },
+  {
+    "fa": "نصب سوند",
+    "en": "catheterization",
+    "cat": "procedures"
+  },
+  {
+    "fa": "نفروکتومی",
+    "en": "nephrectomy",
+    "cat": "procedures"
+  },
+  {
+    "fa": "همودیالیز",
+    "en": "hemodialysis",
+    "cat": "procedures"
+  },
+  {
+    "fa": "هیسترکتومی",
+    "en": "hysterectomy",
+    "cat": "procedures"
+  },
+  {
+    "fa": "پانسمان",
+    "en": "dressing",
+    "cat": "procedures"
+  },
+  {
+    "fa": "پایش",
+    "en": "monitoring",
+    "cat": "procedures"
+  },
+  {
+    "fa": "پایش تنفس",
+    "en": "respiratory monitoring",
+    "cat": "procedures"
+  },
+  {
+    "fa": "پایش فشار خون",
+    "en": "blood pressure monitoring",
+    "cat": "procedures"
+  },
+  {
+    "fa": "پایش قلب",
+    "en": "cardiac monitoring",
+    "cat": "procedures"
+  },
+  {
+    "fa": "پایش قند خون",
+    "en": "blood glucose monitoring",
+    "cat": "procedures"
+  },
+  {
+    "fa": "پایش همودینامیک",
+    "en": "hemodynamic monitoring",
+    "cat": "procedures"
+  },
+  {
+    "fa": "پایش پلاکت",
+    "en": "platelet monitoring",
+    "cat": "procedures"
+  },
+  {
+    "fa": "پروستاتهکتومی",
+    "en": "prostatectomy",
+    "cat": "procedures"
+  },
+  {
+    "fa": "پلاسمافرزز",
+    "en": "plasmapheresis",
+    "cat": "procedures"
+  },
+  {
+    "fa": "پنومونکتومی",
+    "en": "pneumonectomy",
+    "cat": "procedures"
+  },
+  {
+    "fa": "پورت وریدی",
+    "en": "port-a-cath",
+    "cat": "procedures"
+  },
+  {
+    "fa": "پونکسیون استخوانی",
+    "en": "bone marrow puncture",
+    "cat": "procedures"
+  },
+  {
+    "fa": "پونکسیون کمری",
+    "en": "lumbar puncture",
+    "cat": "procedures"
+  },
+  {
+    "fa": "پیاز قلب",
+    "en": "heart transplant",
+    "cat": "procedures"
+  },
+  {
+    "fa": "پیاز مغز استخوان",
+    "en": "bone marrow transplant",
+    "cat": "procedures"
+  },
+  {
+    "fa": "پیاز کبد",
+    "en": "liver transplant",
+    "cat": "procedures"
+  },
+  {
+    "fa": "پیاز کلیه",
+    "en": "kidney transplant",
+    "cat": "procedures"
+  },
+  {
+    "fa": "پیوند اتولوژنیک سلول بنیادی",
+    "en": "autologous stem cell transplant",
+    "cat": "procedures"
+  },
+  {
+    "fa": "پیوند الوالوژنیک سلول بنیادی",
+    "en": "allogeneic stem cell transplant",
+    "cat": "procedures"
+  },
+  {
+    "fa": "پیوند سلول بنیادی",
+    "en": "stem cell transplantation",
+    "cat": "procedures"
+  },
+  {
+    "fa": "کاتتر وریدی مرکزی",
+    "en": "central venous catheter",
+    "cat": "procedures"
+  },
+  {
+    "fa": "کشت",
+    "en": "culture",
+    "cat": "procedures"
+  },
+  {
+    "fa": "کشت ادرار",
+    "en": "urine culture",
+    "cat": "procedures"
+  },
+  {
+    "fa": "کشت خون",
+    "en": "blood culture",
+    "cat": "procedures"
+  },
+  {
+    "fa": "کشت زخم",
+    "en": "wound culture",
+    "cat": "procedures"
+  },
+  {
+    "fa": "کشت مخاط",
+    "en": "sputum culture",
+    "cat": "procedures"
+  },
+  {
+    "fa": "کوله‌سیستکتومی",
+    "en": "cholecystectomy",
+    "cat": "procedures"
+  },
+  {
+    "fa": "کولونوسکوپی",
+    "en": "colonoscopy",
+    "cat": "procedures"
+  },
+  {
+    "fa": "گاستروسکوپی",
+    "en": "gastroscopy",
+    "cat": "procedures"
+  }
+]

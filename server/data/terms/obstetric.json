@@ -1,0 +1,62 @@
+[
+  {
+    "fa": "آزمایش بارداری",
+    "en": "pregnancy test",
+    "cat": "obstetric"
+  },
+  {
+    "fa": "بارداری",
+    "en": "pregnancy",
+    "cat": "obstetric"
+  },
+  {
+    "fa": "تولد",
+    "en": "birth",
+    "cat": "obstetric"
+  },
+  {
+    "fa": "جنین",
+    "en": "fetus",
+    "cat": "obstetric"
+  },
+  {
+    "fa": "حاملگی",
+    "en": "pregnancy",
+    "cat": "obstetric"
+  },
+  {
+    "fa": "زایمان",
+    "en": "delivery",
+    "cat": "obstetric"
+  },
+  {
+    "fa": "سزارین",
+    "en": "cesarean section",
+    "cat": "obstetric"
+  },
+  {
+    "fa": "سقط",
+    "en": "miscarriage",
+    "cat": "obstetric"
+  },
+  {
+    "fa": "شیر مادر",
+    "en": "breast milk",
+    "cat": "obstetric"
+  },
+  {
+    "fa": "شیردهی",
+    "en": "breastfeeding",
+    "cat": "obstetric"
+  },
+  {
+    "fa": "قاعدگی",
+    "en": "menstruation",
+    "cat": "obstetric"
+  },
+  {
+    "fa": "نوزاد",
+    "en": "newborn",
+    "cat": "obstetric"
+  }
+]

@@ -1,0 +1,82 @@
+[
+  {
+    "fa": "الکل",
+    "en": "alcohol use",
+    "cat": "history"
+  },
+  {
+    "fa": "بیماری فعلی",
+    "en": "present illness",
+    "cat": "history"
+  },
+  {
+    "fa": "بیماری قبلی",
+    "en": "previous illness",
+    "cat": "history"
+  },
+  {
+    "fa": "سابقه",
+    "en": "history",
+    "cat": "history"
+  },
+  {
+    "fa": "سابقه بارداری",
+    "en": "obstetric history",
+    "cat": "history"
+  },
+  {
+    "fa": "سابقه بیماری",
+    "en": "medical history",
+    "cat": "history"
+  },
+  {
+    "fa": "سابقه بیماری قبلی",
+    "en": "past medical history",
+    "cat": "history"
+  },
+  {
+    "fa": "سابقه جراحی",
+    "en": "surgical history",
+    "cat": "history"
+  },
+  {
+    "fa": "سابقه خانوادگی",
+    "en": "family history",
+    "cat": "history"
+  },
+  {
+    "fa": "سابقه زایمان",
+    "en": "delivery history",
+    "cat": "history"
+  },
+  {
+    "fa": "سابقه سفر",
+    "en": "travel history",
+    "cat": "history"
+  },
+  {
+    "fa": "سابقه سقط",
+    "en": "miscarriage history",
+    "cat": "history"
+  },
+  {
+    "fa": "سابقه قاعدگی",
+    "en": "menstrual history",
+    "cat": "history"
+  },
+  {
+    "fa": "سابقه مصرف دارو",
+    "en": "medication history",
+    "cat": "history"
+  },
+  {
+    "fa": "سابقه واکسیناسیون",
+    "en": "vaccination history",
+    "cat": "history"
+  },
+  {
+    "fa": "سیگار",
+    "en": "smoking",
+    "cat": "history"
+  }
+]
