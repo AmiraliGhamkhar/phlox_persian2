@@ -45,6 +45,29 @@ def _get_built_in_tools(collection_names: list[str]) -> list[dict[str, Any]]:
         {
             "type": "function",
             "function": {
+                "name": "search_medical_dictionary",
+                "description": "Look up a medical term in the built-in Persian-English medical terminology dictionary (symptoms, conditions, medications, procedures, labs, anatomy, oncology/hematology). Use when the user asks what a clinical term means, asks for its translation, or writes a term in the other language (e.g. 'نارسایی قلبی یعنی چه؟' / 'what does atrial fibrillation mean in Persian?'). Returns the standard Persian and English forms. For background on diseases/drugs use wiki_search or pubmed_search instead.",
+                "parameters": {
+                    "type": "object",
+                    "properties": {
+                        "term": {
+                            "type": "string",
+                            "description": "The medical term to look up, in Persian or English (e.g. 'فیبریلاسیون دهلیزی' or 'thrombocytopenia').",
+                        },
+                        "limit": {
+                            "type": "integer",
+                            "description": "Maximum number of matches to return (default: 8, max: 20).",
+                        },
+                    },
+                    "required": ["term"],
+                    "additionalProperties": False,
+                },
+                "strict": True,
+            },
+        },
+        {
+            "type": "function",
+            "function": {
                 "name": "get_relevant_literature",
                 "description": f"Only use this tool if answering the most recent message from the user would benefit from a literature search. Available disease areas: {collection_names_string}, other. Sources are numbered [1], [2], etc. in the results; cite the relevant source inline as [N] in your answer when you use its information.",
                 "parameters": {

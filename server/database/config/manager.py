@@ -110,6 +110,9 @@ class ConfigManager:
     def update_config(self, new_config):
         """Updates the configuration settings in the database."""
         self.refresh_db()
+        # Work on a copy: callers (API handlers) must not see their payload
+        # mutated by the sync below.
+        new_config = dict(new_config)
         # If PRIMARY_MODEL is being updated, sync REASONING_MODEL to match
         if "PRIMARY_MODEL" in new_config:
             new_config["REASONING_MODEL"] = new_config["PRIMARY_MODEL"]

@@ -1,0 +1,87 @@
+[
+  {
+    "fa": "ارتوپدی",
+    "en": "orthopedics",
+    "cat": "specialty"
+  },
+  {
+    "fa": "انکولوژی",
+    "en": "oncology",
+    "cat": "specialty"
+  },
+  {
+    "fa": "اورولوژی",
+    "en": "urology",
+    "cat": "specialty"
+  },
+  {
+    "fa": "خون",
+    "en": "hematology",
+    "cat": "specialty"
+  },
+  {
+    "fa": "داخلی",
+    "en": "internal medicine",
+    "cat": "specialty"
+  },
+  {
+    "fa": "رادیولوژی",
+    "en": "radiology",
+    "cat": "specialty"
+  },
+  {
+    "fa": "ریه و سینه",
+    "en": "pulmonology",
+    "cat": "specialty"
+  },
+  {
+    "fa": "زنان و زایمان",
+    "en": "obstetrics and gynecology",
+    "cat": "specialty"
+  },
+  {
+    "fa": "سرطان‌شناسی",
+    "en": "oncology",
+    "cat": "specialty"
+  },
+  {
+    "fa": "قلب",
+    "en": "cardiology",
+    "cat": "specialty"
+  },
+  {
+    "fa": "متخصص پوست",
+    "en": "dermatology",
+    "cat": "specialty"
+  },
+  {
+    "fa": "مغز و اعصاب",
+    "en": "neurology",
+    "cat": "specialty"
+  },
+  {
+    "fa": "چشم",
+    "en": "ophthalmology",
+    "cat": "specialty"
+  },
+  {
+    "fa": "چشم‌پزشکی",
+    "en": "ophthalmology",
+    "cat": "specialty"
+  },
+  {
+    "fa": "کودکان",
+    "en": "pediatrics",
+    "cat": "specialty"
+  },
+  {
+    "fa": "گوارش",
+    "en": "gastroenterology",
+    "cat": "specialty"
+  },
+  {
+    "fa": "گوش و حلق و بینی",
+    "en": "ENT",
+    "cat": "specialty"
+  }
+]

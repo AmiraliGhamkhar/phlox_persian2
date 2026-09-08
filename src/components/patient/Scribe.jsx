@@ -271,7 +271,29 @@ export const useScribe = ({
             }
             closeLiveSession();
         }
-        const blob = await recorder.stop();
+        // recorder.stop() can still fail (e.g. AudioContext torn down by the
+        // browser) — without a guard that rejection propagated after the
+        // recording state was already cleared, losing the audio with no
+        // feedback. Fall back to the authoritative live transcript when
+        // available.
+        let blob = null;
+        try {
+            blob = await recorder.stop();
+        } catch (error) {
+            console.error("Failed to finalise recording:", error);
+            if (!(liveResult?.authoritative && liveResult?.text)) {
+                toaster.create({
+                    title: "تکمیل ثبت صدا ناموفق بود",
+                    description:
+                        "فایل صوتی را نمی‌توانستیم نهایی کنیم و متن زنده هم در دسترس نبود. لطفاً دوباره تلاش کنید.",
+                    type: "error",
+                    duration: 6000,
+                });
+            }
+        }
+        if (!blob && !(liveResult?.authoritative && liveResult?.text)) {
+            return null;
+        }
         await sendForTranscription(
             blob,
             {

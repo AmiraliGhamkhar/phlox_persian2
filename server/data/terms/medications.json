@@ -1,0 +1,1337 @@
+[
+  {
+    "fa": "آتروپین",
+    "en": "atropine",
+    "cat": "medications"
+  },
+  {
+    "fa": "آتونولول",
+    "en": "atenolol",
+    "cat": "medications"
+  },
+  {
+    "fa": "آریپیپرازول",
+    "en": "aripiprazole",
+    "cat": "medications"
+  },
+  {
+    "fa": "آزاسیتیدین",
+    "en": "azacitidine",
+    "cat": "medications"
+  },
+  {
+    "fa": "آزیترومایسین",
+    "en": "azithromycin",
+    "cat": "medications"
+  },
+  {
+    "fa": "آسپرین",
+    "en": "aspirin",
+    "cat": "medications"
+  },
+  {
+    "fa": "آسیکلوویر",
+    "en": "acyclovir",
+    "cat": "medications"
+  },
+  {
+    "fa": "آسی‌اتوزولاماید",
+    "en": "acetazolamide",
+    "cat": "medications"
+  },
+  {
+    "fa": "آلبندازول",
+    "en": "albendazole",
+    "cat": "medications"
+  },
+  {
+    "fa": "آلوپورینول",
+    "en": "allopurinol",
+    "cat": "medications"
+  },
+  {
+    "fa": "آلپرازولام",
+    "en": "alprazolam",
+    "cat": "medications"
+  },
+  {
+    "fa": "آملودایپین",
+    "en": "amlodipine",
+    "cat": "medications"
+  },
+  {
+    "fa": "آموکسی‌سیلین",
+    "en": "amoxicillin",
+    "cat": "medications"
+  },
+  {
+    "fa": "آموکسی‌سیلین و کلاوولانات",
+    "en": "amoxicillin clavulanate",
+    "cat": "medications"
+  },
+  {
+    "fa": "آمپیسیلین",
+    "en": "ampicillin",
+    "cat": "medications"
+  },
+  {
+    "fa": "آمیلورید",
+    "en": "amiloride",
+    "cat": "medications"
+  },
+  {
+    "fa": "آمیودارون",
+    "en": "amiodarone",
+    "cat": "medications"
+  },
+  {
+    "fa": "آمیکاسین",
+    "en": "amikacin",
+    "cat": "medications"
+  },
+  {
+    "fa": "آمی‌ترپتیلین",
+    "en": "amitriptyline",
+    "cat": "medications"
+  },
+  {
+    "fa": "آیوداید پتاسیم",
+    "en": "potassium iodide",
+    "cat": "medications"
+  },
+  {
+    "fa": "اتوری‌کوکسیب",
+    "en": "etoricoxib",
+    "cat": "medications"
+  },
+  {
+    "fa": "اتیوآستاتین",
+    "en": "atorvastatin",
+    "cat": "medications"
+  },
+  {
+    "fa": "اریترومایسین",
+    "en": "erythromycin",
+    "cat": "medications"
+  },
+  {
+    "fa": "اریتروپوئتین",
+    "en": "erythropoietin",
+    "cat": "medications"
+  },
+  {
+    "fa": "استامینوفن",
+    "en": "paracetamol",
+    "cat": "medications"
+  },
+  {
+    "fa": "اسپیرولاکتون",
+    "en": "spironolactone",
+    "cat": "medications"
+  },
+  {
+    "fa": "اسیتالوپرام",
+    "en": "escitalopram",
+    "cat": "medications"
+  },
+  {
+    "fa": "اسید اسکوربیک",
+    "en": "ascorbic acid",
+    "cat": "medications"
+  },
+  {
+    "fa": "اسید ترانکسامیک",
+    "en": "tranexamic acid",
+    "cat": "medications"
+  },
+  {
+    "fa": "اسید فولیک",
+    "en": "folic acid",
+    "cat": "medications"
+  },
+  {
+    "fa": "امپاگلیفلوزین",
+    "en": "empagliflozin",
+    "cat": "medications"
+  },
+  {
+    "fa": "امپرازل",
+    "en": "omeprazole",
+    "cat": "medications"
+  },
+  {
+    "fa": "انالاپرایل",
+    "en": "enalapril",
+    "cat": "medications"
+  },
+  {
+    "fa": "اندانسترون",
+    "en": "ondansetron",
+    "cat": "medications"
+  },
+  {
+    "fa": "انسولین",
+    "en": "insulin",
+    "cat": "medications"
+  },
+  {
+    "fa": "انسولین آسپارت",
+    "en": "insulin aspart",
+    "cat": "medications"
+  },
+  {
+    "fa": "انسولین لنتوس",
+    "en": "insulin detemir",
+    "cat": "medications"
+  },
+  {
+    "fa": "انسولین گلارژین",
+    "en": "insulin glargine",
+    "cat": "medications"
+  },
+  {
+    "fa": "انوکساپارین",
+    "en": "enoxaparin",
+    "cat": "medications"
+  },
+  {
+    "fa": "اوسلتامیور",
+    "en": "oseltamivir",
+    "cat": "medications"
+  },
+  {
+    "fa": "اوسیمرتینیب",
+    "en": "osimertinib",
+    "cat": "medications"
+  },
+  {
+    "fa": "اولانزاپین",
+    "en": "olanzapine",
+    "cat": "medications"
+  },
+  {
+    "fa": "اوکتیرید",
+    "en": "octreotide",
+    "cat": "medications"
+  },
+  {
+    "fa": "اپیگکسان",
+    "en": "apixaban",
+    "cat": "medications"
+  },
+  {
+    "fa": "اپی‌روبسین",
+    "en": "epirubicin",
+    "cat": "medications"
+  },
+  {
+    "fa": "اپی‌نفرین",
+    "en": "epinephrine",
+    "cat": "medications"
+  },
+  {
+    "fa": "اکسیکودون",
+    "en": "oxycodone",
+    "cat": "medications"
+  },
+  {
+    "fa": "اکسی‌کاربازپین",
+    "en": "oxcarbazepine",
+    "cat": "medications"
+  },
+  {
+    "fa": "اگزالیپلاتین",
+    "en": "oxaliplatin",
+    "cat": "medications"
+  },
+  {
+    "fa": "ایبوپروفن",
+    "en": "ibuprofen",
+    "cat": "medications"
+  },
+  {
+    "fa": "ایتراکونازول",
+    "en": "itraconazole",
+    "cat": "medications"
+  },
+  {
+    "fa": "ایربسارتان",
+    "en": "irbesartan",
+    "cat": "medications"
+  },
+  {
+    "fa": "ایرینوتکان",
+    "en": "irinotecan",
+    "cat": "medications"
+  },
+  {
+    "fa": "ایزوسوربید",
+    "en": "isosorbide",
+    "cat": "medications"
+  },
+  {
+    "fa": "ایساتوکسیماب",
+    "en": "isatuximab",
+    "cat": "medications"
+  },
+  {
+    "fa": "ایفوسفامید",
+    "en": "ifosfamide",
+    "cat": "medications"
+  },
+  {
+    "fa": "ایماتینیب",
+    "en": "imatinib",
+    "cat": "medications"
+  },
+  {
+    "fa": "ایپراتروپیوم",
+    "en": "ipratropium",
+    "cat": "medications"
+  },
+  {
+    "fa": "بتامتازون",
+    "en": "betamethasone",
+    "cat": "medications"
+  },
+  {
+    "fa": "بواکیزوماب",
+    "en": "bevacizumab",
+    "cat": "medications"
+  },
+  {
+    "fa": "بوبروپین",
+    "en": "bupropion",
+    "cat": "medications"
+  },
+  {
+    "fa": "بودزوناید",
+    "en": "budesonide",
+    "cat": "medications"
+  },
+  {
+    "fa": "بورزمایفون",
+    "en": "bortezomib",
+    "cat": "medications"
+  },
+  {
+    "fa": "بوسولفان",
+    "en": "busulfan",
+    "cat": "medications"
+  },
+  {
+    "fa": "بیسوپرولول",
+    "en": "bisoprolol",
+    "cat": "medications"
+  },
+  {
+    "fa": "تالیدوماید",
+    "en": "thalidomide",
+    "cat": "medications"
+  },
+  {
+    "fa": "تتراسایکلین",
+    "en": "tetracycline",
+    "cat": "medications"
+  },
+  {
+    "fa": "ترازودون",
+    "en": "trazodone",
+    "cat": "medications"
+  },
+  {
+    "fa": "تراستوزوماب",
+    "en": "trastuzumab",
+    "cat": "medications"
+  },
+  {
+    "fa": "ترامادول",
+    "en": "tramadol",
+    "cat": "medications"
+  },
+  {
+    "fa": "ترمبووتالین",
+    "en": "terbutaline",
+    "cat": "medications"
+  },
+  {
+    "fa": "تریامترون",
+    "en": "triamterene",
+    "cat": "medications"
+  },
+  {
+    "fa": "تری‌متوپریم",
+    "en": "trimethoprim",
+    "cat": "medications"
+  },
+  {
+    "fa": "تری‌یودوتیرونین",
+    "en": "triiodothyronine",
+    "cat": "medications"
+  },
+  {
+    "fa": "تلمیسارتان",
+    "en": "telmisartan",
+    "cat": "medications"
+  },
+  {
+    "fa": "توبرامایسین",
+    "en": "tobramycin",
+    "cat": "medications"
+  },
+  {
+    "fa": "تیوتروپیوم",
+    "en": "tiotropium",
+    "cat": "medications"
+  },
+  {
+    "fa": "تیکاگرلور",
+    "en": "ticagrelor",
+    "cat": "medications"
+  },
+  {
+    "fa": "جنتامایسین",
+    "en": "gentamicin",
+    "cat": "medications"
+  },
+  {
+    "fa": "دابیگاتران",
+    "en": "dabigatran",
+    "cat": "medications"
+  },
+  {
+    "fa": "داراتوموماب",
+    "en": "daratumumab",
+    "cat": "medications"
+  },
+  {
+    "fa": "داساتینیب",
+    "en": "dasatinib",
+    "cat": "medications"
+  },
+  {
+    "fa": "داپاگلیفلوزین",
+    "en": "dapagliflozin",
+    "cat": "medications"
+  },
+  {
+    "fa": "داپتومایسین",
+    "en": "daptomycin",
+    "cat": "medications"
+  },
+  {
+    "fa": "داکسوربیسین",
+    "en": "doxorubicin",
+    "cat": "medications"
+  },
+  {
+    "fa": "دسموپرسین",
+    "en": "desmopressin",
+    "cat": "medications"
+  },
+  {
+    "fa": "دوسیتاکسل",
+    "en": "docetaxel",
+    "cat": "medications"
+  },
+  {
+    "fa": "دولوکستین",
+    "en": "duloxetine",
+    "cat": "medications"
+  },
+  {
+    "fa": "دومپریدون",
+    "en": "domperidone",
+    "cat": "medications"
+  },
+  {
+    "fa": "دوکسی‌سایکلین",
+    "en": "doxycycline",
+    "cat": "medications"
+  },
+  {
+    "fa": "دژوکسین",
+    "en": "digoxin",
+    "cat": "medications"
+  },
+  {
+    "fa": "دکسترومتورفان",
+    "en": "dextromethorphan",
+    "cat": "medications"
+  },
+  {
+    "fa": "دگزامتازون",
+    "en": "dexamethasone",
+    "cat": "medications"
+  },
+  {
+    "fa": "دیازپام",
+    "en": "diazepam",
+    "cat": "medications"
+  },
+  {
+    "fa": "دیلتیازم",
+    "en": "diltiazem",
+    "cat": "medications"
+  },
+  {
+    "fa": "دیپیریدامول",
+    "en": "dipyridamole",
+    "cat": "medications"
+  },
+  {
+    "fa": "دیکلوفناک",
+    "en": "diclofenac",
+    "cat": "medications"
+  },
+  {
+    "fa": "رامیپریل",
+    "en": "ramipril",
+    "cat": "medications"
+  },
+  {
+    "fa": "رانیتیدین",
+    "en": "ranitidine",
+    "cat": "medications"
+  },
+  {
+    "fa": "ربپرازول",
+    "en": "rabeprazole",
+    "cat": "medications"
+  },
+  {
+    "fa": "روسوواستاتین",
+    "en": "rosuvastatin",
+    "cat": "medications"
+  },
+  {
+    "fa": "روسیگلیتازون",
+    "en": "rosiglitazone",
+    "cat": "medications"
+  },
+  {
+    "fa": "روکسیتینیب",
+    "en": "ruxolitinib",
+    "cat": "medications"
+  },
+  {
+    "fa": "ریباویرین",
+    "en": "ribavirin",
+    "cat": "medications"
+  },
+  {
+    "fa": "ریبواروکسان",
+    "en": "rivaroxaban",
+    "cat": "medications"
+  },
+  {
+    "fa": "ریتوکسیماب",
+    "en": "rituximab",
+    "cat": "medications"
+  },
+  {
+    "fa": "ریسپریدون",
+    "en": "risperidone",
+    "cat": "medications"
+  },
+  {
+    "fa": "ریفاکسیمین",
+    "en": "rifaximin",
+    "cat": "medications"
+  },
+  {
+    "fa": "زولپیدم",
+    "en": "zolpidem",
+    "cat": "medications"
+  },
+  {
+    "fa": "سارگراستیم",
+    "en": "sargramostim",
+    "cat": "medications"
+  },
+  {
+    "fa": "سالبوتامول",
+    "en": "salbutamol",
+    "cat": "medications"
+  },
+  {
+    "fa": "سامترینول",
+    "en": "salmeterol",
+    "cat": "medications"
+  },
+  {
+    "fa": "ساکسلیتپتین",
+    "en": "saxagliptin",
+    "cat": "medications"
+  },
+  {
+    "fa": "ستوکسیماب",
+    "en": "cetuximab",
+    "cat": "medications"
+  },
+  {
+    "fa": "سرترالین",
+    "en": "sertraline",
+    "cat": "medications"
+  },
+  {
+    "fa": "سفازولین",
+    "en": "cefazolin",
+    "cat": "medications"
+  },
+  {
+    "fa": "سفتازیدیم",
+    "en": "ceftazidime",
+    "cat": "medications"
+  },
+  {
+    "fa": "سفتراکسیم",
+    "en": "ceftriaxone",
+    "cat": "medications"
+  },
+  {
+    "fa": "سفوروکسیم",
+    "en": "cefuroxime",
+    "cat": "medications"
+  },
+  {
+    "fa": "سفپیم",
+    "en": "cefepime",
+    "cat": "medications"
+  },
+  {
+    "fa": "سلکوکسیب",
+    "en": "celecoxib",
+    "cat": "medications"
+  },
+  {
+    "fa": "سولفامتوکسازول",
+    "en": "sulfamethoxazole",
+    "cat": "medications"
+  },
+  {
+    "fa": "سیتاگلیپتین",
+    "en": "sitagliptin",
+    "cat": "medications"
+  },
+  {
+    "fa": "سیتریزین",
+    "en": "cetirizine",
+    "cat": "medications"
+  },
+  {
+    "fa": "سیس‌پلاتین",
+    "en": "cisplatin",
+    "cat": "medications"
+  },
+  {
+    "fa": "سیمواستاتین",
+    "en": "simvastatin",
+    "cat": "medications"
+  },
+  {
+    "fa": "سیپروفلوکساسین",
+    "en": "ciprofloxacin",
+    "cat": "medications"
+  },
+  {
+    "fa": "سیکلوفسفامید",
+    "en": "cyclophosphamide",
+    "cat": "medications"
+  },
+  {
+    "fa": "فاموتیدین",
+    "en": "famotidine",
+    "cat": "medications"
+  },
+  {
+    "fa": "فلوتیکازون",
+    "en": "fluticasone",
+    "cat": "medications"
+  },
+  {
+    "fa": "فلودارابین",
+    "en": "fludarabine",
+    "cat": "medications"
+  },
+  {
+    "fa": "فلورووراسیل",
+    "en": "fluorouracil",
+    "cat": "medications"
+  },
+  {
+    "fa": "فلوکستین",
+    "en": "fluoxetine",
+    "cat": "medications"
+  },
+  {
+    "fa": "فلوکونازول",
+    "en": "fluconazole",
+    "cat": "medications"
+  },
+  {
+    "fa": "فنتانیل",
+    "en": "fentanyl",
+    "cat": "medications"
+  },
+  {
+    "fa": "فنیتوئین",
+    "en": "phenytoin",
+    "cat": "medications"
+  },
+  {
+    "fa": "فورموتیرول",
+    "en": "formoterol",
+    "cat": "medications"
+  },
+  {
+    "fa": "فوروسماید",
+    "en": "furosemide",
+    "cat": "medications"
+  },
+  {
+    "fa": "فوسفومایسین",
+    "en": "fosfomycin",
+    "cat": "medications"
+  },
+  {
+    "fa": "فوندوپارینوکس",
+    "en": "fondaparinux",
+    "cat": "medications"
+  },
+  {
+    "fa": "فکسوفنادین",
+    "en": "fexofenadine",
+    "cat": "medications"
+  },
+  {
+    "fa": "فیلگراستیم",
+    "en": "filgrastim",
+    "cat": "medications"
+  },
+  {
+    "fa": "قرص آهن",
+    "en": "iron supplement",
+    "cat": "medications"
+  },
+  {
+    "fa": "لئوفلوکساسین",
+    "en": "levofloxacin",
+    "cat": "medications"
+  },
+  {
+    "fa": "لانسوپرازول",
+    "en": "lansoprazole",
+    "cat": "medications"
+  },
+  {
+    "fa": "لنالیدوماید",
+    "en": "lenalidomide",
+    "cat": "medications"
+  },
+  {
+    "fa": "لوتیرام",
+    "en": "levetiracetam",
+    "cat": "medications"
+  },
+  {
+    "fa": "لوراتادین",
+    "en": "loratadine",
+    "cat": "medications"
+  },
+  {
+    "fa": "لورازپام",
+    "en": "lorazepam",
+    "cat": "medications"
+  },
+  {
+    "fa": "لورنوکسیکام",
+    "en": "lornoxicam",
+    "cat": "medications"
+  },
+  {
+    "fa": "لوسارتان",
+    "en": "losartan",
+    "cat": "medications"
+  },
+  {
+    "fa": "لووتیروکسین",
+    "en": "levothyroxine",
+    "cat": "medications"
+  },
+  {
+    "fa": "لووسیتیریزین",
+    "en": "levocetirizine",
+    "cat": "medications"
+  },
+  {
+    "fa": "لوکوفورین",
+    "en": "leucovorin",
+    "cat": "medications"
+  },
+  {
+    "fa": "لیتیوم",
+    "en": "lithium",
+    "cat": "medications"
+  },
+  {
+    "fa": "لیدوکائین",
+    "en": "lidocaine",
+    "cat": "medications"
+  },
+  {
+    "fa": "لیسینوپرایل",
+    "en": "lisinopril",
+    "cat": "medications"
+  },
+  {
+    "fa": "لینزولید",
+    "en": "linezolid",
+    "cat": "medications"
+  },
+  {
+    "fa": "مترونیدازول",
+    "en": "metronidazole",
+    "cat": "medications"
+  },
+  {
+    "fa": "متفورمین",
+    "en": "metformin",
+    "cat": "medications"
+  },
+  {
+    "fa": "متوترکسات",
+    "en": "methotrexate",
+    "cat": "medications"
+  },
+  {
+    "fa": "متولازون",
+    "en": "methazolamide",
+    "cat": "medications"
+  },
+  {
+    "fa": "متوپرولول",
+    "en": "metoprolol",
+    "cat": "medications"
+  },
+  {
+    "fa": "متوکلوپرامید",
+    "en": "metoclopramide",
+    "cat": "medications"
+  },
+  {
+    "fa": "متیل‌پردنیزولون",
+    "en": "methylprednisolone",
+    "cat": "medications"
+  },
+  {
+    "fa": "متیمازول",
+    "en": "methimazole",
+    "cat": "medications"
+  },
+  {
+    "fa": "مروپنم",
+    "en": "meropenem",
+    "cat": "medications"
+  },
+  {
+    "fa": "ملفالان",
+    "en": "melphalan",
+    "cat": "medications"
+  },
+  {
+    "fa": "ملوکسیکام",
+    "en": "meloxicam",
+    "cat": "medications"
+  },
+  {
+    "fa": "منیزیم",
+    "en": "magnesium",
+    "cat": "medications"
+  },
+  {
+    "fa": "مورفین",
+    "en": "morphine",
+    "cat": "medications"
+  },
+  {
+    "fa": "مونتلوکاست",
+    "en": "montelukast",
+    "cat": "medications"
+  },
+  {
+    "fa": "میدازولام",
+    "en": "midazolam",
+    "cat": "medications"
+  },
+  {
+    "fa": "میرتازاپین",
+    "en": "mirtazapine",
+    "cat": "medications"
+  },
+  {
+    "fa": "مینوسایکلین",
+    "en": "minocycline",
+    "cat": "medications"
+  },
+  {
+    "fa": "مینوکسیدیل",
+    "en": "minoxidil",
+    "cat": "medications"
+  },
+  {
+    "fa": "میکونازول",
+    "en": "miconazole",
+    "cat": "medications"
+  },
+  {
+    "fa": "ناپروکسن",
+    "en": "naproxen",
+    "cat": "medications"
+  },
+  {
+    "fa": "نورتی‌ترپتیلین",
+    "en": "nortriptyline",
+    "cat": "medications"
+  },
+  {
+    "fa": "نورفلوکساسین",
+    "en": "norfloxacin",
+    "cat": "medications"
+  },
+  {
+    "fa": "نِیفیداپین",
+    "en": "nifedipine",
+    "cat": "medications"
+  },
+  {
+    "fa": "نیتروفورانتوئین",
+    "en": "nitrofurantoin",
+    "cat": "medications"
+  },
+  {
+    "fa": "نیتروگلیسیرین",
+    "en": "nitroglycerin",
+    "cat": "medications"
+  },
+  {
+    "fa": "نیرولووماب",
+    "en": "nivolumab",
+    "cat": "medications"
+  },
+  {
+    "fa": "نیستاتین",
+    "en": "nystatin",
+    "cat": "medications"
+  },
+  {
+    "fa": "هالوپریدول",
+    "en": "haloperidol",
+    "cat": "medications"
+  },
+  {
+    "fa": "هپارین",
+    "en": "heparin",
+    "cat": "medications"
+  },
+  {
+    "fa": "هیدرالازین",
+    "en": "hydralazine",
+    "cat": "medications"
+  },
+  {
+    "fa": "هیدروکسی‌اوره",
+    "en": "hydroxyurea",
+    "cat": "medications"
+  },
+  {
+    "fa": "هیدروکلروتیازید",
+    "en": "hydrochlorothiazide",
+    "cat": "medications"
+  },
+  {
+    "fa": "هیدروکورتیزون",
+    "en": "hydrocortisone",
+    "cat": "medications"
+  },
+  {
+    "fa": "وارفارین",
+    "en": "warfarin",
+    "cat": "medications"
+  },
+  {
+    "fa": "والسارتان",
+    "en": "valsartan",
+    "cat": "medications"
+  },
+  {
+    "fa": "والگانسیکلوویر",
+    "en": "valganciclovir",
+    "cat": "medications"
+  },
+  {
+    "fa": "وال‌آسیکلوویر",
+    "en": "valacyclovir",
+    "cat": "medications"
+  },
+  {
+    "fa": "وال‌پروات",
+    "en": "valproate",
+    "cat": "medications"
+  },
+  {
+    "fa": "واکومایسین",
+    "en": "vancomycin",
+    "cat": "medications"
+  },
+  {
+    "fa": "وراپامیل",
+    "en": "verapamil",
+    "cat": "medications"
+  },
+  {
+    "fa": "ونتاکلاکس",
+    "en": "venetoclax",
+    "cat": "medications"
+  },
+  {
+    "fa": "ونلافاکسین",
+    "en": "venlafaxine",
+    "cat": "medications"
+  },
+  {
+    "fa": "ووری‌کونازول",
+    "en": "voriconazole",
+    "cat": "medications"
+  },
+  {
+    "fa": "ویتامین B12",
+    "en": "vitamin B12",
+    "cat": "medications"
+  },
+  {
+    "fa": "ویتامین C",
+    "en": "vitamin C",
+    "cat": "medications"
+  },
+  {
+    "fa": "ویتامین D",
+    "en": "vitamin D",
+    "cat": "medications"
+  },
+  {
+    "fa": "ویتامین K",
+    "en": "vitamin K",
+    "cat": "medications"
+  },
+  {
+    "fa": "ویل‌گلیپتین",
+    "en": "vildagliptin",
+    "cat": "medications"
+  },
+  {
+    "fa": "وینکریستین",
+    "en": "vincristine",
+    "cat": "medications"
+  },
+  {
+    "fa": "وین‌بلاستین",
+    "en": "vinblastine",
+    "cat": "medications"
+  },
+  {
+    "fa": "وین‌ورلبین",
+    "en": "vinorelbine",
+    "cat": "medications"
+  },
+  {
+    "fa": "پاروکستین",
+    "en": "paroxetine",
+    "cat": "medications"
+  },
+  {
+    "fa": "پالی‌تاکسل",
+    "en": "paclitaxel",
+    "cat": "medications"
+  },
+  {
+    "fa": "پانی‌توموماب",
+    "en": "panitumumab",
+    "cat": "medications"
+  },
+  {
+    "fa": "پرازیکوانتل",
+    "en": "praziquantel",
+    "cat": "medications"
+  },
+  {
+    "fa": "پراسوگرل",
+    "en": "prasugrel",
+    "cat": "medications"
+  },
+  {
+    "fa": "پراوواستاتین",
+    "en": "pravastatin",
+    "cat": "medications"
+  },
+  {
+    "fa": "پردنیزولون",
+    "en": "prednisolone",
+    "cat": "medications"
+  },
+  {
+    "fa": "پردنیزون",
+    "en": "prednisone",
+    "cat": "medications"
+  },
+  {
+    "fa": "پروتامین",
+    "en": "protamine",
+    "cat": "medications"
+  },
+  {
+    "fa": "پروفوپول",
+    "en": "propofol",
+    "cat": "medications"
+  },
+  {
+    "fa": "پروپرانولول",
+    "en": "propranolol",
+    "cat": "medications"
+  },
+  {
+    "fa": "پروپیل‌تیوراسیل",
+    "en": "propylthiouracil",
+    "cat": "medications"
+  },
+  {
+    "fa": "پرگابالین",
+    "en": "pregabalin",
+    "cat": "medications"
+  },
+  {
+    "fa": "پریندوپرایل",
+    "en": "perindopril",
+    "cat": "medications"
+  },
+  {
+    "fa": "پلاسما منجمد تازه",
+    "en": "fresh frozen plasma",
+    "cat": "medications"
+  },
+  {
+    "fa": "پمبرولوژوماب",
+    "en": "pembrolizumab",
+    "cat": "medications"
+  },
+  {
+    "fa": "پمتریکسد",
+    "en": "pemetrexed",
+    "cat": "medications"
+  },
+  {
+    "fa": "پنتوپرازول",
+    "en": "pantoprazole",
+    "cat": "medications"
+  },
+  {
+    "fa": "پنی‌سیلین",
+    "en": "penicillin",
+    "cat": "medications"
+  },
+  {
+    "fa": "پوساکونازول",
+    "en": "posaconazole",
+    "cat": "medications"
+  },
+  {
+    "fa": "پومالیدوماید",
+    "en": "pomalidomide",
+    "cat": "medications"
+  },
+  {
+    "fa": "پیاگلیتازون",
+    "en": "pioglitazone",
+    "cat": "medications"
+  },
+  {
+    "fa": "پیپراسیلین-تازوباکتام",
+    "en": "piperacillin-tazobactam",
+    "cat": "medications"
+  },
+  {
+    "fa": "کاربامازپین",
+    "en": "carbamazepine",
+    "cat": "medications"
+  },
+  {
+    "fa": "کاربوبلاتین",
+    "en": "carboplatin",
+    "cat": "medications"
+  },
+  {
+    "fa": "کارفلزومیب",
+    "en": "carfilzomib",
+    "cat": "medications"
+  },
+  {
+    "fa": "کارودیلول",
+    "en": "carvedilol",
+    "cat": "medications"
+  },
+  {
+    "fa": "کاناگلیفلوزین",
+    "en": "canagliflozin",
+    "cat": "medications"
+  },
+  {
+    "fa": "کاندسارتان",
+    "en": "candesartan",
+    "cat": "medications"
+  },
+  {
+    "fa": "کاپسیتابین",
+    "en": "capecitabine",
+    "cat": "medications"
+  },
+  {
+    "fa": "کتامین",
+    "en": "ketamine",
+    "cat": "medications"
+  },
+  {
+    "fa": "کتورولاک",
+    "en": "ketorolac",
+    "cat": "medications"
+  },
+  {
+    "fa": "کتوکونازول",
+    "en": "ketoconazole",
+    "cat": "medications"
+  },
+  {
+    "fa": "کریوپرسیپیتات",
+    "en": "cryoprecipitate",
+    "cat": "medications"
+  },
+  {
+    "fa": "کلاداربین",
+    "en": "cladribine",
+    "cat": "medications"
+  },
+  {
+    "fa": "کلاریترومایسین",
+    "en": "clarithromycin",
+    "cat": "medications"
+  },
+  {
+    "fa": "کلرفنیرامین",
+    "en": "chlorpheniramine",
+    "cat": "medications"
+  },
+  {
+    "fa": "کلزستیرامین",
+    "en": "cholestyramine",
+    "cat": "medications"
+  },
+  {
+    "fa": "کلسیم",
+    "en": "calcium supplement",
+    "cat": "medications"
+  },
+  {
+    "fa": "کلورامبوسیل",
+    "en": "chlorambucil",
+    "cat": "medications"
+  },
+  {
+    "fa": "کلومیپرامین",
+    "en": "clomipramine",
+    "cat": "medications"
+  },
+  {
+    "fa": "کلونازپام",
+    "en": "clonazepam",
+    "cat": "medications"
+  },
+  {
+    "fa": "کلوپیدوگرل",
+    "en": "clopidogrel",
+    "cat": "medications"
+  },
+  {
+    "fa": "کلوژاپین",
+    "en": "clozapine",
+    "cat": "medications"
+  },
+  {
+    "fa": "کنتسانتره پلاکت",
+    "en": "platelet concentrate",
+    "cat": "medications"
+  },
+  {
+    "fa": "کوترلازین",
+    "en": "quetiapine",
+    "cat": "medications"
+  },
+  {
+    "fa": "کوتریموکسازول",
+    "en": "cotrimoxazole",
+    "cat": "medications"
+  },
+  {
+    "fa": "کودئین",
+    "en": "codeine",
+    "cat": "medications"
+  },
+  {
+    "fa": "کورتیکواستروئید",
+    "en": "corticosteroid",
+    "cat": "medications"
+  },
+  {
+    "fa": "کولکایسین",
+    "en": "colchicine",
+    "cat": "medications"
+  },
+  {
+    "fa": "گاباپنتین",
+    "en": "gabapentin",
+    "cat": "medications"
+  },
+  {
+    "fa": "گانسیکلوویر",
+    "en": "ganciclovir",
+    "cat": "medications"
+  },
+  {
+    "fa": "گایافنزین",
+    "en": "guaifenesin",
+    "cat": "medications"
+  },
+  {
+    "fa": "گلبول قرمز خون‌پاک‌شده",
+    "en": "packed red blood cells",
+    "cat": "medications"
+  },
+  {
+    "fa": "گلوکوکورتیکوئید",
+    "en": "glucocorticoid",
+    "cat": "medications"
+  },
+  {
+    "fa": "گلی‌بنکلامید",
+    "en": "glibenclamide",
+    "cat": "medications"
+  },
+  {
+    "fa": "گلی‌پی‌زید",
+    "en": "glipizide",
+    "cat": "medications"
+  },
+  {
+    "fa": "گلی‌کلازید",
+    "en": "glimepiride",
+    "cat": "medications"
+  }
+]

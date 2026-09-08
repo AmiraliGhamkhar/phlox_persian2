@@ -2,6 +2,7 @@
 VectorStoreManager — backend-agnostic facade for RAG.
 """
 
+import hashlib
 import io
 import logging
 import threading
@@ -30,16 +31,14 @@ from server.database.core.documents_db import DOCUMENTS_DB_PATH
 from server.llm_client.client import get_llm_client
 from server.utils.url_utils import normalize_openai_base_url
 
-prompts = config_manager.get_prompts_and_options()
-
 logger = logging.getLogger(__name__)
 
 _vector_store_instance = None
 _vector_store_lock = threading.Lock()
 
 
-def get_vector_store_manager():
-    """Get the VectorStoreManager singleton."""
+def get_vector_store_manager() -> "VectorStoreManager | None":
+    """Get the VectorStoreManager singleton, refreshed when config changed."""
     global _vector_store_instance
     if _vector_store_instance is None:
         with _vector_store_lock:
@@ -47,6 +46,14 @@ def get_vector_store_manager():
                 if not VECTOR_STORE_AVAILABLE:
                     return None
                 _vector_store_instance = VectorStoreManager()
+    else:
+        # The singleton outlives settings changes; pick up a new LLM
+        # endpoint / prompt text exactly once, when it actually changed.
+        try:
+            if _vector_store_instance.is_stale():
+                _vector_store_instance.refresh()
+        except Exception:
+            logger.debug("Vector store refresh skipped", exc_info=True)
     return _vector_store_instance
 
 
@@ -69,6 +76,59 @@ class VectorStoreManager:
 
         self._reload_embedding_function()
         self.llm_client = get_llm_client()
+        self._fingerprint = self._config_fingerprint()
+        self._failed_fingerprint: tuple | None = None
+
+    def _config_fingerprint(self) -> tuple:
+        """Cheap identity of the LLM/prompt state the manager depends on."""
+        config = config_manager.get_config()
+        prompt = (
+            config_manager.get_prompts_and_options().get("prompts", {}).get("chat", {}) or {}
+        ).get("system", "")
+        return (
+            config.get("LLM_PROVIDER"),
+            config.get("LLM_BASE_URL"),
+            config.get("LLM_API_KEY"),
+            config.get("PRIMARY_MODEL"),
+            hashlib.md5(prompt.encode("utf-8")).hexdigest(),
+            config.get("EMBEDDING_MODEL"),
+        )
+
+    def is_stale(self) -> bool:
+        """True when the live config/prompt state differs from what is cached."""
+        return self._config_fingerprint() != self._fingerprint
+
+    def refresh(self) -> None:
+        """Re-read config-dependent state from the live config manager.
+
+        This manager is a long-lived singleton, but the LLM endpoint and the
+        prompt texts are user-editable at runtime (Settings → prompts /
+        models). Without a refresh, RAG-side LLM calls (e.g. document
+        classification) would keep using the model and prompt that were
+        active when the singleton was first created.
+
+        If the *new* state is unusable (e.g. LLM base URL cleared), the old,
+        working state is kept and the failure is recorded so it is not
+        retried (and not re-logged) on every request until the config
+        changes again.
+        """
+        fingerprint = self._config_fingerprint()
+        try:
+            self.config = config_manager.get_config()
+            self.prompts = config_manager.get_prompts_and_options()
+            self._reload_embedding_function()
+            self.llm_client = get_llm_client()
+        except Exception:
+            if self._failed_fingerprint != fingerprint:
+                logger.warning(
+                    "Vector store could not adopt the new LLM/embedding config; "
+                    "keeping the previous working state",
+                    exc_info=True,
+                )
+            self._failed_fingerprint = fingerprint
+            return
+        self._fingerprint = fingerprint
+        self._failed_fingerprint = None
 
     # Embedding function management
 

@@ -81,9 +81,10 @@ def _check_rag_available():
 @router.get("/files")
 def get_files():
     """API endpoint to retrieve the list of document collections."""
-    _check_rag_available()
+    vector_store_manager = get_vector_store_manager()
+    if vector_store_manager is None:
+        raise HTTPException(status_code=503, detail="RAG features are not available.")
     try:
-        vector_store_manager = get_vector_store_manager()
         collections = vector_store_manager.list_collections()
         return {"files": collections}
     except Exception as e:
@@ -94,9 +95,10 @@ def get_files():
 @router.get("/collection_files/{collection_name}")
 def get_collection_files(collection_name: str):
     """API endpoint to retrieve files for a specific collection."""
-    _check_rag_available()
+    vector_store_manager = get_vector_store_manager()
+    if vector_store_manager is None:
+        raise HTTPException(status_code=503, detail="RAG features are not available.")
     try:
-        vector_store_manager = get_vector_store_manager()
         files = vector_store_manager.get_files_for_collection_with_pdf_flag(collection_name)
         return {"files": files}
     except Exception as e:
@@ -110,9 +112,10 @@ def get_collection_files(collection_name: str):
 @router.post("/modify")
 def modify_collection(request: ModifyCollectionRequest):
     """API endpoint to modify the name of a collection."""
-    _check_rag_available()
+    vector_store_manager = get_vector_store_manager()
+    if vector_store_manager is None:
+        raise HTTPException(status_code=503, detail="RAG features are not available.")
     try:
-        vector_store_manager = get_vector_store_manager()
         success = vector_store_manager.modify_collection_name(request.old_name, request.new_name)
         if not success:
             raise HTTPException(status_code=500, detail="Failed to rename collection")
@@ -127,9 +130,10 @@ def modify_collection(request: ModifyCollectionRequest):
 @router.delete("/delete-collection/{name}")
 def delete_collection_endpoint(name: str):
     """API endpoint to delete a collection."""
-    _check_rag_available()
+    vector_store_manager = get_vector_store_manager()
+    if vector_store_manager is None:
+        raise HTTPException(status_code=503, detail="RAG features are not available.")
     try:
-        vector_store_manager = get_vector_store_manager()
         success = vector_store_manager.delete_collection(name)
         if not success:
             raise HTTPException(status_code=500, detail="Failed to delete collection")
@@ -144,9 +148,10 @@ def delete_collection_endpoint(name: str):
 @router.delete("/delete-file")
 def delete_file_endpoint(request: DeleteFileRequest):
     """API endpoint to delete a file from a collection."""
-    _check_rag_available()
+    vector_store_manager = get_vector_store_manager()
+    if vector_store_manager is None:
+        raise HTTPException(status_code=503, detail="RAG features are not available.")
     try:
-        vector_store_manager = get_vector_store_manager()
         success = vector_store_manager.delete_file_from_collection(
             request.collection_name, request.file_name
         )
@@ -166,9 +171,10 @@ def delete_file_endpoint(request: DeleteFileRequest):
 @router.patch("/update-document-metadata")
 def update_document_metadata(request: UpdateDocumentMetadataRequest):
     """Update a document's title / source / focus_area (partial)."""
-    _check_rag_available()
+    vector_store_manager = get_vector_store_manager()
+    if vector_store_manager is None:
+        raise HTTPException(status_code=503, detail="RAG features are not available.")
     try:
-        vector_store_manager = get_vector_store_manager()
         success = vector_store_manager.update_document_metadata(
             request.collection_name,
             request.filename,
@@ -192,9 +198,10 @@ def update_document_metadata(request: UpdateDocumentMetadataRequest):
 @router.get("/download-pdf/{collection_name}/{filename}")
 def download_pdf(collection_name: str, filename: str):
     """Download the original PDF stored for a file in a collection."""
-    _check_rag_available()
+    vector_store_manager = get_vector_store_manager()
+    if vector_store_manager is None:
+        raise HTTPException(status_code=503, detail="RAG features are not available.")
     try:
-        vector_store_manager = get_vector_store_manager()
         pdf_bytes = vector_store_manager.get_stored_pdf(collection_name, filename)
         if pdf_bytes is None:
             raise HTTPException(
@@ -219,8 +226,9 @@ def download_pdf(collection_name: str, filename: str):
 @router.post("/extract-pdf-info")
 async def extract_pdf_info(file: UploadFile = File(...)):
     """API endpoint to extract information from a PDF."""
-    _check_rag_available()
     vector_store_manager = get_vector_store_manager()
+    if vector_store_manager is None:
+        raise HTTPException(status_code=503, detail="RAG features are not available.")
     logger.info(f"Request received for /extract-pdf-info: filename='{file.filename}'")
 
     if not file.filename:
@@ -261,8 +269,9 @@ async def extract_pdf_info(file: UploadFile = File(...)):
 @router.post("/extract-pdf-info-from-text")
 async def extract_pdf_info_from_text(payload: ExtractTextPayload):
     """API endpoint to extract metadata from already-extracted PDF text (frontend text-first flow)."""
-    _check_rag_available()
     vector_store_manager = get_vector_store_manager()
+    if vector_store_manager is None:
+        raise HTTPException(status_code=503, detail="RAG features are not available.")
 
     logger.info(
         "Request received for /extract-pdf-info-from-text: filename='%s', text_length=%d",
@@ -289,9 +298,10 @@ async def extract_pdf_info_from_text(payload: ExtractTextPayload):
 @router.post("/commit-to-vectordb")
 def commit_to_db(request: CommitRequest):
     """API endpoint to commit data to the database."""
-    _check_rag_available()
+    vector_store_manager = get_vector_store_manager()
+    if vector_store_manager is None:
+        raise HTTPException(status_code=503, detail="RAG features are not available.")
     try:
-        vector_store_manager = get_vector_store_manager()
         vector_store_manager.commit_to_vectordb(
             request.disease_name,
             request.focus_area,
@@ -316,12 +326,14 @@ def commit_direct(request: BulkCommitRequest):
     Used by the bulk upload path.
     """
     _check_rag_available()
+    vector_store_manager = get_vector_store_manager()
+    if vector_store_manager is None:
+        raise HTTPException(status_code=503, detail="RAG features are not available.")
     try:
         pdf_bytes = None
         if request.pdf_base64:
             pdf_bytes = base64.b64decode(request.pdf_base64)
 
-        vector_store_manager = get_vector_store_manager()
         vector_store_manager.commit_text_to_vectordb(
             extracted_text=request.extracted_text,
             disease_name=request.disease_name,
@@ -346,9 +358,10 @@ def commit_direct(request: BulkCommitRequest):
 @router.post("/re-embed")
 def re_embed():
     """API endpoint to re-embed all collections with the current embedding model."""
-    _check_rag_available()
+    vector_store_manager = get_vector_store_manager()
+    if vector_store_manager is None:
+        raise HTTPException(status_code=503, detail="RAG features are not available.")
     try:
-        vector_store_manager = get_vector_store_manager()
         result = vector_store_manager.re_embed_all()
         return {"message": "Re-embedding completed successfully", **result}
     except Exception as e:
@@ -372,9 +385,10 @@ async def re_embed_stream():
 @router.post("/clear-database")
 def clear_database():
     """API endpoint to clear the entire RAG database."""
-    _check_rag_available()
+    vector_store_manager = get_vector_store_manager()
+    if vector_store_manager is None:
+        raise HTTPException(status_code=503, detail="RAG features are not available.")
     try:
-        vector_store_manager = get_vector_store_manager()
         success = vector_store_manager.reset_database()
         if not success:
             raise HTTPException(status_code=500, detail="Failed to reset RAG database")

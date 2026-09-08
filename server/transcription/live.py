@@ -108,7 +108,13 @@ class SpeechmaticsLiveSession(LiveSession):
         self._partial = ""
         self._client = None
         self._task: asyncio.Task | None = None
+        self._pump_task: asyncio.Task | None = None
         self._queue: asyncio.Queue[bytes | None] = asyncio.Queue()
+        # Transcript events arrive as SDK callbacks; they are routed through
+        # this queue and processed by a single pump task so partials and
+        # finals are emitted in arrival order (unreferenced create_task
+        # calls can be garbage-collected and reorder).
+        self._events: asyncio.Queue = asyncio.Queue()
         self._started = asyncio.Event()
         self._last_error: str | None = None
 
@@ -152,36 +158,37 @@ class SpeechmaticsLiveSession(LiveSession):
         client = AsyncClient(api_key=api_key, url=speechmatics_rt_url(self.config))
         self._client = client
 
-        async def handle_partial(message: dict) -> None:
-            try:
-                result = TranscriptResult.from_message(message)
-                text = result.metadata.transcript
-            except (KeyError, TypeError, AttributeError):
-                text = ""
-            if text:
-                self._partial = text
-                await self.emit({"type": "partial", "text": _compose(self._finals, text)})
-
-        async def handle_final(message: dict) -> None:
-            try:
-                result = TranscriptResult.from_message(message)
-                text = result.metadata.transcript
-            except (KeyError, TypeError, AttributeError):
-                text = ""
-            if text:
-                self._finals.append(text)
-                self._partial = ""
-                await self.emit({"type": "final", "text": _compose(self._finals, "")})
-
-        # speechmatics-rt callbacks may be sync; wrap if needed.
+        # The SDK may deliver callbacks synchronously from its own loop, so
+        # they are queued and processed by one pump task (ordered emit, no
+        # floating tasks).
         def on_partial(message: dict) -> None:
-            asyncio.create_task(handle_partial(message))
+            self._events.put_nowait(("partial", message))
 
         def on_final(message: dict) -> None:
-            asyncio.create_task(handle_final(message))
+            self._events.put_nowait(("final", message))
 
         def on_started(_message: dict) -> None:
             self._started.set()
+
+        async def _pump_events() -> None:
+            while True:
+                kind, message = await self._events.get()
+                if message is None:
+                    return
+                try:
+                    result = TranscriptResult.from_message(message)
+                    text = result.metadata.transcript
+                except (KeyError, TypeError, AttributeError):
+                    text = ""
+                if not text:
+                    continue
+                if kind == "partial":
+                    self._partial = text
+                    await self.emit({"type": "partial", "text": _compose(self._finals, text)})
+                else:
+                    self._finals.append(text)
+                    self._partial = ""
+                    await self.emit({"type": "final", "text": _compose(self._finals, "")})
 
         partial_event = ServerMessageType.ADD_PARTIAL_TRANSCRIPT
         client.on(partial_event, on_partial)
@@ -237,6 +244,7 @@ class SpeechmaticsLiveSession(LiveSession):
                 self._last_error = str(error)
                 await self.emit({"type": "error", "message": str(error)})
 
+        self._pump_task = asyncio.create_task(_pump_events())
         self._task = asyncio.create_task(_run())
 
         # Do not report the live socket as ready until Speechmatics itself has
@@ -278,6 +286,15 @@ class SpeechmaticsLiveSession(LiveSession):
                 await self._client.close()
             except Exception:
                 logger.debug("Speechmatics live client close failed", exc_info=True)
+        # Drain the transcript queue: stop() is called by the caller to flush
+        # trailing finals, so let the pump deliver queued events before it
+        # exits.
+        if self._pump_task:
+            self._events.put_nowait(("final", None))
+            try:
+                await asyncio.wait_for(self._pump_task, timeout=15)
+            except TimeoutError:
+                self._pump_task.cancel()
         return normalize_persian_text(_compose(self._finals, self._partial))
 
 

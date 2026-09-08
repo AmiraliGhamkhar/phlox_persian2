@@ -68,3 +68,10 @@ __pycache__/
 *.pyc
 package-lock.old
 package-lock.old
+
+# Curated medical terminology data (must be version-controlled)
+!server/data/
+!server/data/terms/
+!server/data/terms/*.json
+!server/data/validate_terms.py
+!server/data/__init__.py
