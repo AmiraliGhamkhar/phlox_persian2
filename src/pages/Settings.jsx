@@ -1,47 +1,25 @@
-// Page component for configuring application settings.
 import {
     Box,
     Text,
     VStack,
     Center,
     Spinner,
+    Input,
 } from "@chakra-ui/react";
 import { toaster } from "@/components/ui/toaster";
-import { useState, useEffect, useCallback, useRef } from "react";
+import { useState, useEffect, useCallback } from "react";
 import { settingsService } from "../utils/settings/settingsUtils";
 import { settingsApi } from "../utils/api/settingsApi";
-import { settingsHelpers } from "../utils/helpers/settingsHelpers";
-import UserSettingsPanel from "../components/settings/UserSettingsPanel";
 import ModelSettingsPanel from "../components/settings/ModelSettingsPanel";
-import PromptSettingsPanel from "../components/settings/PromptSettingsPanel";
-import { SPECIALTIES } from "../utils/constants";
-import { templateService } from "../utils/services/templateService";
 import { localModelApi } from "../utils/api/localModelApi";
 import { isTauri } from "../utils/helpers/apiConfig";
 import { useDebounce } from "../utils/hooks/useDebounce";
 import { useAutosave } from "../utils/hooks/useAutosave";
-import { embeddingProviderIdForLlm } from "../utils/aiProviders";
+import { useWorkspace } from "../utils/context/workspaceContext";
 
 const Settings = () => {
-    const [userSettings, setUserSettings] = useState({
-        name: "",
-        specialty: "",
-        quick_chat_1_title: "بررسی برنامه من",
-        quick_chat_1_prompt: "بررسی برنامه من",
-        quick_chat_2_title: "نکات دیگری برای بررسی",
-        quick_chat_2_prompt: "نکات دیگری برای بررسی",
-        quick_chat_3_title: "بیماری‌های دیگری که ارزش بررسی دارند",
-        quick_chat_3_prompt: "بیماری‌های دیگری که ارزش بررسی دارند",
-    });
-    const [prompts, setPrompts] = useState(null);
-    const [options, setOptions] = useState({
-        general: { num_ctx: 0 },
-        secondary: { num_ctx: 0 },
-        letter: { temperature: 0 },
-    });
-    const [templates, setTemplates] = useState({});
-    const [letterTemplates, setLetterTemplates] = useState([]);
-
+    const { clinicianName, setClinicianName, refreshStatus } = useWorkspace();
+    const [name, setName] = useState(clinicianName || "");
     const [config, setConfig] = useState(null);
     const [coreLoading, setCoreLoading] = useState(true);
     const [showSpinner, setShowSpinner] = useState(false);
@@ -53,22 +31,17 @@ const Settings = () => {
         useState(false);
     const [llmProviders, setLlmProviders] = useState([]);
     const [asrProviders, setAsrProviders] = useState([]);
-    const [embeddingProviders, setEmbeddingProviders] = useState([]);
-    const [embeddingModelOptions, setEmbeddingModelOptions] = useState([]);
-
     const [urlStatus, setUrlStatus] = useState({
         whisper: false,
         llm: false,
     });
     const [collapseStates, setCollapseStates] = useState({
-        userSettings: false,
-        modelSettings: true,
-        promptSettings: true,
-        localModels: true,
+        modelSettings: false,
     });
 
-    // Track default_template separately — it persists via a different endpoint
-    const lastDefaultTemplateRef = useRef(null);
+    useEffect(() => {
+        if (clinicianName && !name) setName(clinicianName);
+    }, [clinicianName, name]);
 
     const fetchCoreSettings = useCallback(async () => {
         try {
@@ -79,60 +52,11 @@ const Settings = () => {
                 const catalog = await settingsApi.fetchProviders();
                 setLlmProviders(catalog?.llm || []);
                 setAsrProviders(catalog?.asr || []);
-                setEmbeddingProviders(catalog?.embedding || []);
             } catch (error) {
                 console.error("Error loading AI provider catalog:", error);
             }
-
-            // Letter templates fetched here instead of a separate useEffect
-            const [letterResponse, prompts, optionsData, userSettings, templates] = await Promise.all([
-                settingsService.fetchLetterTemplates().catch((error) => {
-                    console.error(
-                        "Failed to fetch letter templates:",
-                        error,
-                    );
-                    return { templates: [], default_template_id: null };
-                }),
-                settingsApi.fetchPrompts(),
-                configData?.LLM_PROVIDER !== "local"
-                    ? settingsApi.fetchOptions()
-                    : Promise.resolve(null),
-                settingsApi.fetchUserSettings(),
-                settingsApi.fetchTemplates(),
-            ]);
-
-            setPrompts(prompts);
-            if (optionsData) {
-                setOptions(settingsHelpers.processOptionsData(optionsData));
-            } else {
-                setOptions({
-                    general: { num_ctx: 0 },
-                    secondary: { num_ctx: 0 },
-                    letter: { temperature: 0 },
-                });
-            }
-            setUserSettings(userSettings);
-            setTemplates(templates);
-
-            // Set letter templates from parallel fetch
-            if (letterResponse) {
-                setLetterTemplates(letterResponse.templates);
-                if (letterResponse.default_template_id !== null) {
-                    setUserSettings((prev) => ({
-                        ...prev,
-                        default_letter_template_id:
-                            letterResponse.default_template_id,
-                    }));
-                }
-            }
-
-            // Fetch and merge default template into user settings
-            const defaultTemplate = await templateService.getDefaultTemplate();
-            setUserSettings((prev) => ({
-                ...prev,
-                default_template: defaultTemplate.template_key,
-            }));
-            lastDefaultTemplateRef.current = defaultTemplate.template_key;
+            const userSettings = await settingsApi.fetchUserSettings();
+            if (userSettings?.name) setName(userSettings.name);
         } catch (error) {
             console.error("Error loading settings:", error);
             toaster.create({
@@ -193,7 +117,6 @@ const Settings = () => {
 
     useEffect(() => {
         const refreshWhisperModels = async () => {
-            // Guard: don't clear existing models during debounce settling
             if (debouncedAsrProvider === "speechmatics" || debouncedAsrProvider === "fireworks") {
                 setWhisperModelsLoading(false);
                 if (debouncedAsrProvider === "fireworks") {
@@ -212,8 +135,6 @@ const Settings = () => {
             }
 
             if (debouncedAsrProvider === "assemblyai") {
-                // AssemblyAI has no public model-listing endpoint; show the
-                // documented operating points instead.
                 setWhisperModelsLoading(false);
                 setWhisperModelOptions(["universal-3-5-pro", "universal-2"]);
                 setWhisperModelListAvailable(true);
@@ -272,13 +193,16 @@ const Settings = () => {
 
     useEffect(() => {
         const refreshLlmModels = async () => {
-            // Local mode uses local model manager, not remote model listing
             if ((config?.LLM_PROVIDER || "ollama") === "local") {
                 return;
             }
-
-            // Guard: don't clear existing models during debounce settling
             if (!debouncedLlmBaseUrl) {
+                const provider = llmProviders.find(
+                    (item) => item.id === (debouncedLlmProvider || config?.LLM_PROVIDER),
+                );
+                if (provider?.default_models?.length) {
+                    setModelOptions(provider.default_models);
+                }
                 return;
             }
 
@@ -294,7 +218,10 @@ const Settings = () => {
                 );
             } catch (error) {
                 console.error("Error refreshing LLM models:", error);
-                setModelOptions([]);
+                const provider = llmProviders.find(
+                    (item) => item.id === (debouncedLlmProvider || config?.LLM_PROVIDER),
+                );
+                setModelOptions(provider?.default_models || []);
             } finally {
                 setLlmModelsLoading(false);
             }
@@ -306,40 +233,9 @@ const Settings = () => {
         debouncedLlmProvider,
         debouncedLlmApiKey,
         config?.LLM_PROVIDER,
+        llmProviders,
     ]);
 
-    const debouncedEmbeddingProvider = useDebounce(config?.EMBEDDING_PROVIDER, 500);
-    const debouncedEmbeddingUrl = useDebounce(config?.EMBEDDING_BASE_URL, 500);
-
-    useEffect(() => {
-        const refreshEmbeddingModels = async () => {
-            const provider =
-                debouncedEmbeddingProvider ||
-                embeddingProviderIdForLlm(config?.LLM_PROVIDER);
-            if (!provider || provider === "local") {
-                setEmbeddingModelOptions(["Qwen3-Embedding-0.6B-Q8_0"]);
-                return;
-            }
-            try {
-                const response = await settingsApi.fetchEmbeddingModels(
-                    provider,
-                    debouncedEmbeddingUrl || config?.LLM_BASE_URL,
-                );
-                setEmbeddingModelOptions(response.models || []);
-            } catch (error) {
-                console.error("Error refreshing embedding models:", error);
-                setEmbeddingModelOptions([]);
-            }
-        };
-        refreshEmbeddingModels();
-    }, [
-        debouncedEmbeddingProvider,
-        debouncedEmbeddingUrl,
-        config?.LLM_PROVIDER,
-        config?.LLM_BASE_URL,
-    ]);
-
-    // Load local models when provider is "local"
     useEffect(() => {
         if (config?.LLM_PROVIDER !== "local") return;
 
@@ -362,74 +258,27 @@ const Settings = () => {
         fetchLocalModels();
     }, [config?.LLM_PROVIDER]);
 
-    const toggleCollapse = (section) => {
-        setCollapseStates((prev) => ({
-            ...prev,
-            [section]: !prev[section],
-        }));
-    };
-
-    const saveUserSettingsFn = async (newSettings) => {
-        const { disabled_tools: _dt, default_template, ...rest } = newSettings;
-        await settingsApi.saveUserSettings({
-            ...rest,
-            default_letter_template_id:
-                newSettings.default_letter_template_id || null,
-        });
-        if (
-            default_template &&
-            default_template !== lastDefaultTemplateRef.current
-        ) {
-            await templateService.setDefaultTemplate(default_template);
-            lastDefaultTemplateRef.current = default_template;
-        }
-    };
-
-    const savePromptsFn = async (newPrompts) => {
-        if (newPrompts) await settingsApi.savePrompts(newPrompts);
-    };
-
     const saveConfigFn = async (newConfig) => {
-        if (newConfig) await settingsApi.saveConfig(newConfig);
+        if (newConfig) {
+            await settingsApi.saveConfig(newConfig);
+            refreshStatus();
+        }
     };
 
-    const saveOptionsFn = async (newOptions) => {
-        for (const [category, categoryOptions] of Object.entries(newOptions)) {
-            await settingsApi.saveOptions(category, categoryOptions);
-        }
+    const saveNameFn = async (newName) => {
+        await setClinicianName(newName);
     };
 
     const autosaveEnabled = !coreLoading;
-    const userAutosave = useAutosave(
-        userSettings,
-        saveUserSettingsFn,
-        800,
-        autosaveEnabled,
-    );
-    const promptsAutosave = useAutosave(
-        prompts,
-        savePromptsFn,
-        1200,
-        autosaveEnabled,
-    );
     const configAutosave = useAutosave(
         config,
         saveConfigFn,
         800,
         autosaveEnabled,
     );
-    const optionsAutosave = useAutosave(
-        options,
-        saveOptionsFn,
-        800,
-        autosaveEnabled,
-    );
+    const nameAutosave = useAutosave(name, saveNameFn, 800, autosaveEnabled);
 
-    const isDirty =
-        userAutosave.isDirty ||
-        promptsAutosave.isDirty ||
-        configAutosave.isDirty ||
-        optionsAutosave.isDirty;
+    const isDirty = configAutosave.isDirty || nameAutosave.isDirty;
 
     useEffect(() => {
         const handler = (e) => {
@@ -442,82 +291,11 @@ const Settings = () => {
         return () => window.removeEventListener("beforeunload", handler);
     }, [isDirty]);
 
-    const handlePromptReset = async (promptType) => {
-        try {
-            const updatedPrompts =
-                await settingsService.resetIndividualPrompt(promptType);
-            setPrompts(updatedPrompts);
-            toaster.create({
-                title: "Success",
-                description: `${promptType} prompt reset to default`,
-                type: "success",
-                duration: 3000,
-            });
-        } catch {
-            toaster.create({
-                title: "Error",
-                description: "Failed to reset prompt",
-                type: "error",
-                duration: 3000,
-            });
-        }
-    };
-
-    const handleOptionsReset = async () => {
-        try {
-            await settingsService.resetOptionsToDefaults();
-            const optionsData = await settingsApi.fetchOptions();
-            setOptions(settingsHelpers.processOptionsData(optionsData));
-            toaster.create({
-                title: "Success",
-                description: "Advanced options reset to defaults",
-                type: "success",
-                duration: 3000,
-            });
-        } catch {
-            toaster.create({
-                title: "Error",
-                description: "Failed to reset advanced options",
-                type: "error",
-                duration: 3000,
-            });
-        }
-    };
-
-    const handlePromptChange = (promptType, field, value) => {
-        setPrompts((prev) => ({
-            ...prev,
-            [promptType]: {
-                ...prev[promptType],
-                [field]: value,
-            },
-        }));
-    };
-
-    const handleOptionChange = (category, key, value) => {
-        setOptions((prev) => ({
-            ...prev,
-            [category]: {
-                ...prev[category],
-                [key]: value,
-            },
-        }));
-    };
     const handleConfigChange = (key, value) => {
         setConfig((prev) => ({
             ...prev,
             [key]: value,
         }));
-    };
-
-    const handleReEmbed = async (newEmbeddingModel, onProgress = null) => {
-        await settingsService.reEmbed(
-            newEmbeddingModel,
-            config,
-            true,
-            onProgress,
-        );
-        await fetchCoreSettings();
     };
 
     useEffect(() => {
@@ -533,51 +311,48 @@ const Settings = () => {
             </Center>
         );
     }
+
     return (
-        <Box p="5" borderRadius="sm" w="100%">
-            <Text as="h2" mb="4">
+        <Box p="5" borderRadius="sm" w="100%" maxW="1100px" mx="auto">
+            <Text as="h2" mb="2">
                 تنظیمات
             </Text>
+            <Text color="textSecondary" mb="5">
+                مدل محلی را دانلود کنید تا خودکار فعال شود، یا Groq و OpenRouter را با کلید API وصل کنید. نشانی آن‌ها از قبل آماده است.
+            </Text>
             <VStack gap="5" align="stretch">
-                <UserSettingsPanel
-                    isCollapsed={collapseStates.userSettings}
-                    setIsCollapsed={() => toggleCollapse("userSettings")}
-                    userSettings={userSettings}
-                    setUserSettings={setUserSettings}
-                    specialties={SPECIALTIES}
-                    templates={templates}
-                    letterTemplates={letterTemplates}
-                    setTemplates={setTemplates}
-                />
+                <Box className="panels-bg" p="4" borderRadius="sm">
+                    <Text as="h3" mb="3">
+                        نام پزشک
+                    </Text>
+                    <Input
+                        size="sm"
+                        value={name}
+                        onChange={(e) => setName(e.target.value)}
+                        className="input-style"
+                        placeholder="نام خود را وارد کنید"
+                    />
+                </Box>
 
                 <ModelSettingsPanel
                     isCollapsed={collapseStates.modelSettings}
-                    setIsCollapsed={() => toggleCollapse("modelSettings")}
+                    setIsCollapsed={() =>
+                        setCollapseStates((prev) => ({
+                            ...prev,
+                            modelSettings: !prev.modelSettings,
+                        }))
+                    }
                     config={config}
                     handleConfigChange={handleConfigChange}
                     modelOptions={modelOptions}
-                    embeddingModelOptions={embeddingModelOptions}
                     whisperModelOptions={whisperModelOptions}
                     whisperModelListAvailable={whisperModelListAvailable}
                     whisperModelsLoading={whisperModelsLoading}
                     llmModelsLoading={llmModelsLoading}
                     urlStatus={urlStatus}
-                    handleReEmbed={handleReEmbed}
                     llmProviders={llmProviders}
                     asrProviders={asrProviders}
-                    embeddingProviders={embeddingProviders}
-                />
-
-                <PromptSettingsPanel
-                    isCollapsed={collapseStates.promptSettings}
-                    setIsCollapsed={() => toggleCollapse("promptSettings")}
-                    prompts={prompts}
-                    handlePromptChange={handlePromptChange}
-                    handlePromptReset={handlePromptReset}
-                    options={options}
-                    handleOptionChange={handleOptionChange}
-                    handleOptionsReset={handleOptionsReset}
-                    config={config}
+                    hideExtras
                 />
             </VStack>
         </Box>

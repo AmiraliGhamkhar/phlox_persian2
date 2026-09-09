@@ -33,6 +33,8 @@ def test_list_providers_covers_requested_backends():
         "omniroute",
         "openai",
         "anthropic",
+        "groq",
+        "openrouter",
     }.issubset(llm_ids)
     assert {"fireworks", "speechmatics", "whispercpp", "openai"}.issubset(asr_ids)
     assert {"ollama", "openai", "local"}.issubset(embedding_ids)
@@ -67,12 +69,30 @@ def test_detect_llm_provider_from_url():
         == "openai"
     )
     assert detect_llm_provider({"LLM_PROVIDER": "openai", "LLM_BASE_URL": ""}) == "ollama"
+    assert (
+        detect_llm_provider(
+            {"LLM_PROVIDER": "openai_compatible", "LLM_BASE_URL": "https://api.groq.com/openai"}
+        )
+        == "groq"
+    )
+    assert (
+        detect_llm_provider(
+            {"LLM_PROVIDER": "openai_compatible", "LLM_BASE_URL": "https://openrouter.ai/api"}
+        )
+        == "openrouter"
+    )
 
 
 def test_apply_provider_defaults_stamp_urls():
     llm = apply_llm_provider_defaults("lmstudio")
     assert llm["LLM_PROVIDER"] == "lmstudio"
     assert llm["LLM_BASE_URL"].endswith("1234")
+    groq = apply_llm_provider_defaults("groq")
+    assert groq["LLM_PROVIDER"] == "groq"
+    assert "api.groq.com" in groq["LLM_BASE_URL"]
+    openrouter = apply_llm_provider_defaults("openrouter")
+    assert openrouter["LLM_PROVIDER"] == "openrouter"
+    assert "openrouter.ai" in openrouter["LLM_BASE_URL"]
     asr = apply_asr_provider_defaults("fireworks")
     assert asr["ASR_PROVIDER"] == "fireworks"
     assert asr["ASR_MODEL"] == "fireworks-asr-v2"
@@ -109,6 +129,19 @@ def test_anthropic_llm_does_not_reuse_anthropic_for_embeddings():
     )
     assert connection["provider"] == "ollama"
     assert "11434" in connection["base_url"]
+
+
+def test_groq_and_openrouter_are_openai_compatible():
+    groq = resolve_llm_connection(
+        {"LLM_PROVIDER": "groq", "LLM_API_KEY": "gsk-test", "LLM_BASE_URL": ""}
+    )
+    assert groq["protocol"] == "openai_compatible"
+    assert "api.groq.com" in groq["base_url"]
+    openrouter = resolve_llm_connection(
+        {"LLM_PROVIDER": "openrouter", "LLM_API_KEY": "sk-or-test", "LLM_BASE_URL": ""}
+    )
+    assert openrouter["protocol"] == "openai_compatible"
+    assert "openrouter.ai" in openrouter["base_url"]
 
 
 def test_looks_like_embedding_model():

@@ -130,6 +130,8 @@ const LlmTab = ({
                                       { id: "openai", name: "OpenAI" },
                                       { id: "anthropic", name: "Anthropic" },
                                       { id: "fireworks", name: "Fireworks AI" },
+                                      { id: "groq", name: "Groq" },
+                                      { id: "openrouter", name: "OpenRouter" },
                                       {
                                           id: "openai_compatible",
                                           name: "Custom OpenAI-compatible",
@@ -148,7 +150,7 @@ const LlmTab = ({
                     <Text fontSize="xs" color="overlay0" mt={1}>
                         {llmProviders.find((item) => item.id === config?.LLM_PROVIDER)
                             ?.help_fa ||
-                            "Ollama، LM Studio، llama.cpp، 9Router، OmniRoute، OpenAI و Anthropic پشتیبانی می‌شوند."}
+                            "Ollama، Groq، OpenRouter، OpenAI و Anthropic پشتیبانی می‌شوند."}
                     </Text>
                 </Box>
 

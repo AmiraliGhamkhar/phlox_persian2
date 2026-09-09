@@ -212,6 +212,7 @@ def initialize_and_get_app():
         patient,
         templates,
         transcribe,
+        workspace,
     )
     from server.api.config import router as config_router
     from server.rag.vector_store import VECTOR_STORE_AVAILABLE
@@ -235,6 +236,7 @@ def initialize_and_get_app():
     app.include_router(patient.router, prefix="/api/note")
     app.include_router(transcribe.router, prefix="/api/transcribe")
     app.include_router(dashboard.router, prefix="/api/dashboard")
+    app.include_router(workspace.router, prefix="/api/workspace")
 
     # Always register chat router (works without vector store)
     from server.api import chat
@@ -261,6 +263,7 @@ def initialize_and_get_app():
     # React app routes
     @app.get("/new-note")
     @app.get("/settings")
+    @app.get("/workspace")
     @app.get("/rag")
     @app.get("/clinic-summary")
     @app.get("/outstanding-jobs")

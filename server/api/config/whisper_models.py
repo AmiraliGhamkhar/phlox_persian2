@@ -61,7 +61,14 @@ async def download_whisper_model(
 
     try:
         path = await asr_model_manager.download_model(model_id)
-        return {"message": "Model downloaded successfully", "path": path}
+        from server.utils.local_autoconfig import activate_downloaded_asr
+
+        activate_downloaded_asr(model_id)
+        return {
+            "message": "Model downloaded successfully",
+            "path": path,
+            "auto_configured": True,
+        }
     except ValueError as e:
         raise HTTPException(status_code=404, detail=str(e)) from e
     except Exception as e:
@@ -118,7 +125,10 @@ async def download_whisper_model_stream(model_id: str):
 
             # Get final result
             downloaded_path = await download_task
-            yield f"data: {json.dumps({'type': 'complete', 'path': downloaded_path})}\n\n"
+            from server.utils.local_autoconfig import activate_downloaded_asr
+
+            activate_downloaded_asr(model_id)
+            yield f"data: {json.dumps({'type': 'complete', 'path': downloaded_path, 'auto_configured': True})}\n\n"
 
         except ValueError as e:
             yield f"data: {json.dumps({'type': 'error', 'message': str(e)})}\n\n"

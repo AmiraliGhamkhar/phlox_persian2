@@ -10,6 +10,8 @@ export const LLM_PROVIDER_DEFAULTS = {
   openai: { url: "https://api.openai.com", requiresKey: true },
   anthropic: { url: "https://api.anthropic.com", requiresKey: true },
   fireworks: { url: "https://api.fireworks.ai/inference", requiresKey: true },
+  groq: { url: "https://api.groq.com/openai", requiresKey: true },
+  openrouter: { url: "https://openrouter.ai/api", requiresKey: true },
   openai_compatible: { url: "", requiresKey: false },
 };
 

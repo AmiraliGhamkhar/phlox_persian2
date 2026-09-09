@@ -41,6 +41,7 @@ const ModelSettingsPanel = ({
     llmProviders = [],
     asrProviders = [],
     embeddingProviders = [],
+    hideExtras = false,
 }) => {
     const [localStatus, setLocalStatus] = useState(null);
     const [isDocker, setIsDocker] = useState(false);
@@ -204,6 +205,9 @@ const ModelSettingsPanel = ({
                         )}
 
                         {isLocalInference ? (
+                            hideExtras ? (
+                                <LocalModelManager />
+                            ) : (
                             <Tabs.Root
                                 variant="enclosed"
                                 defaultValue="0"
@@ -245,6 +249,7 @@ const ModelSettingsPanel = ({
                                     <ToolsSettingsTab />
                                 </Tabs.Content>
                             </Tabs.Root>
+                            )
                         ) : (
                             <Tabs.Root
                                 variant="enclosed"
@@ -273,7 +278,7 @@ const ModelSettingsPanel = ({
                                             </HStack>
                                         </Tabs.Trigger>
                                     </Tooltip>
-                                    {isRagEnabled() && (
+                                    {isRagEnabled() && !hideExtras && (
                                         <Tooltip content="پیکربندی مدل بردارسازی پایگاه دانش">
                                             <Tabs.Trigger
                                                 className="tab-style"
@@ -286,6 +291,7 @@ const ModelSettingsPanel = ({
                                             </Tabs.Trigger>
                                         </Tooltip>
                                     )}
+                                    {!hideExtras && (
                                     <Tooltip content="پیکربندی سرورهای ابزار خارجی">
                                         <Tabs.Trigger
                                             className="tab-style"
@@ -297,6 +303,7 @@ const ModelSettingsPanel = ({
                                             </HStack>
                                         </Tabs.Trigger>
                                     </Tooltip>
+                                    )}
                                 </Tabs.List>
                                 <Tabs.Content
                                     className="floating-main"
@@ -331,7 +338,7 @@ const ModelSettingsPanel = ({
                                         llmProviders={llmProviders}
                                     />
                                 </Tabs.Content>
-                                {isRagEnabled() && (
+                                {isRagEnabled() && !hideExtras && (
                                     <Tabs.Content
                                         className="floating-main"
                                         value="2"
@@ -348,12 +355,14 @@ const ModelSettingsPanel = ({
                                         />
                                     </Tabs.Content>
                                 )}
+                                {!hideExtras && (
                                 <Tabs.Content
                                     className="floating-main"
                                     value="3"
                                 >
                                     <ToolsSettingsTab />
                                 </Tabs.Content>
+                                )}
                             </Tabs.Root>
                         )}
                     </VStack>
