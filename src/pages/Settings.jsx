@@ -12,7 +12,6 @@ import { settingsService } from "../utils/settings/settingsUtils";
 import { settingsApi } from "../utils/api/settingsApi";
 import ModelSettingsPanel from "../components/settings/ModelSettingsPanel";
 import { localModelApi } from "../utils/api/localModelApi";
-import { isTauri } from "../utils/helpers/apiConfig";
 import { useDebounce } from "../utils/hooks/useDebounce";
 import { useAutosave } from "../utils/hooks/useAutosave";
 import { useWorkspace } from "../utils/context/workspaceContext";
@@ -142,11 +141,6 @@ const Settings = () => {
             }
 
             if (debouncedAsrProvider === "local") {
-                if (!isTauri()) {
-                    setWhisperModelOptions([]);
-                    setWhisperModelListAvailable(false);
-                    return;
-                }
                 setWhisperModelsLoading(true);
                 try {
                     const response = await localModelApi.fetchDownloadedWhisperModels();

@@ -33,7 +33,14 @@ def test_list_providers_covers_requested_backends():
         "groq",
         "openrouter",
     }.issubset(llm_ids)
-    assert {"fireworks", "speechmatics", "whispercpp", "openai"}.issubset(asr_ids)
+    assert {
+        "fireworks",
+        "speechmatics",
+        "whispercpp",
+        "openai",
+        "assemblyai",
+        "local",
+    }.issubset(asr_ids)
 
 
 def test_empty_openai_url_resolves_to_ollama():
@@ -86,9 +93,13 @@ def test_apply_provider_defaults_stamp_urls():
     groq = apply_llm_provider_defaults("groq")
     assert groq["LLM_PROVIDER"] == "groq"
     assert "api.groq.com" in groq["LLM_BASE_URL"]
+    assert groq["PRIMARY_MODEL"] == "llama-3.3-70b-versatile"
     openrouter = apply_llm_provider_defaults("openrouter")
     assert openrouter["LLM_PROVIDER"] == "openrouter"
     assert "openrouter.ai" in openrouter["LLM_BASE_URL"]
+    openai = apply_llm_provider_defaults("openai")
+    assert openai["LLM_BASE_URL"] == "https://api.openai.com"
+    assert openai["PRIMARY_MODEL"]
     asr = apply_asr_provider_defaults("fireworks")
     assert asr["ASR_PROVIDER"] == "fireworks"
     assert asr["ASR_MODEL"] == "fireworks-asr-v2"

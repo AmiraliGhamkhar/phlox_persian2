@@ -171,7 +171,10 @@ class HostValidationMiddleware(BaseHTTPMiddleware):
     async def dispatch(self, request, call_next):
         from server.constants import IS_TESTING
 
-        if IS_TESTING:
+        # Tests and bare-metal `PHLOX_DEV_BOOT=1` (Vite on a preview host
+        # proxying /api) skip Host/Origin enforcement. Dev boot already has
+        # no request token; the Vite proxy is the CSRF boundary instead.
+        if IS_TESTING or os.environ.get("PHLOX_DEV_BOOT") == "1":
             return await call_next(request)
 
         host_header = request.headers.get("host", "")
@@ -204,6 +207,11 @@ class HostValidationMiddleware(BaseHTTPMiddleware):
 
         if origin == "null":
             return False
+        # Wildcard CORS (ALLOWED_ORIGINS=*) must also pass the Origin check
+        # on state-changing methods; otherwise every POST from a reverse
+        # proxy / preview host is 403 while GET still works.
+        if "*" in ALLOWED_ORIGINS:
+            return True
         if origin in ALLOWED_ORIGINS:
             return True
         try:

@@ -15,6 +15,10 @@ import {
 import LocalModelManager from "./LocalModelManager";
 import WhisperTab from "./WhisperTab";
 import LlmTab from "./LlmTab";
+import {
+    applyAsrProviderDefaults,
+    applyLlmProviderDefaults,
+} from "../../utils/aiProviders";
 
 const ModelSettingsPanel = ({
     isCollapsed,
@@ -39,11 +43,14 @@ const ModelSettingsPanel = ({
             handleConfigChange("ASR_PROVIDER", "local");
             handleConfigChange("ASR_BASE_URL", "");
             handleConfigChange("WHISPER_BASE_URL", "");
-            handleConfigChange("ASR_MODEL", "whisper-large-v3-turbo-q5_0");
-            handleConfigChange("WHISPER_MODEL", "whisper-large-v3-turbo-q5_0");
+            handleConfigChange("ASR_MODEL", "whisper-large-v3-turbo-q6_k");
+            handleConfigChange("WHISPER_MODEL", "whisper-large-v3-turbo-q6_k");
         } else {
-            handleConfigChange("LLM_PROVIDER", "openai");
-            handleConfigChange("ASR_PROVIDER", "openai_compatible");
+            // Stamp cloud defaults so an empty OpenAI URL cannot fall through
+            // to the historical Ollama localhost:11434 resolver, and leftover
+            // local GGUF / Whisper ids are not sent to a remote API.
+            applyLlmProviderDefaults("openai", handleConfigChange);
+            applyAsrProviderDefaults("openai_compatible", handleConfigChange);
         }
     };
 

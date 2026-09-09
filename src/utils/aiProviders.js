@@ -1,18 +1,57 @@
 /** Frontend catalog fallbacks matching server/utils/providers.py. */
 
 export const LLM_PROVIDER_DEFAULTS = {
-  local: { url: "", requiresKey: false },
-  ollama: { url: "http://127.0.0.1:11434", requiresKey: false },
-  lmstudio: { url: "http://127.0.0.1:1234", requiresKey: false },
-  llamacpp: { url: "http://127.0.0.1:8080", requiresKey: false },
-  ninerouter: { url: "http://127.0.0.1:20128", requiresKey: false },
-  omniroute: { url: "http://127.0.0.1:20128", requiresKey: false },
-  openai: { url: "https://api.openai.com", requiresKey: true },
-  anthropic: { url: "https://api.anthropic.com", requiresKey: true },
-  fireworks: { url: "https://api.fireworks.ai/inference", requiresKey: true },
-  groq: { url: "https://api.groq.com/openai", requiresKey: true },
-  openrouter: { url: "https://openrouter.ai/api", requiresKey: true },
-  openai_compatible: { url: "", requiresKey: false },
+  local: { url: "", requiresKey: false, models: [] },
+  ollama: { url: "http://127.0.0.1:11434", requiresKey: false, models: [] },
+  lmstudio: { url: "http://127.0.0.1:1234", requiresKey: false, models: [] },
+  llamacpp: { url: "http://127.0.0.1:8080", requiresKey: false, models: [] },
+  ninerouter: { url: "http://127.0.0.1:20128", requiresKey: false, models: [] },
+  omniroute: { url: "http://127.0.0.1:20128", requiresKey: false, models: [] },
+  openai: {
+    url: "https://api.openai.com",
+    requiresKey: true,
+    models: ["gpt-4.1", "gpt-4o", "gpt-4o-mini", "o4-mini"],
+  },
+  anthropic: {
+    url: "https://api.anthropic.com",
+    requiresKey: true,
+    models: [
+      "claude-sonnet-4-5",
+      "claude-opus-4-1",
+      "claude-haiku-4-5",
+      "claude-3-5-sonnet-latest",
+      "claude-3-5-haiku-latest",
+    ],
+  },
+  fireworks: {
+    url: "https://api.fireworks.ai/inference",
+    requiresKey: true,
+    models: [
+      "accounts/fireworks/models/llama-v3p3-70b-instruct",
+      "accounts/fireworks/models/qwen2p5-72b-instruct",
+    ],
+  },
+  groq: {
+    url: "https://api.groq.com/openai",
+    requiresKey: true,
+    models: [
+      "llama-3.3-70b-versatile",
+      "llama-3.1-8b-instant",
+      "openai/gpt-oss-120b",
+      "moonshotai/kimi-k2-instruct",
+    ],
+  },
+  openrouter: {
+    url: "https://openrouter.ai/api",
+    requiresKey: true,
+    models: [
+      "openai/gpt-4o-mini",
+      "openai/gpt-4o",
+      "anthropic/claude-sonnet-4",
+      "google/gemini-2.0-flash-001",
+    ],
+  },
+  openai_compatible: { url: "", requiresKey: false, models: [] },
 };
 
 export const ASR_PROVIDER_DEFAULTS = {
@@ -47,6 +86,12 @@ export const applyLlmProviderDefaults = (providerId, handleConfigChange) => {
   handleConfigChange("LLM_PROVIDER", providerId);
   if (providerId !== "openai_compatible") {
     handleConfigChange("LLM_BASE_URL", defaults.url);
+  }
+  const model = defaults.models?.[0] || "";
+  if (model) {
+    handleConfigChange("PRIMARY_MODEL", model);
+    handleConfigChange("SECONDARY_MODEL", model);
+    handleConfigChange("REASONING_MODEL", model);
   }
 };
 

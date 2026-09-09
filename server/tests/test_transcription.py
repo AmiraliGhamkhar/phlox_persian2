@@ -210,6 +210,29 @@ async def test_transcribe_audio_dispatches_fireworks():
 
 
 @pytest.mark.asyncio
+async def test_transcribe_audio_dispatches_shenava():
+    fake_config = {
+        "ASR_PROVIDER": "local",
+        "ASR_MODEL": "shenava-koochik-v1.0-int4",
+        "ASR_LANGUAGE": "fa",
+        "LLM_PROVIDER": "local",
+    }
+    from server.database.config.manager import config_manager
+
+    with (
+        patch.object(config_manager, "get_config", return_value=fake_config),
+        patch(
+            "server.transcription.audio._transcribe_local_shenava",
+            new_callable=AsyncMock,
+            return_value={"text": "سلام", "transcriptionDuration": 0.1},
+        ) as mock_shenava,
+    ):
+        result = await transcribe_audio(b"RIFF....WAVEdata")
+        mock_shenava.assert_called_once()
+        assert result["text"] == "سلام"
+
+
+@pytest.mark.asyncio
 async def test_transcribe_audio_dispatches_parakeet():
     fake_config = {
         "ASR_PROVIDER": "local",
@@ -230,6 +253,29 @@ async def test_transcribe_audio_dispatches_parakeet():
         result = await transcribe_audio(b"RIFF....WAVEdata")
         mock_parakeet.assert_called_once()
         assert result["text"] == "hello"
+
+
+def test_dictate_returns_400_for_missing_provider_key():
+    from fastapi import FastAPI
+    from fastapi.testclient import TestClient
+
+    from server.api.transcribe import router
+
+    app = FastAPI()
+    app.include_router(router, prefix="/api/transcribe")
+    client = TestClient(app)
+
+    with patch(
+        "server.api.transcribe.transcribe_audio",
+        new_callable=AsyncMock,
+        side_effect=ValueError("A Fireworks API key is required for the selected ASR provider"),
+    ):
+        response = client.post(
+            "/api/transcribe/dictate",
+            files={"file": ("recording.wav", b"RIFF....WAVEdata", "audio/wav")},
+        )
+    assert response.status_code == 400
+    assert "Fireworks API key" in response.json()["detail"]
 
 
 def test_live_session_factory_picks_native_streaming():

@@ -15,6 +15,8 @@ jobs:
     steps:
       - uses: googleapis/release-please-action@f3969c04a4ec81d7a9aa4010d84ae6a7602f86a7 # v4.1.1
         with:
-          token: ${{ secrets.RELEASE_PLEASE_TOKEN }}
+          # Prefer a PAT so the release PR retriggers CI; fall back to the
+          # workflow token so a missing secret does not fail every push to main.
+          token: ${{ secrets.RELEASE_PLEASE_TOKEN || github.token }}
           config-file: release-please-config.json
           manifest-file: .release-please-manifest.json

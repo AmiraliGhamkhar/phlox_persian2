@@ -29,6 +29,7 @@ import urllib.request
 from pathlib import Path
 
 from server.constants import DATA_DIR, IS_DOCKER
+from server.utils.whisper_models import WHISPER_CPP_WEIGHT_SUFFIXES
 
 logger = logging.getLogger(__name__)
 
@@ -109,8 +110,13 @@ def _llm_mmproj_path() -> Path | None:
     return matches[0] if matches else None
 
 
+def _is_whisper_cpp_weight(path: Path) -> bool:
+    """True for whisper.cpp GGML/GGUF weights; ONNX graphs are Python-only."""
+    return path.suffix.lower() in WHISPER_CPP_WEIGHT_SUFFIXES
+
+
 def _whisper_model_path() -> Path | None:
-    """Mirror the Rust ``find_whisper_model`` resolution order (.bin only)."""
+    """Mirror the Rust ``find_whisper_model`` resolution order (.bin/.gguf)."""
     models_dir = DATA_DIR / "whisper_models"
     selection = DATA_DIR / "asr_model.txt"
     try:
@@ -119,10 +125,12 @@ def _whisper_model_path() -> Path | None:
         name = ""
     if name and "/" not in name and "\\" not in name:
         candidate = models_dir / name
-        if candidate.suffix == ".bin" and candidate.exists():
+        if _is_whisper_cpp_weight(candidate) and candidate.exists():
             return candidate
     try:
-        entries = sorted(models_dir.glob("*.bin"))
+        entries = sorted(
+            path for path in models_dir.iterdir() if path.is_file() and _is_whisper_cpp_weight(path)
+        )
     except OSError:
         return None
     return entries[0] if entries else None

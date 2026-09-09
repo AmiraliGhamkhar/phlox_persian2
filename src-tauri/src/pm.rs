@@ -212,6 +212,18 @@ fn find_llama_mmproj() -> Option<PathBuf> {
     None
 }
 
+/// True for whisper.cpp GGML (``.bin``) or GGUF (``.gguf``) weights.
+/// Shenava/Parakeet ``.onnx`` graphs are executed in Python, not this sidecar.
+fn is_whisper_cpp_weight(path: &std::path::Path) -> bool {
+    matches!(
+        path.extension()
+            .and_then(|ext| ext.to_str())
+            .map(|ext| ext.to_ascii_lowercase())
+            .as_deref(),
+        Some("bin" | "gguf")
+    )
+}
+
 /// Find the selected Whisper.cpp model in the models directory.
 fn find_whisper_model() -> Option<PathBuf> {
     let models_dir = phlox_dir()?.join("whisper_models");
@@ -223,18 +235,18 @@ fn find_whisper_model() -> Option<PathBuf> {
         let model_name = model_name.trim();
         if !model_name.contains('/') && !model_name.contains('\\') {
             let path = models_dir.join(model_name);
-            if path.extension().and_then(|ext| ext.to_str()) == Some("bin") && path.exists() {
+            if is_whisper_cpp_weight(&path) && path.exists() {
                 return Some(path);
             }
         }
     }
 
-    // Legacy installations may not have a marker yet. Only .bin artifacts
-    // belong to Whisper.cpp; Shenava .onnx artifacts are run by Python.
+    // Legacy installations may not have a marker yet. Only .bin/.gguf
+    // artifacts belong to Whisper.cpp; Shenava .onnx artifacts are run by Python.
     if let Ok(entries) = fs::read_dir(&models_dir) {
         for entry in entries.flatten() {
             let path = entry.path();
-            if path.extension().and_then(|ext| ext.to_str()) == Some("bin") {
+            if is_whisper_cpp_weight(&path) {
                 return Some(path);
             }
         }

@@ -1,10 +1,12 @@
 """Catalog and lifecycle management for local automatic speech recognition models.
 
-The desktop app supports multilingual Whisper.cpp GGML models, the
-Persian-first Shenava Koochik tract-streaming model, and NVIDIA Parakeet
-TDT 0.6B v3 INT8 ONNX (multilingual European, not Persian). All entries
-use the canonical ASR terminology; the old module name is retained only
-because released clients still import it.
+The desktop app supports multilingual Whisper.cpp weights (official GGML
+``.bin`` files plus the whisper.cpp-compatible Q6_K GGUF from
+Xviers/whisper-large-v3-turbo-GGUF), the Persian-first Shenava Koochik
+tract-streaming ONNX graph, and NVIDIA Parakeet TDT 0.6B v3 INT8 ONNX
+(multilingual European, not Persian). All entries use the canonical ASR
+terminology; the old module name is retained only because released
+clients still import it.
 """
 
 import logging
@@ -58,8 +60,10 @@ class ModelInfo(TypedDict, total=False):
 
 
 WHISPER_CPP_REPO = "https://huggingface.co/ggerganov/whisper.cpp/resolve/main"
+WHISPER_GGUF_REPO = "https://huggingface.co/Xviers/whisper-large-v3-turbo-GGUF/resolve/main"
 SHENAVA_REPO = "https://huggingface.co/Reza2kn/Shenava-Koochik-v1.0-tract-streaming/resolve/main"
 PARAKEET_REPO = "https://huggingface.co/istupakov/parakeet-tdt-0.6b-v3-onnx/resolve/main"
+WHISPER_CPP_WEIGHT_SUFFIXES = {".bin", ".gguf"}
 
 PARAKEET_FILES: list[ModelFile] = [
     {
@@ -80,10 +84,25 @@ PARAKEET_FILES: list[ModelFile] = [
     },
 ]
 
-# The three Whisper large-v3-turbo C++/GGML variants requested for desktop use.
 # Whisper large-v3-turbo is multilingual and can decode Persian and English in
-# one recording when the language hint is ``auto``.
+# one recording when the language hint is ``auto``. The recommended default is
+# the whisper.cpp-subdirectory Q6_K GGUF from Xviers; official ggerganov GGML
+# ``.bin`` quants remain available for existing installs.
 ASR_MODELS: dict[str, ModelInfo] = {
+    "whisper-large-v3-turbo-q6_k": {
+        "url": f"{WHISPER_GGUF_REPO}/whisper.cpp/whisper-large-v3-turbo-q6_k.gguf",
+        "filename": "whisper-large-v3-turbo-q6_k.gguf",
+        "size_mb": 680,
+        "description": "Whisper large-v3-turbo Q6_K GGUF — نسخه پیشنهادی whisper.cpp برای فارسی، انگلیسی و گفتار ترکیبی.",
+        "category": "whisper.cpp",
+        "runtime": "whisper_cpp",
+        "task": "transcribe",
+        "languages": ["fa", "en"],
+        "supports_persian": True,
+        "supports_mixed": True,
+        "supports_streaming": True,
+        "display_name": "Whisper large-v3-turbo (Q6_K GGUF)",
+    },
     "whisper-large-v3-turbo": {
         "url": f"{WHISPER_CPP_REPO}/ggml-large-v3-turbo.bin",
         "filename": "ggml-large-v3-turbo.bin",
@@ -177,7 +196,7 @@ ASR_MODELS: dict[str, ModelInfo] = {
     },
 }
 
-DEFAULT_ASR_MODEL_ID = "whisper-large-v3-turbo-q5_0"
+DEFAULT_ASR_MODEL_ID = "whisper-large-v3-turbo-q6_k"
 
 # Backwards-compatible aliases for released clients and older database values.
 WHISPER_MODELS = ASR_MODELS
@@ -223,7 +242,7 @@ class ASRModelManager:
         info = ASR_MODELS.get(selected)
         if info and (self.models_dir / info["filename"]).exists():
             return selected
-        # whisper.cpp sidecar reads a .bin filename from this marker.
+        # whisper.cpp sidecar reads a .bin/.gguf filename from this marker.
         for model_id, candidate in ASR_MODELS.items():
             if (
                 candidate["filename"] == selected
@@ -248,9 +267,9 @@ class ASRModelManager:
             raise ValueError(f"Unknown ASR model: {model_id}")
         if not (self.models_dir / info["filename"]).exists():
             raise ValueError(f"ASR model is not downloaded: {model_id}")
-        # Tauri's whisper.cpp sidecar only accepts a .bin filename. ONNX
+        # Tauri's whisper.cpp sidecar accepts a .bin or .gguf filename. ONNX
         # runtimes (Shenava, Parakeet) are executed in Python, so keep the
-        # catalog id — a non-.bin marker is ignored by the sidecar.
+        # catalog id — a non-weight marker is ignored by the sidecar.
         marker = info["filename"] if info.get("runtime") == "whisper_cpp" else model_id
         self.selection_file.write_text(marker, encoding="utf-8")
         return self._public_model(info, model_id, is_selected=True)

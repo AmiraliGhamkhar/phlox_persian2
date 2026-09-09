@@ -189,6 +189,10 @@ LLM_PROVIDERS: dict[str, dict[str, Any]] = {
         "help": "Fireworks OpenAI-compatible LLM endpoint.",
         "help_fa": "نقطه پایانی سازگار با OpenAI در Fireworks.",
         "default_api_key": "",
+        "default_models": [
+            "accounts/fireworks/models/llama-v3p3-70b-instruct",
+            "accounts/fireworks/models/qwen2p5-72b-instruct",
+        ],
     },
     "groq": {
         "id": "groq",
@@ -538,6 +542,11 @@ def apply_llm_provider_defaults(
     # UI and model listing immediately target the right host.
     if provider != "openai_compatible" or not current.get("LLM_BASE_URL"):
         updates["LLM_BASE_URL"] = default_url
+    if info.get("default_models"):
+        model = str(info["default_models"][0])
+        updates["PRIMARY_MODEL"] = model
+        updates["SECONDARY_MODEL"] = model
+        updates["REASONING_MODEL"] = model
     return updates
 
 

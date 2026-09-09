@@ -94,6 +94,42 @@ def test_get_asr_models_fireworks_catalog():
     assert "fireworks-asr-v2" in data["models"]
 
 
+def test_get_asr_models_assemblyai_catalog():
+    response = client.get("/api/config/asr/models", params={"provider": "assemblyai"})
+    assert response.status_code == 200
+    data = response.json()
+    assert data["listAvailable"] is True
+    assert "universal-3-5-pro" in data["models"]
+
+
+def test_get_asr_models_speechmatics_catalog():
+    response = client.get("/api/config/asr/models", params={"provider": "speechmatics"})
+    assert response.status_code == 200
+    data = response.json()
+    assert data["listAvailable"] is True
+    assert "enhanced" in data["models"]
+
+
+def test_get_asr_models_local_does_not_require_endpoint():
+    response = client.get("/api/config/asr/models", params={"provider": "local"})
+    assert response.status_code == 200
+    data = response.json()
+    assert "models" in data
+    assert "listAvailable" in data
+
+
+def test_validate_url_fireworks_llm_is_openai_compatible():
+    """Fireworks is both an LLM and ASR provider; LLM probes must not use Whisper."""
+    from server.api.config.validation import _normalize_validation_type
+
+    assert _normalize_validation_type("fireworks") == "openai"
+    assert _normalize_validation_type("groq") == "openai"
+    assert _normalize_validation_type("openrouter") == "openai"
+    assert _normalize_validation_type("whisper") == "whisper"
+    assert _normalize_validation_type("assemblyai") == "whisper"
+    assert _normalize_validation_type("anthropic") == "anthropic"
+
+
 def test_get_providers_catalog():
     response = client.get("/api/config/providers")
     assert response.status_code == 200
@@ -105,6 +141,10 @@ def test_get_providers_catalog():
     asr_ids = {item["id"] for item in data["asr"]}
     assert "fireworks" in asr_ids
     assert "speechmatics" in asr_ids
+    assert "assemblyai" in asr_ids
+    assert "local" in asr_ids
+    assert "groq" in llm_ids
+    assert "openrouter" in llm_ids
 
 
 def test_reset_options_to_defaults():

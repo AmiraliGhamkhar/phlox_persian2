@@ -22,13 +22,15 @@ _OPENAI_COMPATIBLE_TYPES = {
     "openrouter",
     "local",
 }
+# ASR validation is always requested as type=whisper from the settings UI.
+# Do not put dual-use ids (fireworks) here: that id is also an LLM provider
+# and must probe /v1/models, not /v1/audio/transcriptions.
 _ASR_TYPES = {
     "whisper",
     "asr",
     "whispercpp",
     "speechmatics",
     "assemblyai",
-    "fireworks",
     "openai_asr",
 }
 _ANTHROPIC_TYPES = {"anthropic"}

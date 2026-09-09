@@ -57,5 +57,10 @@ def test_api_routes_still_work_when_build_dir_none(app_client, auth_headers):
     """The API surface must be unaffected by the SPA-serving guard."""
     response = app_client.get("/api/dashboard/health", headers=auth_headers)
     assert response.status_code == 200
+    response = app_client.get("/health", headers=auth_headers)
+    assert response.status_code == 200
+    assert response.json()["status"] == "ok"
+    response = app_client.get("/version", headers=auth_headers)
+    assert response.status_code == 200
     response = app_client.get("/api/definitely-not-a-route", headers=auth_headers)
     assert response.status_code == 404

@@ -231,6 +231,10 @@ class ConfigManager:
 
         if result:
             settings = dict(result)
+            # Fresh rows only set the splash flag; expose empty strings instead
+            # of JSON null so the UI never renders "null".
+            settings["name"] = settings.get("name") or ""
+            settings["specialty"] = settings.get("specialty") or ""
             # Ensure the flags are proper booleans
             if "has_completed_splash_screen" in settings:
                 settings["has_completed_splash_screen"] = bool(

@@ -194,7 +194,7 @@ async def get_whisper_model_recommendations():
     """Return the complete curated local ASR catalog for easy model switching."""
     recommendations = []
     for model in asr_model_manager.get_available_models():
-        is_recommended = model["id"] == "whisper-large-v3-turbo-q5_0"
+        is_recommended = model["id"] == "whisper-large-v3-turbo-q6_k"
         badge = None
         if is_recommended:
             badge = "⭐ پیشنهادشده"
