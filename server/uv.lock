@@ -929,6 +929,10 @@ asr = [
     { name = "numpy" },
     { name = "onnxruntime" },
 ]
+denoise = [
+    { name = "numpy" },
+    { name = "onnxruntime" },
+]
 vad = [
     { name = "numpy" },
     { name = "onnxruntime" },
@@ -954,8 +958,10 @@ requires-dist = [
     { name = "json-repair", specifier = "==0.63.4" },
     { name = "langchain-text-splitters", specifier = "==1.1.2" },
     { name = "numpy", marker = "extra == 'asr'", specifier = ">=2.2,<3" },
+    { name = "numpy", marker = "extra == 'denoise'", specifier = ">=2.2,<3" },
     { name = "numpy", marker = "extra == 'vad'", specifier = ">=2.2,<3" },
     { name = "onnxruntime", marker = "extra == 'asr'", specifier = ">=1.20,<2" },
+    { name = "onnxruntime", marker = "extra == 'denoise'", specifier = ">=1.20,<2" },
     { name = "onnxruntime", marker = "extra == 'vad'", specifier = ">=1.20,<2" },
     { name = "openai", specifier = "==3.4.0" },
     { name = "platformdirs", specifier = "==4.11.4" },
@@ -966,7 +972,7 @@ requires-dist = [
     { name = "sqlcipher3", specifier = "==0.6.2" },
     { name = "uvicorn", extras = ["standard"], specifier = "==0.52.4" },
 ]
-provides-extras = ["asr", "vad"]
+provides-extras = ["asr", "denoise", "vad"]
 
 [package.metadata.requires-dev]
 dev = [

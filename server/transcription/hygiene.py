@@ -228,9 +228,15 @@ def maybe_transcode_to_wav(audio_bytes: bytes) -> bytes | None:
 
 
 def prepare_audio(audio_bytes: bytes) -> tuple[bytes, dict]:
-    """Best-effort decode + silence trim. Fail-open: any problem returns input.
+    """Best-effort denoise + decode + silence trim. Fail-open: any problem
+    returns the input.
 
-    Strategy selection (``PHLOX_VAD=auto|silero|energy|off``):
+    Pipeline order inside ``transcribe_audio`` is **denoise → VAD → ASR**
+    (W2.3): an SNR-gated DeepFilterNet3 pass runs first, then silence
+    trimming. The original uploaded buffer is kept untouched for rollback
+    (``PHLOX_VAD=off`` / ``PHLOX_DENOISE=off``).
+
+    VAD strategy selection (``PHLOX_VAD=auto|silero|energy|off``):
 
     * ``auto`` — Silero VAD when its extra + weights are available, else the
       energy VAD (the pre-W2.2 behavior).
@@ -239,17 +245,34 @@ def prepare_audio(audio_bytes: bytes) -> tuple[bytes, dict]:
     * ``energy`` — the exact pre-W2.2 energy VAD behavior.
     * ``off`` — no trimming (returns the input buffer untouched).
     """
-    # Lazy import: this module is loaded standalone by the stdlib-only
+    # Lazy imports: this module is loaded standalone by the stdlib-only
     # nightly bench runner, so no package imports at module level.
+    from server.transcription.denoise import denoise_wav
     from server.transcription.vad import silero_available, trim_with_silero, vad_strategy
 
     strategy = vad_strategy()
-    meta: dict = {"vad_applied": False, "trimmed_ms": 0, "strategy": None}
-    if strategy == "off":
-        return audio_bytes, meta
+    meta: dict = {
+        "vad_applied": False,
+        "trimmed_ms": 0,
+        "strategy": None,
+        "denoise_applied": False,
+        "snr_estimate_db": None,
+    }
     try:
         decoded = maybe_transcode_to_wav(audio_bytes)
         if decoded is None:
+            return audio_bytes, meta
+        # 1) Optional SNR-gated denoise (fail open; clean audio is untouched).
+        denoised, denoise_meta = denoise_wav(decoded)
+        meta["denoise_applied"] = bool(denoise_meta.get("denoise_applied"))
+        meta["snr_estimate_db"] = denoise_meta.get("snr_estimate_db")
+        if denoise_meta.get("denoise_applied"):
+            decoded = denoised
+        # 2) Silence trimming per strategy.
+        if strategy == "off":
+            if _is_wav(decoded) and not _is_wav(audio_bytes):
+                meta["strategy"] = None
+                return decoded, meta
             return audio_bytes, meta
         use_silero = strategy == "silero" or (strategy == "auto" and silero_available())
         strategy_used = "energy"
