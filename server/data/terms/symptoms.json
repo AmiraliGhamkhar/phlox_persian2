@@ -2,1081 +2,1297 @@
   {
     "fa": "آتروفی عضلانی",
     "en": "muscle atrophy",
-    "cat": "symptoms"
+    "cat": "symptoms",
+    "src": "curated"
   },
   {
     "fa": "آسیب سطحی پوست",
     "en": "abrasion",
-    "cat": "symptoms"
+    "cat": "symptoms",
+    "src": "curated"
   },
   {
     "fa": "آسیبوم",
     "en": "ecchymosis",
-    "cat": "symptoms"
+    "cat": "symptoms",
+    "src": "curated"
   },
   {
     "fa": "احساس چرخش",
     "en": "vertigo",
-    "cat": "symptoms"
+    "cat": "symptoms",
+    "src": "curated"
   },
   {
     "fa": "اختلال حافظه",
     "en": "memory impairment",
-    "cat": "symptoms"
+    "cat": "symptoms",
+    "src": "curated"
   },
   {
     "fa": "ادرار شبی",
     "en": "nocturia",
-    "cat": "symptoms"
+    "cat": "symptoms",
+    "src": "curated"
   },
   {
     "fa": "از دست دادن اشتها",
     "en": "loss of appetite",
-    "cat": "symptoms"
+    "cat": "symptoms",
+    "src": "curated"
   },
   {
     "fa": "از دست رفتن آگاهی",
     "en": "loss of consciousness",
-    "cat": "symptoms"
+    "cat": "symptoms",
+    "src": "curated"
   },
   {
     "fa": "از دست رفتن بینایی",
     "en": "vision loss",
-    "cat": "symptoms"
+    "cat": "symptoms",
+    "src": "curated"
   },
   {
     "fa": "از دست رفتن توانایی صحبت",
     "en": "aphasia",
-    "cat": "symptoms"
+    "cat": "symptoms",
+    "src": "curated"
   },
   {
     "fa": "از دست رفتن شنوایی",
     "en": "hearing loss",
-    "cat": "symptoms"
+    "cat": "symptoms",
+    "src": "curated"
   },
   {
     "fa": "استفراغ",
     "en": "vomiting",
-    "cat": "symptoms"
+    "cat": "symptoms",
+    "src": "curated"
   },
   {
     "fa": "استفراغ خونی",
     "en": "hematemesis",
-    "cat": "symptoms"
+    "cat": "symptoms",
+    "src": "curated"
   },
   {
     "fa": "اسهال",
     "en": "diarrhea",
-    "cat": "symptoms"
+    "cat": "symptoms",
+    "src": "curated"
   },
   {
     "fa": "اسهال خونی",
     "en": "bloody diarrhea",
-    "cat": "symptoms"
+    "cat": "symptoms",
+    "src": "curated"
   },
   {
     "fa": "اسکاپ",
     "en": "ascites",
-    "cat": "symptoms"
+    "cat": "symptoms",
+    "src": "curated"
   },
   {
     "fa": "اضطراب",
     "en": "anxiety",
-    "cat": "symptoms"
+    "cat": "symptoms",
+    "src": "curated"
   },
   {
     "fa": "افت فشار خون",
     "en": "hypotension",
-    "cat": "symptoms"
+    "cat": "symptoms",
+    "src": "curated"
   },
   {
     "fa": "افتادن فشار هنگام بلند شدن",
     "en": "orthostatic hypotension",
-    "cat": "symptoms"
+    "cat": "symptoms",
+    "src": "curated"
   },
   {
     "fa": "افتادن مکرر",
     "en": "recurrent falls",
-    "cat": "symptoms"
+    "cat": "symptoms",
+    "src": "curated"
   },
   {
     "fa": "افتادگی پلک",
     "en": "ptosis",
-    "cat": "symptoms"
+    "cat": "symptoms",
+    "src": "curated"
   },
   {
     "fa": "افتادگی گوشه دهان",
     "en": "drooping mouth corner",
-    "cat": "symptoms"
+    "cat": "symptoms",
+    "src": "curated"
   },
   {
     "fa": "افزایش حجم شکم",
     "en": "abdominal distension",
-    "cat": "symptoms"
+    "cat": "symptoms",
+    "src": "curated"
   },
   {
     "fa": "التهاب مفاصل",
     "en": "arthritis",
-    "cat": "symptoms"
+    "cat": "symptoms",
+    "src": "curated"
   },
   {
     "fa": "برگشتان غذا",
     "en": "regurgitation",
-    "cat": "symptoms"
+    "cat": "symptoms",
+    "src": "curated"
   },
   {
     "fa": "بریدگی",
     "en": "cut",
-    "cat": "symptoms"
+    "cat": "symptoms",
+    "src": "curated"
   },
   {
     "fa": "بی‌ادراری",
     "en": "anuria",
-    "cat": "symptoms"
+    "cat": "symptoms",
+    "src": "curated"
   },
   {
     "fa": "بی‌اشتهایی",
     "en": "anorexia",
-    "cat": "symptoms"
+    "cat": "symptoms",
+    "src": "curated"
   },
   {
     "fa": "بی‌توانی نعوظ",
     "en": "erectile dysfunction",
-    "cat": "symptoms"
+    "cat": "symptoms",
+    "src": "curated"
   },
   {
     "fa": "بی‌حالی",
     "en": "malaise",
-    "cat": "symptoms"
+    "cat": "symptoms",
+    "src": "curated"
   },
   {
     "fa": "بی‌حسی",
     "en": "numbness",
-    "cat": "symptoms"
+    "cat": "symptoms",
+    "src": "curated"
   },
   {
     "fa": "بی‌حسی صورت",
     "en": "facial numbness",
-    "cat": "symptoms"
+    "cat": "symptoms",
+    "src": "curated"
   },
   {
     "fa": "بی‌خوابی",
     "en": "insomnia",
-    "cat": "symptoms"
+    "cat": "symptoms",
+    "src": "curated"
   },
   {
     "fa": "بی‌علاقگی",
     "en": "apathy",
-    "cat": "symptoms"
+    "cat": "symptoms",
+    "src": "curated"
   },
   {
     "fa": "بی‌قراری",
     "en": "agitation",
-    "cat": "symptoms"
+    "cat": "symptoms",
+    "src": "curated"
   },
   {
     "fa": "تاری دید",
     "en": "blurred vision",
-    "cat": "symptoms"
+    "cat": "symptoms",
+    "src": "curated"
   },
   {
     "fa": "تب",
     "en": "fever",
-    "cat": "symptoms"
+    "cat": "symptoms",
+    "src": "curated"
   },
   {
     "fa": "تب بالا",
     "en": "high fever",
-    "cat": "symptoms"
+    "cat": "symptoms",
+    "src": "curated"
   },
   {
     "fa": "تب خفیف",
     "en": "low-grade fever",
-    "cat": "symptoms"
+    "cat": "symptoms",
+    "src": "curated"
   },
   {
     "fa": "تب طولانی‌مدت",
     "en": "prolonged fever",
-    "cat": "symptoms"
+    "cat": "symptoms",
+    "src": "curated"
   },
   {
     "fa": "تب و لرز",
     "en": "fever and rigors",
-    "cat": "symptoms"
+    "cat": "symptoms",
+    "src": "curated"
   },
   {
     "fa": "ترشحات بینی",
     "en": "rhinorrhea",
-    "cat": "symptoms"
+    "cat": "symptoms",
+    "src": "curated"
   },
   {
     "fa": "ترشحات زخم",
     "en": "wound discharge",
-    "cat": "symptoms"
+    "cat": "symptoms",
+    "src": "curated"
   },
   {
     "fa": "ترشحات زخم جراحی",
     "en": "surgical wound discharge",
-    "cat": "symptoms"
+    "cat": "symptoms",
+    "src": "curated"
   },
   {
     "fa": "ترشحات واژینال",
     "en": "vaginal discharge",
-    "cat": "symptoms"
+    "cat": "symptoms",
+    "src": "curated"
   },
   {
     "fa": "ترشحات چشمی",
     "en": "ocular discharge",
-    "cat": "symptoms"
+    "cat": "symptoms",
+    "src": "curated"
   },
   {
     "fa": "تشنج",
     "en": "seizure",
-    "cat": "symptoms"
+    "cat": "symptoms",
+    "src": "curated"
   },
   {
     "fa": "تعریق شبانه",
     "en": "night sweats",
-    "cat": "symptoms"
+    "cat": "symptoms",
+    "src": "curated"
   },
   {
     "fa": "تغییر خلق",
     "en": "mood changes",
-    "cat": "symptoms"
+    "cat": "symptoms",
+    "src": "curated"
   },
   {
     "fa": "تنگی نفس",
     "en": "dyspnea",
-    "cat": "symptoms"
+    "cat": "symptoms",
+    "src": "curated"
   },
   {
     "fa": "تهوع",
     "en": "nausea",
-    "cat": "symptoms"
+    "cat": "symptoms",
+    "src": "curated"
   },
   {
     "fa": "توده شکمی",
     "en": "abdominal mass",
-    "cat": "symptoms"
+    "cat": "symptoms",
+    "src": "curated"
   },
   {
     "fa": "تورم بیضه",
     "en": "testicular swelling",
-    "cat": "symptoms"
+    "cat": "symptoms",
+    "src": "curated"
   },
   {
     "fa": "تورم ساق پا",
     "en": "calf swelling",
-    "cat": "symptoms"
+    "cat": "symptoms",
+    "src": "curated"
   },
   {
     "fa": "تورم عمومی",
     "en": "generalized edema",
-    "cat": "symptoms"
+    "cat": "symptoms",
+    "src": "curated"
   },
   {
     "fa": "تورم غدد لنفاوی",
     "en": "lymphadenopathy",
-    "cat": "symptoms"
+    "cat": "symptoms",
+    "src": "curated"
   },
   {
     "fa": "تورم لثه",
     "en": "gingival swelling",
-    "cat": "symptoms"
+    "cat": "symptoms",
+    "src": "curated"
   },
   {
     "fa": "تورم مفاصل",
     "en": "joint swelling",
-    "cat": "symptoms"
+    "cat": "symptoms",
+    "src": "curated"
   },
   {
     "fa": "تورم یک‌طرفه پا",
     "en": "unilateral leg swelling",
-    "cat": "symptoms"
+    "cat": "symptoms",
+    "src": "curated"
   },
   {
     "fa": "تپش قلب",
     "en": "palpitations",
-    "cat": "symptoms"
+    "cat": "symptoms",
+    "src": "curated"
   },
   {
     "fa": "تکرر ادرار",
     "en": "urinary frequency",
-    "cat": "symptoms"
+    "cat": "symptoms",
+    "src": "curated"
   },
   {
     "fa": "جدا شدن استخوان از مفصل",
     "en": "dislocation",
-    "cat": "symptoms"
+    "cat": "symptoms",
+    "src": "curated"
   },
   {
     "fa": "جراحه",
     "en": "laceration",
-    "cat": "symptoms"
+    "cat": "symptoms",
+    "src": "curated"
   },
   {
     "fa": "جوش",
     "en": "rash",
-    "cat": "symptoms"
+    "cat": "symptoms",
+    "src": "curated"
   },
   {
     "fa": "جوش صورت",
     "en": "facial acne",
-    "cat": "symptoms"
+    "cat": "symptoms",
+    "src": "curated"
   },
   {
     "fa": "حساسیت به نور",
     "en": "photophobia",
-    "cat": "symptoms"
+    "cat": "symptoms",
+    "src": "curated"
   },
   {
     "fa": "خار در گلو",
     "en": "globus sensation",
-    "cat": "symptoms"
+    "cat": "symptoms",
+    "src": "curated"
   },
   {
     "fa": "خاردار صحبت کردن",
     "en": "slurred speech",
-    "cat": "symptoms"
+    "cat": "symptoms",
+    "src": "curated"
   },
   {
     "fa": "خارش",
     "en": "pruritus",
-    "cat": "symptoms"
+    "cat": "symptoms",
+    "src": "curated"
   },
   {
     "fa": "خارش چشم",
     "en": "ocular itching",
-    "cat": "symptoms"
+    "cat": "symptoms",
+    "src": "curated"
   },
   {
     "fa": "خستگی",
     "en": "fatigue",
-    "cat": "symptoms"
+    "cat": "symptoms",
+    "src": "curated"
   },
   {
     "fa": "خستگی مزمن",
     "en": "chronic fatigue",
-    "cat": "symptoms"
+    "cat": "symptoms",
+    "src": "curated"
   },
   {
     "fa": "خشکی دهان",
     "en": "xerostomia",
-    "cat": "symptoms"
+    "cat": "symptoms",
+    "src": "curated"
   },
   {
     "fa": "خفقان شبانه",
     "en": "paroxysmal nocturnal dyspnea",
-    "cat": "symptoms"
+    "cat": "symptoms",
+    "src": "curated"
   },
   {
     "fa": "خلط",
     "en": "sputum",
-    "cat": "symptoms"
+    "cat": "symptoms",
+    "src": "curated"
   },
   {
     "fa": "خلط چرکی",
     "en": "purulent sputum",
-    "cat": "symptoms"
+    "cat": "symptoms",
+    "src": "curated"
   },
   {
     "fa": "خواب‌آلودگی",
     "en": "drowsiness",
-    "cat": "symptoms"
+    "cat": "symptoms",
+    "src": "curated"
   },
   {
     "fa": "خواب‌آلودگی روزانه",
     "en": "excessive daytime sleepiness",
-    "cat": "symptoms"
+    "cat": "symptoms",
+    "src": "curated"
   },
   {
     "fa": "خون در ادرار",
     "en": "hematuria",
-    "cat": "symptoms"
+    "cat": "symptoms",
+    "src": "curated"
   },
   {
     "fa": "خون در خلط",
     "en": "blood-streaked sputum",
-    "cat": "symptoms"
+    "cat": "symptoms",
+    "src": "curated"
   },
   {
     "fa": "خون روشن در مدفوع",
     "en": "hematochezia",
-    "cat": "symptoms"
+    "cat": "symptoms",
+    "src": "curated"
   },
   {
     "fa": "خونریزی آسان",
     "en": "easy bleeding",
-    "cat": "symptoms"
+    "cat": "symptoms",
+    "src": "curated"
   },
   {
     "fa": "خونریزی بعد از زایمان",
     "en": "postpartum hemorrhage",
-    "cat": "symptoms"
+    "cat": "symptoms",
+    "src": "curated"
   },
   {
     "fa": "خونریزی بین قاعدگی",
     "en": "intermenstrual bleeding",
-    "cat": "symptoms"
+    "cat": "symptoms",
+    "src": "curated"
   },
   {
     "fa": "خونریزی بینی",
     "en": "epistaxis",
-    "cat": "symptoms"
+    "cat": "symptoms",
+    "src": "curated"
   },
   {
     "fa": "خونریزی خودبه‌خودی",
     "en": "spontaneous hemorrhage",
-    "cat": "symptoms"
+    "cat": "symptoms",
+    "src": "curated"
   },
   {
     "fa": "خونریزی طولانی‌مدت",
     "en": "prolonged bleeding",
-    "cat": "symptoms"
+    "cat": "symptoms",
+    "src": "curated"
   },
   {
     "fa": "خونریزی لثه",
     "en": "gingival bleeding",
-    "cat": "symptoms"
+    "cat": "symptoms",
+    "src": "curated"
   },
   {
     "fa": "خونریزی واژینال",
     "en": "vaginal bleeding",
-    "cat": "symptoms"
+    "cat": "symptoms",
+    "src": "curated"
   },
   {
     "fa": "خونریزی پس از بیوپسی",
     "en": "post-biopsy bleeding",
-    "cat": "symptoms"
+    "cat": "symptoms",
+    "src": "curated"
   },
   {
     "fa": "خونریزی پس از جراحی",
     "en": "post-surgical bleeding",
-    "cat": "symptoms"
+    "cat": "symptoms",
+    "src": "curated"
   },
   {
     "fa": "خونریزی پس از کشیدن دندان",
     "en": "post-extraction bleeding",
-    "cat": "symptoms"
+    "cat": "symptoms",
+    "src": "curated"
   },
   {
     "fa": "خونریزی پوستی",
     "en": "cutaneous bleeding",
-    "cat": "symptoms"
+    "cat": "symptoms",
+    "src": "curated"
   },
   {
     "fa": "خونریزی گوارشی",
     "en": "gastrointestinal bleeding",
-    "cat": "symptoms"
+    "cat": "symptoms",
+    "src": "curated"
   },
   {
     "fa": "خون‌آهار",
     "en": "hemoptysis",
-    "cat": "symptoms"
+    "cat": "symptoms",
+    "src": "curated"
   },
   {
     "fa": "خون‌ادراری",
     "en": "hematuria",
-    "cat": "symptoms"
+    "cat": "symptoms",
+    "src": "curated"
   },
   {
     "fa": "درد آرنج",
     "en": "elbow pain",
-    "cat": "symptoms"
+    "cat": "symptoms",
+    "src": "curated"
   },
   {
     "fa": "درد استخوان",
     "en": "bone pain",
-    "cat": "symptoms"
+    "cat": "symptoms",
+    "src": "curated"
   },
   {
     "fa": "درد بیضه",
     "en": "testicular pain",
-    "cat": "symptoms"
+    "cat": "symptoms",
+    "src": "curated"
   },
   {
     "fa": "درد در نزدیکی",
     "en": "dyspareunia",
-    "cat": "symptoms"
+    "cat": "symptoms",
+    "src": "curated"
   },
   {
     "fa": "درد ران",
     "en": "thigh pain",
-    "cat": "symptoms"
+    "cat": "symptoms",
+    "src": "curated"
   },
   {
     "fa": "درد زانو",
     "en": "knee pain",
-    "cat": "symptoms"
+    "cat": "symptoms",
+    "src": "curated"
   },
   {
     "fa": "درد ساق پا",
     "en": "calf pain",
-    "cat": "symptoms"
+    "cat": "symptoms",
+    "src": "curated"
   },
   {
     "fa": "درد سینه",
     "en": "chest pain",
-    "cat": "symptoms"
+    "cat": "symptoms",
+    "src": "curated"
   },
   {
     "fa": "درد سینه فشارنده",
     "en": "pressure-like chest pain",
-    "cat": "symptoms"
+    "cat": "symptoms",
+    "src": "curated"
   },
   {
     "fa": "درد شانه",
     "en": "shoulder pain",
-    "cat": "symptoms"
+    "cat": "symptoms",
+    "src": "curated"
   },
   {
     "fa": "درد شکم",
     "en": "abdominal pain",
-    "cat": "symptoms"
+    "cat": "symptoms",
+    "src": "curated"
   },
   {
     "fa": "درد صورت",
     "en": "facial pain",
-    "cat": "symptoms"
+    "cat": "symptoms",
+    "src": "curated"
   },
   {
     "fa": "درد عضلانی",
     "en": "myalgia",
-    "cat": "symptoms"
+    "cat": "symptoms",
+    "src": "curated"
   },
   {
     "fa": "درد قاعدگی",
     "en": "dysmenorrhea",
-    "cat": "symptoms"
+    "cat": "symptoms",
+    "src": "curated"
   },
   {
     "fa": "درد قفسه سینه",
     "en": "chest pain",
-    "cat": "symptoms"
+    "cat": "symptoms",
+    "src": "curated"
   },
   {
     "fa": "درد قفسه سینه پلوریتیک",
     "en": "pleuritic chest pain",
-    "cat": "symptoms"
+    "cat": "symptoms",
+    "src": "curated"
   },
   {
     "fa": "درد لگن",
     "en": "hip pain",
-    "cat": "symptoms"
+    "cat": "symptoms",
+    "src": "curated"
   },
   {
     "fa": "درد مفاصل",
     "en": "arthralgia",
-    "cat": "symptoms"
+    "cat": "symptoms",
+    "src": "curated"
   },
   {
     "fa": "درد مهره‌ها",
     "en": "back pain",
-    "cat": "symptoms"
+    "cat": "symptoms",
+    "src": "curated"
   },
   {
     "fa": "درد مچ دست",
     "en": "wrist pain",
-    "cat": "symptoms"
+    "cat": "symptoms",
+    "src": "curated"
   },
   {
     "fa": "درد مچ پا",
     "en": "ankle pain",
-    "cat": "symptoms"
+    "cat": "symptoms",
+    "src": "curated"
   },
   {
     "fa": "درد ناحیه راست بالای شکم",
     "en": "right upper quadrant pain",
-    "cat": "symptoms"
+    "cat": "symptoms",
+    "src": "curated"
   },
   {
     "fa": "درد ناحیه راست پایین شکم",
     "en": "right lower quadrant pain",
-    "cat": "symptoms"
+    "cat": "symptoms",
+    "src": "curated"
   },
   {
     "fa": "درد ناحیه چپ پایین شکم",
     "en": "left lower quadrant pain",
-    "cat": "symptoms"
+    "cat": "symptoms",
+    "src": "curated"
   },
   {
     "fa": "درد هنگام بلع",
     "en": "odynophagia",
-    "cat": "symptoms"
+    "cat": "symptoms",
+    "src": "curated"
   },
   {
     "fa": "درد پا",
     "en": "leg pain",
-    "cat": "symptoms"
+    "cat": "symptoms",
+    "src": "curated"
   },
   {
     "fa": "درد پهلو",
     "en": "flank pain",
-    "cat": "symptoms"
+    "cat": "symptoms",
+    "src": "curated"
   },
   {
     "fa": "درد چشم",
     "en": "eye pain",
-    "cat": "symptoms"
+    "cat": "symptoms",
+    "src": "curated"
   },
   {
     "fa": "درد کمر",
     "en": "low back pain",
-    "cat": "symptoms"
+    "cat": "symptoms",
+    "src": "curated"
   },
   {
     "fa": "درد گردن",
     "en": "neck pain",
-    "cat": "symptoms"
+    "cat": "symptoms",
+    "src": "curated"
   },
   {
     "fa": "درد گلو",
     "en": "sore throat",
-    "cat": "symptoms"
+    "cat": "symptoms",
+    "src": "curated"
   },
   {
     "fa": "درد گوش",
     "en": "otalgia",
-    "cat": "symptoms"
+    "cat": "symptoms",
+    "src": "curated"
   },
   {
     "fa": "دم‌آوارگی",
     "en": "orthopnea",
-    "cat": "symptoms"
+    "cat": "symptoms",
+    "src": "curated"
   },
   {
     "fa": "دورزی قلب",
     "en": "tachycardia",
-    "cat": "symptoms"
+    "cat": "symptoms",
+    "src": "curated"
   },
   {
     "fa": "دوچشمی‌دیدن",
     "en": "diplopia",
-    "cat": "symptoms"
+    "cat": "symptoms",
+    "src": "curated"
   },
   {
     "fa": "دیسپپسی",
     "en": "dyspepsia",
-    "cat": "symptoms"
+    "cat": "symptoms",
+    "src": "curated"
   },
   {
     "fa": "دیس‌فونی",
     "en": "dysphonia",
-    "cat": "symptoms"
+    "cat": "symptoms",
+    "src": "curated"
   },
   {
     "fa": "راه رفتن ناهماهنگ",
     "en": "unsteady gait",
-    "cat": "symptoms"
+    "cat": "symptoms",
+    "src": "curated"
   },
   {
     "fa": "ریزش مو",
     "en": "alopecia",
-    "cat": "symptoms"
+    "cat": "symptoms",
+    "src": "curated"
   },
   {
     "fa": "ریفلاکس معده",
     "en": "acid reflux",
-    "cat": "symptoms"
+    "cat": "symptoms",
+    "src": "curated"
   },
   {
     "fa": "زخم",
     "en": "wound",
-    "cat": "symptoms"
+    "cat": "symptoms",
+    "src": "curated"
   },
   {
     "fa": "زخم بستر",
     "en": "pressure ulcer",
-    "cat": "symptoms"
+    "cat": "symptoms",
+    "src": "curated"
   },
   {
     "fa": "زخم دهان",
     "en": "oral ulcer",
-    "cat": "symptoms"
+    "cat": "symptoms",
+    "src": "curated"
   },
   {
     "fa": "زخم دیابتی",
     "en": "diabetic ulcer",
-    "cat": "symptoms"
+    "cat": "symptoms",
+    "src": "curated"
   },
   {
     "fa": "زنگ‌زدن گوش",
     "en": "tinnitus",
-    "cat": "symptoms"
+    "cat": "symptoms",
+    "src": "curated"
   },
   {
     "fa": "سردرد",
     "en": "headache",
-    "cat": "symptoms"
+    "cat": "symptoms",
+    "src": "curated"
   },
   {
     "fa": "سردرد شدید",
     "en": "severe headache",
-    "cat": "symptoms"
+    "cat": "symptoms",
+    "src": "curated"
   },
   {
     "fa": "سردرد صبحگاهی",
     "en": "morning headache",
-    "cat": "symptoms"
+    "cat": "symptoms",
+    "src": "curated"
   },
   {
     "fa": "سردرد ضربانی",
     "en": "pulsatile headache",
-    "cat": "symptoms"
+    "cat": "symptoms",
+    "src": "curated"
   },
   {
     "fa": "سرفه",
     "en": "cough",
-    "cat": "symptoms"
+    "cat": "symptoms",
+    "src": "curated"
   },
   {
     "fa": "سرفه خشک",
     "en": "dry cough",
-    "cat": "symptoms"
+    "cat": "symptoms",
+    "src": "curated"
   },
   {
     "fa": "سرفه خونی",
     "en": "hemoptysis",
-    "cat": "symptoms"
+    "cat": "symptoms",
+    "src": "curated"
   },
   {
     "fa": "سرفه همراه با خلط",
     "en": "productive cough",
-    "cat": "symptoms"
+    "cat": "symptoms",
+    "src": "curated"
   },
   {
     "fa": "سرگیجه",
     "en": "dizziness",
-    "cat": "symptoms"
+    "cat": "symptoms",
+    "src": "curated"
   },
   {
     "fa": "سفتی حرکتی",
     "en": "rigidity",
-    "cat": "symptoms"
+    "cat": "symptoms",
+    "src": "curated"
   },
   {
     "fa": "سفتی شکم",
     "en": "abdominal rigidity",
-    "cat": "symptoms"
+    "cat": "symptoms",
+    "src": "curated"
   },
   {
     "fa": "سفتی صبحگاهی مفاصل",
     "en": "morning stiffness",
-    "cat": "symptoms"
+    "cat": "symptoms",
+    "src": "curated"
   },
   {
     "fa": "سفتی گردن",
     "en": "nuchal rigidity",
-    "cat": "symptoms"
+    "cat": "symptoms",
+    "src": "curated"
   },
   {
     "fa": "سقوط",
     "en": "fall",
-    "cat": "symptoms"
+    "cat": "symptoms",
+    "src": "curated"
   },
   {
     "fa": "سوت کشیدن سینه",
     "en": "wheezing",
-    "cat": "symptoms"
+    "cat": "symptoms",
+    "src": "curated"
   },
   {
     "fa": "سوختگی",
     "en": "burn",
-    "cat": "symptoms"
+    "cat": "symptoms",
+    "src": "curated"
   },
   {
     "fa": "سوزش",
     "en": "burning sensation",
-    "cat": "symptoms"
+    "cat": "symptoms",
+    "src": "curated"
   },
   {
     "fa": "سوزش ادرار",
     "en": "dysuria",
-    "cat": "symptoms"
+    "cat": "symptoms",
+    "src": "curated"
   },
   {
     "fa": "سوزش سر دل",
     "en": "heartburn",
-    "cat": "symptoms"
+    "cat": "symptoms",
+    "src": "curated"
   },
   {
     "fa": "سیانوز",
     "en": "cyanosis",
-    "cat": "symptoms"
+    "cat": "symptoms",
+    "src": "curated"
   },
   {
     "fa": "شکستگی",
     "en": "fracture",
-    "cat": "symptoms"
+    "cat": "symptoms",
+    "src": "curated"
   },
   {
     "fa": "ضربان نامنظم",
     "en": "irregular heartbeat",
-    "cat": "symptoms"
+    "cat": "symptoms",
+    "src": "curated"
   },
   {
     "fa": "ضعف عضلانی",
     "en": "muscle weakness",
-    "cat": "symptoms"
+    "cat": "symptoms",
+    "src": "curated"
   },
   {
     "fa": "ضعف عمومی",
     "en": "generalized weakness",
-    "cat": "symptoms"
+    "cat": "symptoms",
+    "src": "curated"
   },
   {
     "fa": "عفونت زخم",
     "en": "wound infection",
-    "cat": "symptoms"
+    "cat": "symptoms",
+    "src": "curated"
   },
   {
     "fa": "عفونت محل جراحی",
     "en": "surgical site infection",
-    "cat": "symptoms"
+    "cat": "symptoms",
+    "src": "curated"
   },
   {
     "fa": "غرفه شکمی",
     "en": "abdominal cramps",
-    "cat": "symptoms"
+    "cat": "symptoms",
+    "src": "curated"
   },
   {
     "fa": "غش",
     "en": "syncope",
-    "cat": "symptoms"
+    "cat": "symptoms",
+    "src": "curated"
   },
   {
     "fa": "فلج",
     "en": "paralysis",
-    "cat": "symptoms"
+    "cat": "symptoms",
+    "src": "curated"
   },
   {
     "fa": "قاعدگی نامنظم",
     "en": "menstrual irregularity",
-    "cat": "symptoms"
+    "cat": "symptoms",
+    "src": "curated"
   },
   {
     "fa": "قرمزی پوست",
     "en": "erythema",
-    "cat": "symptoms"
+    "cat": "symptoms",
+    "src": "curated"
   },
   {
     "fa": "قرمزی چشم",
     "en": "red eye",
-    "cat": "symptoms"
+    "cat": "symptoms",
+    "src": "curated"
   },
   {
     "fa": "لرز",
     "en": "chills",
-    "cat": "symptoms"
+    "cat": "symptoms",
+    "src": "curated"
   },
   {
     "fa": "لرزش",
     "en": "tremor",
-    "cat": "symptoms"
+    "cat": "symptoms",
+    "src": "curated"
   },
   {
     "fa": "لرزش دست",
     "en": "hand tremor",
-    "cat": "symptoms"
+    "cat": "symptoms",
+    "src": "curated"
   },
   {
     "fa": "لک تیره پوست",
     "en": "hyperpigmented patch",
-    "cat": "symptoms"
+    "cat": "symptoms",
+    "src": "curated"
   },
   {
     "fa": "لک روشن پوست",
     "en": "hypopigmented patch",
-    "cat": "symptoms"
+    "cat": "symptoms",
+    "src": "curated"
   },
   {
     "fa": "لکه‌های خون ریز",
     "en": "petechiae",
-    "cat": "symptoms"
+    "cat": "symptoms",
+    "src": "curated"
   },
   {
     "fa": "مدفوع قیری",
     "en": "melena",
-    "cat": "symptoms"
+    "cat": "symptoms",
+    "src": "curated"
   },
   {
     "fa": "مشکل بلع",
     "en": "dysphagia",
-    "cat": "symptoms"
+    "cat": "symptoms",
+    "src": "curated"
   },
   {
     "fa": "مشکل در صحبت کردن",
     "en": "speech difficulty",
-    "cat": "symptoms"
+    "cat": "symptoms",
+    "src": "curated"
   },
   {
     "fa": "ناهماهنگی",
     "en": "ataxia",
-    "cat": "symptoms"
+    "cat": "symptoms",
+    "src": "curated"
   },
   {
     "fa": "نزدیک غش",
     "en": "presyncope",
-    "cat": "symptoms"
+    "cat": "symptoms",
+    "src": "curated"
   },
   {
     "fa": "نفخ شکم",
     "en": "bloating",
-    "cat": "symptoms"
+    "cat": "symptoms",
+    "src": "curated"
   },
   {
     "fa": "نفس‌نرمی با فعالیت",
     "en": "exertional dyspnea",
-    "cat": "symptoms"
+    "cat": "symptoms",
+    "src": "curated"
   },
   {
     "fa": "نفس‌نرمی مزمن",
     "en": "chronic dyspnea",
-    "cat": "symptoms"
+    "cat": "symptoms",
+    "src": "curated"
   },
   {
     "fa": "نوروپاتی",
     "en": "neuropathy",
-    "cat": "symptoms"
+    "cat": "symptoms",
+    "src": "curated"
   },
   {
     "fa": "وئز",
     "en": "wheezing",
-    "cat": "symptoms"
+    "cat": "symptoms",
+    "src": "curated"
   },
   {
     "fa": "پارگی عضله",
     "en": "muscle tear",
-    "cat": "symptoms"
+    "cat": "symptoms",
+    "src": "curated"
   },
   {
     "fa": "پخش درد به شانه چپ",
     "en": "radiation to left shoulder",
-    "cat": "symptoms"
+    "cat": "symptoms",
+    "src": "curated"
   },
   {
     "fa": "پخش درد به فک",
     "en": "radiation to jaw",
-    "cat": "symptoms"
+    "cat": "symptoms",
+    "src": "curated"
   },
   {
     "fa": "پرده در چشم",
     "en": "curtain over vision",
-    "cat": "symptoms"
+    "cat": "symptoms",
+    "src": "curated"
   },
   {
     "fa": "پف زیر چشم",
     "en": "periorbital edema",
-    "cat": "symptoms"
+    "cat": "symptoms",
+    "src": "curated"
   },
   {
     "fa": "پورپورا",
     "en": "purpura",
-    "cat": "symptoms"
+    "cat": "symptoms",
+    "src": "curated"
   },
   {
     "fa": "کاهش ادرار",
     "en": "oliguria",
-    "cat": "symptoms"
+    "cat": "symptoms",
+    "src": "curated"
   },
   {
     "fa": "کاهش تحمل فعالیت",
     "en": "decreased exercise tolerance",
-    "cat": "symptoms"
+    "cat": "symptoms",
+    "src": "curated"
   },
   {
     "fa": "کاهش قدرت حرکت",
     "en": "paresis",
-    "cat": "symptoms"
+    "cat": "symptoms",
+    "src": "curated"
   },
   {
     "fa": "کاهش هوشیاری",
     "en": "decreased level of consciousness",
-    "cat": "symptoms"
+    "cat": "symptoms",
+    "src": "curated"
   },
   {
     "fa": "کاهش وزن",
     "en": "weight loss",
-    "cat": "symptoms"
+    "cat": "symptoms",
+    "src": "curated"
   },
   {
     "fa": "کاهش وزن بی‌دلیل",
     "en": "unintentional weight loss",
-    "cat": "symptoms"
+    "cat": "symptoms",
+    "src": "curated"
   },
   {
     "fa": "کبودی",
     "en": "bruise",
-    "cat": "symptoms"
+    "cat": "symptoms",
+    "src": "curated"
   },
   {
     "fa": "کبودی بدون ضربه",
     "en": "spontaneous bruising",
-    "cat": "symptoms"
+    "cat": "symptoms",
+    "src": "curated"
   },
   {
     "fa": "کبودی لب‌ها",
     "en": "cyanosis of lips",
-    "cat": "symptoms"
+    "cat": "symptoms",
+    "src": "curated"
   },
   {
     "fa": "کشیدگی رباط",
     "en": "ligament sprain",
-    "cat": "symptoms"
+    "cat": "symptoms",
+    "src": "curated"
   },
   {
     "fa": "کم‌حالی",
     "en": "weakness",
-    "cat": "symptoms"
+    "cat": "symptoms",
+    "src": "curated"
   },
   {
     "fa": "کندزی قلب",
     "en": "bradycardia",
-    "cat": "symptoms"
+    "cat": "symptoms",
+    "src": "curated"
   },
   {
     "fa": "کهیر",
     "en": "urticaria",
-    "cat": "symptoms"
+    "cat": "symptoms",
+    "src": "curated"
   },
   {
     "fa": "گرفتگی بینی",
     "en": "nasal congestion",
-    "cat": "symptoms"
+    "cat": "symptoms",
+    "src": "curated"
   },
   {
     "fa": "گرفتگی عضلانی",
     "en": "muscle cramps",
-    "cat": "symptoms"
+    "cat": "symptoms",
+    "src": "curated"
   },
   {
     "fa": "گرفتگی غدد لنفاوی",
     "en": "swollen lymph nodes",
-    "cat": "symptoms"
+    "cat": "symptoms",
+    "src": "curated"
   },
   {
     "fa": "گزگز",
     "en": "paresthesia",
-    "cat": "symptoms"
+    "cat": "symptoms",
+    "src": "curated"
   },
   {
     "fa": "گیجی",
     "en": "lightheadedness",
-    "cat": "symptoms"
+    "cat": "symptoms",
+    "src": "curated"
   },
   {
     "fa": "گیجی ذهنی",
     "en": "confusion",
-    "cat": "symptoms"
+    "cat": "symptoms",
+    "src": "curated"
   },
   {
     "fa": "یبوست",
     "en": "constipation",
-    "cat": "symptoms"
+    "cat": "symptoms",
+    "src": "curated"
   },
   {
     "fa": "یرقان",
     "en": "jaundice",
-    "cat": "symptoms"
+    "cat": "symptoms",
+    "src": "curated"
   }
 ]

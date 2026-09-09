@@ -2,1336 +2,1603 @@
   {
     "fa": "آتروپین",
     "en": "atropine",
-    "cat": "medications"
+    "cat": "medications",
+    "src": "curated"
   },
   {
     "fa": "آتونولول",
     "en": "atenolol",
-    "cat": "medications"
+    "cat": "medications",
+    "src": "curated"
   },
   {
     "fa": "آریپیپرازول",
     "en": "aripiprazole",
-    "cat": "medications"
+    "cat": "medications",
+    "src": "curated"
   },
   {
     "fa": "آزاسیتیدین",
     "en": "azacitidine",
-    "cat": "medications"
+    "cat": "medications",
+    "src": "curated"
   },
   {
     "fa": "آزیترومایسین",
     "en": "azithromycin",
-    "cat": "medications"
+    "cat": "medications",
+    "src": "curated"
   },
   {
     "fa": "آسپرین",
     "en": "aspirin",
-    "cat": "medications"
+    "cat": "medications",
+    "src": "curated"
   },
   {
     "fa": "آسیکلوویر",
     "en": "acyclovir",
-    "cat": "medications"
+    "cat": "medications",
+    "src": "curated"
   },
   {
     "fa": "آسی‌اتوزولاماید",
     "en": "acetazolamide",
-    "cat": "medications"
+    "cat": "medications",
+    "src": "curated"
   },
   {
     "fa": "آلبندازول",
     "en": "albendazole",
-    "cat": "medications"
+    "cat": "medications",
+    "src": "curated"
   },
   {
     "fa": "آلوپورینول",
     "en": "allopurinol",
-    "cat": "medications"
+    "cat": "medications",
+    "src": "curated"
   },
   {
     "fa": "آلپرازولام",
     "en": "alprazolam",
-    "cat": "medications"
+    "cat": "medications",
+    "src": "curated"
   },
   {
     "fa": "آملودایپین",
     "en": "amlodipine",
-    "cat": "medications"
+    "cat": "medications",
+    "src": "curated"
   },
   {
     "fa": "آموکسی‌سیلین",
     "en": "amoxicillin",
-    "cat": "medications"
+    "cat": "medications",
+    "src": "curated"
   },
   {
     "fa": "آموکسی‌سیلین و کلاوولانات",
     "en": "amoxicillin clavulanate",
-    "cat": "medications"
+    "cat": "medications",
+    "src": "curated"
   },
   {
     "fa": "آمپیسیلین",
     "en": "ampicillin",
-    "cat": "medications"
+    "cat": "medications",
+    "src": "curated"
   },
   {
     "fa": "آمیلورید",
     "en": "amiloride",
-    "cat": "medications"
+    "cat": "medications",
+    "src": "curated"
   },
   {
     "fa": "آمیودارون",
     "en": "amiodarone",
-    "cat": "medications"
+    "cat": "medications",
+    "src": "curated"
   },
   {
     "fa": "آمیکاسین",
     "en": "amikacin",
-    "cat": "medications"
+    "cat": "medications",
+    "src": "curated"
   },
   {
     "fa": "آمی‌ترپتیلین",
     "en": "amitriptyline",
-    "cat": "medications"
+    "cat": "medications",
+    "src": "curated"
   },
   {
     "fa": "آیوداید پتاسیم",
     "en": "potassium iodide",
-    "cat": "medications"
+    "cat": "medications",
+    "src": "curated"
   },
   {
     "fa": "اتوری‌کوکسیب",
     "en": "etoricoxib",
-    "cat": "medications"
+    "cat": "medications",
+    "src": "curated"
   },
   {
     "fa": "اتیوآستاتین",
     "en": "atorvastatin",
-    "cat": "medications"
+    "cat": "medications",
+    "src": "curated"
   },
   {
     "fa": "اریترومایسین",
     "en": "erythromycin",
-    "cat": "medications"
+    "cat": "medications",
+    "src": "curated"
   },
   {
     "fa": "اریتروپوئتین",
     "en": "erythropoietin",
-    "cat": "medications"
+    "cat": "medications",
+    "src": "curated"
   },
   {
     "fa": "استامینوفن",
     "en": "paracetamol",
-    "cat": "medications"
+    "cat": "medications",
+    "src": "curated"
   },
   {
     "fa": "اسپیرولاکتون",
     "en": "spironolactone",
-    "cat": "medications"
+    "cat": "medications",
+    "src": "curated"
   },
   {
     "fa": "اسیتالوپرام",
     "en": "escitalopram",
-    "cat": "medications"
+    "cat": "medications",
+    "src": "curated"
   },
   {
     "fa": "اسید اسکوربیک",
     "en": "ascorbic acid",
-    "cat": "medications"
+    "cat": "medications",
+    "src": "curated"
   },
   {
     "fa": "اسید ترانکسامیک",
     "en": "tranexamic acid",
-    "cat": "medications"
+    "cat": "medications",
+    "src": "curated"
   },
   {
     "fa": "اسید فولیک",
     "en": "folic acid",
-    "cat": "medications"
+    "cat": "medications",
+    "src": "curated"
   },
   {
     "fa": "امپاگلیفلوزین",
     "en": "empagliflozin",
-    "cat": "medications"
+    "cat": "medications",
+    "src": "curated"
   },
   {
     "fa": "امپرازل",
     "en": "omeprazole",
-    "cat": "medications"
+    "cat": "medications",
+    "src": "curated"
   },
   {
     "fa": "انالاپرایل",
     "en": "enalapril",
-    "cat": "medications"
+    "cat": "medications",
+    "src": "curated"
   },
   {
     "fa": "اندانسترون",
     "en": "ondansetron",
-    "cat": "medications"
+    "cat": "medications",
+    "src": "curated"
   },
   {
     "fa": "انسولین",
     "en": "insulin",
-    "cat": "medications"
+    "cat": "medications",
+    "src": "curated"
   },
   {
     "fa": "انسولین آسپارت",
     "en": "insulin aspart",
-    "cat": "medications"
+    "cat": "medications",
+    "src": "curated"
   },
   {
     "fa": "انسولین لنتوس",
     "en": "insulin detemir",
-    "cat": "medications"
+    "cat": "medications",
+    "src": "curated"
   },
   {
     "fa": "انسولین گلارژین",
     "en": "insulin glargine",
-    "cat": "medications"
+    "cat": "medications",
+    "src": "curated"
   },
   {
     "fa": "انوکساپارین",
     "en": "enoxaparin",
-    "cat": "medications"
+    "cat": "medications",
+    "src": "curated"
   },
   {
     "fa": "اوسلتامیور",
     "en": "oseltamivir",
-    "cat": "medications"
+    "cat": "medications",
+    "src": "curated"
   },
   {
     "fa": "اوسیمرتینیب",
     "en": "osimertinib",
-    "cat": "medications"
+    "cat": "medications",
+    "src": "curated"
   },
   {
     "fa": "اولانزاپین",
     "en": "olanzapine",
-    "cat": "medications"
+    "cat": "medications",
+    "src": "curated"
   },
   {
     "fa": "اوکتیرید",
     "en": "octreotide",
-    "cat": "medications"
+    "cat": "medications",
+    "src": "curated"
   },
   {
     "fa": "اپیگکسان",
     "en": "apixaban",
-    "cat": "medications"
+    "cat": "medications",
+    "src": "curated"
   },
   {
     "fa": "اپی‌روبسین",
     "en": "epirubicin",
-    "cat": "medications"
+    "cat": "medications",
+    "src": "curated"
   },
   {
     "fa": "اپی‌نفرین",
     "en": "epinephrine",
-    "cat": "medications"
+    "cat": "medications",
+    "src": "curated"
   },
   {
     "fa": "اکسیکودون",
     "en": "oxycodone",
-    "cat": "medications"
+    "cat": "medications",
+    "src": "curated"
   },
   {
     "fa": "اکسی‌کاربازپین",
     "en": "oxcarbazepine",
-    "cat": "medications"
+    "cat": "medications",
+    "src": "curated"
   },
   {
     "fa": "اگزالیپلاتین",
     "en": "oxaliplatin",
-    "cat": "medications"
+    "cat": "medications",
+    "src": "curated"
   },
   {
     "fa": "ایبوپروفن",
     "en": "ibuprofen",
-    "cat": "medications"
+    "cat": "medications",
+    "src": "curated"
   },
   {
     "fa": "ایتراکونازول",
     "en": "itraconazole",
-    "cat": "medications"
+    "cat": "medications",
+    "src": "curated"
   },
   {
     "fa": "ایربسارتان",
     "en": "irbesartan",
-    "cat": "medications"
+    "cat": "medications",
+    "src": "curated"
   },
   {
     "fa": "ایرینوتکان",
     "en": "irinotecan",
-    "cat": "medications"
+    "cat": "medications",
+    "src": "curated"
   },
   {
     "fa": "ایزوسوربید",
     "en": "isosorbide",
-    "cat": "medications"
+    "cat": "medications",
+    "src": "curated"
   },
   {
     "fa": "ایساتوکسیماب",
     "en": "isatuximab",
-    "cat": "medications"
+    "cat": "medications",
+    "src": "curated"
   },
   {
     "fa": "ایفوسفامید",
     "en": "ifosfamide",
-    "cat": "medications"
+    "cat": "medications",
+    "src": "curated"
   },
   {
     "fa": "ایماتینیب",
     "en": "imatinib",
-    "cat": "medications"
+    "cat": "medications",
+    "src": "curated"
   },
   {
     "fa": "ایپراتروپیوم",
     "en": "ipratropium",
-    "cat": "medications"
+    "cat": "medications",
+    "src": "curated"
   },
   {
     "fa": "بتامتازون",
     "en": "betamethasone",
-    "cat": "medications"
+    "cat": "medications",
+    "src": "curated"
   },
   {
     "fa": "بواکیزوماب",
     "en": "bevacizumab",
-    "cat": "medications"
+    "cat": "medications",
+    "src": "curated"
   },
   {
     "fa": "بوبروپین",
     "en": "bupropion",
-    "cat": "medications"
+    "cat": "medications",
+    "src": "curated"
   },
   {
     "fa": "بودزوناید",
     "en": "budesonide",
-    "cat": "medications"
+    "cat": "medications",
+    "src": "curated"
   },
   {
     "fa": "بورزمایفون",
     "en": "bortezomib",
-    "cat": "medications"
+    "cat": "medications",
+    "src": "curated"
   },
   {
     "fa": "بوسولفان",
     "en": "busulfan",
-    "cat": "medications"
+    "cat": "medications",
+    "src": "curated"
   },
   {
     "fa": "بیسوپرولول",
     "en": "bisoprolol",
-    "cat": "medications"
+    "cat": "medications",
+    "src": "curated"
   },
   {
     "fa": "تالیدوماید",
     "en": "thalidomide",
-    "cat": "medications"
+    "cat": "medications",
+    "src": "curated"
   },
   {
     "fa": "تتراسایکلین",
     "en": "tetracycline",
-    "cat": "medications"
+    "cat": "medications",
+    "src": "curated"
   },
   {
     "fa": "ترازودون",
     "en": "trazodone",
-    "cat": "medications"
+    "cat": "medications",
+    "src": "curated"
   },
   {
     "fa": "تراستوزوماب",
     "en": "trastuzumab",
-    "cat": "medications"
+    "cat": "medications",
+    "src": "curated"
   },
   {
     "fa": "ترامادول",
     "en": "tramadol",
-    "cat": "medications"
+    "cat": "medications",
+    "src": "curated"
   },
   {
     "fa": "ترمبووتالین",
     "en": "terbutaline",
-    "cat": "medications"
+    "cat": "medications",
+    "src": "curated"
   },
   {
     "fa": "تریامترون",
     "en": "triamterene",
-    "cat": "medications"
+    "cat": "medications",
+    "src": "curated"
   },
   {
     "fa": "تری‌متوپریم",
     "en": "trimethoprim",
-    "cat": "medications"
+    "cat": "medications",
+    "src": "curated"
   },
   {
     "fa": "تری‌یودوتیرونین",
     "en": "triiodothyronine",
-    "cat": "medications"
+    "cat": "medications",
+    "src": "curated"
   },
   {
     "fa": "تلمیسارتان",
     "en": "telmisartan",
-    "cat": "medications"
+    "cat": "medications",
+    "src": "curated"
   },
   {
     "fa": "توبرامایسین",
     "en": "tobramycin",
-    "cat": "medications"
+    "cat": "medications",
+    "src": "curated"
   },
   {
     "fa": "تیوتروپیوم",
     "en": "tiotropium",
-    "cat": "medications"
+    "cat": "medications",
+    "src": "curated"
   },
   {
     "fa": "تیکاگرلور",
     "en": "ticagrelor",
-    "cat": "medications"
+    "cat": "medications",
+    "src": "curated"
   },
   {
     "fa": "جنتامایسین",
     "en": "gentamicin",
-    "cat": "medications"
+    "cat": "medications",
+    "src": "curated"
   },
   {
     "fa": "دابیگاتران",
     "en": "dabigatran",
-    "cat": "medications"
+    "cat": "medications",
+    "src": "curated"
   },
   {
     "fa": "داراتوموماب",
     "en": "daratumumab",
-    "cat": "medications"
+    "cat": "medications",
+    "src": "curated"
   },
   {
     "fa": "داساتینیب",
     "en": "dasatinib",
-    "cat": "medications"
+    "cat": "medications",
+    "src": "curated"
   },
   {
     "fa": "داپاگلیفلوزین",
     "en": "dapagliflozin",
-    "cat": "medications"
+    "cat": "medications",
+    "src": "curated"
   },
   {
     "fa": "داپتومایسین",
     "en": "daptomycin",
-    "cat": "medications"
+    "cat": "medications",
+    "src": "curated"
   },
   {
     "fa": "داکسوربیسین",
     "en": "doxorubicin",
-    "cat": "medications"
+    "cat": "medications",
+    "src": "curated"
   },
   {
     "fa": "دسموپرسین",
     "en": "desmopressin",
-    "cat": "medications"
+    "cat": "medications",
+    "src": "curated"
   },
   {
     "fa": "دوسیتاکسل",
     "en": "docetaxel",
-    "cat": "medications"
+    "cat": "medications",
+    "src": "curated"
   },
   {
     "fa": "دولوکستین",
     "en": "duloxetine",
-    "cat": "medications"
+    "cat": "medications",
+    "src": "curated"
   },
   {
     "fa": "دومپریدون",
     "en": "domperidone",
-    "cat": "medications"
+    "cat": "medications",
+    "src": "curated"
   },
   {
     "fa": "دوکسی‌سایکلین",
     "en": "doxycycline",
-    "cat": "medications"
+    "cat": "medications",
+    "src": "curated"
   },
   {
     "fa": "دژوکسین",
     "en": "digoxin",
-    "cat": "medications"
+    "cat": "medications",
+    "src": "curated"
   },
   {
     "fa": "دکسترومتورفان",
     "en": "dextromethorphan",
-    "cat": "medications"
+    "cat": "medications",
+    "src": "curated"
   },
   {
     "fa": "دگزامتازون",
     "en": "dexamethasone",
-    "cat": "medications"
+    "cat": "medications",
+    "src": "curated"
   },
   {
     "fa": "دیازپام",
     "en": "diazepam",
-    "cat": "medications"
+    "cat": "medications",
+    "src": "curated"
   },
   {
     "fa": "دیلتیازم",
     "en": "diltiazem",
-    "cat": "medications"
+    "cat": "medications",
+    "src": "curated"
   },
   {
     "fa": "دیپیریدامول",
     "en": "dipyridamole",
-    "cat": "medications"
+    "cat": "medications",
+    "src": "curated"
   },
   {
     "fa": "دیکلوفناک",
     "en": "diclofenac",
-    "cat": "medications"
+    "cat": "medications",
+    "src": "curated"
   },
   {
     "fa": "رامیپریل",
     "en": "ramipril",
-    "cat": "medications"
+    "cat": "medications",
+    "src": "curated"
   },
   {
     "fa": "رانیتیدین",
     "en": "ranitidine",
-    "cat": "medications"
+    "cat": "medications",
+    "src": "curated"
   },
   {
     "fa": "ربپرازول",
     "en": "rabeprazole",
-    "cat": "medications"
+    "cat": "medications",
+    "src": "curated"
   },
   {
     "fa": "روسوواستاتین",
     "en": "rosuvastatin",
-    "cat": "medications"
+    "cat": "medications",
+    "src": "curated"
   },
   {
     "fa": "روسیگلیتازون",
     "en": "rosiglitazone",
-    "cat": "medications"
+    "cat": "medications",
+    "src": "curated"
   },
   {
     "fa": "روکسیتینیب",
     "en": "ruxolitinib",
-    "cat": "medications"
+    "cat": "medications",
+    "src": "curated"
   },
   {
     "fa": "ریباویرین",
     "en": "ribavirin",
-    "cat": "medications"
+    "cat": "medications",
+    "src": "curated"
   },
   {
     "fa": "ریبواروکسان",
     "en": "rivaroxaban",
-    "cat": "medications"
+    "cat": "medications",
+    "src": "curated"
   },
   {
     "fa": "ریتوکسیماب",
     "en": "rituximab",
-    "cat": "medications"
+    "cat": "medications",
+    "src": "curated"
   },
   {
     "fa": "ریسپریدون",
     "en": "risperidone",
-    "cat": "medications"
+    "cat": "medications",
+    "src": "curated"
   },
   {
     "fa": "ریفاکسیمین",
     "en": "rifaximin",
-    "cat": "medications"
+    "cat": "medications",
+    "src": "curated"
   },
   {
     "fa": "زولپیدم",
     "en": "zolpidem",
-    "cat": "medications"
+    "cat": "medications",
+    "src": "curated"
   },
   {
     "fa": "سارگراستیم",
     "en": "sargramostim",
-    "cat": "medications"
+    "cat": "medications",
+    "src": "curated"
   },
   {
     "fa": "سالبوتامول",
     "en": "salbutamol",
-    "cat": "medications"
+    "cat": "medications",
+    "src": "curated"
   },
   {
     "fa": "سامترینول",
     "en": "salmeterol",
-    "cat": "medications"
+    "cat": "medications",
+    "src": "curated"
   },
   {
     "fa": "ساکسلیتپتین",
     "en": "saxagliptin",
-    "cat": "medications"
+    "cat": "medications",
+    "src": "curated"
   },
   {
     "fa": "ستوکسیماب",
     "en": "cetuximab",
-    "cat": "medications"
+    "cat": "medications",
+    "src": "curated"
   },
   {
     "fa": "سرترالین",
     "en": "sertraline",
-    "cat": "medications"
+    "cat": "medications",
+    "src": "curated"
   },
   {
     "fa": "سفازولین",
     "en": "cefazolin",
-    "cat": "medications"
+    "cat": "medications",
+    "src": "curated"
   },
   {
     "fa": "سفتازیدیم",
     "en": "ceftazidime",
-    "cat": "medications"
+    "cat": "medications",
+    "src": "curated"
   },
   {
     "fa": "سفتراکسیم",
     "en": "ceftriaxone",
-    "cat": "medications"
+    "cat": "medications",
+    "src": "curated"
   },
   {
     "fa": "سفوروکسیم",
     "en": "cefuroxime",
-    "cat": "medications"
+    "cat": "medications",
+    "src": "curated"
   },
   {
     "fa": "سفپیم",
     "en": "cefepime",
-    "cat": "medications"
+    "cat": "medications",
+    "src": "curated"
   },
   {
     "fa": "سلکوکسیب",
     "en": "celecoxib",
-    "cat": "medications"
+    "cat": "medications",
+    "src": "curated"
   },
   {
     "fa": "سولفامتوکسازول",
     "en": "sulfamethoxazole",
-    "cat": "medications"
+    "cat": "medications",
+    "src": "curated"
   },
   {
     "fa": "سیتاگلیپتین",
     "en": "sitagliptin",
-    "cat": "medications"
+    "cat": "medications",
+    "src": "curated"
   },
   {
     "fa": "سیتریزین",
     "en": "cetirizine",
-    "cat": "medications"
+    "cat": "medications",
+    "src": "curated"
   },
   {
     "fa": "سیس‌پلاتین",
     "en": "cisplatin",
-    "cat": "medications"
+    "cat": "medications",
+    "src": "curated"
   },
   {
     "fa": "سیمواستاتین",
     "en": "simvastatin",
-    "cat": "medications"
+    "cat": "medications",
+    "src": "curated"
   },
   {
     "fa": "سیپروفلوکساسین",
     "en": "ciprofloxacin",
-    "cat": "medications"
+    "cat": "medications",
+    "src": "curated"
   },
   {
     "fa": "سیکلوفسفامید",
     "en": "cyclophosphamide",
-    "cat": "medications"
+    "cat": "medications",
+    "src": "curated"
   },
   {
     "fa": "فاموتیدین",
     "en": "famotidine",
-    "cat": "medications"
+    "cat": "medications",
+    "src": "curated"
   },
   {
     "fa": "فلوتیکازون",
     "en": "fluticasone",
-    "cat": "medications"
+    "cat": "medications",
+    "src": "curated"
   },
   {
     "fa": "فلودارابین",
     "en": "fludarabine",
-    "cat": "medications"
+    "cat": "medications",
+    "src": "curated"
   },
   {
     "fa": "فلورووراسیل",
     "en": "fluorouracil",
-    "cat": "medications"
+    "cat": "medications",
+    "src": "curated"
   },
   {
     "fa": "فلوکستین",
     "en": "fluoxetine",
-    "cat": "medications"
+    "cat": "medications",
+    "src": "curated"
   },
   {
     "fa": "فلوکونازول",
     "en": "fluconazole",
-    "cat": "medications"
+    "cat": "medications",
+    "src": "curated"
   },
   {
     "fa": "فنتانیل",
     "en": "fentanyl",
-    "cat": "medications"
+    "cat": "medications",
+    "src": "curated"
   },
   {
     "fa": "فنیتوئین",
     "en": "phenytoin",
-    "cat": "medications"
+    "cat": "medications",
+    "src": "curated"
   },
   {
     "fa": "فورموتیرول",
     "en": "formoterol",
-    "cat": "medications"
+    "cat": "medications",
+    "src": "curated"
   },
   {
     "fa": "فوروسماید",
     "en": "furosemide",
-    "cat": "medications"
+    "cat": "medications",
+    "src": "curated"
   },
   {
     "fa": "فوسفومایسین",
     "en": "fosfomycin",
-    "cat": "medications"
+    "cat": "medications",
+    "src": "curated"
   },
   {
     "fa": "فوندوپارینوکس",
     "en": "fondaparinux",
-    "cat": "medications"
+    "cat": "medications",
+    "src": "curated"
   },
   {
     "fa": "فکسوفنادین",
     "en": "fexofenadine",
-    "cat": "medications"
+    "cat": "medications",
+    "src": "curated"
   },
   {
     "fa": "فیلگراستیم",
     "en": "filgrastim",
-    "cat": "medications"
+    "cat": "medications",
+    "src": "curated"
   },
   {
     "fa": "قرص آهن",
     "en": "iron supplement",
-    "cat": "medications"
+    "cat": "medications",
+    "src": "curated"
   },
   {
     "fa": "لئوفلوکساسین",
     "en": "levofloxacin",
-    "cat": "medications"
+    "cat": "medications",
+    "src": "curated"
   },
   {
     "fa": "لانسوپرازول",
     "en": "lansoprazole",
-    "cat": "medications"
+    "cat": "medications",
+    "src": "curated"
   },
   {
     "fa": "لنالیدوماید",
     "en": "lenalidomide",
-    "cat": "medications"
+    "cat": "medications",
+    "src": "curated"
   },
   {
     "fa": "لوتیرام",
     "en": "levetiracetam",
-    "cat": "medications"
+    "cat": "medications",
+    "src": "curated"
   },
   {
     "fa": "لوراتادین",
     "en": "loratadine",
-    "cat": "medications"
+    "cat": "medications",
+    "src": "curated"
   },
   {
     "fa": "لورازپام",
     "en": "lorazepam",
-    "cat": "medications"
+    "cat": "medications",
+    "src": "curated"
   },
   {
     "fa": "لورنوکسیکام",
     "en": "lornoxicam",
-    "cat": "medications"
+    "cat": "medications",
+    "src": "curated"
   },
   {
     "fa": "لوسارتان",
     "en": "losartan",
-    "cat": "medications"
+    "cat": "medications",
+    "src": "curated"
   },
   {
     "fa": "لووتیروکسین",
     "en": "levothyroxine",
-    "cat": "medications"
+    "cat": "medications",
+    "src": "curated"
   },
   {
     "fa": "لووسیتیریزین",
     "en": "levocetirizine",
-    "cat": "medications"
+    "cat": "medications",
+    "src": "curated"
   },
   {
     "fa": "لوکوفورین",
     "en": "leucovorin",
-    "cat": "medications"
+    "cat": "medications",
+    "src": "curated"
   },
   {
     "fa": "لیتیوم",
     "en": "lithium",
-    "cat": "medications"
+    "cat": "medications",
+    "src": "curated"
   },
   {
     "fa": "لیدوکائین",
     "en": "lidocaine",
-    "cat": "medications"
+    "cat": "medications",
+    "src": "curated"
   },
   {
     "fa": "لیسینوپرایل",
     "en": "lisinopril",
-    "cat": "medications"
+    "cat": "medications",
+    "src": "curated"
   },
   {
     "fa": "لینزولید",
     "en": "linezolid",
-    "cat": "medications"
+    "cat": "medications",
+    "src": "curated"
   },
   {
     "fa": "مترونیدازول",
     "en": "metronidazole",
-    "cat": "medications"
+    "cat": "medications",
+    "src": "curated"
   },
   {
     "fa": "متفورمین",
     "en": "metformin",
-    "cat": "medications"
+    "cat": "medications",
+    "src": "curated"
   },
   {
     "fa": "متوترکسات",
     "en": "methotrexate",
-    "cat": "medications"
+    "cat": "medications",
+    "src": "curated"
   },
   {
     "fa": "متولازون",
     "en": "methazolamide",
-    "cat": "medications"
+    "cat": "medications",
+    "src": "curated"
   },
   {
     "fa": "متوپرولول",
     "en": "metoprolol",
-    "cat": "medications"
+    "cat": "medications",
+    "src": "curated"
   },
   {
     "fa": "متوکلوپرامید",
     "en": "metoclopramide",
-    "cat": "medications"
+    "cat": "medications",
+    "src": "curated"
   },
   {
     "fa": "متیل‌پردنیزولون",
     "en": "methylprednisolone",
-    "cat": "medications"
+    "cat": "medications",
+    "src": "curated"
   },
   {
     "fa": "متیمازول",
     "en": "methimazole",
-    "cat": "medications"
+    "cat": "medications",
+    "src": "curated"
   },
   {
     "fa": "مروپنم",
     "en": "meropenem",
-    "cat": "medications"
+    "cat": "medications",
+    "src": "curated"
   },
   {
     "fa": "ملفالان",
     "en": "melphalan",
-    "cat": "medications"
+    "cat": "medications",
+    "src": "curated"
   },
   {
     "fa": "ملوکسیکام",
     "en": "meloxicam",
-    "cat": "medications"
+    "cat": "medications",
+    "src": "curated"
   },
   {
     "fa": "منیزیم",
     "en": "magnesium",
-    "cat": "medications"
+    "cat": "medications",
+    "src": "curated"
   },
   {
     "fa": "مورفین",
     "en": "morphine",
-    "cat": "medications"
+    "cat": "medications",
+    "src": "curated"
   },
   {
     "fa": "مونتلوکاست",
     "en": "montelukast",
-    "cat": "medications"
+    "cat": "medications",
+    "src": "curated"
   },
   {
     "fa": "میدازولام",
     "en": "midazolam",
-    "cat": "medications"
+    "cat": "medications",
+    "src": "curated"
   },
   {
     "fa": "میرتازاپین",
     "en": "mirtazapine",
-    "cat": "medications"
+    "cat": "medications",
+    "src": "curated"
   },
   {
     "fa": "مینوسایکلین",
     "en": "minocycline",
-    "cat": "medications"
+    "cat": "medications",
+    "src": "curated"
   },
   {
     "fa": "مینوکسیدیل",
     "en": "minoxidil",
-    "cat": "medications"
+    "cat": "medications",
+    "src": "curated"
   },
   {
     "fa": "میکونازول",
     "en": "miconazole",
-    "cat": "medications"
+    "cat": "medications",
+    "src": "curated"
   },
   {
     "fa": "ناپروکسن",
     "en": "naproxen",
-    "cat": "medications"
+    "cat": "medications",
+    "src": "curated"
   },
   {
     "fa": "نورتی‌ترپتیلین",
     "en": "nortriptyline",
-    "cat": "medications"
+    "cat": "medications",
+    "src": "curated"
   },
   {
     "fa": "نورفلوکساسین",
     "en": "norfloxacin",
-    "cat": "medications"
+    "cat": "medications",
+    "src": "curated"
   },
   {
     "fa": "نِیفیداپین",
     "en": "nifedipine",
-    "cat": "medications"
+    "cat": "medications",
+    "src": "curated"
   },
   {
     "fa": "نیتروفورانتوئین",
     "en": "nitrofurantoin",
-    "cat": "medications"
+    "cat": "medications",
+    "src": "curated"
   },
   {
     "fa": "نیتروگلیسیرین",
     "en": "nitroglycerin",
-    "cat": "medications"
+    "cat": "medications",
+    "src": "curated"
   },
   {
     "fa": "نیرولووماب",
     "en": "nivolumab",
-    "cat": "medications"
+    "cat": "medications",
+    "src": "curated"
   },
   {
     "fa": "نیستاتین",
     "en": "nystatin",
-    "cat": "medications"
+    "cat": "medications",
+    "src": "curated"
   },
   {
     "fa": "هالوپریدول",
     "en": "haloperidol",
-    "cat": "medications"
+    "cat": "medications",
+    "src": "curated"
   },
   {
     "fa": "هپارین",
     "en": "heparin",
-    "cat": "medications"
+    "cat": "medications",
+    "src": "curated"
   },
   {
     "fa": "هیدرالازین",
     "en": "hydralazine",
-    "cat": "medications"
+    "cat": "medications",
+    "src": "curated"
   },
   {
     "fa": "هیدروکسی‌اوره",
     "en": "hydroxyurea",
-    "cat": "medications"
+    "cat": "medications",
+    "src": "curated"
   },
   {
     "fa": "هیدروکلروتیازید",
     "en": "hydrochlorothiazide",
-    "cat": "medications"
+    "cat": "medications",
+    "src": "curated"
   },
   {
     "fa": "هیدروکورتیزون",
     "en": "hydrocortisone",
-    "cat": "medications"
+    "cat": "medications",
+    "src": "curated"
   },
   {
     "fa": "وارفارین",
     "en": "warfarin",
-    "cat": "medications"
+    "cat": "medications",
+    "src": "curated"
   },
   {
     "fa": "والسارتان",
     "en": "valsartan",
-    "cat": "medications"
+    "cat": "medications",
+    "src": "curated"
   },
   {
     "fa": "والگانسیکلوویر",
     "en": "valganciclovir",
-    "cat": "medications"
+    "cat": "medications",
+    "src": "curated"
   },
   {
     "fa": "وال‌آسیکلوویر",
     "en": "valacyclovir",
-    "cat": "medications"
+    "cat": "medications",
+    "src": "curated"
   },
   {
     "fa": "وال‌پروات",
     "en": "valproate",
-    "cat": "medications"
+    "cat": "medications",
+    "src": "curated"
   },
   {
     "fa": "واکومایسین",
     "en": "vancomycin",
-    "cat": "medications"
+    "cat": "medications",
+    "src": "curated"
   },
   {
     "fa": "وراپامیل",
     "en": "verapamil",
-    "cat": "medications"
+    "cat": "medications",
+    "src": "curated"
   },
   {
     "fa": "ونتاکلاکس",
     "en": "venetoclax",
-    "cat": "medications"
+    "cat": "medications",
+    "src": "curated"
   },
   {
     "fa": "ونلافاکسین",
     "en": "venlafaxine",
-    "cat": "medications"
+    "cat": "medications",
+    "src": "curated"
   },
   {
     "fa": "ووری‌کونازول",
     "en": "voriconazole",
-    "cat": "medications"
+    "cat": "medications",
+    "src": "curated"
   },
   {
     "fa": "ویتامین B12",
     "en": "vitamin B12",
-    "cat": "medications"
+    "cat": "medications",
+    "src": "curated"
   },
   {
     "fa": "ویتامین C",
     "en": "vitamin C",
-    "cat": "medications"
+    "cat": "medications",
+    "src": "curated"
   },
   {
     "fa": "ویتامین D",
     "en": "vitamin D",
-    "cat": "medications"
+    "cat": "medications",
+    "src": "curated"
   },
   {
     "fa": "ویتامین K",
     "en": "vitamin K",
-    "cat": "medications"
+    "cat": "medications",
+    "src": "curated"
   },
   {
     "fa": "ویل‌گلیپتین",
     "en": "vildagliptin",
-    "cat": "medications"
+    "cat": "medications",
+    "src": "curated"
   },
   {
     "fa": "وینکریستین",
     "en": "vincristine",
-    "cat": "medications"
+    "cat": "medications",
+    "src": "curated"
   },
   {
     "fa": "وین‌بلاستین",
     "en": "vinblastine",
-    "cat": "medications"
+    "cat": "medications",
+    "src": "curated"
   },
   {
     "fa": "وین‌ورلبین",
     "en": "vinorelbine",
-    "cat": "medications"
+    "cat": "medications",
+    "src": "curated"
   },
   {
     "fa": "پاروکستین",
     "en": "paroxetine",
-    "cat": "medications"
+    "cat": "medications",
+    "src": "curated"
   },
   {
     "fa": "پالی‌تاکسل",
     "en": "paclitaxel",
-    "cat": "medications"
+    "cat": "medications",
+    "src": "curated"
   },
   {
     "fa": "پانی‌توموماب",
     "en": "panitumumab",
-    "cat": "medications"
+    "cat": "medications",
+    "src": "curated"
   },
   {
     "fa": "پرازیکوانتل",
     "en": "praziquantel",
-    "cat": "medications"
+    "cat": "medications",
+    "src": "curated"
   },
   {
     "fa": "پراسوگرل",
     "en": "prasugrel",
-    "cat": "medications"
+    "cat": "medications",
+    "src": "curated"
   },
   {
     "fa": "پراوواستاتین",
     "en": "pravastatin",
-    "cat": "medications"
+    "cat": "medications",
+    "src": "curated"
   },
   {
     "fa": "پردنیزولون",
     "en": "prednisolone",
-    "cat": "medications"
+    "cat": "medications",
+    "src": "curated"
   },
   {
     "fa": "پردنیزون",
     "en": "prednisone",
-    "cat": "medications"
+    "cat": "medications",
+    "src": "curated"
   },
   {
     "fa": "پروتامین",
     "en": "protamine",
-    "cat": "medications"
+    "cat": "medications",
+    "src": "curated"
   },
   {
     "fa": "پروفوپول",
     "en": "propofol",
-    "cat": "medications"
+    "cat": "medications",
+    "src": "curated"
   },
   {
     "fa": "پروپرانولول",
     "en": "propranolol",
-    "cat": "medications"
+    "cat": "medications",
+    "src": "curated"
   },
   {
     "fa": "پروپیل‌تیوراسیل",
     "en": "propylthiouracil",
-    "cat": "medications"
+    "cat": "medications",
+    "src": "curated"
   },
   {
     "fa": "پرگابالین",
     "en": "pregabalin",
-    "cat": "medications"
+    "cat": "medications",
+    "src": "curated"
   },
   {
     "fa": "پریندوپرایل",
     "en": "perindopril",
-    "cat": "medications"
+    "cat": "medications",
+    "src": "curated"
   },
   {
     "fa": "پلاسما منجمد تازه",
     "en": "fresh frozen plasma",
-    "cat": "medications"
+    "cat": "medications",
+    "src": "curated"
   },
   {
     "fa": "پمبرولوژوماب",
     "en": "pembrolizumab",
-    "cat": "medications"
+    "cat": "medications",
+    "src": "curated"
   },
   {
     "fa": "پمتریکسد",
     "en": "pemetrexed",
-    "cat": "medications"
+    "cat": "medications",
+    "src": "curated"
   },
   {
     "fa": "پنتوپرازول",
     "en": "pantoprazole",
-    "cat": "medications"
+    "cat": "medications",
+    "src": "curated"
   },
   {
     "fa": "پنی‌سیلین",
     "en": "penicillin",
-    "cat": "medications"
+    "cat": "medications",
+    "src": "curated"
   },
   {
     "fa": "پوساکونازول",
     "en": "posaconazole",
-    "cat": "medications"
+    "cat": "medications",
+    "src": "curated"
   },
   {
     "fa": "پومالیدوماید",
     "en": "pomalidomide",
-    "cat": "medications"
+    "cat": "medications",
+    "src": "curated"
   },
   {
     "fa": "پیاگلیتازون",
     "en": "pioglitazone",
-    "cat": "medications"
+    "cat": "medications",
+    "src": "curated"
   },
   {
     "fa": "پیپراسیلین-تازوباکتام",
     "en": "piperacillin-tazobactam",
-    "cat": "medications"
+    "cat": "medications",
+    "src": "curated"
   },
   {
     "fa": "کاربامازپین",
     "en": "carbamazepine",
-    "cat": "medications"
+    "cat": "medications",
+    "src": "curated"
   },
   {
     "fa": "کاربوبلاتین",
     "en": "carboplatin",
-    "cat": "medications"
+    "cat": "medications",
+    "src": "curated"
   },
   {
     "fa": "کارفلزومیب",
     "en": "carfilzomib",
-    "cat": "medications"
+    "cat": "medications",
+    "src": "curated"
   },
   {
     "fa": "کارودیلول",
     "en": "carvedilol",
-    "cat": "medications"
+    "cat": "medications",
+    "src": "curated"
   },
   {
     "fa": "کاناگلیفلوزین",
     "en": "canagliflozin",
-    "cat": "medications"
+    "cat": "medications",
+    "src": "curated"
   },
   {
     "fa": "کاندسارتان",
     "en": "candesartan",
-    "cat": "medications"
+    "cat": "medications",
+    "src": "curated"
   },
   {
     "fa": "کاپسیتابین",
     "en": "capecitabine",
-    "cat": "medications"
+    "cat": "medications",
+    "src": "curated"
   },
   {
     "fa": "کتامین",
     "en": "ketamine",
-    "cat": "medications"
+    "cat": "medications",
+    "src": "curated"
   },
   {
     "fa": "کتورولاک",
     "en": "ketorolac",
-    "cat": "medications"
+    "cat": "medications",
+    "src": "curated"
   },
   {
     "fa": "کتوکونازول",
     "en": "ketoconazole",
-    "cat": "medications"
+    "cat": "medications",
+    "src": "curated"
   },
   {
     "fa": "کریوپرسیپیتات",
     "en": "cryoprecipitate",
-    "cat": "medications"
+    "cat": "medications",
+    "src": "curated"
   },
   {
     "fa": "کلاداربین",
     "en": "cladribine",
-    "cat": "medications"
+    "cat": "medications",
+    "src": "curated"
   },
   {
     "fa": "کلاریترومایسین",
     "en": "clarithromycin",
-    "cat": "medications"
+    "cat": "medications",
+    "src": "curated"
   },
   {
     "fa": "کلرفنیرامین",
     "en": "chlorpheniramine",
-    "cat": "medications"
+    "cat": "medications",
+    "src": "curated"
   },
   {
     "fa": "کلزستیرامین",
     "en": "cholestyramine",
-    "cat": "medications"
+    "cat": "medications",
+    "src": "curated"
   },
   {
     "fa": "کلسیم",
     "en": "calcium supplement",
-    "cat": "medications"
+    "cat": "medications",
+    "src": "curated"
   },
   {
     "fa": "کلورامبوسیل",
     "en": "chlorambucil",
-    "cat": "medications"
+    "cat": "medications",
+    "src": "curated"
   },
   {
     "fa": "کلومیپرامین",
     "en": "clomipramine",
-    "cat": "medications"
+    "cat": "medications",
+    "src": "curated"
   },
   {
     "fa": "کلونازپام",
     "en": "clonazepam",
-    "cat": "medications"
+    "cat": "medications",
+    "src": "curated"
   },
   {
     "fa": "کلوپیدوگرل",
     "en": "clopidogrel",
-    "cat": "medications"
+    "cat": "medications",
+    "src": "curated"
   },
   {
     "fa": "کلوژاپین",
     "en": "clozapine",
-    "cat": "medications"
+    "cat": "medications",
+    "src": "curated"
   },
   {
     "fa": "کنتسانتره پلاکت",
     "en": "platelet concentrate",
-    "cat": "medications"
+    "cat": "medications",
+    "src": "curated"
   },
   {
     "fa": "کوترلازین",
     "en": "quetiapine",
-    "cat": "medications"
+    "cat": "medications",
+    "src": "curated"
   },
   {
     "fa": "کوتریموکسازول",
     "en": "cotrimoxazole",
-    "cat": "medications"
+    "cat": "medications",
+    "src": "curated"
   },
   {
     "fa": "کودئین",
     "en": "codeine",
-    "cat": "medications"
+    "cat": "medications",
+    "src": "curated"
   },
   {
     "fa": "کورتیکواستروئید",
     "en": "corticosteroid",
-    "cat": "medications"
+    "cat": "medications",
+    "src": "curated"
   },
   {
     "fa": "کولکایسین",
     "en": "colchicine",
-    "cat": "medications"
+    "cat": "medications",
+    "src": "curated"
   },
   {
     "fa": "گاباپنتین",
     "en": "gabapentin",
-    "cat": "medications"
+    "cat": "medications",
+    "src": "curated"
   },
   {
     "fa": "گانسیکلوویر",
     "en": "ganciclovir",
-    "cat": "medications"
+    "cat": "medications",
+    "src": "curated"
   },
   {
     "fa": "گایافنزین",
     "en": "guaifenesin",
-    "cat": "medications"
+    "cat": "medications",
+    "src": "curated"
   },
   {
     "fa": "گلبول قرمز خون‌پاک‌شده",
     "en": "packed red blood cells",
-    "cat": "medications"
+    "cat": "medications",
+    "src": "curated"
   },
   {
     "fa": "گلوکوکورتیکوئید",
     "en": "glucocorticoid",
-    "cat": "medications"
+    "cat": "medications",
+    "src": "curated"
   },
   {
     "fa": "گلی‌بنکلامید",
     "en": "glibenclamide",
-    "cat": "medications"
+    "cat": "medications",
+    "src": "curated"
   },
   {
     "fa": "گلی‌پی‌زید",
     "en": "glipizide",
-    "cat": "medications"
+    "cat": "medications",
+    "src": "curated"
   },
   {
     "fa": "گلی‌کلازید",
     "en": "glimepiride",
-    "cat": "medications"
+    "cat": "medications",
+    "src": "curated"
   }
 ]

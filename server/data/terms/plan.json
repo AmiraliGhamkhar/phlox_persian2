@@ -2,91 +2,109 @@
   {
     "fa": "آموزش بیمار",
     "en": "patient education",
-    "cat": "plan"
+    "cat": "plan",
+    "src": "curated"
   },
   {
     "fa": "ارجاع",
     "en": "referral",
-    "cat": "plan"
+    "cat": "plan",
+    "src": "curated"
   },
   {
     "fa": "استراحت",
     "en": "rest",
-    "cat": "plan"
+    "cat": "plan",
+    "src": "curated"
   },
   {
     "fa": "برنامه درمانی",
     "en": "treatment plan",
-    "cat": "plan"
+    "cat": "plan",
+    "src": "curated"
   },
   {
     "fa": "بستری",
     "en": "hospitalization",
-    "cat": "plan"
+    "cat": "plan",
+    "src": "curated"
   },
   {
     "fa": "بستری شدن",
     "en": "admission",
-    "cat": "plan"
+    "cat": "plan",
+    "src": "curated"
   },
   {
     "fa": "ترخیص",
     "en": "discharge",
-    "cat": "plan"
+    "cat": "plan",
+    "src": "curated"
   },
   {
     "fa": "تغذیه",
     "en": "diet",
-    "cat": "plan"
+    "cat": "plan",
+    "src": "curated"
   },
   {
     "fa": "فعالیت بدنی",
     "en": "physical activity",
-    "cat": "plan"
+    "cat": "plan",
+    "src": "curated"
   },
   {
     "fa": "مراقبت",
     "en": "care",
-    "cat": "plan"
+    "cat": "plan",
+    "src": "curated"
   },
   {
     "fa": "مشاوره",
     "en": "consultation",
-    "cat": "plan"
+    "cat": "plan",
+    "src": "curated"
   },
   {
     "fa": "مصرف دارو",
     "en": "medication use",
-    "cat": "plan"
+    "cat": "plan",
+    "src": "curated"
   },
   {
     "fa": "معاینه",
     "en": "examination",
-    "cat": "plan"
+    "cat": "plan",
+    "src": "curated"
   },
   {
     "fa": "معاینه مجدد",
     "en": "re-examination",
-    "cat": "plan"
+    "cat": "plan",
+    "src": "curated"
   },
   {
     "fa": "نسخه",
     "en": "prescription",
-    "cat": "plan"
+    "cat": "plan",
+    "src": "curated"
   },
   {
     "fa": "ویزیت",
     "en": "visit",
-    "cat": "plan"
+    "cat": "plan",
+    "src": "curated"
   },
   {
     "fa": "پیگیری",
     "en": "follow-up",
-    "cat": "plan"
+    "cat": "plan",
+    "src": "curated"
   },
   {
     "fa": "پیگیری مجدد",
     "en": "follow-up review",
-    "cat": "plan"
+    "cat": "plan",
+    "src": "curated"
   }
 ]

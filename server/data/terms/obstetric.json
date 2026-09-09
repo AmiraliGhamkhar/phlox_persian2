@@ -2,61 +2,73 @@
   {
     "fa": "آزمایش بارداری",
     "en": "pregnancy test",
-    "cat": "obstetric"
+    "cat": "obstetric",
+    "src": "curated"
   },
   {
     "fa": "بارداری",
     "en": "pregnancy",
-    "cat": "obstetric"
+    "cat": "obstetric",
+    "src": "curated"
   },
   {
     "fa": "تولد",
     "en": "birth",
-    "cat": "obstetric"
+    "cat": "obstetric",
+    "src": "curated"
   },
   {
     "fa": "جنین",
     "en": "fetus",
-    "cat": "obstetric"
+    "cat": "obstetric",
+    "src": "curated"
   },
   {
     "fa": "حاملگی",
     "en": "pregnancy",
-    "cat": "obstetric"
+    "cat": "obstetric",
+    "src": "curated"
   },
   {
     "fa": "زایمان",
     "en": "delivery",
-    "cat": "obstetric"
+    "cat": "obstetric",
+    "src": "curated"
   },
   {
     "fa": "سزارین",
     "en": "cesarean section",
-    "cat": "obstetric"
+    "cat": "obstetric",
+    "src": "curated"
   },
   {
     "fa": "سقط",
     "en": "miscarriage",
-    "cat": "obstetric"
+    "cat": "obstetric",
+    "src": "curated"
   },
   {
     "fa": "شیر مادر",
     "en": "breast milk",
-    "cat": "obstetric"
+    "cat": "obstetric",
+    "src": "curated"
   },
   {
     "fa": "شیردهی",
     "en": "breastfeeding",
-    "cat": "obstetric"
+    "cat": "obstetric",
+    "src": "curated"
   },
   {
     "fa": "قاعدگی",
     "en": "menstruation",
-    "cat": "obstetric"
+    "cat": "obstetric",
+    "src": "curated"
   },
   {
     "fa": "نوزاد",
     "en": "newborn",
-    "cat": "obstetric"
+    "cat": "obstetric",
+    "src": "curated"
   }
 ]
