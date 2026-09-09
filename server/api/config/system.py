@@ -5,7 +5,6 @@ from fastapi import APIRouter
 
 from server.utils.providers import (
     resolve_asr_connection,
-    resolve_embedding_connection,
     resolve_llm_connection,
 )
 from server.utils.ssrf import build_guarded_http_client, resolve_validated_target
@@ -60,18 +59,6 @@ def _get_whisper_status_url(config: dict) -> str | None:
     return None
 
 
-def _get_embedding_status_url(config: dict) -> str | None:
-    """Determine the embedding server status check URL."""
-    connection = resolve_embedding_connection(config)
-    if connection["provider"] == "local":
-        from server.utils.allocated_ports import get_embedding_port
-
-        return f"http://127.0.0.1:{get_embedding_port()}/health"
-    if connection["base_url"]:
-        return build_openai_v1_url(connection["base_url"], "models")
-    return None
-
-
 async def _target_is_local_loopback(url: str) -> bool:
     """True when ``url`` resolves only to loopback/private addresses.
 
@@ -93,13 +80,11 @@ async def _target_is_local_loopback(url: str) -> bool:
 
 @router.get("/status")
 async def get_server_status():
-    """Check the status of LLM, Whisper, and embedding servers."""
+    """Check the status of the LLM and speech (ASR) servers."""
     from server.database.config.manager import config_manager
 
     config = config_manager.get_config()
-    # embedding defaults to None: only set to True/False when a distinct local
-    # embedding server exists.
-    status = {"llm": False, "whisper": False, "embedding": None}
+    status = {"llm": False, "whisper": False}
 
     try:
         llm_url = _get_llm_status_url(config)
@@ -149,15 +134,6 @@ async def get_server_status():
                     status["whisper"] = response.status_code in [200, 401, 403]
                 except Exception:
                     logging.debug("Whisper status check failed (service unreachable)")
-
-        embedding_url = _get_embedding_status_url(config)
-        if embedding_url:
-            async with build_guarded_http_client() as client:
-                try:
-                    response = await client.get(embedding_url, timeout=2.0)
-                    status["embedding"] = response.status_code in [200, 401, 403]
-                except Exception:
-                    logging.debug("Embedding status check failed (service unreachable)")
 
         return status
     except Exception as e:

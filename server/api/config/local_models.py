@@ -10,39 +10,30 @@ from fastapi.responses import StreamingResponse
 from server.constants import IS_DOCKER
 from server.utils.llama_models import llama_model_manager
 from server.utils.ssrf import build_guarded_http_client
-from server.utils.whisper_models import whisper_model_manager
 
 router = APIRouter()
 
+logger = logging.getLogger(__name__)
 
-@router.get("/local/whisper/models/downloaded")
-async def get_downloaded_whisper_models():
-    """Get list of downloaded Whisper models."""
-    if IS_DOCKER:
-        raise HTTPException(
-            status_code=400,
-            detail="Local models are only available in Tauri builds",
-        )
 
-    try:
-        models = whisper_model_manager.get_downloaded_models()
-        return {"models": models}
-    except Exception as e:
-        logging.error(f"Error getting downloaded Whisper models: {e}")
-        raise HTTPException(
-            status_code=500, detail="Failed to get downloaded Whisper models"
-        ) from e
+def _restart_llm_server_background() -> None:
+    """Restart the local LLM server without blocking the HTTP response."""
+    import threading
+
+    def _run() -> None:
+        try:
+            from server.utils.local_servers import restart_llm_server
+
+            restart_llm_server()
+        except Exception:
+            logger.debug("Background LLM restart skipped", exc_info=True)
+
+    threading.Thread(target=_run, name="llm-restart", daemon=True).start()
 
 
 @router.get("/local/models/available")
 async def get_available_llm_models():
     """Get list of available pre-configured LLM models."""
-    if IS_DOCKER:
-        raise HTTPException(
-            status_code=400,
-            detail="Local models are only available in Tauri builds",
-        )
-
     try:
         models = llama_model_manager.get_available_models()
         return {"models": models}
@@ -54,12 +45,6 @@ async def get_available_llm_models():
 @router.get("/local/models")
 async def get_downloaded_llm_models():
     """Get list of downloaded local models."""
-    if IS_DOCKER:
-        raise HTTPException(
-            status_code=400,
-            detail="Local models are only available in Tauri builds",
-        )
-
     try:
         models = llama_model_manager.get_downloaded_models()
         return {"models": models}
@@ -76,12 +61,6 @@ async def download_llm_model(
 
     model_id must be a pre-configured model ID like "qwen3.5-4b".
     """
-    if IS_DOCKER:
-        raise HTTPException(
-            status_code=400,
-            detail="Local models are only available in Tauri builds",
-        )
-
     model_id = request.get("model_id")
     if not model_id:
         raise HTTPException(status_code=422, detail="model_id is required")
@@ -97,6 +76,7 @@ async def download_llm_model(
         from server.utils.local_autoconfig import activate_downloaded_llm
 
         activate_downloaded_llm(model_id)
+        _restart_llm_server_background()
 
         return {
             "message": "Model downloaded successfully",
@@ -120,12 +100,6 @@ async def download_llm_model_stream(model_id: str):
 
     model_id must be a pre-configured model ID like "qwen3.5-4b".
     """
-    if IS_DOCKER:
-        raise HTTPException(
-            status_code=400,
-            detail="Local models are only available in Tauri builds",
-        )
-
     if not model_id:
         raise HTTPException(status_code=422, detail="model_id is required")
 
@@ -174,6 +148,7 @@ async def download_llm_model_stream(model_id: str):
             from server.utils.local_autoconfig import activate_downloaded_llm
 
             activate_downloaded_llm(model_id)
+            _restart_llm_server_background()
 
             yield f"data: {json.dumps({'type': 'complete', 'path': downloaded_path, 'filename': actual_filename, 'size_mb': file_size_mb, 'auto_configured': True})}\n\n"
 
@@ -189,12 +164,6 @@ async def download_llm_model_stream(model_id: str):
 @router.delete("/local/models/{filename:path}")
 async def delete_llm_model(filename: str):
     """Delete a downloaded local model."""
-    if IS_DOCKER:
-        raise HTTPException(
-            status_code=400,
-            detail="Local models are only available in Tauri builds",
-        )
-
     try:
         success = llama_model_manager.delete_model(filename)
         if success:
@@ -210,18 +179,7 @@ async def delete_llm_model(filename: str):
 
 @router.get("/local/status")
 async def get_local_model_status():
-    """Get status using bundled llama-server."""
-    if IS_DOCKER:
-        return {
-            "available": False,
-            "llama_server_running": False,
-            "models": [],
-            "models_count": 0,
-            "selected_model_id": None,
-            "is_docker": True,
-            "reason": "Local models are only available in Tauri builds",
-        }
-
+    """Get status using bundled llama-server (works in desktop and Docker)."""
     models = llama_model_manager.get_downloaded_models()
     selected_model_id = llama_model_manager.get_selected_model_id()
 
@@ -239,25 +197,22 @@ async def get_local_model_status():
     except Exception:
         llama_server_running = False
 
+    from server.utils.local_servers import local_runtime_available
+
     return {
         "available": len(models) > 0,
         "llama_server_running": llama_server_running,
         "models": models,
         "models_count": len(models),
         "selected_model_id": selected_model_id,
-        "is_docker": False,
+        "runtime": local_runtime_available(),
+        "is_docker": IS_DOCKER,
     }
 
 
 @router.get("/local/selected-model")
 async def get_selected_model():
     """Get the currently selected local model ID."""
-    if IS_DOCKER:
-        raise HTTPException(
-            status_code=400,
-            detail="Local models are only available in Tauri builds",
-        )
-
     selected_model_id = llama_model_manager.get_selected_model_id()
     return {
         "selected_model_id": selected_model_id,

@@ -3,15 +3,12 @@ import logging
 from fastapi import APIRouter, Body, HTTPException, Query
 from fastapi.responses import JSONResponse
 
-from server.constants import IS_DOCKER
 from server.database.config.manager import config_manager
 from server.utils.llama_models import llama_model_manager
 from server.utils.providers import (
     ASR_PROVIDERS,
-    EMBEDDING_PROVIDERS,
     LLM_PROVIDERS,
     list_providers,
-    looks_like_embedding_model,
     normalize_provider_id,
 )
 from server.utils.ssrf import build_guarded_http_client
@@ -45,7 +42,7 @@ def _extract_model_ids(data) -> list[str]:
 
 @router.get("/providers")
 def get_providers():
-    """Return the LLM, ASR, and embedding provider catalogs for the settings UI."""
+    """Return the LLM and ASR provider catalogs for the settings UI."""
     return list_providers()
 
 
@@ -84,12 +81,6 @@ async def get_llm_models(
         info = LLM_PROVIDERS.get(provider_id, LLM_PROVIDERS["openai_compatible"])
 
         if provider_id == "local":
-            if IS_DOCKER:
-                return {
-                    "models": [],
-                    "error": "Local models not available in Docker",
-                }
-
             try:
                 models = llama_model_manager.get_downloaded_models()
                 return {"models": [model["name"] for model in models]}
@@ -140,54 +131,6 @@ async def get_llm_models(
         raise
     except Exception as e:
         logging.error(f"Error fetching LLM models: {e}")
-        raise HTTPException(status_code=500, detail="Internal Server Error") from e
-
-
-@router.get("/embedding/models")
-async def get_embedding_models(
-    provider: str = Query(None, description="Embedding provider type"),
-    baseUrl: str = Query(None, description="The base URL for the embedding API"),
-    apiKey: str = Query(None, description="Optional API key"),
-):
-    """List embedding models for the selected provider."""
-    try:
-        provider_id = normalize_provider_id(provider, "embedding")
-        info = EMBEDDING_PROVIDERS.get(provider_id, EMBEDDING_PROVIDERS["openai_compatible"])
-        catalog_defaults = list(info.get("default_models") or [])
-
-        if provider_id == "local":
-            return {"models": catalog_defaults or ["Qwen3-Embedding-0.6B-Q8_0"]}
-
-        effective_url = (baseUrl or info.get("default_base_url") or "").strip()
-        if not effective_url:
-            return {"models": catalog_defaults}
-
-        effective_key = (
-            apiKey
-            or config_manager.get_config().get("EMBEDDING_API_KEY")
-            or config_manager.get_config().get("LLM_API_KEY")
-        )
-        headers = {"Authorization": f"Bearer {effective_key}"} if effective_key else {}
-        models_url = build_openai_v1_url(effective_url, "models")
-        async with build_guarded_http_client(headers=headers) as client:
-            try:
-                response = await client.get(models_url, timeout=5.0)
-                if response.status_code == 200:
-                    model_list = [
-                        model_id
-                        for model_id in _extract_model_ids(response.json())
-                        if looks_like_embedding_model(model_id)
-                    ]
-                    if not model_list:
-                        model_list = catalog_defaults or _extract_model_ids(response.json())
-                    return {"models": model_list}
-            except Exception:
-                return {"models": catalog_defaults}
-        return {"models": catalog_defaults}
-    except HTTPException:
-        raise
-    except Exception as e:
-        logging.error(f"Error fetching embedding models: {e}")
         raise HTTPException(status_code=500, detail="Internal Server Error") from e
 
 

@@ -13,22 +13,31 @@ from fastapi.responses import StreamingResponse
 
 from server.constants import IS_DOCKER
 from server.database.config.manager import config_manager
-from server.utils.asr_models import asr_model_manager
+from server.utils.whisper_models import asr_model_manager
 
 router = APIRouter()
 logger = logging.getLogger(__name__)
+
+
+def _restart_asr_server_background() -> None:
+    """Restart the local ASR server without blocking the HTTP response."""
+    import threading
+
+    def _run() -> None:
+        try:
+            from server.utils.local_servers import restart_asr_server
+
+            restart_asr_server()
+        except Exception:
+            logger.debug("Background ASR restart skipped", exc_info=True)
+
+    threading.Thread(target=_run, name="asr-restart", daemon=True).start()
 
 
 @router.get("/local/asr/models/available")
 @router.get("/local/whisper/models/available")
 async def get_available_whisper_models():
     """Get list of available ASR models for download."""
-    if IS_DOCKER:
-        raise HTTPException(
-            status_code=400,
-            detail="ASR models are only available in Tauri builds",
-        )
-
     models = asr_model_manager.get_available_models()
     return {"models": models}
 
@@ -37,12 +46,6 @@ async def get_available_whisper_models():
 @router.get("/local/whisper/models/downloaded")
 async def get_downloaded_whisper_models():
     """Get list of downloaded ASR models."""
-    if IS_DOCKER:
-        raise HTTPException(
-            status_code=400,
-            detail="ASR models are only available in Tauri builds",
-        )
-
     models = asr_model_manager.get_downloaded_models()
     return {"models": models}
 
@@ -53,17 +56,12 @@ async def download_whisper_model(
     model_id: str = Body(..., embed=True, description="ASR model ID to download"),
 ):
     """Download an ASR model."""
-    if IS_DOCKER:
-        raise HTTPException(
-            status_code=400,
-            detail="ASR models are only available in Tauri builds",
-        )
-
     try:
         path = await asr_model_manager.download_model(model_id)
         from server.utils.local_autoconfig import activate_downloaded_asr
 
         activate_downloaded_asr(model_id)
+        _restart_asr_server_background()
         return {
             "message": "Model downloaded successfully",
             "path": path,
@@ -80,12 +78,6 @@ async def download_whisper_model(
 @router.get("/local/whisper/models/download/stream")
 async def download_whisper_model_stream(model_id: str):
     """Stream ASR model download progress using SSE."""
-    if IS_DOCKER:
-        raise HTTPException(
-            status_code=400,
-            detail="ASR models are only available in Tauri builds",
-        )
-
     if not model_id:
         raise HTTPException(status_code=422, detail="model_id is required")
 
@@ -128,6 +120,7 @@ async def download_whisper_model_stream(model_id: str):
             from server.utils.local_autoconfig import activate_downloaded_asr
 
             activate_downloaded_asr(model_id)
+            _restart_asr_server_background()
             yield f"data: {json.dumps({'type': 'complete', 'path': downloaded_path, 'auto_configured': True})}\n\n"
 
         except ValueError as e:
@@ -145,12 +138,6 @@ async def select_whisper_model(
     model_id: str = Body(..., embed=True, description="Downloaded ASR model ID"),
 ):
     """Select the local ASR model used by the next transcription request."""
-    if IS_DOCKER:
-        raise HTTPException(
-            status_code=400,
-            detail="ASR models are only available in Tauri builds",
-        )
-
     try:
         selected = asr_model_manager.select_model(model_id)
         # Keep the encrypted application configuration and the plaintext
@@ -164,6 +151,7 @@ async def select_whisper_model(
                 "WHISPER_BASE_URL": "",
             }
         )
+        _restart_asr_server_background()
         return {"model": selected}
     except ValueError as error:
         raise HTTPException(status_code=404, detail=str(error)) from error
@@ -173,12 +161,6 @@ async def select_whisper_model(
 @router.delete("/local/whisper/models/{model_id}")
 async def delete_whisper_model(model_id: str):
     """Delete a downloaded ASR model."""
-    if IS_DOCKER:
-        raise HTTPException(
-            status_code=400,
-            detail="ASR models are only available in Tauri builds",
-        )
-
     success = asr_model_manager.delete_model(model_id)
     if not success:
         raise HTTPException(status_code=404, detail="Model not found")
@@ -188,12 +170,8 @@ async def delete_whisper_model(model_id: str):
 @router.get("/local/asr/status")
 @router.get("/local/whisper/status")
 async def get_whisper_status():
-    """Get status of local ASR installation."""
-    if IS_DOCKER:
-        return {
-            "available": False,
-            "reason": "ASR models are only available in Tauri builds",
-        }
+    """Get status of local ASR installation (works in desktop and Docker)."""
+    from server.utils.local_servers import asr_server_running, local_runtime_available
 
     models = asr_model_manager.get_downloaded_models()
     default_exists = asr_model_manager.ensure_default_model_exists()
@@ -204,6 +182,9 @@ async def get_whisper_status():
         "models_count": len(models),
         "default_model_exists": default_exists,
         "models_dir": str(asr_model_manager.models_dir),
+        "server_running": asr_server_running(),
+        "runtime": local_runtime_available(),
+        "is_docker": IS_DOCKER,
     }
 
 

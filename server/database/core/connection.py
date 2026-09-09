@@ -26,10 +26,7 @@ from pathlib import Path
 import sqlcipher3 as sqlite3
 from server.constants import DATA_DIR
 from server.database.core.backup import create_backup
-from server.database.core.initialization import (
-    initialize_templates,
-    set_initial_default_template,
-)
+from server.database.core.initialization import ensure_user_settings_row
 from server.database.core.migrations import run_migrations
 
 # Module-level state for lazy initialization
@@ -142,8 +139,7 @@ class PatientDatabase:
         create_backup(self.db_path, Path(self.db_dir))
         self.connect_to_database()
         run_migrations(self)  # Run migrations first to create tables
-        self.ensure_default_templates()  # Then ensure default templates
-        self.set_initial_default_template()  # Set phlox as default template
+        self.ensure_user_settings()  # Then ensure the settings row exists
 
     def ensure_data_directory(self):
         """Ensure the data directory exists."""
@@ -240,22 +236,13 @@ class PatientDatabase:
             finally:
                 cursor.close()
 
-    def ensure_default_templates(self):
-        """Ensure all default templates exist."""
+    def ensure_user_settings(self):
+        """Ensure the user_settings row exists."""
         try:
             with self.transaction() as cursor:
-                initialize_templates(cursor, self.db)
+                ensure_user_settings_row(cursor, self.db)
         except Exception as e:
-            logging.error(f"Error initializing templates: {e}")
-            raise
-
-    def set_initial_default_template(self):
-        """Set the initial default template to the latest Phlox template."""
-        try:
-            with self.transaction() as cursor:
-                set_initial_default_template(cursor, self.db)
-        except Exception as e:
-            logging.error(f"Error setting initial default template: {e}")
+            logging.error(f"Error ensuring user settings: {e}")
             raise
 
     def close(self):

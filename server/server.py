@@ -23,7 +23,6 @@ from server.constants import (
     ALLOWED_ORIGINS,
     APP_NAME,
     BUILD_DIR,
-    IS_DEMO_MODE,
     IS_DOCKER,
     IS_TESTING,
     PROXY_AUTH_ALLOWED_USERS,
@@ -32,7 +31,6 @@ from server.constants import (
     RATE_LIMIT_ENABLED,
 )
 from server.middleware import (
-    AuditMiddleware,
     HostValidationMiddleware,
     LocalTokenMiddleware,
     ProxyAuthMiddleware,
@@ -83,24 +81,35 @@ async def lifespan(_app: FastAPI):
         "interval",
         minutes=5,
     )
-    # Purge expired audit log rows once per day
-    from server.database.repositories.audit import purge_old_events
 
-    scheduler.add_job(purge_old_events, "interval", hours=24)
+    # Docker has no Rust sidecar: start whichever bundled local servers the
+    # saved config asks for (best-effort, in a thread — model loads are slow
+    # and must not block startup).
+    import threading
 
-    try:
-        from server.mcp.client import ensure_mcp_tools_cache
+    def _autostart_local_servers() -> None:
+        try:
+            from server.utils.local_servers import ensure_configured_local_servers
 
-        await ensure_mcp_tools_cache(force=True)
-    except ImportError:
-        logger.info("MCP extra not installed; skipping tools cache warmup")
-    except Exception:
-        logger.warning("MCP tools cache warmup skipped", exc_info=True)
+            ensure_configured_local_servers()
+        except Exception:
+            logger.debug("Local server autostart skipped", exc_info=True)
+
+    autostart = threading.Thread(
+        target=_autostart_local_servers, name="local-autostart", daemon=True
+    )
+    autostart.start()
 
     yield
 
     # Shutdown
     scheduler.shutdown()
+    try:
+        from server.utils.local_servers import stop_local_servers
+
+        stop_local_servers()
+    except Exception:
+        logger.debug("Local server shutdown skipped", exc_info=True)
 
 
 def initialize_and_get_app():
@@ -112,15 +121,6 @@ def initialize_and_get_app():
     logger.info("Initializing DB and running migrations...")
 
     logger.info("Database initialized")
-
-    if IS_DEMO_MODE:
-        try:
-            from server.demo.demo_db import seed_demo_data_desktop
-
-            seed_demo_data_desktop()
-            logger.info("Demo data seeded (PHLOX_DEMO_MODE).")
-        except Exception as e:  # pragma: no cover - never block startup
-            logger.warning("Demo seeding skipped/failed: %s", e)
 
     app = FastAPI(
         title=APP_NAME,
@@ -197,7 +197,6 @@ def initialize_and_get_app():
         app.add_middleware(RateLimitMiddleware)
         logger.info("Rate limiting enabled")
 
-    app.add_middleware(AuditMiddleware)
     app.add_middleware(TrustedProxyMiddleware)
     # Host/Origin validation (anti DNS-rebinding + anti cross-site form POST)
     app.add_middleware(HostValidationMiddleware)
@@ -205,17 +204,10 @@ def initialize_and_get_app():
     # Cheap early rejection of oversized bodies (runs before auth/rate limits)
     app.add_middleware(RequestBodyLimitMiddleware)
 
-    # Then load API submodules
-    from server.api import (
-        dashboard,
-        letter,
-        patient,
-        templates,
-        transcribe,
-        workspace,
-    )
+    # Then load API submodules (the simplified app serves transcription,
+    # workspace/report, settings, and health only)
+    from server.api import dashboard, transcribe, workspace
     from server.api.config import router as config_router
-    from server.rag.vector_store import VECTOR_STORE_AVAILABLE
 
     # Only create test endpoint in testing environment
     if IS_TESTING and test_database is not None:
@@ -233,41 +225,14 @@ def initialize_and_get_app():
                 ) from e
 
     # Include routers
-    app.include_router(patient.router, prefix="/api/note")
     app.include_router(transcribe.router, prefix="/api/transcribe")
     app.include_router(dashboard.router, prefix="/api/dashboard")
     app.include_router(workspace.router, prefix="/api/workspace")
-
-    # Always register chat router (works without vector store)
-    from server.api import chat
-
-    app.include_router(chat.router, prefix="/api/chat")
-
-    # Conditionally include RAG router (requires sqlite-vec)
-    if VECTOR_STORE_AVAILABLE:
-        from server.api import rag
-
-        app.include_router(rag.router, prefix="/api/rag")
-    else:
-        logger.warning("RAG features disabled - sqlite-vec not available.")
-
     app.include_router(config_router, prefix="/api/config")
-    app.include_router(templates.router, prefix="/api/templates")
-    app.include_router(letter.router, prefix="/api/letter")
 
-    from server.api import audit, pdf_forms
-
-    app.include_router(audit.router, prefix="/api/audit")
-    app.include_router(pdf_forms.router, prefix="/api/pdf-forms")
-
-    # React app routes
-    @app.get("/new-note")
+    # React app routes (specialty picker, workspace, settings)
     @app.get("/settings")
     @app.get("/workspace")
-    @app.get("/rag")
-    @app.get("/clinic-summary")
-    @app.get("/outstanding-jobs")
-    @app.get("/note/{note_id}")
     async def serve_react_app():
         # Desktop / bare-metal dev modes do not serve the SPA from the API
         # (Tauri bundles it, or the Vite dev server serves it). A clean 404
@@ -398,9 +363,8 @@ def start_server_for_desktop():
         http="httptools",
         # Access logs are the only place the full request URL (including any
         # query string) is written, and the desktop shell pipes server stdout
-        # into the on-disk app log. The AuditMiddleware already records every
-        # API request with method/status/duration/IP, so disable access logs
-        # to keep secrets (e.g. handshake auth) out of log files (A09:2025).
+        # into the on-disk app log. Disable access logs to keep secrets
+        # (e.g. handshake auth) out of log files (A09:2025).
         access_log=False,
     )
     server = uvicorn.Server(config)
@@ -413,7 +377,7 @@ def _enforce_docker_network_policy(host: str, *, exposed: bool) -> None:
     The API has no authentication of its own in Docker (LocalTokenMiddleware
     is skipped); the only auth option is the reverse-proxy header. Publishing
     the API beyond loopback while ``PROXY_AUTH_ENABLED`` is off would expose
-    every /api route — including patient data and provider keys — without
+    every /api route — including provider keys and transcripts — without
     credentials. The compose stack declares that intent explicitly via
     ``PHLOX_EXPOSE_PUBLIC=1`` because a container must bind 0.0.0.0 even for
     a loopback-only publish (docker-proxy connects to the bridge IP).
@@ -472,8 +436,7 @@ if __name__ == "__main__":
             ws_ping_interval=None,
             ws_ping_timeout=None,
             # Same secret-in-logs rationale as desktop: uvicorn access logs
-            # include query strings, and the audit middleware already records
-            # the API traffic that matters.
+            # include query strings.
             access_log=False,
         )
         server = uvicorn.Server(config)

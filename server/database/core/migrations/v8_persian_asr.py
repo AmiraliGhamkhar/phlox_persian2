@@ -2,7 +2,6 @@
 
 import json
 
-from server.database.config.defaults.letters import DefaultLetters
 from server.database.config.defaults.prompts import DEFAULT_PROMPTS
 
 
@@ -63,47 +62,7 @@ def migrate(cursor, _db):
             (persian_default, english_default),
         )
 
-    # Migrate the original built-in letter names and instructions only when
-    # they are still untouched. Custom clinician templates are preserved.
-    original_letters = [
-        (
-            "GP Letter",
-            "Write a brief letter to the patient's general practitioner...",
-        ),
-        ("Specialist Referral", "Write a detailed referral letter..."),
-        ("Discharge Summary", "Write a comprehensive discharge summary..."),
-        ("Brief Update", "Write a short update letter..."),
-    ]
-    for (_, persian_name, persian_instructions), (original_name, original_instructions) in zip(
-        DefaultLetters.get_default_letter_templates(), original_letters, strict=True
-    ):
-        cursor.execute(
-            """
-            UPDATE letter_templates
-            SET name = ?, instructions = ?
-            WHERE name = ? AND instructions = ?
-            """,
-            (persian_name, persian_instructions, original_name, original_instructions),
-        )
-
-    dictation_name, dictation_instructions = DefaultLetters.get_dictation_template()
-    original_dictation_instructions = (
-        "I'm going to dictate a letter to you. Please adjust the punctuation "
-        "and wording where required to make it a polished letter; the substance, "
-        "overall structure MUST remain as dictated. Even the wording should be "
-        "largely the same. You are not to rephrase the letter in any substantial way.\n\n"
-        "IMPORTANT: Please adhere to any instructions that may appear in the transcript; "
-        "for example 'remove that' or 'insert a summary of the patients blood results'. "
-        "Execute these instructions instead of transcribing them."
-    )
-    cursor.execute(
-        """
-        UPDATE letter_templates
-        SET name = ?, instructions = ?
-        WHERE name = ? AND instructions = ?
-        """,
-        (dictation_name, dictation_instructions, "Dictation", original_dictation_instructions),
-    )
+    # (Letter-template localization removed: the simplified app has no letters.)
 
     # Localize untouched built-in prompts while preserving edits made in the
     # settings screen. The prefix checks distinguish the original defaults
