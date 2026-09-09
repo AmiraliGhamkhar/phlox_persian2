@@ -34,6 +34,23 @@ from server.transcription.language import (
     speechmatics_medical_domain,
     streaming_asr_language,
 )
+from server.transcription.speechmatics_protocol import (
+    AUDIO_ACK_STALL_SECONDS,
+    AUDIO_QUEUE_MAX_FRAMES,
+    AUDIO_QUEUE_PUT_TIMEOUT_SECONDS,
+    DRAIN_TIMEOUT_SECONDS,
+    FLUSH_TIMEOUT_SECONDS,
+    PUNCTUATION_SENSITIVITY_DEFAULT,
+    START_GRACE_SECONDS,
+    START_TIMEOUT_SECONDS,
+    START_TIMEOUT_WITH_VOCAB_SECONDS,
+    ErrorInfo,
+    LiveSettings,
+    classify_error,
+    dominant_speaker,
+    live_settings,
+    warning_message,
+)
 from server.utils.providers import ASR_PROVIDERS, resolve_asr_connection
 
 logger = logging.getLogger(__name__)
@@ -43,13 +60,116 @@ EmitFn = Callable[[dict[str, Any]], Awaitable[None]]
 SAMPLE_RATE = 16000
 ROLLING_WINDOW_SECONDS = 5.0
 ROLLING_HOP_SECONDS = 1.5
+# The rolling-window adapter only ever re-transcribes the last few seconds, so
+# the buffer it keeps is capped. A long ambient recording would otherwise
+# buffer the whole session in memory (~115 MB/hour at 16 kHz s16le); the
+# complete transcript for that path comes from the batch upload, not from here.
+ROLLING_BUFFER_SECONDS = 120.0
+
+# WebSocket keepalive for the realtime socket. Without pings a half-open TCP
+# connection (dropped Wi-Fi, sleeping laptop) stays "connected" until the
+# service's own one-hour idle timeout, and the clinician just sees a frozen
+# transcript.
+WS_PING_INTERVAL_SECONDS = 20.0
+WS_PING_TIMEOUT_SECONDS = 20.0
+WS_MAX_MESSAGE_BYTES = 4 * 1024 * 1024
 
 # Speechmatics SaaS Realtime endpoints documented for production use. The
 # global host auto-routes to the nearest region; ``eu.rt.speechmatics.com`` /
 # ``us.rt.speechmatics.com`` pin a region. (The SDK's built-in EU2 default is
 # not part of the documented production set and can fail the handshake.)
 SPEECHMATICS_DEFAULT_URL = "wss://global.rt.speechmatics.com/v2"
-SPEECHMATICS_MAX_DELAY_SECONDS = 1.0
+
+# Warnings that mean the live text will not cover the whole recording, so the
+# client must not treat it as authoritative and must still run the batch
+# transcription of the full audio.
+AUTHORITY_ENDING_WARNINGS = frozenset(
+    {"duration_limit_exceeded", "idle_timeout", "session_timeout"}
+)
+
+# SDK exception classes mapped onto the documented error types, so a transport
+# failure is reported with the same vocabulary as an in-band ``Error``.
+_EXCEPTION_ERROR_TYPES = {
+    "authenticationerror": "not_authorised",
+    "configurationerror": "invalid_config",
+    "connectionerror": "transport_error",
+    "transporterror": "transport_error",
+    "audioerror": "invalid_audio_type",
+    "timeouterror": "transport_error",
+}
+
+
+def _exception_error_type(error: BaseException) -> str:
+    """Map an SDK exception onto a documented realtime error type."""
+    return _EXCEPTION_ERROR_TYPES.get(type(error).__name__.lower(), "unknown_error")
+
+
+def _int_or_none(value: Any) -> int | None:
+    """Coerce a message ``code`` field to int, tolerating junk."""
+    try:
+        return int(value)
+    except (TypeError, ValueError):
+        return None
+
+
+def _transcript_text(transcript_result: Any, message: dict) -> str:
+    """Extract the segment transcript, falling back to the raw message."""
+    try:
+        return str(transcript_result.from_message(message).metadata.transcript or "")
+    except (KeyError, TypeError, AttributeError, ValueError):
+        metadata = message.get("metadata")
+        if isinstance(metadata, dict):
+            return str(metadata.get("transcript") or "")
+        return ""
+
+
+def _segment_speaker(transcript_result: Any, message: dict) -> str | None:
+    """Dominant diarization label for a segment (only set when diarizing)."""
+    try:
+        results = transcript_result.from_message(message).results
+    except (KeyError, TypeError, AttributeError, ValueError):
+        return None
+    return dominant_speaker(results)
+
+
+def _speechmatics_connection_config(start_timeout: float) -> Any:
+    """WebSocket tuning for the realtime socket, or ``None`` if unsupported."""
+    try:
+        from speechmatics.rt import ConnectionConfig
+
+        return ConnectionConfig(
+            open_timeout=start_timeout,
+            ping_interval=WS_PING_INTERVAL_SECONDS,
+            ping_timeout=WS_PING_TIMEOUT_SECONDS,
+            max_size=WS_MAX_MESSAGE_BYTES,
+        )
+    except (ImportError, TypeError):  # pragma: no cover - older/other SDK
+        return None
+
+
+def _speechmatics_client(async_client_cls: Any, **kwargs: Any) -> Any:
+    """Build a Realtime client whose start wait honours ``additional_vocab``.
+
+    The service documents that a session using ``additional_vocab`` can take up
+    to 15 seconds to reach ``RecognitionStarted``, but SDK 1.1.1 waits a fixed
+    5 seconds (``_wait_recognition_started``), which makes a large bias
+    vocabulary fail every live session. The subclass only widens that wait and
+    falls back to the vendor behaviour if the SDK internals ever change.
+    """
+    start_timeout = float(kwargs.pop("start_timeout", START_TIMEOUT_SECONDS))
+
+    class _StartBudgetClient(async_client_cls):  # type: ignore[misc,valid-type]
+        async def _wait_recognition_started(self, timeout: float = 5.0) -> None:
+            waiter = getattr(self, "_wait_started_or_session_done", None)
+            started = getattr(self, "_recognition_started_evt", None)
+            if waiter is None or started is None:  # pragma: no cover - SDK drift
+                return await super()._wait_recognition_started(timeout)
+            await waiter(started, max(timeout, start_timeout))
+
+    conn_config = _speechmatics_connection_config(start_timeout)
+    if conn_config is not None and "conn_config" not in kwargs:
+        kwargs["conn_config"] = conn_config
+    return _StartBudgetClient(**kwargs)
 
 
 def speechmatics_rt_url(config: dict[str, Any]) -> str:
@@ -93,30 +213,56 @@ class LiveSession:
     async def feed_pcm(self, pcm: bytes) -> None:
         raise NotImplementedError
 
+    async def flush(self) -> None:
+        """Finalize any pending utterance without ending the session."""
+        return None
+
     async def stop(self) -> str:
         return ""
 
 
 class SpeechmaticsLiveSession(LiveSession):
-    """Speechmatics Realtime with partial transcripts enabled."""
+    """Speechmatics Realtime with partial transcripts enabled.
+
+    The adapter speaks the documented Realtime protocol end to end: it
+    registers handlers for every server message the service can send
+    (``Error``, ``Warning``, ``Info``, ``EndOfUtterance``, ``EndOfTranscript``,
+    ``AudioAdded`` as well as the transcript messages), turns them into typed
+    client frames, and fails fast — a dead realtime session must never look
+    like a working one, because the caller uses that signal to decide whether
+    the full recording still needs a batch transcription.
+    """
 
     def __init__(self, config: dict[str, Any], emit: EmitFn):
         self.config = config
         self.emit = emit
-        self._pcm = bytearray()
+        self.settings: LiveSettings = live_settings(config)
         self._finals: list[str] = []
         self._partial = ""
         self._client = None
         self._task: asyncio.Task | None = None
         self._pump_task: asyncio.Task | None = None
-        self._queue: asyncio.Queue[bytes | None] = asyncio.Queue()
+        # Bounded on purpose: the service documents that it may read audio
+        # slower than the client sends it. An unbounded queue would turn that
+        # backpressure into unbounded memory growth; a bounded one makes it
+        # observable and, past a deadline, fatal (see feed_pcm).
+        self._queue: asyncio.Queue[bytes | None] = asyncio.Queue(maxsize=AUDIO_QUEUE_MAX_FRAMES)
         # Transcript events arrive as SDK callbacks; they are routed through
-        # this queue and processed by a single pump task so partials and
-        # finals are emitted in arrival order (unreferenced create_task
+        # this queue and processed by a single pump task so partials, finals
+        # and errors are emitted in arrival order (unreferenced create_task
         # calls can be garbage-collected and reorder).
         self._events: asyncio.Queue = asyncio.Queue()
         self._started = asyncio.Event()
-        self._last_error: str | None = None
+        self._failure: ErrorInfo | None = None
+        self._stopping = False
+        self._frames_sent = 0
+        self._frames_acked = 0
+        self._last_ack = 0.0
+
+    @property
+    def failed(self) -> bool:
+        """Whether the realtime session terminated abnormally."""
+        return self._failure is not None
 
     async def start(self) -> None:
         try:
@@ -124,8 +270,10 @@ class SpeechmaticsLiveSession(LiveSession):
                 AsyncClient,
                 AudioEncoding,
                 AudioFormat,
+                ConversationConfig,
                 Model,
                 ServerMessageType,
+                SpeakerDiarizationConfig,
                 TranscriptionConfig,
                 TranscriptResult,
             )
@@ -155,17 +303,43 @@ class SpeechmaticsLiveSession(LiveSession):
             )
         model = Model.STANDARD if model_name == "standard" else Model.ENHANCED
 
-        client = AsyncClient(api_key=api_key, url=speechmatics_rt_url(self.config))
+        # Context biasing for live sessions too (plan ref A2): the clinic
+        # lexicon and clinician identity. Fail-open — a vocabulary problem must
+        # never kill the microphone path.
+        additional_vocab = None
+        try:
+            from server.transcription.asr_context import (
+                build_additional_vocab,
+                build_bias_terms,
+            )
+
+            additional_vocab = build_additional_vocab(build_bias_terms(config=self.config))
+        except Exception:  # pragma: no cover - defensive
+            logger.debug("Live ASR bias vocabulary failed; continuing unbiased", exc_info=True)
+
+        # additional_vocab is documented to add up to ~15 s before the session
+        # starts, while the SDK waits only 5 s for RecognitionStarted. Size the
+        # start budget to what we actually send.
+        start_timeout = (
+            START_TIMEOUT_WITH_VOCAB_SECONDS if additional_vocab else START_TIMEOUT_SECONDS
+        )
+        client = _speechmatics_client(
+            AsyncClient,
+            api_key=api_key,
+            url=speechmatics_rt_url(self.config),
+            start_timeout=start_timeout,
+        )
         self._client = client
+        self._last_ack = time.monotonic()
 
-        # The SDK may deliver callbacks synchronously from its own loop, so
-        # they are queued and processed by one pump task (ordered emit, no
+        # The SDK delivers callbacks synchronously from its own receive loop,
+        # so they are queued and processed by one pump task (ordered emit, no
         # floating tasks).
-        def on_partial(message: dict) -> None:
-            self._events.put_nowait(("partial", message))
+        def _queue_event(kind: str) -> Callable[[dict], None]:
+            def handler(message: dict) -> None:
+                self._events.put_nowait((kind, message))
 
-        def on_final(message: dict) -> None:
-            self._events.put_nowait(("final", message))
+            return handler
 
         def on_started(_message: dict) -> None:
             self._started.set()
@@ -175,25 +349,50 @@ class SpeechmaticsLiveSession(LiveSession):
                 kind, message = await self._events.get()
                 if message is None:
                     return
-                try:
-                    result = TranscriptResult.from_message(message)
-                    text = result.metadata.transcript
-                except (KeyError, TypeError, AttributeError):
-                    text = ""
-                if not text:
-                    continue
                 if kind == "partial":
-                    self._partial = text
-                    await self.emit({"type": "partial", "text": _compose(self._finals, text)})
-                else:
-                    self._finals.append(text)
-                    self._partial = ""
-                    await self.emit({"type": "final", "text": _compose(self._finals, "")})
+                    text = _transcript_text(TranscriptResult, message)
+                    if text:
+                        self._partial = text
+                        await self._emit({"type": "partial", "text": _compose(self._finals, text)})
+                elif kind == "final":
+                    text = _transcript_text(TranscriptResult, message)
+                    if text:
+                        self._finals.append(text)
+                        self._partial = ""
+                        event: dict[str, Any] = {
+                            "type": "final",
+                            "text": _compose(self._finals, ""),
+                        }
+                        speaker = _segment_speaker(TranscriptResult, message)
+                        if speaker:
+                            event["speaker"] = speaker
+                        if message.get("forced"):
+                            event["forced"] = True
+                        await self._emit(event)
+                elif kind == "error":
+                    await self._handle_error_message(message)
+                    return
+                elif kind == "warning":
+                    await self._handle_warning(message)
+                elif kind == "info":
+                    await self._handle_info(message)
+                elif kind == "utterance_end":
+                    await self._handle_utterance_end(message)
+                elif kind == "end_of_transcript":
+                    await self._emit({"type": "done"})
 
-        partial_event = ServerMessageType.ADD_PARTIAL_TRANSCRIPT
-        client.on(partial_event, on_partial)
-        client.on(ServerMessageType.ADD_TRANSCRIPT, on_final)
+        client.on(ServerMessageType.ADD_PARTIAL_TRANSCRIPT, _queue_event("partial"))
+        client.on(ServerMessageType.ADD_TRANSCRIPT, _queue_event("final"))
         client.on(ServerMessageType.RECOGNITION_STARTED, on_started)
+        # Without these the service's own diagnostics never leave the SDK log:
+        # quota_exceeded, timelimit_exceeded, idle/session timeouts and the
+        # duration-limit warning would surface only as silence.
+        client.on(ServerMessageType.ERROR, _queue_event("error"))
+        client.on(ServerMessageType.WARNING, _queue_event("warning"))
+        client.on(ServerMessageType.INFO, _queue_event("info"))
+        client.on(ServerMessageType.END_OF_UTTERANCE, _queue_event("utterance_end"))
+        client.on(ServerMessageType.END_OF_TRANSCRIPT, _queue_event("end_of_transcript"))
+        client.on(ServerMessageType.AUDIO_ADDED, self._note_audio_ack)
 
         async def _run() -> None:
             class _QueueAudio:
@@ -207,30 +406,40 @@ class SpeechmaticsLiveSession(LiveSession):
                     return chunk
 
             try:
-                # Context biasing for live sessions too (plan ref A2): the
-                # clinic lexicon and clinician identity. Fail-open — a
-                # vocabulary problem must never kill the microphone path.
-                additional_vocab = None
-                try:
-                    from server.transcription.asr_context import (
-                        build_additional_vocab,
-                        build_bias_terms,
-                    )
-
-                    additional_vocab = build_additional_vocab(build_bias_terms(config=self.config))
-                except Exception:  # pragma: no cover - defensive
-                    logger.debug("Live ASR bias vocabulary failed; continuing unbiased", True)
-                transcription_kwargs: dict = {
+                transcription_kwargs: dict[str, Any] = {
                     "language": speechmatics_language,
                     "model": model,
                     "enable_partials": True,
-                    "max_delay": SPEECHMATICS_MAX_DELAY_SECONDS,
+                    "max_delay": self.settings.max_delay,
+                    "max_delay_mode": self.settings.max_delay_mode,
                     "domain": speechmatics_medical_domain(model_name, speechmatics_language),
                 }
+                # Only send the knobs that differ from the documented defaults:
+                # an unnecessary field is an unnecessary invalid_config risk.
+                if self.settings.punctuation_sensitivity != PUNCTUATION_SENSITIVITY_DEFAULT:
+                    transcription_kwargs["punctuation_overrides"] = {
+                        "sensitivity": self.settings.punctuation_sensitivity
+                    }
+                if self.settings.remove_disfluencies:
+                    transcription_kwargs["transcript_filtering_config"] = {
+                        "remove_disfluencies": True
+                    }
+                if self.settings.turn_detection_enabled:
+                    transcription_kwargs["conversation_config"] = ConversationConfig(
+                        end_of_utterance_silence_trigger=self.settings.end_of_utterance_trigger
+                    )
+                if self.settings.diarization:
+                    transcription_kwargs["diarization"] = "speaker"
+                    transcription_kwargs["speaker_diarization_config"] = SpeakerDiarizationConfig(
+                        max_speakers=self.settings.max_speakers,
+                        prefer_current_speaker=True,
+                    )
                 if additional_vocab:
                     transcription_kwargs["additional_vocab"] = additional_vocab
+                # The SDK types `source` as BinaryIO but accepts any object
+                # with a (possibly async) read(); the queue reader is one.
                 await client.transcribe(
-                    _QueueAudio(self._queue),  # ty: ignore (SDK types `source` as BinaryIO but accepts any binary read()-able object, incl. async reads)
+                    _QueueAudio(self._queue),
                     transcription_config=TranscriptionConfig(**transcription_kwargs),
                     audio_format=AudioFormat(
                         encoding=AudioEncoding.PCM_S16LE,
@@ -240,9 +449,12 @@ class SpeechmaticsLiveSession(LiveSession):
                     timeout=None,
                 )
             except Exception as error:
+                # Fail fast and say why: the caller falls back to batch
+                # transcription of the full recording.
                 logger.error("Speechmatics live session failed: %s", error)
-                self._last_error = str(error)
-                await self.emit({"type": "error", "message": str(error)})
+                await self._fail(
+                    classify_error(_exception_error_type(error), str(error)),
+                )
 
         self._pump_task = asyncio.create_task(_pump_events())
         self._task = asyncio.create_task(_run())
@@ -255,7 +467,7 @@ class SpeechmaticsLiveSession(LiveSession):
         try:
             done, _ = await asyncio.wait(
                 {started_wait, self._task},
-                timeout=15.0,
+                timeout=start_timeout + START_GRACE_SECONDS,
                 return_when=asyncio.FIRST_COMPLETED,
             )
         finally:
@@ -263,36 +475,199 @@ class SpeechmaticsLiveSession(LiveSession):
                 started_wait.cancel()
         if self._started.is_set():
             return
-        if self._task.done() and self._last_error:
-            raise ValueError(f"Speechmatics live session failed: {self._last_error}")
+        if self._failure is not None:
+            raise ValueError(f"Speechmatics live session failed: {self._failure.message}")
+        if self._task.done():
+            failure = classify_error("unknown_error", "session ended before it started")
+            await self._fail(failure)
+            raise ValueError(f"Speechmatics live session failed: {failure.message}")
         raise ValueError(
-            "Speechmatics live session did not start within 15 seconds; "
+            f"Speechmatics live session did not start within "
+            f"{start_timeout + START_GRACE_SECONDS:.0f} seconds; "
             "check the API key, the region endpoint (ASR_BASE_URL), and account quotas"
         )
 
+    def _note_audio_ack(self, message: dict) -> None:
+        """Track AudioAdded acknowledgements (the service's flow control)."""
+        self._last_ack = time.monotonic()
+        self._frames_acked = int(message.get("seq_no") or 0)
+
     async def feed_pcm(self, pcm: bytes) -> None:
-        self._pcm.extend(pcm)
-        await self._queue.put(pcm)
+        if not pcm or self._failure is not None or self._stopping:
+            return
+        now = time.monotonic()
+        if now - self._last_ack > AUDIO_ACK_STALL_SECONDS:
+            await self._fail(
+                classify_error(
+                    "audio_stalled",
+                    f"no AudioAdded acknowledgement for {int(now - self._last_ack)}s",
+                )
+            )
+            return
+        self._frames_sent += 1
+        try:
+            self._queue.put_nowait(pcm)
+            return
+        except asyncio.QueueFull:
+            pass
+        # The engine is behind. Wait for it to catch up, but not forever: a
+        # queue that stays full means audio would be lost either way, and a
+        # failed session lets the caller re-transcribe the full recording.
+        try:
+            await asyncio.wait_for(self._queue.put(pcm), timeout=AUDIO_QUEUE_PUT_TIMEOUT_SECONDS)
+        except TimeoutError:
+            await self._fail(
+                classify_error(
+                    "audio_stalled",
+                    f"audio queue stayed full for {int(AUDIO_QUEUE_PUT_TIMEOUT_SECONDS)}s",
+                )
+            )
+
+    async def flush(self) -> None:
+        """Finalize the pending utterance without ending the session.
+
+        Sent when the clinician pauses recording, so the transcript on screen
+        is not left mid-sentence for the length of the pause.
+        """
+        await self._flush_utterance()
+
+    async def _flush_utterance(self) -> None:
+        if self._client is None or self._failure is not None or not self._started.is_set():
+            return
+        flush = getattr(self._client, "force_end_of_utterance", None)
+        if flush is None:
+            return
+        try:
+            await asyncio.wait_for(flush(), timeout=FLUSH_TIMEOUT_SECONDS)
+        except Exception:
+            # ForceEndOfUtterance is an optimization; EndOfStream still flushes.
+            logger.debug("ForceEndOfUtterance failed; EndOfStream will flush", exc_info=True)
+
+    async def _handle_error_message(self, message: dict) -> None:
+        await self._fail(
+            classify_error(
+                str(message.get("type") or ""),
+                str(message.get("reason") or ""),
+                _int_or_none(message.get("code")),
+            )
+        )
+
+    async def _handle_warning(self, message: dict) -> None:
+        warning_type = str(message.get("type") or "")
+        reason = str(message.get("reason") or "")
+        logger.warning("Speechmatics live warning: %s (%s)", warning_type, reason)
+        event: dict[str, Any] = {
+            "type": "warning",
+            "warning_type": warning_type,
+            "message": warning_message(warning_type, reason),
+        }
+        # These warnings mean the session is ending early or is about to be
+        # killed, so the live text will not cover the whole recording: the
+        # caller must still run the batch transcription.
+        if warning_type in AUTHORITY_ENDING_WARNINGS:
+            event["authoritative"] = False
+        await self._emit(event)
+
+    async def _handle_info(self, message: dict) -> None:
+        info_type = str(message.get("type") or "")
+        event: dict[str, Any] = {"type": "info", "info_type": info_type}
+        for key in ("quality", "usage", "quota", "region", "last_updated", "reason"):
+            if message.get(key) is not None:
+                event[key] = message[key]
+        logger.info(
+            "Speechmatics live info: %s (quality=%s usage=%s/%s region=%s)",
+            info_type,
+            message.get("quality"),
+            message.get("usage"),
+            message.get("quota"),
+            message.get("region"),
+        )
+        await self._emit(event)
+
+    async def _handle_utterance_end(self, message: dict) -> None:
+        await self._emit(
+            {
+                "type": "utterance_end",
+                "forced": bool(message.get("forced")),
+                "end_time": (message.get("metadata") or {}).get("end_time"),
+            }
+        )
+
+    async def _fail(self, info: ErrorInfo) -> None:
+        """Record a fatal failure and tell the client exactly what happened."""
+        if self._failure is not None:
+            return
+        self._failure = info
+        logger.error(
+            "Speechmatics live session failed: %s (type=%s code=%s)",
+            info.message,
+            info.error_type,
+            info.code,
+        )
+        await self._emit(
+            {
+                "type": "error",
+                "error_type": info.error_type,
+                "code": info.code,
+                "message": info.message,
+                "fatal": True,
+                "retryable": info.retryable,
+                # The live text is no longer a complete transcript, so the
+                # caller must fall back to batch transcription.
+                "authoritative": False,
+            }
+        )
+
+    async def _emit(self, event: dict[str, Any]) -> None:
+        try:
+            await self.emit(event)
+        except Exception:
+            # A broken client socket must not take the session down: the
+            # transcript is still returned by stop().
+            logger.debug("Live event emit failed", exc_info=True)
 
     async def stop(self) -> str:
-        await self._queue.put(None)
-        if self._task:
+        if self._stopping:
+            return normalize_persian_text(_compose(self._finals, self._partial))
+        self._stopping = True
+        # Finalize the trailing utterance before EndOfStream so the last
+        # partial becomes a final instead of being dropped.
+        await self._flush_utterance()
+        try:
+            self._queue.put_nowait(None)
+        except asyncio.QueueFull:
+            # A stalled consumer would otherwise block here forever, inside the
+            # request handler's finally block.
+            with contextlib.suppress(asyncio.QueueEmpty):
+                self._queue.get_nowait()
+            with contextlib.suppress(asyncio.QueueFull):
+                self._queue.put_nowait(None)
+        if self._task and not self._task.done():
+            drain_timeout = FLUSH_TIMEOUT_SECONDS if self._failure else DRAIN_TIMEOUT_SECONDS
             try:
-                await asyncio.wait_for(self._task, timeout=15)
+                await asyncio.wait_for(self._task, timeout=drain_timeout)
             except TimeoutError:
                 self._task.cancel()
+            except asyncio.CancelledError:
+                # Awaiting an already-cancelled task re-raises CancelledError.
+                # Swallow only that case; a cancellation of *this* coroutine
+                # (client disconnect, server shutdown) must keep propagating.
+                if not self._task.cancelled():
+                    raise
         if self._client is not None:
-            try:
-                await self._client.close()
-            except Exception:
-                logger.debug("Speechmatics live client close failed", exc_info=True)
+            close = getattr(self._client, "close", None)
+            if close is not None:
+                try:
+                    await asyncio.wait_for(close(), timeout=FLUSH_TIMEOUT_SECONDS)
+                except Exception:
+                    logger.debug("Speechmatics live client close failed", exc_info=True)
         # Drain the transcript queue: stop() is called by the caller to flush
         # trailing finals, so let the pump deliver queued events before it
         # exits.
         if self._pump_task:
             self._events.put_nowait(("final", None))
             try:
-                await asyncio.wait_for(self._pump_task, timeout=15)
+                await asyncio.wait_for(self._pump_task, timeout=DRAIN_TIMEOUT_SECONDS)
             except TimeoutError:
                 self._pump_task.cancel()
         return normalize_persian_text(_compose(self._finals, self._partial))
@@ -314,7 +689,8 @@ class AssemblyAILiveSession(LiveSession):
     def __init__(self, config: dict[str, Any], emit: EmitFn):
         self.config = config
         self.emit = emit
-        self._pcm = bytearray()
+        # No PCM is buffered here: the audio is forwarded to the service as it
+        # arrives, and keeping a copy would grow without bound over a session.
         self._finals: list[str] = []
         self._partial = ""
         self._ws = None
@@ -396,7 +772,6 @@ class AssemblyAILiveSession(LiveSession):
             return
 
     async def feed_pcm(self, pcm: bytes) -> None:
-        self._pcm.extend(pcm)
         if self._ws is not None:
             await self._ws.send(pcm)
 
@@ -429,7 +804,7 @@ class FireworksLiveSession(LiveSession):
     def __init__(self, config: dict[str, Any], emit: EmitFn):
         self.config = config
         self.emit = emit
-        self._pcm = bytearray()
+        # No PCM is buffered here (see AssemblyAILiveSession).
         self._finals: list[str] = []
         self._final_segments: dict[int, str] = {}
         self._partial = ""
@@ -548,7 +923,6 @@ class FireworksLiveSession(LiveSession):
             await self.emit({"type": "partial", "text": _compose(self._finals, text)})
 
     async def feed_pcm(self, pcm: bytes) -> None:
-        self._pcm.extend(pcm)
         if self._ws is not None:
             await self._ws.send(pcm)
 
@@ -592,6 +966,11 @@ class RollingWindowLiveSession(LiveSession):
         now = time.monotonic()
         window_bytes = int(ROLLING_WINDOW_SECONDS * SAMPLE_RATE * 2)
         hop_bytes = int(ROLLING_HOP_SECONDS * SAMPLE_RATE * 2)
+        cap_bytes = int(ROLLING_BUFFER_SECONDS * SAMPLE_RATE * 2)
+        if len(self._pcm) > cap_bytes:
+            # Only the tail is ever transcribed; keep a bounded window instead
+            # of the whole recording (~115 MB/hour at 16 kHz s16le).
+            del self._pcm[:-cap_bytes]
         if len(self._pcm) < hop_bytes:
             return
         if now - self._last_emit < ROLLING_HOP_SECONDS or self._busy:

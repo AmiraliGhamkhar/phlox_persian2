@@ -71,9 +71,22 @@ async def live_transcribe(websocket: WebSocket):
 
     Client frames:
     - binary: 16-bit little-endian mono PCM at 16 kHz
+    - text JSON ``{"type": "flush"}`` to finalize the pending utterance
     - text JSON ``{"type": "stop"}`` to finish
+
     Server frames (JSON text):
-    - ``{"type": "partial"|"final"|"error"|"ready", "text"?: str, "message"?: str}``
+    - ``{"type": "ready", "authoritative": bool, "features": {...}}``
+    - ``{"type": "partial"|"final", "text": str, "speaker"?: str, "forced"?: bool}``
+    - ``{"type": "utterance_end", "forced": bool}``
+    - ``{"type": "info", "info_type": str, ...}``
+    - ``{"type": "warning", "warning_type": str, "message": str, "authoritative"?: bool}``
+    - ``{"type": "error", "error_type": str, "message": str, "fatal": true,
+       "retryable": bool, "authoritative": false}``
+    - ``{"type": "done"}`` when the engine finished the transcript
+
+    ``authoritative: false`` (on ``error``/``warning``) tells the client that the
+    live text no longer covers the whole recording, so the full audio must still
+    be batch-transcribed instead of being replaced by the partial live text.
     """
     if not _authorize_live_socket(websocket):
         await websocket.close(code=4401)
@@ -102,7 +115,11 @@ async def live_transcribe(websocket: WebSocket):
     session = create_live_session(config, emit)
     try:
         await session.start()
-        await emit({"type": "ready", "authoritative": live_is_authoritative(config)})
+        ready: dict = {"type": "ready", "authoritative": live_is_authoritative(config)}
+        settings = getattr(session, "settings", None)
+        if settings is not None:
+            ready["features"] = settings.as_features()
+        await emit(ready)
         while True:
             message = await websocket.receive()
             if message.get("type") == "websocket.disconnect":
@@ -120,6 +137,11 @@ async def live_transcribe(websocket: WebSocket):
                 continue
             if payload.get("type") == "stop":
                 break
+            if payload.get("type") == "flush":
+                # Finalize the pending utterance (sent when the clinician
+                # pauses) without ending the session.
+                await session.flush()
+                continue
     except WebSocketDisconnect:
         logging.debug("Live transcription client disconnected")
     except Exception as error:
