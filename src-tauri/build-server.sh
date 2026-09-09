@@ -86,7 +86,7 @@ echo "Compiling with Nuitka (this may take a while on first run)..."
 
 cd "$PROJECT_DIR"
 
-uv sync --locked --extra rag --extra asr --directory "$SERVER_DIR"
+uv sync --locked --extra asr --directory "$SERVER_DIR"
 
 # Use .venv python if available (local dev), otherwise fall back to uv run (CI)
 if [ -f "$SERVER_DIR/.venv/bin/python" ]; then
@@ -94,11 +94,8 @@ if [ -f "$SERVER_DIR/.venv/bin/python" ]; then
     NUITKA_CMD="$PYTHON -m nuitka"
 else
     echo "No .venv found, using uv run for Nuitka..."
-    NUITKA_CMD="uv run --locked --extra rag --extra asr --directory $SERVER_DIR python -m nuitka"
+    NUITKA_CMD="uv run --locked --extra asr --directory $SERVER_DIR python -m nuitka"
 fi
-
-SQLITE_VEC_DIR="$("$PYTHON" -c 'import sqlite_vec, os; print(os.path.dirname(sqlite_vec.__file__))' 2>/dev/null)"
-VEC0_NAME="$(ls "$SQLITE_VEC_DIR"/vec0.* 2>/dev/null | head -1)"
 
 # Detect number of CPU cores for parallel C compilation
 if [[ "$OSTYPE" == "darwin"* ]]; then
@@ -117,13 +114,7 @@ $NUITKA_CMD \
     $([[ "$OSTYPE" == "darwin"* ]] && echo "--macos-target-arch=$ARCH") \
     --include-package=server \
     --include-module=sqlcipher3 \
-    --include-package=sqlite_vec \
-    $([[ "$OSTYPE" != "linux-gnu"* ]] && echo "--include-data-files=$VEC0_NAME=sqlite_vec/$(basename "$VEC0_NAME")") \
-    --include-data-files="$PROJECT_DIR/server/demo/example_patients.json=server/demo/example_patients.json" \
-    --include-package=pypdf \
-    --include-package=mcp \
     --nofollow-import-to=server.tests \
-    --nofollow-import-to=server.database.testing \
     server/server.py
 
 # Check if the build was successful

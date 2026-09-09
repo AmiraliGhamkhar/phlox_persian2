@@ -1,5 +1,5 @@
 import asyncio
-import logging
+import logging  # noqa: F401 - kept for future config logging parity
 
 from fastapi import APIRouter, Body, HTTPException
 from fastapi.responses import JSONResponse
@@ -16,16 +16,14 @@ SENSITIVE_KEYS = {
     "WHISPER_BATCH_KEY",
     "ASR_KEY",
     "ASR_BATCH_KEY",
-    "EMBEDDING_API_KEY",
 }
 MASK_BULLET = "•"
 
 # Keys a client may write through POST /api/config/global. Anything else is
 # rejected (API3:2023 mass assignment): unknown keys must not be able to seed
 # arbitrary configuration (provider URLs, keys, internal toggles). This is the
-# union of the config-table seeds (migrations v1/v2/v3/v5/v7/v10) and the
-# keys the settings UI / server read path actually consume
-# (server/chat/config, transcription/audio.py, api/config/system.py).
+# union of the config-table seeds and the keys the simplified app (workspace
+# report, transcription, settings UI) actually consumes.
 ALLOWED_CONFIG_KEYS = {
     # LLM
     "LLM_PROVIDER",
@@ -34,14 +32,7 @@ ALLOWED_CONFIG_KEYS = {
     "PRIMARY_MODEL",
     "SECONDARY_MODEL",
     "REASONING_MODEL",
-    "REASONING_ENABLED",
-    "DAILY_SUMMARY",
-    # Embeddings
-    "EMBEDDING_PROVIDER",
-    "EMBEDDING_BASE_URL",
-    "EMBEDDING_API_KEY",
-    "EMBEDDING_MODEL",
-    # ASR / Whisper (canonical ASR_* + legacy WHISPER_* compat + batch keys)
+    # ASR (canonical ASR_* + legacy WHISPER_* compat + batch keys)
     "ASR_PROVIDER",
     "ASR_BASE_URL",
     "ASR_MODEL",
@@ -55,32 +46,16 @@ ALLOWED_CONFIG_KEYS = {
     "WHISPER_LANGUAGE",
     "WHISPER_BATCH_URL",
     "WHISPER_BATCH_KEY",
-    # Runtime/server-managed keys that round-trip through the settings UI
-    # (GET returns them, autosave POSTs them back unchanged; the server
-    # ignores writes to the VISION_* probe cache).
-    "AUDIT_RETENTION_DAYS",
-    "DOCUMENT_IMAGE_PROCESSING_MODE",
-    "VISION_CAPABILITY_CACHE",
-    "VISION_CAPABILITY_CACHE_KEY",
-    "VISION_MODEL_CAPABLE",
 }
 
 # Base-URL keys the server fetches from; every non-empty value must pass the
 # SSRF guard before it is stored (the guarded client re-checks per request).
 URL_CONFIG_KEYS = {
     "LLM_BASE_URL",
-    "EMBEDDING_BASE_URL",
     "ASR_BASE_URL",
     "ASR_BATCH_URL",
     "WHISPER_BASE_URL",
     "WHISPER_BATCH_URL",
-}
-
-# Writes to server-owned state must not clobber runtime results.
-SERVER_OWNED_KEYS = {
-    "VISION_CAPABILITY_CACHE",
-    "VISION_CAPABILITY_CACHE_KEY",
-    "VISION_MODEL_CAPABLE",
 }
 
 LANGUAGE_CONFIG_KEYS = {"ASR_LANGUAGE", "WHISPER_LANGUAGE"}
@@ -98,9 +73,14 @@ def mask_key(key):
 
 @router.get("/global")
 def get_config():
-    """Retrieve the current global configuration."""
+    """Retrieve the current global configuration.
+
+    Only allowlisted keys are returned: legacy keys from older releases
+    stay in the database unread, and the settings autosave can POST the
+    response straight back without tripping the mass-assignment guard.
+    """
     config = config_manager.get_config()
-    masked = dict(config)
+    masked = {key: config[key] for key in ALLOWED_CONFIG_KEYS if key in config}
     for sensitive_key in SENSITIVE_KEYS:
         if sensitive_key in masked:
             masked[sensitive_key] = mask_key(masked[sensitive_key])
@@ -152,20 +132,7 @@ async def update_config(data: dict = Body(...)):
     for sensitive_key in SENSITIVE_KEYS:
         if sensitive_key in filtered and MASK_BULLET in str(filtered[sensitive_key]):
             del filtered[sensitive_key]
-    # Server-owned runtime state (vision probe cache) is not client-editable;
-    # accept-and-ignore so the autosave round-trip does not corrupt it.
-    for owned_key in SERVER_OWNED_KEYS:
-        filtered.pop(owned_key, None)
 
     config_manager.update_config(filtered)
-
-    try:
-        from server.rag.vector_store import get_vector_store_manager
-
-        vector_store_mgr = get_vector_store_manager()
-        if vector_store_mgr is not None:
-            vector_store_mgr._reload_embedding_function()
-    except Exception:
-        logging.debug("Vector store reload skipped during config update")
 
     return {"message": "config.js updated successfully"}

@@ -91,13 +91,6 @@ const EncryptionSetup = ({ onComplete }) => {
           }
         }
 
-        // Embeddings are local-only and may be absent until the user downloads
-        // the optional model; failure remains non-fatal during onboarding.
-        try {
-          await invoke("start_embedding_service");
-        } catch (embeddingError) {
-          console.warn("سرویس بردارسازی راه‌اندازی نشد (هنوز مدلی دانلود نشده است):", embeddingError);
-        }
       } catch (serverError) {
         console.error("Server start failed:", serverError);
         toaster.create({

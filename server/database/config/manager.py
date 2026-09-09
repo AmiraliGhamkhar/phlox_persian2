@@ -206,117 +206,73 @@ class ConfigManager:
         if config_count == 0:
             self._load_configs()  # Just load whatever is there
 
+    #: User-settings keys the simplified app reads and writes. Legacy
+    #: columns from deleted features (quick chat, letter/template defaults,
+    #: MCP tool toggles) stay in the table for backward compatibility but
+    #: are no longer exposed.
+    LIVE_USER_SETTINGS_KEYS = (
+        "name",
+        "specialty",
+        "has_completed_splash_screen",
+        "scribe_is_ambient",
+    )
+
     def get_user_settings(self):
         """Retrieves user settings from the database."""
         self.refresh_db()
         with self.db.read() as cursor:
             cursor.execute("""
                 SELECT name, specialty,
-                    quick_chat_1_title, quick_chat_1_prompt,
-                    quick_chat_2_title, quick_chat_2_prompt,
-                    quick_chat_3_title, quick_chat_3_prompt,
-                    default_template_key,
-                    default_letter_template_id,
                     has_completed_splash_screen,
-                    scribe_is_ambient,
-                    disabled_tools,
-                    advanced_options
+                    scribe_is_ambient
                 FROM user_settings LIMIT 1
                 """)
             result = cursor.fetchone()
 
         if result:
             settings = dict(result)
-            # Ensure the splash screen flag is a proper boolean
+            # Ensure the flags are proper booleans
             if "has_completed_splash_screen" in settings:
                 settings["has_completed_splash_screen"] = bool(
                     settings["has_completed_splash_screen"]
                 )
             if "scribe_is_ambient" in settings:
                 settings["scribe_is_ambient"] = bool(settings["scribe_is_ambient"])
-            if settings.get("disabled_tools"):
-                settings["disabled_tools"] = json.loads(settings["disabled_tools"])
-            else:
-                settings["disabled_tools"] = ["pubmed_search", "wiki_search"]
-            if settings.get("advanced_options"):
-                settings["advanced_options"] = json.loads(settings["advanced_options"])
-            else:
-                settings["advanced_options"] = {}
             return settings
         return {
             "name": "",
             "specialty": "",
-            "quick_chat_1_title": "بررسی برنامه من",
-            "quick_chat_1_prompt": "بررسی برنامه من",
-            "quick_chat_2_title": "نکات دیگری برای بررسی",
-            "quick_chat_2_prompt": "نکات دیگری برای بررسی",
-            "quick_chat_3_title": "بیماری‌های دیگری که ارزش بررسی دارند",
-            "quick_chat_3_prompt": "بیماری‌های دیگری که ارزش بررسی دارند",
-            "default_template_key": None,
-            "default_letter_template_id": None,
             "has_completed_splash_screen": False,
             "scribe_is_ambient": True,
-            "disabled_tools": ["pubmed_search", "wiki_search"],
-            "advanced_options": {},
         }
 
     def update_user_settings(self, settings: dict):
         self.refresh_db()
-        # Read-modify-write under one transaction so a concurrent update
-        # cannot interleave with the DELETE/INSERT below.
+        # Only live keys are accepted; legacy keys are ignored. The write
+        # preserves every physical column so databases from older releases
+        # keep working.
+        live = {k: v for k, v in settings.items() if k in self.LIVE_USER_SETTINGS_KEYS}
         with self.db.transaction() as cursor:
-            existing = self._read_user_settings(cursor)
-            settings = {**existing, **settings}
+            cursor.execute("SELECT * FROM user_settings LIMIT 1")
+            row = cursor.fetchone()
+            existing = dict(row) if row else {}
+            merged = {**existing, **live}
             cursor.execute("DELETE FROM user_settings")
             cursor.execute(
                 """
                 INSERT INTO user_settings (
                     name, specialty,
-                    quick_chat_1_title, quick_chat_1_prompt,
-                    quick_chat_2_title, quick_chat_2_prompt,
-                    quick_chat_3_title, quick_chat_3_prompt,
-                    default_template_key,
-                    default_letter_template_id,
                     has_completed_splash_screen,
-                    scribe_is_ambient,
-                    disabled_tools,
-                    advanced_options
-                ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?)
+                    scribe_is_ambient
+                ) VALUES (?, ?, ?, ?)
                 """,
                 (
-                    settings.get("name", ""),
-                    settings.get("specialty", ""),
-                    settings.get("quick_chat_1_title", "بررسی برنامه من"),
-                    settings.get("quick_chat_1_prompt", "بررسی برنامه من"),
-                    settings.get("quick_chat_2_title", "نکات دیگری برای بررسی"),
-                    settings.get("quick_chat_2_prompt", "نکات دیگری برای بررسی"),
-                    settings.get("quick_chat_3_title", "بیماری‌های دیگری که ارزش بررسی دارند"),
-                    settings.get("quick_chat_3_prompt", "بیماری‌های دیگری که ارزش بررسی دارند"),
-                    settings.get("default_template_key"),
-                    settings.get("default_letter_template_id"),
-                    bool(settings.get("has_completed_splash_screen", False)),
-                    bool(settings.get("scribe_is_ambient", True)),
-                    json.dumps(settings.get("disabled_tools", ["pubmed_search", "wiki_search"])),
-                    json.dumps(settings.get("advanced_options", {})),
+                    merged.get("name", ""),
+                    merged.get("specialty", ""),
+                    bool(merged.get("has_completed_splash_screen", False)),
+                    bool(merged.get("scribe_is_ambient", True)),
                 ),
             )
-
-    @staticmethod
-    def _read_user_settings(cursor) -> dict:
-        cursor.execute("SELECT * FROM user_settings LIMIT 1")
-        result = cursor.fetchone()
-        if not result:
-            return {}
-        settings = dict(result)
-        if settings.get("disabled_tools"):
-            settings["disabled_tools"] = json.loads(settings["disabled_tools"])
-        else:
-            settings["disabled_tools"] = ["pubmed_search", "wiki_search"]
-        if settings.get("advanced_options"):
-            settings["advanced_options"] = json.loads(settings["advanced_options"])
-        else:
-            settings["advanced_options"] = {}
-        return settings
 
 
 config_manager = ConfigManager()

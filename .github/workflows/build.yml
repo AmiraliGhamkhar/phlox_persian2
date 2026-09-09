@@ -133,7 +133,7 @@ jobs:
       - name: Set up Python venv with uv
         run: |
           cd server
-          uv sync --locked --extra rag --python /opt/homebrew/bin/python3.12
+          uv sync --locked --extra asr --python /opt/homebrew/bin/python3.12
 
       - name: Install dependencies
         run: npm ci

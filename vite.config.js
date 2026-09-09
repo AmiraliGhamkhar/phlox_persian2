@@ -1,39 +1,15 @@
 /// <reference types="vitest/config" />
-import { defineConfig, normalizePath } from "vite";
+import { defineConfig } from "vite";
 import react from "@vitejs/plugin-react";
 import { readFileSync } from "fs";
 import { fileURLToPath, URL } from "node:url";
-import path from "node:path";
-import { createRequire } from "node:module";
-import { viteStaticCopy } from "vite-plugin-static-copy";
 
 // Read version from package.json at build time
 const pkg = JSON.parse(readFileSync("./package.json", "utf-8"));
 
-const require = createRequire(import.meta.url);
-const pdfjsDistPath = path.dirname(require.resolve("pdfjs-dist/package.json"));
-const wasmDir = normalizePath(path.relative(process.cwd(), path.join(pdfjsDistPath, "wasm")));
-const cmapsDir = normalizePath(path.relative(process.cwd(), path.join(pdfjsDistPath, "cmaps")));
-const standardFontsDir = normalizePath(
-  path.relative(process.cwd(), path.join(pdfjsDistPath, "standard_fonts")),
-);
-
 // https://vitejs.dev/config/
 export default defineConfig({
-  plugins: [
-    react(),
-    viteStaticCopy({
-      targets: [
-        { src: `${wasmDir}/*`, dest: "wasm", rename: { stripBase: true } },
-        { src: `${cmapsDir}/*`, dest: "cmaps", rename: { stripBase: true } },
-        {
-          src: `${standardFontsDir}/*`,
-          dest: "standard_fonts",
-          rename: { stripBase: true },
-        },
-      ],
-    }),
-  ],
+  plugins: [react()],
 
   define: {
     __APP_VERSION__: JSON.stringify(pkg.version),
@@ -66,8 +42,7 @@ export default defineConfig({
         //    *larger* initial JS (extra wrapper/runtime duplication) and merely
         //    moved the >500 kB warning to a different file - they also track
         //    app-code versions, so a vendor split gave no caching benefit.
-        //  - Libraries the app loads lazily via dynamic import (pdfjs-dist) or
-        //    that are reachable only from lazy routes (pdf-lib, react-markdown)
+        //  - Libraries reachable only from lazy routes (react-markdown)
         //    are left undefined so rolldown keeps them in on-demand chunks.
         manualChunks(id) {
           if (!id.includes("node_modules")) return undefined;

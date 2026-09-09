@@ -54,11 +54,9 @@ ENV DOCKER_CONTAINER=true \
     RATE_LIMIT_ENABLED=false \
     UV_PYTHON_PREFERENCE=only-system \
     UV_PYTHON_DOWNLOADS=never \
-    UV_LINK_MODE=copy \
-    TIKTOKEN_CACHE_DIR=/usr/src/app/.cache/tiktoken
+    UV_LINK_MODE=copy
 
 # parallel  - runs Vite and uvicorn side by side in one container
-# tesseract - OCR used by document processing (fa + eng: Persian-first docs)
 # tzdata    - makes the TZ environment variable resolve to a real zone
 RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
     --mount=type=cache,target=/var/lib/apt,sharing=locked \
@@ -66,9 +64,6 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
     && apt-get install -y --no-install-recommends \
         ca-certificates \
         parallel \
-        tesseract-ocr \
-        tesseract-ocr-eng \
-        tesseract-ocr-fa \
         tzdata \
     && rm -rf /var/lib/apt/lists/*
 
@@ -87,17 +82,14 @@ COPY server/pyproject.toml server/uv.lock server/.python-version ./server/
 # Writable dirs; `build` only has to exist so StaticFiles() can mount it when the
 # server is run without Vite.
 RUN mkdir -p /usr/src/app/data /usr/src/app/temp /usr/src/app/build \
-             /usr/src/app/.cache/tiktoken \
     && printf '<html><body>run the Vite dev server on :3000</body></html>\n' \
        > /usr/src/app/build/index.html
 
-# Python dependencies - dev group included so pytest/ruff/ty work in-container.
-# The BuildKit cache mount keeps downloaded wheels warm across rebuilds.
+# Python dependencies - dev group included so pytest/ruff/ty work in-container;
+# the asr extra provides the Shenava/Parakeet ONNX adapters. The BuildKit cache
+# mount keeps downloaded wheels warm across rebuilds.
 RUN --mount=type=cache,target=/root/.cache/uv,sharing=locked \
-    uv sync --directory server --locked --extra docker
-
-# Pre-cache the tokenizer data used by RAG chunking.
-RUN python -c "import tiktoken; tiktoken.get_encoding('cl100k_base')"
+    uv sync --directory server --locked --extra asr
 
 # Server code (bind-mounted over at runtime, baked in so the image can also be
 # run standalone).
@@ -105,24 +97,17 @@ COPY server/ ./server/
 
 # Frontend sources, baked in so the image can also run standalone; the
 # docker-compose.dev.yml bind mount overrides them for hot reload.
-COPY package.json package-lock.json .npmrc .nvmrc CHANGELOG.md ./
+COPY package.json package-lock.json .npmrc .nvmrc ./
 COPY index.html vite.config.js tsconfig.json eslint.config.js ./
 COPY src/ ./src/
 COPY public/ ./public/
 
-# Dev entrypoint: seed demo data on a fresh database only - demo_db.py wipes
-# encounters/profiles/templates, so it must never run against an existing DB.
+# Dev entrypoint: run Vite and uvicorn side by side with hot reload.
 RUN printf '%s\n' \
 '#!/usr/bin/env bash' \
 'set -euo pipefail' \
 '' \
 'cd /usr/src/app' \
-'' \
-'if [ ! -f "data/phlox_database.sqlite" ] && [ ! -f "data/phlox_database.sqlite.wal" ]; then' \
-'    python /usr/src/app/server/demo/demo_db.py || echo "WARN: demo seeding skipped"' \
-'else' \
-'    echo "Existing dev database found - keeping it (rm -rf data/ to re-seed)"' \
-'fi' \
 '' \
 'export SERVER_HOST="${SERVER_HOST:-0.0.0.0}"' \
 'export PORT="${PORT:-5000}"' \

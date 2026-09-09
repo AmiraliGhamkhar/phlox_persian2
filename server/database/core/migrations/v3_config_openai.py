@@ -2,8 +2,6 @@
 
 import json
 
-from server.database.config.defaults.templates import DefaultTemplates
-
 
 def migrate(cursor, _db):
     """Migrate Ollama config to OpenAI-compatible structure and add template style_example/format_schema."""
@@ -47,7 +45,8 @@ def migrate(cursor, _db):
         )
 
     # Part 2: Template schema migration
-    default_templates = DefaultTemplates.get_default_templates()
+    # Template defaults are no longer shipped; existing rows keep their data.
+    default_templates: list = []
     default_fields_by_template = {}
 
     for template in default_templates:

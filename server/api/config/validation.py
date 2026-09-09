@@ -18,10 +18,19 @@ _OPENAI_COMPATIBLE_TYPES = {
     "ninerouter",
     "omniroute",
     "fireworks",
+    "groq",
+    "openrouter",
     "local",
-    "embedding",
 }
-_ASR_TYPES = {"whisper", "asr", "whispercpp", "speechmatics", "fireworks"}
+_ASR_TYPES = {
+    "whisper",
+    "asr",
+    "whispercpp",
+    "speechmatics",
+    "assemblyai",
+    "fireworks",
+    "openai_asr",
+}
 _ANTHROPIC_TYPES = {"anthropic"}
 
 

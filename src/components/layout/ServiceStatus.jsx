@@ -8,7 +8,6 @@ const ServiceStatus = () => {
     const [serverStatus, setServerStatus] = useState({
         whisper: false,
         llm: false,
-        embedding: null,
     });
 
     useEffect(() => {
@@ -26,23 +25,14 @@ const ServiceStatus = () => {
         return () => clearInterval(intervalId);
     }, []);
 
-    const embeddingApplicable =
-        serverStatus.embedding !== null && serverStatus.embedding !== undefined;
-    const allServicesUp =
-        serverStatus.llm &&
-        serverStatus.whisper &&
-        (!embeddingApplicable || serverStatus.embedding);
-
-    const embeddingLine = embeddingApplicable
-        ? `، ${serverStatus.embedding ? "✓" : "✗"} بردارسازی`
-        : "";
+    const allServicesUp = serverStatus.llm && serverStatus.whisper;
 
     return (
         <Tooltip
             content={
                 allServicesUp
                     ? "همه سرویس‌ها متصل هستند"
-                    : `سرویس‌ها: ${serverStatus.llm ? "✓" : "✗"} مدل زبانی، ${serverStatus.whisper ? "✓" : "✗"} تشخیص گفتار${embeddingLine}`
+                    : `سرویس‌ها: ${serverStatus.llm ? "✓" : "✗"} مدل زبانی، ${serverStatus.whisper ? "✓" : "✗"} تشخیص گفتار`
             }
             positioning={{ placement: "bottom" }}
         >

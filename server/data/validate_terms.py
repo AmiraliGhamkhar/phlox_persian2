@@ -1,10 +1,10 @@
 """Quality gate for the bundled Persian-English medical term data.
 
-The term lists in ``server/data/terms/*.json`` feed three clinical surfaces
-(ASR biasing, the chat lookup tool, refinement terminology reference), so a
-corrupted or junky entry propagates to patient documentation. This module
-validates structure and obvious quality problems and is executed by the test
-suite (``server/tests/test_medical_dictionary.py``).
+The term lists in ``server/data/terms/*.json`` feed the clinical surfaces
+(ASR biasing, the workspace dictionary lookup, the report terminology
+reference), so a corrupted or junky entry propagates to patient
+documentation. This module validates structure and obvious quality problems
+and is executed by the test suite (``server/tests/test_medical_dictionary.py``).
 """
 
 from __future__ import annotations

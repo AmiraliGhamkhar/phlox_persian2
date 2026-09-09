@@ -19,26 +19,9 @@ dependencies = [
 ]
 
 [project.optional-dependencies]
-rag = [
-    "mcp==1.28.1",
-    "numpy==2.5.1",
-    "pypdf==6.16.1",
-    "sqlite-vec==0.1.9",
-    "tiktoken==0.12.0",
-]
-
-ocr = [
-    "phlox-server[rag]",
-    "Pillow==12.3.0",
-    "pytesseract==0.3.13",
-]
-
 asr = [
     "numpy>=2.2,<3",
     "onnxruntime>=1.20,<2",
-]
-docker = [
-    "phlox-server[rag,ocr]",
 ]
 
 [dependency-groups]
@@ -78,12 +61,6 @@ extra-paths = [".."]
 [tool.ty.analysis]
 replace-imports-with-any = [
     "sqlcipher3.**",
-    "tiktoken.**",
-    "pytesseract.**",
-    "pypdf.**",
-    "PIL.**",
-    "sqlite_vec.**",
-    "mcp.**",
     "numpy.**",
     # onnxruntime is the optional `asr` extra (Shenava/Parakeet); it is not
     # installed for lint, so its unresolved import must not fail `ty check`.

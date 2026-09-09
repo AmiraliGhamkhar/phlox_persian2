@@ -21,15 +21,6 @@ def is_valid_json(response):
         return False
 
 
-def test_get_prompts():
-    response = client.get("/api/config/prompts")
-    assert response.status_code == 200
-    assert is_valid_json(response)
-    data = response.json()
-    # Expect prompts to be a dict
-    assert isinstance(data, dict)
-
-
 def test_get_config():
     response = client.get("/api/config/global")
     assert response.status_code == 200
@@ -55,20 +46,8 @@ def test_get_all_options():
     assert isinstance(data, dict)
 
 
-def test_update_prompts():
-    new_prompts = {
-        "TEST_PROMPT": {
-            "system": "Test System Prompt",
-        }
-    }
-    response = client.post("/api/config/prompts", json=new_prompts)
-    assert response.status_code == 200
-    data = response.json()
-    assert "message" in data or "updated" in data.get("message", "").lower()
-
-
 def test_update_config():
-    new_config = {"DAILY_SUMMARY": "test_value"}
+    new_config = {"SECONDARY_MODEL": "test_value"}
     response = client.post("/api/config/global", json=new_config)
     assert response.status_code == 200
     data = response.json()
@@ -107,12 +86,6 @@ def test_update_options():
     assert "updated" in data.get("message", "").lower()
 
 
-def test_get_embedding_models_local_catalog():
-    response = client.get("/api/config/embedding/models", params={"provider": "local"})
-    assert response.status_code == 200
-    assert "Qwen3-Embedding-0.6B-Q8_0" in response.json()["models"]
-
-
 def test_get_asr_models_fireworks_catalog():
     response = client.get("/api/config/asr/models", params={"provider": "fireworks"})
     assert response.status_code == 200
@@ -125,7 +98,7 @@ def test_get_providers_catalog():
     response = client.get("/api/config/providers")
     assert response.status_code == 200
     data = response.json()
-    assert "llm" in data and "asr" in data and "embedding" in data
+    assert "llm" in data and "asr" in data
     llm_ids = {item["id"] for item in data["llm"]}
     assert "ollama" in llm_ids
     assert "anthropic" in llm_ids

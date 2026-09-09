@@ -2,7 +2,6 @@
 
 import json
 
-from server.database.config.defaults.letters import DefaultLetters
 from server.database.config.defaults.prompts import DEFAULT_PROMPTS
 
 
@@ -212,12 +211,5 @@ def migrate(cursor, _db):
                         (category, key, json.dumps(actual_value)),
                     )
 
-    letter_templates = DefaultLetters.get_default_letter_templates()
-    for letter_template in letter_templates:
-        cursor.execute(
-            """
-            INSERT INTO letter_templates (id, name, instructions, created_at)
-            VALUES (?, ?, ?, CURRENT_TIMESTAMP)
-        """,
-            letter_template,
-        )
+    # Letter templates were seeded here in older releases. The simplified app
+    # has no letters feature; the table stays for backward compatibility.

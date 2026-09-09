@@ -12,7 +12,6 @@ import pytest
 from server.transcription import (
     _detect_audio_format,
     normalize_persian_text,
-    process_transcription,
     resolve_asr_language,
     transcribe_audio,
 )
@@ -110,22 +109,6 @@ async def test_transcribe_audio_uses_canonical_persian_asr_configuration():
         assert request_data["task"] == "transcribe"
         assert request_data["language"] == "fa"
         assert mock_client.post.call_args.args[0] == "http://fake-asr/v1/audio/transcriptions"
-
-
-# Test process_transcription with no non-persistent fields.
-@pytest.mark.asyncio
-async def test_process_transcription_no_fields():
-    transcript_text = "This is a test transcript."
-    template_fields = []  # no fields to process
-    patient_context = {"name": "Doe, John", "dob": "1990-01-01", "gender": "M"}
-    # Mock the LLM call layer since even empty fields triggers config/LLM access
-    with patch("server.transcription.text.process_all_fields_concurrently", return_value={}):
-        result = await process_transcription(transcript_text, template_fields, patient_context)  # ty: ignore
-    # Expect fields dict to be empty, and process_duration present
-    assert "fields" in result
-    assert result["fields"] == {}
-    assert "process_duration" in result
-    assert isinstance(result["process_duration"], float)
 
 
 # Test for the audio format detection function

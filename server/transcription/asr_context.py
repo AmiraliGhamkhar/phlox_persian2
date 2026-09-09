@@ -5,11 +5,11 @@ that are likely to occur materially improves recognition of rare words,
 names and clinical vocabulary (measured: R-WER 23.7%→18.0%, OOV-WER 60%→37.1%
 for zero-shot prompt biasing — B-Whisper, arXiv 2502.11572).
 
-Phlox can build this list from data it already stores: the patient being
-documented, their problem list, the clinic's recurring conditions and the
-clinician's identity/specialty. Only *terms*, never sentences, and never
-free-text clinical conclusions — the prompt is an acoustic prior, not a
-licence for the model to expect particular statements.
+The simplified app keeps no patient record, so the list is built from the
+clinician's identity/specialty plus the bundled Persian-English medical
+dictionary. Only *terms*, never sentences, and never free-text clinical
+conclusions — the prompt is an acoustic prior, not a licence for the model
+to expect particular statements.
 
 The same list feeds Speechmatics ``custom_vocabulary`` (batch) and
 ``additional_vocab`` (realtime), which are first-class vendor biasing APIs.
@@ -65,9 +65,10 @@ def build_bias_terms(
 ) -> list[str]:
     """Build a conservative, high-precision bias term list.
 
-    Sources (in priority order): patient display name parts, the encounter's
-    primary condition, this patient's known conditions from history, the
-    clinician name/specialty, then the clinic's most frequent conditions.
+    Sources (in priority order): the optional display-name/condition hints
+    passed by the caller, the clinician name/specialty, then the bundled
+    medical dictionary. The app keeps no patient record, so callers pass
+    ``None`` and the dictionary layer does the heavy lifting.
     """
     terms: list[str] = []
 
@@ -96,19 +97,6 @@ def build_bias_terms(
         if value:
             cleaned.append(value)
 
-    # Clinic-wide recurring conditions (cheap DB read; never fatal).
-    try:
-        from server.database.repositories.patient_search import (
-            get_unique_primary_conditions,
-        )
-
-        for condition in get_unique_primary_conditions() or []:
-            value = _clean_term(condition)
-            if value:
-                cleaned.append(value)
-    except Exception:  # noqa: BLE001 — biasing is best-effort, never fatal
-        logger.debug("ASR bias lexicon skipped", exc_info=True)
-
     # Base medical-terminology layer from the bundled Persian-English
     # dictionary: patient-specific terms above keep priority, and common
     # clinical vocabulary (symptoms, conditions, meds, labs, oncology) fills
@@ -124,36 +112,6 @@ def build_bias_terms(
         logger.debug("ASR dictionary bias layer skipped", exc_info=True)
 
     return _dedupe(cleaned)[:_MAX_TERMS]
-
-
-def load_patient_bias_terms(note_id: int | None) -> list[str]:
-    """Active problem list for the current patient (exact-match history)."""
-    if not note_id:
-        return []
-    try:
-        from server.database.repositories.encounter import get_patient_by_id
-
-        patient = get_patient_by_id(note_id)
-        if not patient:
-            return []
-        terms: list[str] = []
-        conditions = patient.get("conditions") or []
-        if isinstance(conditions, str):
-            import json
-
-            try:
-                conditions = json.loads(conditions)
-            except ValueError:
-                conditions = []
-        for condition in conditions:
-            if isinstance(condition, dict) and condition.get("name"):
-                terms.append(str(condition["name"]))
-            elif isinstance(condition, str):
-                terms.append(condition)
-        return [t for t in (_clean_term(x) for x in terms) if t]
-    except Exception:  # noqa: BLE001
-        logger.debug("patient bias terms skipped", exc_info=True)
-        return []
 
 
 def build_initial_prompt(terms: list[str]) -> str | None:

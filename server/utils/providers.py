@@ -1,4 +1,4 @@
-"""Canonical catalogs for LLM, ASR, and embedding providers.
+"""Canonical catalogs for LLM and ASR providers.
 
 Named providers (Ollama, LM Studio, llama.cpp, 9Router, OmniRoute, OpenAI,
 Anthropic, Fireworks, Speechmatics, Whisper.cpp) are first-class so the
@@ -387,130 +387,6 @@ ASR_PROVIDERS: dict[str, dict[str, Any]] = {
     },
 }
 
-EMBEDDING_PROVIDERS: dict[str, dict[str, Any]] = {
-    "local": {
-        "id": "local",
-        "name": "Local embedding server",
-        "name_fa": "سرور بردارسازی محلی",
-        "category": "local",
-        "protocol": "openai_compatible",
-        "default_base_url": "",
-        "requires_api_key": False,
-        "supports_model_list": True,
-        "default_models": ["Qwen3-Embedding-0.6B-Q8_0"],
-        "help": "Bundled llama.cpp embedding server. One-click GGUF download.",
-        "help_fa": "سرور بردارسازی llama.cpp داخلی با دانلود یک‌کلیکی GGUF.",
-    },
-    "ollama": {
-        "id": "ollama",
-        "name": "Ollama embeddings",
-        "name_fa": "بردارسازی Ollama",
-        "category": "local",
-        "protocol": "openai_compatible",
-        "default_base_url": "http://127.0.0.1:11434",
-        "requires_api_key": False,
-        "supports_model_list": True,
-        "default_models": ["nomic-embed-text", "mxbai-embed-large"],
-        "help": "Ollama /v1/embeddings (nomic-embed-text is a good default).",
-        "help_fa": "نقطه پایانی /v1/embeddings در Ollama؛ nomic-embed-text انتخاب مناسبی است.",
-    },
-    "lmstudio": {
-        "id": "lmstudio",
-        "name": "LM Studio embeddings",
-        "name_fa": "بردارسازی LM Studio",
-        "category": "local",
-        "protocol": "openai_compatible",
-        "default_base_url": "http://127.0.0.1:1234",
-        "requires_api_key": False,
-        "supports_model_list": True,
-        "default_models": [],
-        "help": "LM Studio /v1/embeddings with an embedding model loaded.",
-        "help_fa": "نقطه پایانی /v1/embeddings در LM Studio با مدل بردارسازی بارگذاری‌شده.",
-    },
-    "llamacpp": {
-        "id": "llamacpp",
-        "name": "llama.cpp embeddings",
-        "name_fa": "بردارسازی llama.cpp",
-        "category": "local",
-        "protocol": "openai_compatible",
-        "default_base_url": "http://127.0.0.1:8080",
-        "requires_api_key": False,
-        "supports_model_list": True,
-        "default_models": [],
-        "help": "llama-server started with --embedding.",
-        "help_fa": "llama-server که با گزینه --embedding اجرا شده است.",
-    },
-    "openai": {
-        "id": "openai",
-        "name": "OpenAI embeddings",
-        "name_fa": "بردارسازی OpenAI",
-        "category": "cloud",
-        "protocol": "openai_compatible",
-        "default_base_url": "https://api.openai.com",
-        "requires_api_key": True,
-        "supports_model_list": True,
-        "default_models": [
-            "text-embedding-3-small",
-            "text-embedding-3-large",
-            "text-embedding-ada-002",
-        ],
-        "help": "Official OpenAI embeddings API.",
-        "help_fa": "API رسمی بردارسازی OpenAI.",
-    },
-    "ninerouter": {
-        "id": "ninerouter",
-        "name": "9Router embeddings",
-        "name_fa": "بردارسازی 9Router",
-        "category": "gateway",
-        "protocol": "openai_compatible",
-        "default_base_url": "http://127.0.0.1:20128",
-        "requires_api_key": False,
-        "supports_model_list": True,
-        "default_models": [],
-        "help": "Embeddings through the 9Router OpenAI-compatible gateway.",
-        "help_fa": "بردارسازی از طریق دروازه سازگار با OpenAI در 9Router.",
-    },
-    "omniroute": {
-        "id": "omniroute",
-        "name": "OmniRoute embeddings",
-        "name_fa": "بردارسازی OmniRoute",
-        "category": "gateway",
-        "protocol": "openai_compatible",
-        "default_base_url": "http://127.0.0.1:20128",
-        "requires_api_key": False,
-        "supports_model_list": True,
-        "default_models": [],
-        "help": "Embeddings through OmniRoute.",
-        "help_fa": "بردارسازی از طریق OmniRoute.",
-    },
-    "fireworks": {
-        "id": "fireworks",
-        "name": "Fireworks embeddings",
-        "name_fa": "بردارسازی Fireworks",
-        "category": "cloud",
-        "protocol": "openai_compatible",
-        "default_base_url": "https://api.fireworks.ai/inference",
-        "requires_api_key": True,
-        "supports_model_list": True,
-        "default_models": [],
-        "help": "Fireworks /inference/v1/embeddings.",
-        "help_fa": "نقطه پایانی بردارسازی Fireworks.",
-    },
-    "openai_compatible": {
-        "id": "openai_compatible",
-        "name": "Custom OpenAI-compatible",
-        "name_fa": "سفارشی سازگار با OpenAI",
-        "category": "custom",
-        "protocol": "openai_compatible",
-        "default_base_url": "",
-        "requires_api_key": False,
-        "supports_model_list": True,
-        "default_models": [],
-        "help": "Any OpenAI-compatible /v1/embeddings endpoint.",
-        "help_fa": "هر نقطه پایانی سازگار با OpenAI برای /v1/embeddings.",
-    },
-}
-
 
 def normalize_provider_id(provider: str | None, kind: str = "llm") -> str:
     """Return a canonical provider id, applying aliases."""
@@ -519,7 +395,6 @@ def normalize_provider_id(provider: str | None, kind: str = "llm") -> str:
     catalogs = {
         "llm": LLM_PROVIDERS,
         "asr": ASR_PROVIDERS,
-        "embedding": EMBEDDING_PROVIDERS,
     }
     catalog = catalogs.get(kind, LLM_PROVIDERS)
     if raw in catalog:
@@ -528,7 +403,7 @@ def normalize_provider_id(provider: str | None, kind: str = "llm") -> str:
         return "openai_compatible" if raw else "openai"
     if kind == "asr":
         return "openai_compatible" if raw else "openai_compatible"
-    return "openai_compatible" if raw else "local"
+    return "openai_compatible"
 
 
 def public_provider(info: dict[str, Any]) -> dict[str, Any]:
@@ -545,11 +420,10 @@ def public_provider(info: dict[str, Any]) -> dict[str, Any]:
 
 
 def list_providers() -> dict[str, list[dict[str, Any]]]:
-    """Return the three catalogs for the settings UI."""
+    """Return the LLM and ASR catalogs for the settings UI."""
     return {
         "llm": [public_provider(item) for item in LLM_PROVIDERS.values()],
         "asr": [public_provider(item) for item in ASR_PROVIDERS.values()],
-        "embedding": [public_provider(item) for item in EMBEDDING_PROVIDERS.values()],
     }
 
 
@@ -651,53 +525,6 @@ def resolve_asr_connection(config: dict[str, Any]) -> dict[str, Any]:
     }
 
 
-def resolve_embedding_connection(config: dict[str, Any]) -> dict[str, Any]:
-    """Return base URL / key / model for embeddings, falling back to the LLM provider."""
-    explicit = str(config.get("EMBEDDING_PROVIDER") or "").strip().lower()
-    llm_provider = normalize_provider_id(config.get("LLM_PROVIDER"), "llm")
-    source = explicit or config.get("LLM_PROVIDER")
-    provider = normalize_provider_id(source, "embedding")
-    # Anthropic (and any other chat-only host) has no embeddings API.
-    if provider not in EMBEDDING_PROVIDERS or (
-        not explicit and llm_provider not in EMBEDDING_PROVIDERS
-    ):
-        provider = "ollama" if not explicit else "openai_compatible"
-    info = EMBEDDING_PROVIDERS[provider]
-
-    if provider == "local" or (not explicit and config.get("LLM_PROVIDER") == "local"):
-        from server.utils.allocated_ports import get_embedding_port
-
-        return {
-            "provider": "local",
-            "base_url": f"http://127.0.0.1:{get_embedding_port()}",
-            "api_key": "not-needed",
-            "model": str(config.get("EMBEDDING_MODEL") or "Qwen3-Embedding-0.6B-Q8_0"),
-            "info": info,
-        }
-
-    base_url = str(config.get("EMBEDDING_BASE_URL") or "").strip()
-    if not base_url:
-        base_url = str(info.get("default_base_url") or config.get("LLM_BASE_URL") or "")
-    if not base_url:
-        base_url = LEGACY_OPENAI_FALLBACK_URL
-    api_key = str(
-        config.get("EMBEDDING_API_KEY")
-        or config.get("LLM_API_KEY")
-        or info.get("default_api_key")
-        or "not-needed"
-    )
-    model = str(config.get("EMBEDDING_MODEL") or "").strip()
-    if not model and info.get("default_models"):
-        model = info["default_models"][0]
-    return {
-        "provider": provider,
-        "base_url": base_url,
-        "api_key": api_key or "not-needed",
-        "model": model,
-        "info": info,
-    }
-
-
 def apply_llm_provider_defaults(
     provider_id: str, current: dict[str, Any] | None = None
 ) -> dict[str, str]:
@@ -728,33 +555,3 @@ def apply_asr_provider_defaults(provider_id: str) -> dict[str, str]:
         "ASR_MODEL": model,
         "WHISPER_MODEL": model,
     }
-
-
-def apply_embedding_provider_defaults(provider_id: str) -> dict[str, str]:
-    """Return config keys to apply when the user switches embedding provider."""
-    provider = normalize_provider_id(provider_id, "embedding")
-    info = EMBEDDING_PROVIDERS.get(provider, EMBEDDING_PROVIDERS["openai_compatible"])
-    model = info["default_models"][0] if info.get("default_models") else ""
-    return {
-        "EMBEDDING_PROVIDER": provider,
-        "EMBEDDING_BASE_URL": str(info.get("default_base_url") or ""),
-        "EMBEDDING_MODEL": model,
-    }
-
-
-def looks_like_embedding_model(model_id: str) -> bool:
-    """Heuristic used when a provider lists mixed chat/embedding models."""
-    lowered = (model_id or "").lower()
-    tokens = (
-        "embed",
-        "embedding",
-        "bge",
-        "e5-",
-        "nomic",
-        "gte-",
-        "snowflake",
-        "arctic-embed",
-        "text-embedding",
-        "multilingual-e5",
-    )
-    return any(token in lowered for token in tokens)

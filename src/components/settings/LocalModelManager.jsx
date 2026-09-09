@@ -6,7 +6,7 @@ import {
 } from "@chakra-ui/react";
 import { Tooltip } from "@/components/ui/tooltip";
 import {
-  FaMicrophone, FaDatabase, FaStar, FaExclamationTriangle, FaMemory, FaMicrochip,
+  FaMicrophone, FaStar, FaExclamationTriangle, FaMemory, FaMicrochip,
 } from "react-icons/fa";
 import { DownloadIcon, CheckIcon, InfoIcon, ChevronLeftIcon, ChevronRightIcon } from "../common/icons";
 import { GreenButton, NavButton } from "../common/Buttons";
@@ -16,17 +16,8 @@ import {
   getSmartRecommendations,
   calculateLLMPerformance,
 } from "../../utils/performanceUtils";
-import { setEmbeddingReady } from "../../utils/helpers/featureFlags";
-import { downloadEmbeddingModel as downloadEmbeddingService } from "../../utils/services/localModelService";
-import { localModelApi } from "../../utils/api/localModelApi";
 
 const MODELS_PER_PAGE = 3;
-
-const RECOMMENDED_EMBEDDING = {
-  id: "qwen3-embedding-0.6b",
-  name: "Qwen3 Embedding 0.6B",
-  size_mb: 639,
-};
 
 const getMachineLabel = (os) => {
   if (os === "macos") return "مک شما";
@@ -214,20 +205,6 @@ const LocalModelManager = ({ className }) => {
   const [selectedWhisperId, setSelectedWhisperId] = useState("");
   const [isSelectingWhisper, setIsSelectingWhisper] = useState(false);
 
-  const [embeddingDownloaded, setEmbeddingDownloaded] = useState(false);
-  const [isDownloadingEmbedding, setIsDownloadingEmbedding] = useState(false);
-  const [embeddingProgress, setEmbeddingProgress] = useState(0);
-
-  useMemo(() => {
-    localModelApi.fetchEmbeddingStatus()
-      .then((res) => {
-        const has = !!res?.downloaded;
-        setEmbeddingDownloaded(has);
-        setEmbeddingReady(has);
-      })
-      .catch(() => {});
-  }, []);
-
   const smartRecommendations = useMemo(
     () => systemSpecs && availableModels.length > 0
       ? getSmartRecommendations(availableModels, systemSpecs)
@@ -278,29 +255,11 @@ const LocalModelManager = ({ className }) => {
     }
   }, [selectedWhisperId, selectWhisperModel, refreshData]);
 
-  const handleDownloadEmbedding = useCallback(async () => {
-    setIsDownloadingEmbedding(true);
-    setEmbeddingProgress(0);
-    try {
-      await downloadEmbeddingService({
-        onProgress: (p) => { if (p.percentage !== undefined) setEmbeddingProgress(p.percentage); },
-      });
-      setEmbeddingDownloaded(true);
-      setEmbeddingReady(true);
-    } catch { /* toast handled by service */ }
-    finally { setIsDownloadingEmbedding(false); setEmbeddingProgress(0); }
-  }, []);
-
   const handleResetAll = useCallback(async () => {
     setIsResetting(true);
     try {
       for (const model of models) await deleteLlmModel(model.filename);
       for (const model of whisperModels) await deleteWhisperModel(model.id);
-      if (embeddingDownloaded) {
-        try { await localModelApi.deleteEmbeddingModel(); } catch {}
-        setEmbeddingDownloaded(false);
-        setEmbeddingReady(false);
-      }
       await refreshData();
     } catch (e) {
       console.error("Reset failed:", e);
@@ -308,7 +267,7 @@ const LocalModelManager = ({ className }) => {
       setIsResetting(false);
       setIsResetOpen(false);
     }
-  }, [models, whisperModels, embeddingDownloaded, deleteLlmModel, deleteWhisperModel, refreshData]);
+  }, [models, whisperModels, deleteLlmModel, deleteWhisperModel, refreshData]);
 
   if (!localStatus) {
     return (
@@ -319,19 +278,29 @@ const LocalModelManager = ({ className }) => {
     );
   }
 
-  if (!localStatus.available && !localStatus?.llama_server_running) {
+  // Local inference is offered whenever the runtime ships the inference
+  // binaries (desktop and Docker alike) — a fresh install has binaries but
+  // no downloaded models yet, which is exactly when the download UI below
+  // is needed.
+  const runtimeReady =
+    localStatus?.runtime?.llama_server ||
+    localStatus?.runtime?.whisper_server ||
+    localStatus?.available ||
+    localStatus?.llama_server_running;
+
+  if (!runtimeReady) {
     return (
       <Alert.Root status="warning" borderRadius="md">
         <Alert.Indicator asChild><FaExclamationTriangle /></Alert.Indicator>
         <Box>
           <Alert.Title fontSize="sm">مدل‌های محلی در دسترس نیستند</Alert.Title>
-          <Alert.Description fontSize="xs">مدل‌های محلی فقط در نسخه‌های Tauri در دسترس هستند.</Alert.Description>
+          <Alert.Description fontSize="xs">در این محیط موتور استنتاج محلی نصب نشده است؛ از یک ارائه‌دهنده راه‌دور استفاده کنید.</Alert.Description>
         </Box>
       </Alert.Root>
     );
   }
 
-  const hasAnyModels = models.length > 0 || whisperReady || embeddingDownloaded;
+  const hasAnyModels = models.length > 0 || whisperReady;
 
   return (
     <VStack gap={4} align="stretch" className={className}>
@@ -490,17 +459,6 @@ const LocalModelManager = ({ className }) => {
             onDownload={() => recommendedWhisper && downloadWhisperModel(recommendedWhisper.id)}
             tooltipContent={`Required for speech-to-text. ${recommendedWhisper ? `(${recommendedWhisper.size})` : ""}`}
           />
-          <SupportingModelRow
-            icon={<FaDatabase size="12" />}
-            iconColor="neutralButton"
-            label="بردارسازی"
-            required={false}
-            isReady={embeddingDownloaded}
-            isDownloading={isDownloadingEmbedding}
-            progress={embeddingProgress}
-            onDownload={handleDownloadEmbedding}
-            tooltipContent={`Required for document search (RAG). (${RECOMMENDED_EMBEDDING.size_mb}MB)`}
-          />
         </HStack>
       </VStack>
 
@@ -531,17 +489,14 @@ const LocalModelManager = ({ className }) => {
                   <Text fontSize="sm">موارد زیر برای همیشه حذف می‌شوند:</Text>
                   <VStack gap={1} align="start" pl={4}>
                     {models.length > 0 && (
-                      <Text fontSize="sm" className="pill-box-icons">• مدل زبانی — یادداشت‌های بالینی و گفت‌وگو کار نخواهند کرد</Text>
+                      <Text fontSize="sm" className="pill-box-icons">• مدل زبانی — تولید گزارش بالینی کار نخواهد کرد</Text>
                     )}
                     {whisperReady && (
                       <Text fontSize="sm" className="pill-box-icons">• مدل تشخیص گفتار — پیاده‌سازی صدا متوقف خواهد شد</Text>
                     )}
-                    {embeddingDownloaded && (
-                      <Text fontSize="sm" className="pill-box-icons">• مدل بردارسازی — جست‌وجوی اسناد متوقف خواهد شد</Text>
-                    )}
                   </VStack>
                   <Text fontSize="sm" color="successButton">
-                    داده‌های بیمار، یادداشت‌ها و تنظیمات شما تحت تأثیر قرار نمی‌گیرند.
+                    متن‌ها، گزارش‌ها و تنظیمات شما تحت تأثیر قرار نمی‌گیرند.
                   </Text>
                   <Text fontSize="sm">برای استفاده دوباره از قابلیت‌های هوش مصنوعی باید مدل‌ها را مجدداً دانلود کنید.</Text>
                 </VStack>

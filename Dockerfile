@@ -28,9 +28,6 @@ RUN --mount=type=cache,target=/root/.npm,sharing=locked \
     npm ci --ignore-scripts --no-audit --no-fund
 
 # Application sources (change frequently) come after the cached install layer.
-# CHANGELOG.md is required: src/components/sidebar/VersionInfo.jsx imports it
-# via `?raw`, so the build fails without it.
-COPY CHANGELOG.md ./
 COPY index.html vite.config.js tsconfig.json ./
 COPY src/ ./src/
 COPY public/ ./public/
@@ -38,12 +35,61 @@ COPY public/ ./public/
 RUN npm run build
 
 ###############################################################################
-# Stage 2 - run the FastAPI app
+# Stage 2 - local inference servers (llama.cpp / whisper.cpp, CPU-only)
+###############################################################################
+# These are the same binaries the desktop app builds from source; Docker has
+# no Rust sidecar manager, so the API server supervises them itself (see
+# server/utils/local_servers.py). The pinned SHAs must match
+# src-tauri/build-llama.sh (LLAMA_PINNED_SHA) and src-tauri/build-whisper.sh
+# (WHISPER_CPP_REF default).
+FROM debian:bookworm-slim AS local-runtime
+
+ARG LLAMA_CPP_SHA=aa46bda89b9a8378ae76bb15fc2ce2f571f0983c
+ARG WHISPER_CPP_REF=978113305b2ead22249b881deafa131dc8884911
+
+RUN apt-get update \
+    && apt-get install -y --no-install-recommends git cmake build-essential \
+    && rm -rf /var/lib/apt/lists/*
+
+WORKDIR /opt/local-runtime
+
+RUN git clone https://github.com/ggml-org/llama.cpp.git llama.cpp \
+    && git -C llama.cpp checkout --detach "$LLAMA_CPP_SHA" \
+    && cmake -S llama.cpp -B llama.cpp/build \
+        -DCMAKE_BUILD_TYPE=Release \
+        -DGGML_NATIVE=OFF \
+        -DLLAMA_ALL_WARNINGS=OFF \
+        -DBUILD_SHARED_LIBS=OFF \
+        -DLLAMA_CURL=OFF \
+        -DLLAMA_OPENSSL=OFF \
+        -DLLAMA_BUILD_SERVER=ON \
+        -DLLAMA_BUILD_UI=OFF \
+        -DLLAMA_BUILD_APP=OFF \
+        -DLLAMA_BUILD_EXAMPLES=OFF \
+        -DLLAMA_BUILD_TESTS=OFF \
+    && cmake --build llama.cpp/build --target llama-server -j"$(nproc)"
+
+RUN git clone --depth 1 https://github.com/ggml-org/whisper.cpp.git whisper.cpp \
+    && git -C whisper.cpp fetch --depth 1 origin "$WHISPER_CPP_REF" \
+    && git -C whisper.cpp checkout --detach FETCH_HEAD \
+    && cmake -S whisper.cpp -B whisper.cpp/build \
+        -DCMAKE_BUILD_TYPE=Release \
+        -DGGML_NATIVE=OFF \
+        -DBUILD_SHARED_LIBS=OFF \
+        -DWHISPER_BUILD_SERVER=ON \
+        -DWHISPER_BUILD_EXAMPLES=ON \
+        -DWHISPER_BUILD_TESTS=OFF \
+        -DWHISPER_BUILD_BENCHMARKS=OFF \
+        -DWHISPER_USE_COREML=OFF \
+    && cmake --build whisper.cpp/build --target whisper-server -j"$(nproc)"
+
+###############################################################################
+# Stage 3 - run the FastAPI app
 ###############################################################################
 FROM python:3.12-slim
 
 LABEL org.opencontainers.image.title="Phlox" \
-      org.opencontainers.image.description="Patient management with AI transcription and clinical notes - FastAPI backend plus prebuilt React frontend (Persian/RTL build)" \
+      org.opencontainers.image.description="Persian medical transcription and clinical reports - FastAPI backend plus prebuilt React frontend (Persian/RTL build)" \
       org.opencontainers.image.licenses="MIT" \
       org.opencontainers.image.source="https://github.com/AmiraliGhamkhar/phlox_persian"
 
@@ -59,8 +105,6 @@ WORKDIR /usr/src/app
 # address and port (override with -e at run time).
 # UV_PYTHON_* stop uv from downloading a second CPython during the image build -
 # this base image already ships the interpreter required by the lockfile.
-# TIKTOKEN_CACHE_DIR points at a cache directory baked into the image (and owned
-# by the runtime user) so tokenizer data never has to be fetched at run time.
 # UV_LINK_MODE=copy is required with BuildKit cache mounts: the uv cache is not
 # present at container run time, so installed files must be copied (not
 # hard-linked) into the venv.
@@ -77,14 +121,10 @@ ENV DOCKER_CONTAINER=true \
     PORT=5000 \
     UV_PYTHON_PREFERENCE=only-system \
     UV_PYTHON_DOWNLOADS=never \
-    UV_LINK_MODE=copy \
-    TIKTOKEN_CACHE_DIR=/usr/src/app/.cache/tiktoken
+    UV_LINK_MODE=copy
 
-# tesseract-ocr: image attachment OCR (server/nlp_tools/document_processing.py)
-#   - tesseract-ocr-fa: Persian is the app's primary document language, so the
-#     OCR default is fa+eng (see TESSERACT_LANG in document_processing.py)
 # tzdata: makes the TZ environment variable actually resolve to a local zone
-# ca-certificates: TLS trust for outbound LLM / ASR / embedding requests
+# ca-certificates: TLS trust for outbound LLM / ASR requests and model downloads
 # The apt cache mounts keep package lists/debs warm across builds (and out of
 # the final image); the explicit removal keeps the committed layer minimal.
 RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
@@ -92,11 +132,13 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
     apt-get update \
     && apt-get install -y --no-install-recommends \
         ca-certificates \
-        tesseract-ocr \
-        tesseract-ocr-eng \
-        tesseract-ocr-fa \
         tzdata \
     && rm -rf /var/lib/apt/lists/*
+
+# Local inference servers from the local-runtime stage. /usr/local/bin is on
+# PATH, where server/utils/local_servers.py looks for them first.
+COPY --from=local-runtime /opt/local-runtime/llama.cpp/build/bin/llama-server /usr/local/bin/phlox-llama-server
+COPY --from=local-runtime /opt/local-runtime/whisper.cpp/build/bin/whisper-server /usr/local/bin/phlox-whisper-server
 
 # Create phlox user (uid:gid 1000:1000 - see the bind-mount note in docker-compose.yml)
 RUN groupadd -g 1000 phlox \
@@ -104,23 +146,20 @@ RUN groupadd -g 1000 phlox \
 
 # Application content
 COPY --from=build /usr/src/app/build ./build
-COPY CHANGELOG.md ./CHANGELOG.md
 COPY server/pyproject.toml server/uv.lock server/.python-version ./server/
 
-# Writable paths: data (DB + vectors + backups + logs), temp uploads, token cache.
-RUN mkdir -p /usr/src/app/data /usr/src/app/temp /usr/src/app/.cache/tiktoken \
+# Writable paths: data (encrypted DB + downloaded local models + logs) and
+# temp uploads.
+RUN mkdir -p /usr/src/app/data /usr/src/app/temp \
     && chown -R phlox:phlox /usr/src/app
 
-# Install Python dependencies from the lockfile (rag + ocr extras via "docker",
-# dev extras excluded) into /usr/src/app/server/.venv. The BuildKit cache mount
-# keeps downloaded wheels warm across builds without bloating the image. The
-# venv itself is committed to the layer so the runtime image needs no cache.
+# Install Python dependencies from the lockfile (asr extra for the
+# Shenava/Parakeet ONNX adapters, dev extras excluded) into
+# /usr/src/app/server/.venv. The BuildKit cache mount keeps downloaded
+# wheels warm across builds without bloating the image. The venv itself is
+# committed to the layer so the runtime image needs no cache.
 RUN --mount=type=cache,target=/root/.cache/uv,sharing=locked \
-    uv sync --directory server --locked --no-dev --extra docker
-
-# Pre-cache the tiktoken encoding used by RAG chunking and letter budgeting.
-RUN python -c "import tiktoken; tiktoken.get_encoding('cl100k_base')" \
-    && chown -R phlox:phlox /usr/src/app/.cache
+    uv sync --directory server --locked --no-dev --extra asr
 
 # Copy remaining server code (the venv above is not part of the build context).
 COPY server/ ./server/

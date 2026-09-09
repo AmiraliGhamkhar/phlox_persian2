@@ -107,7 +107,7 @@ jobs:
           enable-cache: true
           cache-dependency-glob: "server/uv.lock"
 
-      - run: cd server && uv sync --locked --extra docker
+      - run: cd server && uv sync --locked --extra asr
       - name: pip-audit
         id: pip-audit
         continue-on-error: true

@@ -91,7 +91,9 @@ export const localModelApi = {
         if (isTauri()) {
           return await invoke("restart_llama");
         }
-        throw new Error("Llama restart is only available in Tauri builds");
+        // Docker/browser: the API server restarts the sidecar itself after a
+        // download or select, so there is nothing for the UI to do.
+        return { restarted: true, manager: "backend" };
       },
       successMessage: "LLM server restarted successfully",
       errorMessage: "Failed to restart LLM server",
@@ -200,49 +202,11 @@ export const localModelApi = {
         if (isTauri()) {
           return await invoke("restart_whisper");
         }
-        throw new Error("Whisper restart is only available in Tauri builds");
+        // Docker/browser: the API server restarts the sidecar itself after a
+        // download or select, so there is nothing for the UI to do.
+        return { restarted: true, manager: "backend" };
       },
       successMessage: "Whisper server restarted successfully",
       errorMessage: "Failed to restart Whisper server",
-    }),
-
-  // Embedding model management
-  fetchEmbeddingStatus: async () =>
-    handleApiRequest({
-      apiCall: async () => {
-        const url = await buildApiUrl("/api/config/local/embedding/status");
-        return universalFetch(url);
-      },
-      errorMessage: "Failed to fetch embedding model status",
-    }),
-
-  streamDownloadEmbeddingModel: async function* () {
-    const baseUrl = await buildApiUrl("");
-    const url = `${baseUrl}/api/config/local/embedding/download/stream`;
-    yield* this.streamSSE(url);
-  },
-
-  restartEmbeddingServer: async () =>
-    handleApiRequest({
-      apiCall: async () => {
-        if (isTauri()) {
-          return await invoke("restart_embedding");
-        }
-        throw new Error("Embedding restart is only available in Tauri builds");
-      },
-      successMessage: "Embedding server restarted successfully",
-      errorMessage: "Failed to restart embedding server",
-    }),
-
-  deleteEmbeddingModel: async () =>
-    handleApiRequest({
-      apiCall: async () => {
-        const url = await buildApiUrl("/api/config/local/embedding");
-        return universalFetch(url, {
-          method: "DELETE",
-        });
-      },
-      successMessage: "Embedding model deleted successfully",
-      errorMessage: "Failed to delete embedding model",
     }),
 };

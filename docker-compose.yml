@@ -64,8 +64,6 @@ services:
             PROXY_AUTH_USER_HEADER: "${PROXY_AUTH_USER_HEADER:-X-Forwarded-User}"
             PROXY_AUTH_ALLOWED_USERS: "${PROXY_AUTH_ALLOWED_USERS:-}"
             PHLOX_EXPOSE_PUBLIC: "${PHLOX_EXPOSE_PUBLIC:-0}"
-            # Optional: seed the demo dataset on first start (false by default).
-            PHLOX_DEMO_MODE: "${PHLOX_DEMO_MODE:-false}"
         volumes:
             # Named volume: Docker seeds it with the image's ownership, so the
             # unprivileged container user can always write the encrypted DB.
