@@ -85,19 +85,16 @@ export const localModelApi = {
       errorMessage: "Failed to delete model",
     }),
 
-  restartLlamaServer: async () =>
-    handleApiRequest({
-      apiCall: async () => {
-        if (isTauri()) {
-          return await invoke("restart_llama");
-        }
-        // Docker/browser: the API server restarts the sidecar itself after a
-        // download or select, so there is nothing for the UI to do.
-        return { restarted: true, manager: "backend" };
-      },
-      successMessage: "LLM server restarted successfully",
-      errorMessage: "Failed to restart LLM server",
-    }),
+  restartLlamaServer: async () => {
+    // invoke() returns a plain object, not a fetch Response — do not run it
+    // through handleApiRequest (that helper requires `response.ok`).
+    if (isTauri()) {
+      return invoke("restart_llama");
+    }
+    // Docker/browser: the API server restarts the sidecar itself after a
+    // download or select, so there is nothing for the UI to do.
+    return { restarted: true, manager: "backend" };
+  },
 
   getSelectedModel: async () =>
     handleApiRequest({

@@ -30,15 +30,15 @@ def _asr_ready(config: dict) -> bool:
     provider = (config.get("ASR_PROVIDER") or config.get("LLM_PROVIDER") or "").strip()
     if provider == "local":
         return True
-    if (
-        provider in {"openai", "speechmatics", "assemblyai", "fireworks"}
-        and (config.get("ASR_KEY") or config.get("WHISPER_KEY") or "").strip()
-    ):
-        return True
-    return bool(
-        (config.get("ASR_MODEL") or config.get("WHISPER_MODEL") or "").strip()
-        or (config.get("ASR_BASE_URL") or config.get("WHISPER_BASE_URL") or "").strip()
-    )
+    key = (config.get("ASR_KEY") or config.get("WHISPER_KEY") or "").strip()
+    batch_key = (config.get("ASR_BATCH_KEY") or config.get("WHISPER_BATCH_KEY") or "").strip()
+    if provider in {"speechmatics", "assemblyai", "fireworks"}:
+        return bool(key or batch_key)
+    if provider == "openai":
+        return bool(key)
+    # openai_compatible / whispercpp / custom: a leftover local model id must
+    # not mark the workspace ready when no ASR endpoint is configured.
+    return bool((config.get("ASR_BASE_URL") or config.get("WHISPER_BASE_URL") or "").strip())
 
 
 @router.get("/specialties")

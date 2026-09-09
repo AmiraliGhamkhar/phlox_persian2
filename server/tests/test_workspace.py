@@ -36,6 +36,25 @@ def test_workspace_status_shape():
         assert key in data
 
 
+def test_asr_ready_requires_url_for_openai_compatible():
+    from server.api.workspace import _asr_ready, _llm_ready
+
+    leftover_local_model = {
+        "ASR_PROVIDER": "openai_compatible",
+        "ASR_MODEL": "whisper-large-v3-turbo-q6_k",
+    }
+    assert _asr_ready(leftover_local_model) is False
+    assert _asr_ready(
+        {"ASR_PROVIDER": "openai_compatible", "ASR_BASE_URL": "http://127.0.0.1:2022"}
+    )
+    assert _asr_ready({"ASR_PROVIDER": "local"}) is True
+    assert _asr_ready({"ASR_PROVIDER": "assemblyai"}) is False
+    assert _asr_ready({"ASR_PROVIDER": "assemblyai", "ASR_KEY": "k"}) is True
+    assert _asr_ready({"ASR_PROVIDER": "openai", "ASR_KEY": "sk"}) is True
+    assert _llm_ready({"LLM_PROVIDER": "groq", "LLM_API_KEY": "gsk"}) is True
+    assert _llm_ready({"LLM_PROVIDER": "openai"}) is False
+
+
 def test_dictionary_search_persian_and_english():
     empty = client.get("/api/workspace/dictionary")
     assert empty.status_code == 200
@@ -123,12 +142,12 @@ def test_specialty_label_persian():
 def test_activate_downloaded_asr_writes_local_provider():
     from server.database.config.manager import config_manager
 
-    updates = activate_downloaded_asr("whisper-large-v3-turbo-q5_0")
+    updates = activate_downloaded_asr("whisper-large-v3-turbo-q6_k")
     assert updates["ASR_PROVIDER"] == "local"
-    assert updates["ASR_MODEL"] == "whisper-large-v3-turbo-q5_0"
+    assert updates["ASR_MODEL"] == "whisper-large-v3-turbo-q6_k"
     config = config_manager.get_config()
     assert config["ASR_PROVIDER"] == "local"
-    assert config["ASR_MODEL"] == "whisper-large-v3-turbo-q5_0"
+    assert config["ASR_MODEL"] == "whisper-large-v3-turbo-q6_k"
 
 
 def test_activate_downloaded_llm_writes_local_provider():

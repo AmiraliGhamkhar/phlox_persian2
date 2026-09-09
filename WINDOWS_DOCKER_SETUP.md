@@ -221,7 +221,7 @@ First run:
 3. Go to **تنظیمات (Settings) → مدل (Model)**:
    - **Cloud**: choose OpenAI / Anthropic / Groq / Fireworks / OpenRouter / Ollama… and paste an API key (stored encrypted in the DB).
    - **Ollama/LM Studio on your Windows host**: use `http://host.docker.internal:11434` as the base URL — the compose file already maps that hostname.
-   - **Local inside Docker**: Settings → Model → Local → download a GGUF model (Whisper `large-v3-turbo` Q5_0 ≈ recommended; F16/Q8_0 bigger). The bundled `llama-server`/`whisper-server` start automatically; Shenava (Persian) & Parakeet run in-process (ONNX). Models are stored on the `phlox_data` volume, so they survive restarts.
+   - **Local inside Docker**: Settings → Model → Local → download a speech model (Whisper `large-v3-turbo` Q6_K GGUF ≈ recommended; F16/Q5_0/Q8_0 GGML also listed). The bundled `llama-server`/`whisper-server` start automatically; Shenava (Persian, Reza2kn tract-streaming INT4) & Parakeet run in-process (ONNX). Models are stored on the `phlox_data` volume, so they survive restarts.
 
 ### 4.6 Stop / start / upgrade
 

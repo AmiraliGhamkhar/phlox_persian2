@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 # Build the whisper.cpp OpenAI-compatible ASR server used by the desktop app.
-# The same binary can load the three bundled large-v3-turbo GGML variants.
+# The same binary can load official large-v3-turbo GGML .bin files and the
+# whisper.cpp-compatible Q6_K GGUF from Xviers.
 #
 # Use --debug to copy the binary to target/debug for `tauri dev`.
 

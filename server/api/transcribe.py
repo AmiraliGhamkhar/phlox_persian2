@@ -177,6 +177,9 @@ async def dictate(file: UploadFile = File(...)):
             "transcription": transcript_text,
             "transcriptionDuration": transcription_duration,
         }
+    except ValueError as error:
+        logging.warning("Dictation rejected: %s", error)
+        raise HTTPException(status_code=400, detail=str(error)) from error
     except Exception as e:
         logging.error(f"Error occurred during dictation: {e}")
         raise HTTPException(status_code=500, detail="Internal server error") from e

@@ -135,8 +135,8 @@ const WorkspacePage = () => {
         }
     };
 
-    const asrReady = status?.asr_ready !== false;
-    const llmReady = status?.llm_ready !== false;
+    const asrReady = status?.asr_ready === true;
+    const llmReady = status?.llm_ready === true;
     const recording = recorder.isRecording;
 
     return (

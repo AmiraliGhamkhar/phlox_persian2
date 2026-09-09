@@ -152,11 +152,31 @@ async def get_whisper_models(
     """
     try:
         provider_id = normalize_provider_id(provider, "asr") if provider else ""
+        if provider_id == "local":
+            try:
+                from server.utils.whisper_models import asr_model_manager
+
+                downloaded = asr_model_manager.get_downloaded_models()
+                model_ids = []
+                for model in downloaded:
+                    model_id = model.get("id") or model.get("name")
+                    if model_id:
+                        model_ids.append(str(model_id))
+                return {"models": model_ids, "listAvailable": bool(model_ids)}
+            except Exception as error:
+                logging.error("Error fetching local ASR models: %s", error)
+                return {
+                    "models": [],
+                    "listAvailable": False,
+                    "error": "Failed to fetch local ASR models",
+                }
+
         if provider_id in {"speechmatics", "fireworks", "assemblyai"}:
             info = ASR_PROVIDERS.get(provider_id) or {}
+            models = list(info.get("default_models") or [])
             return {
-                "models": list(info.get("default_models") or []),
-                "listAvailable": True,
+                "models": models,
+                "listAvailable": bool(models),
             }
 
         endpoint = (asrEndpoint or whisperEndpoint or "").strip()

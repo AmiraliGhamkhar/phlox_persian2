@@ -3,6 +3,14 @@ import { Tooltip } from "@/components/ui/tooltip";
 import { CheckCircleIcon } from "../common/icons";
 import { applyLlmProviderDefaults } from "../../utils/aiProviders";
 
+const modelSelectOptions = (current, options) => {
+    const list = Array.isArray(options) ? options.filter(Boolean) : [];
+    if (current && !list.includes(current)) {
+        return [current, ...list];
+    }
+    return list;
+};
+
 const LlmTab = ({
     config,
     handleConfigChange,
@@ -13,6 +21,11 @@ const LlmTab = ({
 }) => {
     const selectedProvider = llmProviders.find(
         (item) => item.id === (config?.LLM_PROVIDER || "ollama"),
+    );
+    const primaryOptions = modelSelectOptions(config?.PRIMARY_MODEL, modelOptions);
+    const secondaryOptions = modelSelectOptions(
+        config?.SECONDARY_MODEL,
+        modelOptions,
     );
 
     return (
@@ -157,7 +170,10 @@ const LlmTab = ({
                                 placeholder="انتخاب مدل"
                                 className="input-style"
                             >
-                                {modelOptions.map((model) => (
+                                {primaryOptions.length === 0 && (
+                                    <option value="">انتخاب مدل</option>
+                                )}
+                                {primaryOptions.map((model) => (
                                     <option key={model} value={model}>
                                         {model}
                                     </option>
@@ -195,7 +211,10 @@ const LlmTab = ({
                                 placeholder="انتخاب مدل"
                                 className="input-style"
                             >
-                                {modelOptions.map((model) => (
+                                {secondaryOptions.length === 0 && (
+                                    <option value="">انتخاب مدل</option>
+                                )}
+                                {secondaryOptions.map((model) => (
                                     <option key={model} value={model}>
                                         {model}
                                     </option>

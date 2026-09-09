@@ -281,7 +281,7 @@ const WhisperTab = ({
                             data-ltr="true"
                             placeholder={
                                 provider === "local"
-                                    ? "whisper-large-v3-turbo-q5_0"
+                                    ? "whisper-large-v3-turbo-q6_k"
                                     : "whisper-1"
                             }
                             value={modelValue}

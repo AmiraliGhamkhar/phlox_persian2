@@ -74,9 +74,17 @@ export default defineConfig({
     // Proxy API calls to the backend
     proxy: {
       "/api": {
-        target: "http://localhost:5000",
+        target: "http://127.0.0.1:5000",
         changeOrigin: true,
         ws: true,
+        // The browser Origin is the Vite preview host (e.g. *.e2b.app). The
+        // backend Host-validation middleware would 403 POSTs unless we present
+        // the proxied request as same-host to the API.
+        configure: (proxy) => {
+          proxy.on("proxyReq", (proxyReq) => {
+            proxyReq.setHeader("origin", "http://127.0.0.1:5000");
+          });
+        },
       },
     },
 

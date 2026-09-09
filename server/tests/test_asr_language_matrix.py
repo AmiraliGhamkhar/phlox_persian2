@@ -25,9 +25,9 @@ from server.transcription.audio import (
 def test_local_model_language_guards():
     """Declared engine capabilities must match the configured language."""
     # Whisper: fa / en / auto all fine.
-    _validate_local_model_language("whisper-large-v3-turbo-q5_0", "fa")
-    _validate_local_model_language("whisper-large-v3-turbo-q5_0", "en")
-    _validate_local_model_language("whisper-large-v3-turbo-q5_0", "auto")
+    _validate_local_model_language("whisper-large-v3-turbo-q6_k", "fa")
+    _validate_local_model_language("whisper-large-v3-turbo-q6_k", "en")
+    _validate_local_model_language("whisper-large-v3-turbo-q6_k", "auto")
 
     # Parakeet: English OK, Persian/mixed rejected.
     _validate_local_model_language("parakeet-tdt-0.6b-v3-int8", "en")

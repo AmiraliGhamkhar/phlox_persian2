@@ -230,6 +230,20 @@ def initialize_and_get_app():
     app.include_router(workspace.router, prefix="/api/workspace")
     app.include_router(config_router, prefix="/api/config")
 
+    # PUBLIC_PATHS lists these as unauthenticated probes. Serve JSON here so
+    # a container/orchestrator hitting /health does not receive the SPA HTML
+    # (or a 404 in desktop/dev where BUILD_DIR is None).
+    @app.get("/health")
+    @app.get("/api/health")
+    async def root_health():
+        return {"status": "ok"}
+
+    @app.get("/version")
+    async def root_version():
+        from server._version import __version__
+
+        return {"name": APP_NAME, "version": __version__}
+
     # React app routes (specialty picker, workspace, settings)
     @app.get("/settings")
     @app.get("/workspace")

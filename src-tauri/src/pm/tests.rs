@@ -53,6 +53,19 @@ fn default_state_is_empty() {
     assert!(status_default_port_matches());
 }
 
+#[test]
+fn whisper_cpp_weights_accept_bin_and_gguf_not_onnx() {
+    assert!(is_whisper_cpp_weight(std::path::Path::new(
+        "whisper-large-v3-turbo-q6_k.gguf"
+    )));
+    assert!(is_whisper_cpp_weight(std::path::Path::new(
+        "ggml-large-v3-turbo-q5_0.bin"
+    )));
+    assert!(!is_whisper_cpp_weight(std::path::Path::new(
+        "shenava-koochik-v1.0-int4.onnx"
+    )));
+}
+
 fn status_default_port_matches() -> bool {
     // StatusData default has no services.
     let s = StatusData::default();
