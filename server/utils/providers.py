@@ -387,6 +387,7 @@ ASR_PROVIDERS: dict[str, dict[str, Any]] = {
     },
 }
 
+
 def normalize_provider_id(provider: str | None, kind: str = "llm") -> str:
     """Return a canonical provider id, applying aliases."""
     raw = (provider or "").strip().lower()

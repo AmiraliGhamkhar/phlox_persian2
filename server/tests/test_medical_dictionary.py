@@ -1,9 +1,9 @@
 """Quality tests for the bundled Persian-English medical terminology data.
 
-The term lists in ``server/data/terms/*.json`` feed three clinical surfaces
-(ASR biasing, the chat lookup tool, refinement terminology reference). These
-tests fail loudly on structural corruption, junk entries, or filler loops so
-a bad dictionary can never ship silently.
+The term lists in ``server/data/terms/*.json`` feed the clinical surfaces
+(ASR biasing, the workspace dictionary lookup, the report terminology
+reference). These tests fail loudly on structural corruption, junk entries,
+or filler loops so a bad dictionary can never ship silently.
 """
 
 from __future__ import annotations

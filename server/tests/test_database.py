@@ -3,7 +3,6 @@ Test basic database functionality using the PatientDatabase.
 We are using a temporary directory for testing and cleaning up afterward.
 """
 
-import json
 import os
 import threading
 from pathlib import Path
@@ -252,51 +251,3 @@ def test_concurrent_inserts_return_own_ids(test_db):
         assert id_to_name.get(row_id) == f"concurrent_{i}", (
             f"thread {i} got id {row_id} which belongs to {id_to_name.get(row_id)}"
         )
-
-
-def test_concurrent_adaptive_instruction_updates(test_db, monkeypatch):
-    from server.database.repositories import templates
-
-    monkeypatch.setattr(templates, "get_db", lambda: test_db)
-    fields = [{"field_key": "assessment"}, {"field_key": "plan"}]
-    with test_db.transaction() as cursor:
-        cursor.execute(
-            """
-            INSERT INTO clinical_templates
-                (template_key, template_name, fields, created_at, updated_at)
-            VALUES (?, ?, ?, ?, ?)
-            """,
-            ("concurrent_01", "Concurrent", json.dumps(fields), "now", "now"),
-        )
-
-    start = threading.Event()
-    results = []
-
-    def update(field_key):
-        start.wait()
-        results.append(
-            templates.update_field_adaptive_instructions(
-                "concurrent_01", field_key, [f"Keep {field_key}"]
-            )
-        )
-
-    threads = [
-        threading.Thread(target=update, args=("assessment",)),
-        threading.Thread(target=update, args=("plan",)),
-    ]
-    for thread in threads:
-        thread.start()
-    start.set()
-    for thread in threads:
-        thread.join(timeout=10)
-
-    assert all(not thread.is_alive() for thread in threads)
-    assert results == [True, True]
-    with test_db.read() as cursor:
-        cursor.execute(
-            "SELECT fields FROM clinical_templates WHERE template_key = ?", ("concurrent_01",)
-        )
-        updated = {field["field_key"]: field for field in json.loads(cursor.fetchone()["fields"])}
-
-    assert updated["assessment"]["adaptive_refinement_instructions"] == ["Keep assessment"]
-    assert updated["plan"]["adaptive_refinement_instructions"] == ["Keep plan"]

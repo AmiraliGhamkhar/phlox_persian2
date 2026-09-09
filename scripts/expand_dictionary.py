@@ -31,7 +31,7 @@ TERMS_DIR = ROOT / "server" / "data" / "terms"
 OUT_FILE = TERMS_DIR / "generated.json"
 
 sys.path.insert(0, str(ROOT / "server" / "data"))
-from validate_terms import REQUIRED_CATEGORIES, validate_all  # noqa: E402
+from validate_terms import REQUIRED_CATEGORIES, validate_all
 
 _PERSIAN_CHAR = re.compile(r"[\u0600-\u06FF]")
 _LATIN = re.compile(r"[A-Za-z]")
@@ -680,7 +680,8 @@ EXAM_SIGNS: list[tuple[str, str]] = [
     ("راب اصطکاکی پریکارد", "pericardial friction rub"),
     ("اسنپ باز شدن", "opening snap"),
     ("کلیک جهشی", "ejection click"),
-    ("دوپاره شدن صدای دوم", "split S2"),    ("بلند بودن پی دو", "loud P2"),
+    ("دوپاره شدن صدای دوم", "split S2"),
+    ("بلند بودن پی دو", "loud P2"),
     ("برویی کاروتید", "carotid bruit"),
     ("برویی شکمی", "abdominal bruit"),
     ("برویی کلیوی", "renal bruit"),
@@ -897,6 +898,7 @@ DOSING_SCHEDULE: list[tuple[str, str]] = [
 
 # ------------------------------------------------------------------ build
 
+
 def build_candidates() -> list[tuple[str, str, str]]:
     out: list[tuple[str, str, str]] = []
     for fa, en in LABS_3LEVEL:
@@ -932,7 +934,9 @@ def build_candidates() -> list[tuple[str, str, str]]:
         en = "1 week gestation" if week == 1 else f"{week} weeks gestation"
         out.append((f"هفته {fa_num(week)} بارداری", en, "obstetric"))
     for month in range(1, 10):
-        out.append((f"ماه {fa_num(month)} بارداری", f"month {month} of pregnancy", "obstetric"))
+        out.append(
+            (f"ماه {fa_num(month)} بارداری", f"month {month} of pregnancy", "obstetric")
+        )
     out.append(("سه‌ماهه اول بارداری", "first trimester of pregnancy", "obstetric"))
     out.append(("سه‌ماهه دوم بارداری", "second trimester of pregnancy", "obstetric"))
     out.append(("سه‌ماهه سوم بارداری", "third trimester of pregnancy", "obstetric"))
@@ -1039,7 +1043,9 @@ def main() -> None:
         "[" + ",\n".join(json.dumps(t, ensure_ascii=False) for t in accepted) + "]",
         encoding="utf-8",
     )
-    print(f"accepted: {len(accepted)} | shape-skipped: {skipped_shape} | dup-skipped: {skipped_dup}")
+    print(
+        f"accepted: {len(accepted)} | shape-skipped: {skipped_shape} | dup-skipped: {skipped_dup}"
+    )
     print(f"wrote {OUT_FILE.relative_to(ROOT)}")
 
     entries = validate_all()

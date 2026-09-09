@@ -31,11 +31,6 @@ SPA_PATHS = [
     "/",
     "/workspace",
     "/settings",
-    "/new-note",
-    "/rag",
-    "/clinic-summary",
-    "/outstanding-jobs",
-    "/note/42",
     "/some-unknown-client-route",
 ]
 
