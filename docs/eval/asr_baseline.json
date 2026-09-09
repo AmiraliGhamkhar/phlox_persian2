@@ -1,0 +1,12 @@
+{
+  "schema": 1,
+  "notes": "ASR eval baseline (plan W2.6). Filled by `python3 scripts/eval_asr.py --update-baseline` once consented gold clips exist (W0.4). Until then wer_* are null and the harness skips regression comparison.",
+  "engine": null,
+  "model": null,
+  "wer_micro": null,
+  "wer_macro": null,
+  "normalized_wer_micro": null,
+  "normalized_wer_macro": null,
+  "bert_score_f1": null,
+  "files": []
+}

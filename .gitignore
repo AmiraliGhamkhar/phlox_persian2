@@ -6,7 +6,11 @@
 *.sqlite
 *.sqlite-wal
 *.sqlite-shm
-data/
+data/*
+# ...except the eval harness docs (gold clips stay out until consented, W0.4)
+!data/eval/
+data/eval/*
+!data/eval/README.md
 
 # Logs
 logs/
