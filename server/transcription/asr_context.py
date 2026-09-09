@@ -1,9 +1,21 @@
-"""Context-biasing vocabulary for ASR (plan ref A2).
+"""Context-biasing vocabulary for ASR (plan ref A2, W2.5).
 
 Whisper-family models accept an ``initial prompt``; supplying domain terms
 that are likely to occur materially improves recognition of rare words,
 names and clinical vocabulary (measured: R-WER 23.7%→18.0%, OOV-WER 60%→37.1%
-for zero-shot prompt biasing — B-Whisper, arXiv 2502.11572).
+for zero-shot prompt biasing — B-Whisper, arXiv:2502.11572).
+
+Cap trade-off: the list is hard-capped at 60 terms / ~900 chars. Whisper's
+initial-prompt window is 224 tokens, and prompt biasing shows strongly
+diminishing returns past a few dozen terms while crowding out the
+spoken-form context line; independent CTC-based biasing work on OWSM-style
+multilingual ASR (arXiv:2506.09448) reports the same small-list sweet spot.
+Longer lists risk hurting more than helping, so we keep this conservative.
+
+When the list is large enough to matter (≥10 terms), the prompt is prefixed
+with a short spoken-style Persian context line (CB-Whisper "spoken form
+hint" pattern) so the acoustic prior reads like visit speech, not a
+keyword dump.
 
 The simplified app keeps no patient record, so the list is built from the
 clinician's identity/specialty plus the bundled Persian-English medical
@@ -27,6 +39,10 @@ _MAX_TERMS = 60  # whisper prompt window is 224 tokens; terms are short
 _MAX_PROMPT_CHARS = 900
 _TERM_MAX_LEN = 60
 _TERM_MIN_LEN = 2
+
+# W2.5: spoken-form hint prefix (plan example), used when ≥ this many terms.
+_SPOKEN_PREFIX = "پیاده‌سازی ویزیت پزشکی شامل مواردی مانند "
+_SPOKEN_PREFIX_MIN_TERMS = 10
 
 # Drop terms that would smuggle instructions or noise into the prompt.
 _REJECTED = re.compile(r"[<>{}\[\]`$\\|]|https?://|[\n\r\t]", re.IGNORECASE)
@@ -116,10 +132,18 @@ def build_bias_terms(
 
 def build_initial_prompt(terms: list[str]) -> str | None:
     """Join bias terms into a whisper-compatible prompt, capped to the
-    224-token prompt window (≈900 chars for short terms)."""
+    224-token prompt window (≈900 chars).
+
+    With ≥ ``_SPOKEN_PREFIX_MIN_TERMS`` terms the list is preceded by a
+    short spoken-style Persian context line (CB-Whisper "spoken form hint"
+    pattern, arXiv:2502.11572); short lists stay a pure term list. The
+    prefix counts against the same 900-char cap.
+    """
     if not terms:
         return None
     prompt = "، ".join(terms)
+    if len(terms) >= _SPOKEN_PREFIX_MIN_TERMS:
+        prompt = _SPOKEN_PREFIX + prompt
     return prompt[:_MAX_PROMPT_CHARS].strip() or None
 
 

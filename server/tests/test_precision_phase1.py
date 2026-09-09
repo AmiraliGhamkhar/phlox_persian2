@@ -190,6 +190,66 @@ class TestBiasTerms:
         capped = build_initial_prompt([f"t{i}" for i in range(500)])
         assert capped is not None and len(capped) <= 900
 
+    def test_prefix_added_for_large_lists(self):
+        from server.transcription.asr_context import _SPOKEN_PREFIX
+
+        terms = [f"واژه {i}" for i in range(12)]
+        prompt = build_initial_prompt(terms)
+        assert prompt is not None
+        assert prompt.startswith(_SPOKEN_PREFIX)
+        assert len(prompt) <= 900
+
+    def test_no_prefix_for_small_lists(self):
+        from server.transcription.asr_context import _SPOKEN_PREFIX
+
+        terms = [f"واژه {i}" for i in range(9)]
+        prompt = build_initial_prompt(terms)
+        assert prompt == "، ".join(terms)
+        assert _SPOKEN_PREFIX not in prompt
+
+    def test_prefix_counts_against_cap(self):
+        from server.transcription.asr_context import _SPOKEN_PREFIX
+
+        prompt = build_initial_prompt([f"واژه بلند شماره {i}" for i in range(200)])
+        assert prompt is not None
+        assert prompt.startswith(_SPOKEN_PREFIX)
+        assert len(prompt) <= 900
+
+    def test_variants_reach_bias_list(self, monkeypatch):
+        import server.data.medical_dictionary as md
+        from server.transcription.asr_context import build_bias_terms
+
+        fake_entries = [
+            {
+                "fa": "آنژیوگرافی کرونری",
+                "en": "coronary angiography",
+                "cat": "procedures",
+                "variants": ["آنژیوگرافی عروق کرونر"],
+            },
+            {"fa": "تب", "en": "fever", "cat": "symptoms"},
+        ]
+        monkeypatch.setattr(md, "load_terms", lambda: ({}, {}, fake_entries))
+        terms = build_bias_terms()
+        assert "آنژیوگرافی کرونری" in terms
+        assert "آنژیوگرافی عروق کرونر" in terms
+
+    def test_variants_dedupe_and_cap(self, monkeypatch):
+        import server.data.medical_dictionary as md
+
+        fake_entries = [
+            {
+                "fa": "نوار قلب",
+                "en": "ECG",
+                "cat": "procedures",
+                "variants": ["نوار قلب", "نوارقلب"],  # identical variant dedupes
+            }
+        ]
+        monkeypatch.setattr(md, "load_terms", lambda: ({}, {}, fake_entries))
+        terms = md.asr_bias_terms()
+        assert terms[0] == "نوار قلب"
+        assert "نوارقلب" in terms
+        assert len(terms) == 2
+
     def test_empty_terms_yield_no_prompt(self):
         assert build_initial_prompt([]) is None
         assert build_custom_vocabulary([]) is None
