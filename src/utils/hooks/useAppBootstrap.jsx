@@ -7,9 +7,7 @@ import EncryptionUnlock from "../../components/setup/EncryptionUnlock";
 import ServerStartupLoader from "../../components/setup/ServerStartupLoader";
 import { settingsApi } from "../api/settingsApi";
 import { isTauri } from "../../utils/helpers/apiConfig";
-import { setEmbeddingReady } from "../../utils/helpers/featureFlags";
 import { encryptionApi } from "../../utils/api/encryptionApi";
-import { localModelApi } from "../../utils/api/localModelApi";
 
 export const useAppBootstrap = () => {
     const [showSplashScreen, setShowSplashScreen] = useState(undefined);
@@ -103,16 +101,6 @@ export const useAppBootstrap = () => {
     const handleServerReady = () => {
         setShowServerStartupLoader(false);
         checkSplashStatus();
-
-        // Sync embedding model status for RAG feature flag (Tauri only)
-        if (isTauri()) {
-            localModelApi.fetchEmbeddingStatus()
-                .then((res) => {
-                    const has = !!res?.downloaded;
-                    setEmbeddingReady(has);
-                })
-                .catch(() => {});
-        }
 
         setTimeout(() => {
             setIsInGracePeriod(false);

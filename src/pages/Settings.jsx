@@ -352,7 +352,6 @@ const Settings = () => {
                     urlStatus={urlStatus}
                     llmProviders={llmProviders}
                     asrProviders={asrProviders}
-                    hideExtras
                 />
             </VStack>
         </Box>

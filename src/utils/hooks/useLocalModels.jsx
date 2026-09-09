@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback } from "react";
 import { toaster } from "@/components/ui/toaster";
 import { localModelApi } from "../api/localModelApi";
 import { invoke } from "@tauri-apps/api/core";
+import { isTauri } from "../helpers/apiConfig";
 import { downloadLlmModel as downloadLlmService, downloadWhisperModel as downloadWhisperService } from "../services/localModelService";
 
 export const useLocalModels = () => {
@@ -31,8 +32,12 @@ export const useLocalModels = () => {
   const [whisperStatus, setWhisperStatus] = useState(null);
 
 
-  // Fetch system specifications
+  // Fetch system specifications (desktop only — the invoke does not exist
+  // in Docker/browser, and recommendations degrade gracefully without it).
   const fetchSystemSpecs = useCallback(async () => {
+    if (!isTauri()) {
+      return null;
+    }
     try {
       const specs = await invoke("get_system_specs");
       setSystemSpecs(specs);
