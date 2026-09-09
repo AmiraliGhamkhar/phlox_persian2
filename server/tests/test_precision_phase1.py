@@ -218,3 +218,182 @@ class TestDeterministicOptions:
 
     def test_handles_none(self):
         assert deterministic_options(None) == {"temperature": 0.0, "seed": 0}
+
+
+# -------------------------------------------------------- W2.2: VAD strategy
+
+
+class _SileroStubIO:
+    """Minimal stand-in for an ONNX input/output descriptor."""
+
+    def __init__(self, name, shape):
+        self.name = name
+        self.shape = shape
+
+
+class _SileroStubSession:
+    """Energy-threshold stand-in for the Silero graph (tests only)."""
+
+    def __init__(self, threshold: float = 0.05, force_prob: float | None = None):
+        self.threshold = threshold
+        self.force_prob = force_prob
+
+    def get_inputs(self):
+        return [
+            _SileroStubIO("input", [1, 512]),
+            _SileroStubIO("sr", [1]),
+            _SileroStubIO("state", [2, 1, 64]),
+        ]
+
+    def get_outputs(self):
+        return [_SileroStubIO("output", [1, 1]), _SileroStubIO("stateN", [2, 1, 64])]
+
+    def run(self, _names, feed):
+        import numpy as np
+
+        if self.force_prob is not None:
+            prob = self.force_prob
+        else:
+            frame = feed["input"][0]
+            rms = float(np.sqrt(np.mean(np.square(frame))))
+            prob = 1.0 if rms > self.threshold else 0.0
+        return [np.array([[prob]], dtype=np.float32), feed["state"]]
+
+
+def _patch_silero_session(monkeypatch, session):
+    """Point the VAD at a stub session without touching the network."""
+    from pathlib import Path
+
+    from server.transcription import vad
+
+    monkeypatch.setattr(vad, "_silero_weights_path", lambda: Path("stub-silero.onnx"))
+    monkeypatch.setattr(vad, "_load_silero_session", lambda: session)
+
+
+class TestTrimWithSilero:
+    def test_trims_silence_and_keeps_speech(self, monkeypatch):
+        pytest.importorskip("numpy")
+        from server.transcription.vad import trim_with_silero
+
+        _patch_silero_session(monkeypatch, _SileroStubSession())
+        original = _wav_bytes(_silence(3) + _tone(1.5) + _silence(4))
+        trimmed, meta = trim_with_silero(original)
+        assert meta["silero_ran"] is True
+        assert meta["trimmed_ms"] >= 5000  # ~7s silence minus ~450ms margins
+        with wave.open(io.BytesIO(trimmed), "rb") as wav:
+            duration = wav.getnframes() / wav.getframerate()
+        # Speech kept, ~200 ms margins on both sides, silence gone.
+        assert 1.5 <= duration <= 3.0
+
+    def test_no_voiced_frames_returns_original(self, monkeypatch):
+        pytest.importorskip("numpy")
+        from server.transcription.vad import trim_with_silero
+
+        _patch_silero_session(monkeypatch, _SileroStubSession(force_prob=0.0))
+        original = _wav_bytes(_silence(3) + _tone(1.0, amplitude=0.001) + _silence(3))
+        trimmed, meta = trim_with_silero(original)
+        assert trimmed == original
+        assert meta["trimmed_ms"] == 0
+        assert meta["silero_ran"] is True
+
+    def test_missing_session_returns_original(self):
+        from server.transcription.vad import trim_with_silero
+
+        original = _wav_bytes(_silence(3) + _tone(1.0) + _silence(3))
+        trimmed, meta = trim_with_silero(original, session=None)
+        assert trimmed == original and meta["trimmed_ms"] == 0
+
+    def test_garbage_input_is_fail_open(self, monkeypatch):
+        pytest.importorskip("numpy")
+        from server.transcription.vad import trim_with_silero
+
+        _patch_silero_session(monkeypatch, _SileroStubSession())
+        junk = b"this is not audio at all"
+        trimmed, meta = trim_with_silero(junk)
+        assert trimmed == junk and meta["trimmed_ms"] == 0
+
+
+class TestVadStrategyMatrix:
+    def test_off_returns_buffer_untouched(self, monkeypatch):
+        monkeypatch.setenv("PHLOX_VAD", "off")
+        original = _wav_bytes(_silence(3) + _tone(1.0) + _silence(3))
+        out, meta = prepare_audio(original)
+        assert out == original
+        assert meta == {"vad_applied": False, "trimmed_ms": 0, "strategy": None}
+
+    def test_energy_strategy_keeps_previous_behavior(self, monkeypatch):
+        monkeypatch.setenv("PHLOX_VAD", "energy")
+        original = _wav_bytes(_silence(3) + _tone(1.5) + _silence(4))
+        out, meta = prepare_audio(original)
+        assert meta["vad_applied"] is True
+        assert meta["trimmed_ms"] >= 5000
+        assert meta["strategy"] == "energy"
+        assert len(out) < len(original)
+
+    def test_auto_without_silero_uses_energy(self, monkeypatch):
+        monkeypatch.delenv("PHLOX_VAD", raising=False)
+        monkeypatch.setattr("server.transcription.vad.silero_available", lambda: False)
+        original = _wav_bytes(_silence(3) + _tone(1.5) + _silence(4))
+        out, meta = prepare_audio(original)
+        assert meta["vad_applied"] is True
+        assert meta["strategy"] == "energy"
+
+    def test_forced_silero_missing_falls_open_to_energy(self, monkeypatch):
+        monkeypatch.setenv("PHLOX_VAD", "silero")
+        monkeypatch.setattr("server.transcription.vad.silero_available", lambda: True)
+
+        def _no_silero(buffer):
+            return buffer, {"trimmed_ms": 0}  # weights vanished at runtime
+
+        monkeypatch.setattr("server.transcription.vad.trim_with_silero", _no_silero)
+        original = _wav_bytes(_silence(3) + _tone(1.5) + _silence(4))
+        out, meta = prepare_audio(original)
+        assert meta["vad_applied"] is True
+        assert meta["strategy"] == "energy"
+        assert meta["trimmed_ms"] >= 5000
+
+    def test_silero_result_is_preferred_when_it_ran(self, monkeypatch):
+        monkeypatch.setenv("PHLOX_VAD", "silero")
+        monkeypatch.setattr("server.transcription.vad.silero_available", lambda: True)
+        kept = _wav_bytes(_tone(1.5))
+
+        def _silero(_buffer):
+            return kept, {"trimmed_ms": 7000, "silero_ran": True}
+
+        monkeypatch.setattr("server.transcription.vad.trim_with_silero", _silero)
+        original = _wav_bytes(_silence(3) + _tone(1.5) + _silence(4))
+        out, meta = prepare_audio(original)
+        assert out == kept
+        assert meta == {"vad_applied": True, "trimmed_ms": 7000, "strategy": "silero"}
+
+    def test_silero_no_voiced_is_not_second_guessed(self, monkeypatch):
+        monkeypatch.setenv("PHLOX_VAD", "silero")
+        monkeypatch.setattr("server.transcription.vad.silero_available", lambda: True)
+
+        def _silero(buffer):
+            return buffer, {"trimmed_ms": 0, "silero_ran": True}
+
+        monkeypatch.setattr("server.transcription.vad.trim_with_silero", _silero)
+        original = _wav_bytes(_silence(3) + _tone(0.2, amplitude=0.001) + _silence(3))
+        out, meta = prepare_audio(original)
+        # Silero kept the audio; the energy VAD must not override it.
+        assert out == original
+        assert meta["strategy"] == "silero"
+        assert meta["trimmed_ms"] == 0
+
+    def test_silero_end_to_end_with_stub_session(self, monkeypatch):
+        pytest.importorskip("numpy")
+        monkeypatch.setenv("PHLOX_VAD", "silero")
+        _patch_silero_session(monkeypatch, _SileroStubSession())
+        original = _wav_bytes(_silence(3) + _tone(1.5) + _silence(4))
+        out, meta = prepare_audio(original)
+        assert meta["strategy"] == "silero"
+        assert meta["trimmed_ms"] >= 5000
+        assert len(out) < len(original)
+
+    def test_silence_only_keeps_original(self, monkeypatch):
+        monkeypatch.setenv("PHLOX_VAD", "energy")
+        original = _wav_bytes(_silence(2))
+        out, meta = prepare_audio(original)
+        assert out == original
+        assert meta["vad_applied"] is False
