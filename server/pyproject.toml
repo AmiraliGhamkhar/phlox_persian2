@@ -30,6 +30,11 @@ vad = [
     "numpy>=2.2,<3",
     "onnxruntime>=1.20,<2",
 ]
+# Optional server-side denoising of noisy files before ASR (SNR-gated).
+denoise = [
+    "numpy>=2.2,<3",
+    "onnxruntime>=1.20,<2",
+]
 
 [dependency-groups]
 dev = [

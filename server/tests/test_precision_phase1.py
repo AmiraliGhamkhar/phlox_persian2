@@ -316,10 +316,14 @@ class TestTrimWithSilero:
 class TestVadStrategyMatrix:
     def test_off_returns_buffer_untouched(self, monkeypatch):
         monkeypatch.setenv("PHLOX_VAD", "off")
+        monkeypatch.setenv("PHLOX_DENOISE", "off")
         original = _wav_bytes(_silence(3) + _tone(1.0) + _silence(3))
         out, meta = prepare_audio(original)
         assert out == original
-        assert meta == {"vad_applied": False, "trimmed_ms": 0, "strategy": None}
+        assert meta["vad_applied"] is False
+        assert meta["trimmed_ms"] == 0
+        assert meta["strategy"] is None
+        assert meta["denoise_applied"] is False
 
     def test_energy_strategy_keeps_previous_behavior(self, monkeypatch):
         monkeypatch.setenv("PHLOX_VAD", "energy")
