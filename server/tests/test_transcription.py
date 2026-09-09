@@ -278,6 +278,57 @@ def test_dictate_returns_400_for_missing_provider_key():
     assert "Fireworks API key" in response.json()["detail"]
 
 
+def test_dictate_returns_asr_hygiene_metadata():
+    """W1.5: /dictate surfaces flags/segments/vad so the UI can amber-flag
+    weak spans and the report prompt can be told which spans are uncertain.
+    Providers without per-segment stats degrade to empty structures."""
+    from fastapi import FastAPI
+    from fastapi.testclient import TestClient
+
+    from server.api.transcribe import router
+
+    app = FastAPI()
+    app.include_router(router, prefix="/api/transcribe")
+    client = TestClient(app)
+
+    with patch(
+        "server.api.transcribe.transcribe_audio",
+        new_callable=AsyncMock,
+        return_value={
+            "text": "بیمار با تب مراجعه کرد",
+            "transcriptionDuration": 1.25,
+            "segments": [{"id": 0, "text": "بیمار با تب", "confidence": "ok"}],
+            "flags": [{"segment": 1, "reason": "low_confidence", "text": "مراجعه کرد"}],
+            "vad": {"vad_applied": True, "trimmed_ms": 800},
+        },
+    ):
+        response = client.post(
+            "/api/transcribe/dictate",
+            files={"file": ("recording.wav", b"RIFF....WAVEdata", "audio/wav")},
+        )
+    assert response.status_code == 200
+    data = response.json()
+    assert data["transcription"] == "بیمار با تب مراجعه کرد"
+    assert data["segments"] == [{"id": 0, "text": "بیمار با تب", "confidence": "ok"}]
+    assert data["flags"] == [{"segment": 1, "reason": "low_confidence", "text": "مراجعه کرد"}]
+    assert data["vad"] == {"vad_applied": True, "trimmed_ms": 800}
+
+    with patch(
+        "server.api.transcribe.transcribe_audio",
+        new_callable=AsyncMock,
+        return_value={"text": "hello", "transcriptionDuration": 0.1},
+    ):
+        response = client.post(
+            "/api/transcribe/dictate",
+            files={"file": ("recording.wav", b"RIFF....WAVEdata", "audio/wav")},
+        )
+    assert response.status_code == 200
+    data = response.json()
+    assert data["segments"] == []
+    assert data["flags"] == []
+    assert data["vad"] == {}
+
+
 def test_live_session_factory_picks_native_streaming():
     from server.transcription.live import (
         FireworksLiveSession,

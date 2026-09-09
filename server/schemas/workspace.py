@@ -41,6 +41,12 @@ class GenerateReportRequest(BaseModel):
     specialty: str | None = Field(default=None, description="تخصص پزشک")
     mode: Literal["ambient", "dictate"] = "ambient"
     clinician_name: str | None = None
+    # ASR hygiene metadata from /dictate (segment confidence classes and
+    # artifact flags). Forwarded into the report prompt so the model is told
+    # which spans are uncertain instead of silently trusting them.
+    transcript_flags: list[dict] = Field(default_factory=list)
+    # Text of the low-confidence / suspect spans to be handled carefully.
+    low_confidence_spans: list[str] = Field(default_factory=list)
 
 
 class GenerateReportResponse(BaseModel):
@@ -48,6 +54,11 @@ class GenerateReportResponse(BaseModel):
     full_note: str
     dictionary: list[dict] = Field(default_factory=list)
     process_duration: float = 0.0
+    # Deterministic faithfulness warnings (number drift, unit mismatch,
+    # negation flip, ungrounded terms, low-overlap sentences). The report is
+    # always returned; warnings are review items for the clinician, never
+    # blocking errors.
+    warnings: list[dict] = Field(default_factory=list)
 
 
 class DictionarySearchResponse(BaseModel):

@@ -19,7 +19,13 @@ import importlib.util
 import sys
 from pathlib import Path
 
-from server.bench.guards import detect_fabrication, detect_negation_flip, detect_number_drift
+from server.bench.guards import (
+    detect_fabrication,
+    detect_negation_flip,
+    detect_number_drift,
+    detect_unit_mismatch,
+    verify_note,
+)
 
 _SERVER_DIR = Path(__file__).resolve().parent.parent
 
@@ -87,6 +93,36 @@ def _run_offline(*, verbose: bool) -> int:
 
     fabricated = detect_fabrication(source, "سابقه سکته مغزی و دیالیز سه بار در هفته")
     check("fabrication_caught", bool(fabricated), str(fabricated))
+
+    unit_src = "مصرف روزانه: آموکسی‌سیلین ۵۰۰ میلی‌گرم"
+    check(
+        "faithful_no_unit_mismatch",
+        detect_unit_mismatch(unit_src, "آموکسی‌سیلین 500 mg هر ۸ ساعت") == [],
+    )
+    wrong_unit = detect_unit_mismatch("مصرف روزانه: ۵۰ میلی‌گرم", "مصرف روزانه: ۵۰ گرم")
+    check("unit_mismatch_caught", bool(wrong_unit), str(wrong_unit))
+
+    # Acceptance case: a negated finding must not flag when the note affirms a
+    # DIFFERENT predicate (omission is a different problem, not a flip).
+    neg_src = "بیمار گفت درد قفسه سینه ندارد، اما درد شکم دارد"
+    neg_note = "شکایت اصلی: درد شکم دارد"
+    check(
+        "negation_acceptance_no_flip",
+        detect_negation_flip(neg_src, neg_note) == [],
+        str(detect_negation_flip(neg_src, neg_note)),
+    )
+
+    check(
+        "verify_note_faithful",
+        verify_note(source, faithful).ok,
+        str(verify_note(source, faithful).warnings()),
+    )
+    drift_result = verify_note(source, "شکایت اصلی: درد قفسه سینه. HbA1c 8.1.")
+    check(
+        "verify_note_catches_drift",
+        (not drift_result.ok) and any(f.kind == "number_drift" for f in drift_result.findings),
+        str(drift_result.warnings()),
+    )
 
     if failures:
         print(f"{len(failures)} fixture(s) failed: {', '.join(failures)}", file=sys.stderr)

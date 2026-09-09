@@ -94,6 +94,8 @@ async def generate_report(payload: GenerateReportRequest):
             specialty=payload.specialty,
             mode=payload.mode,
             clinician_name=payload.clinician_name,
+            transcript_flags=payload.transcript_flags,
+            low_confidence_spans=payload.low_confidence_spans,
         )
     except ValueError as error:
         raise HTTPException(status_code=400, detail=str(error)) from error
@@ -108,4 +110,5 @@ async def generate_report(payload: GenerateReportRequest):
         full_note=result["full_note"],
         dictionary=result["dictionary"],
         process_duration=result["process_duration"],
+        warnings=result.get("warnings", []),
     )
