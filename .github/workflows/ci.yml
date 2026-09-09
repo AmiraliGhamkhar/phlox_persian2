@@ -35,7 +35,7 @@ jobs:
       - name: Verify Docker uv versions match pyproject
         run: |
           UV_VERSION="$(python -c 'import tomllib; print(tomllib.load(open("server/pyproject.toml", "rb"))["tool"]["uv"]["required-version"].removeprefix("=="))')"
-          for dockerfile in Dockerfile Dockerfile.dev Dockerfile.test; do
+          for dockerfile in Dockerfile Dockerfile.online Dockerfile.dev Dockerfile.test; do
             if ! grep -Fq "ghcr.io/astral-sh/uv:${UV_VERSION}@" "$dockerfile"; then
               echo "::error file=${dockerfile}::uv image must use version ${UV_VERSION}"
               exit 1

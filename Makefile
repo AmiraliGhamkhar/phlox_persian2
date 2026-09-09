@@ -1,4 +1,4 @@
-.PHONY: help install install-local update outdated audit rebuild-dev rebuild-prod rebuild-test lint format typecheck install-hooks check-all docker-build docker-up docker-down docker-logs docker-ps docker-shell docker-restart docker-test docker-dev-build docker-dev-up docker-dev-down
+.PHONY: help install install-local update outdated audit rebuild-dev rebuild-prod rebuild-online rebuild-test lint format typecheck install-hooks check-all docker-build docker-up docker-down docker-logs docker-ps docker-shell docker-restart docker-test docker-dev-build docker-dev-up docker-dev-down
 
 help:
 	@echo "Available commands:"
@@ -15,6 +15,7 @@ help:
 	@echo ""
 	@echo "Docker:"
 	@echo "  make rebuild-prod   - Rebuild prod Docker image"
+	@echo "  make rebuild-online - Rebuild online-only Docker image (no local inference engines)"
 	@echo "  make rebuild-dev    - Rebuild dev Docker image"
 	@echo "  make rebuild-test   - Rebuild test Docker image"
 	@echo "  make docker-up      - Build and start the production stack (needs .env)"
@@ -47,6 +48,9 @@ rebuild-dev:
 
 rebuild-prod:
 	docker build -f Dockerfile -t localhost/phlox:latest .
+
+rebuild-online:
+	docker build -f Dockerfile.online -t localhost/phlox-online:latest .
 
 rebuild-test:
 	docker build -f Dockerfile.test -t localhost/phlox-test:latest .
