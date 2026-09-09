@@ -30,9 +30,10 @@ def _asr_ready(config: dict) -> bool:
     provider = (config.get("ASR_PROVIDER") or config.get("LLM_PROVIDER") or "").strip()
     if provider == "local":
         return True
-    if provider in {"openai", "speechmatics", "assemblyai", "fireworks"} and (
-        config.get("ASR_KEY") or config.get("WHISPER_KEY") or ""
-    ).strip():
+    if (
+        provider in {"openai", "speechmatics", "assemblyai", "fireworks"}
+        and (config.get("ASR_KEY") or config.get("WHISPER_KEY") or "").strip()
+    ):
         return True
     return bool(
         (config.get("ASR_MODEL") or config.get("WHISPER_MODEL") or "").strip()
@@ -74,7 +75,7 @@ def search_dictionary(
     if not query:
         _fa, _en, entries = load_terms()
         preview = [
-            {"fa": item["fa"], "en": item["en"], "cat": item["cat"]} for item in entries[: limit]
+            {"fa": item["fa"], "en": item["en"], "cat": item["cat"]} for item in entries[:limit]
         ]
         return {"query": "", "matches": preview, "total": len(entries)}
     matches = search(query, limit=limit, threshold=50)

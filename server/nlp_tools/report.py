@@ -100,9 +100,7 @@ def build_report_system_prompt(
             "محتوا را گسترش نده."
         )
     else:
-        mode_instruction = (
-            "متن مکالمه محیطی پزشک و بیمار است. نکات بالینی مرتبط را استخراج و در بخش‌های یادداشت سازمان بده."
-        )
+        mode_instruction = "متن مکالمه محیطی پزشک و بیمار است. نکات بالینی مرتبط را استخراج و در بخش‌های یادداشت سازمان بده."
     dictionary_block = terminology_reference_block(transcript, max_terms=50)
     prompt = REPORT_SYSTEM_PROMPT.format(
         mode_instruction=mode_instruction,
@@ -155,7 +153,9 @@ async def generate_clinical_report(
     config = config_manager.get_config()
     model_name = (config.get("PRIMARY_MODEL") or "").strip()
     if not model_name and config.get("LLM_PROVIDER") != "local":
-        raise ValueError("مدل زبانی تنظیم نشده است. ابتدا در تنظیمات یک ارائه‌دهنده یا مدل محلی را آماده کنید.")
+        raise ValueError(
+            "مدل زبانی تنظیم نشده است. ابتدا در تنظیمات یک ارائه‌دهنده یا مدل محلی را آماده کنید."
+        )
 
     user = config_manager.get_user_settings() or {}
     specialty = specialty or user.get("specialty") or ""
@@ -177,9 +177,7 @@ async def generate_clinical_report(
         {
             "role": "user",
             "content": (
-                "<clinical_transcript_data>\n"
-                f"{transcript_text}\n"
-                "</clinical_transcript_data>"
+                f"<clinical_transcript_data>\n{transcript_text}\n</clinical_transcript_data>"
             ),
         },
     ]

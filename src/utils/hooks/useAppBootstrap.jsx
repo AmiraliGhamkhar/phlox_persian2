@@ -88,7 +88,7 @@ export const useAppBootstrap = () => {
         };
 
         checkEncryptionStatus();
-    }, []);
+    }, [checkSplashStatus]);
 
     const handleEncryptionSetupComplete = () => {
         setShowEncryptionSetup(false);
