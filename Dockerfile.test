@@ -4,7 +4,7 @@
 # Build:  docker build -f Dockerfile.test -t localhost/phlox-test:latest .
 # Run:    docker run --rm localhost/phlox-test:latest
 #         Extra arguments are forwarded to pytest, e.g.
-#           docker run --rm localhost/phlox-test:latest -k test_chat -q
+#           docker run --rm localhost/phlox-test:latest -k test_workspace -q
 #         Coverage report (as .github/workflows/ci.yml does it):
 #           docker run --name phlox-test localhost/phlox-test:latest
 #           docker cp phlox-test:/usr/src/app/coverage.lcov ./coverage.lcov
@@ -25,8 +25,7 @@ ENV PYTHONPATH=/usr/src/app \
     DOCKER_CONTAINER=true \
     PATH=/usr/src/app/server/.venv/bin:$PATH \
     UV_PYTHON_PREFERENCE=only-system \
-    UV_PYTHON_DOWNLOADS=never \
-    TIKTOKEN_CACHE_DIR=/usr/src/app/.cache/tiktoken
+    UV_PYTHON_DOWNLOADS=never
 
 # Create phlox user (tests must not run as root)
 RUN groupadd -g 1000 phlox \
@@ -37,18 +36,16 @@ COPY server/pyproject.toml server/uv.lock server/.python-version ./server/
 COPY .coveragerc ./
 
 # Python dependencies - dev group included (it provides pytest/pytest-cov).
-RUN uv sync --directory server --locked --extra docker
-
-# Pre-cache the tokenizer data so chunking tests do not need network access.
-RUN python -c "import tiktoken; tiktoken.get_encoding('cl100k_base')"
+# No extras: the suite never touches the ONNX ASR adapters (their numpy /
+# onnxruntime imports are function-lazy).
+RUN uv sync --directory server --locked
 
 # Then copy the rest of the application.
 COPY server/ ./server/
 
 # server.py mounts StaticFiles(directory=BUILD_DIR), so the SPA dir must exist
 # even though the test suite never serves a real frontend.
-RUN mkdir -p /usr/src/app/data /usr/src/app/temp /usr/src/app/.cache/tiktoken \
-             /usr/src/app/build \
+RUN mkdir -p /usr/src/app/data /usr/src/app/temp /usr/src/app/build \
     && printf '<html><body>Test</body></html>\n' > /usr/src/app/build/index.html
 
 # Test runner: fresh DB before, report + cleanup after, pytest's exit code preserved.

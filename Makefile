@@ -3,7 +3,7 @@
 help:
 	@echo "Available commands:"
 	@echo "  make install        - Install dependencies"
-	@echo "  make install-local  - Install dependencies with local extras"
+	@echo "  make install-local  - Install dependencies with the ONNX ASR extra"
 	@echo "  make update         - Update all dependencies"
 	@echo "  make outdated       - Check for outdated packages"
 	@echo "  make audit          - Check for security vulnerabilities"
@@ -27,7 +27,7 @@ install:
 	cd server && UV_LINK_MODE=copy uv pip install -r pyproject.toml
 
 install-local:
-	cd server && UV_LINK_MODE=copy uv pip install -r pyproject.toml --extra local
+	cd server && UV_LINK_MODE=copy uv pip install -r pyproject.toml --extra asr
 
 update:
 	cd server && uv lock --upgrade

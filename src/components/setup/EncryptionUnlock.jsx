@@ -74,15 +74,6 @@ const EncryptionUnlock = ({ onComplete }) => {
         }
       }
 
-      try {
-        await invoke("start_embedding_service");
-      } catch (embeddingError) {
-        console.warn(
-          "سرویس بردارسازی راه‌اندازی نشد (هنوز مدلی دانلود نشده است):",
-          embeddingError,
-        );
-      }
-
       toaster.create({
         title: "Unlocked",
         description: "Your database has been unlocked successfully.",

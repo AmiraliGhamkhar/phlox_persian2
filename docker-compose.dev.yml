@@ -48,7 +48,6 @@ services:
             ALLOWED_ORIGINS: ${ALLOWED_ORIGINS:-}
             # Optional extras:
             # LLM_EXTRA_BODY: '{"extra_body": {"chat_template_kwargs": {"enable_thinking": false}}}'
-            # PHLOX_DEMO_MODE: "true"
         volumes:
             - .:/usr/src/app
             # Keep image-installed dependencies out of the host tree.

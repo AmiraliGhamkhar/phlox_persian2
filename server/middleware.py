@@ -17,10 +17,8 @@ logger = logging.getLogger(__name__)
 PUBLIC_PATHS = {"/", "/health", "/version", "/favicon.ico"}
 REACT_ROUTES = {
     "/new-note",
+    "/workspace",
     "/settings",
-    "/rag",
-    "/clinic-summary",
-    "/outstanding-jobs",
 }
 STATIC_EXTENSIONS = (
     ".js",
@@ -62,7 +60,7 @@ def should_skip_middleware(path: str, *, check_api: bool = False) -> bool:
         return True
 
     # React routes (SPA pages)
-    if path in REACT_ROUTES or path.startswith("/patient"):
+    if path in REACT_ROUTES or path.startswith("/note/"):
         return True
 
     # For rate limiting: skip non-API paths entirely
@@ -451,18 +449,11 @@ class RateLimitMiddleware(BaseHTTPMiddleware):
     # Endpoint-specific limits: (requests_per_minute, burst_multiplier)
     RATE_LIMITS = {
         "/api/transcribe": (10, 2),
-        "/api/chat": (30, 2),
-        "/api/rag": (20, 2),
+        "/api/workspace": (10, 2),
         "/api/config": (30, 2),
-        "/api/templates": (30, 2),
-        "/api/letter": (30, 2),
         "/api/dashboard": (30, 2),
     }
     DEFAULT_LIMIT = (60, 2)  # requests_per_minute, burst_multiplier
-
-    # Patient endpoints need special handling
-    PATIENT_LIST_LIMIT = (10, 2)  # Prevents bulk enumeration
-    PATIENT_DETAIL_LIMIT = (20, 2)  # Normal browsing allowed
 
     WINDOW_SECONDS = 60
 
@@ -475,21 +466,14 @@ class RateLimitMiddleware(BaseHTTPMiddleware):
         """Get rate limit for a given path."""
         from server.constants import IS_DOCKER, RATE_LIMIT_DESKTOP_MULTIPLIER
 
-        # Check for patient list vs detail
-        if path == "/api/note/list" or path == "/api/note/list/":
-            rate, burst = self.PATIENT_LIST_LIMIT
-        elif path.startswith("/api/note/"):
-            rate, burst = self.PATIENT_DETAIL_LIMIT
-        else:
-            # Check other endpoints
-            matched = False
-            for prefix, limit in self.RATE_LIMITS.items():
-                if path.startswith(prefix):
-                    rate, burst = limit
-                    matched = True
-                    break
-            if not matched:
-                rate, burst = self.DEFAULT_LIMIT
+        matched = False
+        for prefix, limit in self.RATE_LIMITS.items():
+            if path.startswith(prefix):
+                rate, burst = limit
+                matched = True
+                break
+        if not matched:
+            rate, burst = self.DEFAULT_LIMIT
 
         if not IS_DOCKER:
             rate = rate * RATE_LIMIT_DESKTOP_MULTIPLIER
