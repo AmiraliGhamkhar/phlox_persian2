@@ -2,286 +2,343 @@
   {
     "fa": "آرنج",
     "en": "elbow",
-    "cat": "anatomy"
+    "cat": "anatomy",
+    "src": "curated"
   },
   {
     "fa": "استخوان",
     "en": "bone",
-    "cat": "anatomy"
+    "cat": "anatomy",
+    "src": "curated"
   },
   {
     "fa": "بافت",
     "en": "tissue",
-    "cat": "anatomy"
+    "cat": "anatomy",
+    "src": "curated"
   },
   {
     "fa": "بینی",
     "en": "nose",
-    "cat": "anatomy"
+    "cat": "anatomy",
+    "src": "curated"
   },
   {
     "fa": "تخمدان",
     "en": "ovary",
-    "cat": "anatomy"
+    "cat": "anatomy",
+    "src": "curated"
   },
   {
     "fa": "تیموس",
     "en": "thymus",
-    "cat": "anatomy"
+    "cat": "anatomy",
+    "src": "curated"
   },
   {
     "fa": "حالب",
     "en": "ureter",
-    "cat": "anatomy"
+    "cat": "anatomy",
+    "src": "curated"
   },
   {
     "fa": "خون",
     "en": "blood",
-    "cat": "anatomy"
+    "cat": "anatomy",
+    "src": "curated"
   },
   {
     "fa": "دریچه قلب",
     "en": "heart valve",
-    "cat": "anatomy"
+    "cat": "anatomy",
+    "src": "curated"
   },
   {
     "fa": "دست",
     "en": "hand",
-    "cat": "anatomy"
+    "cat": "anatomy",
+    "src": "curated"
   },
   {
     "fa": "دهان",
     "en": "mouth",
-    "cat": "anatomy"
+    "cat": "anatomy",
+    "src": "curated"
   },
   {
     "fa": "دوازدهه",
     "en": "duodenum",
-    "cat": "anatomy"
+    "cat": "anatomy",
+    "src": "curated"
   },
   {
     "fa": "دیواره قلب",
     "en": "heart wall",
-    "cat": "anatomy"
+    "cat": "anatomy",
+    "src": "curated"
   },
   {
     "fa": "رحم",
     "en": "uterus",
-    "cat": "anatomy"
+    "cat": "anatomy",
+    "src": "curated"
   },
   {
     "fa": "روده باریک",
     "en": "small intestine",
-    "cat": "anatomy"
+    "cat": "anatomy",
+    "src": "curated"
   },
   {
     "fa": "روده بزرگ",
     "en": "large intestine",
-    "cat": "anatomy"
+    "cat": "anatomy",
+    "src": "curated"
   },
   {
     "fa": "رکتوم",
     "en": "rectum",
-    "cat": "anatomy"
+    "cat": "anatomy",
+    "src": "curated"
   },
   {
     "fa": "رگ",
     "en": "blood vessel",
-    "cat": "anatomy"
+    "cat": "anatomy",
+    "src": "curated"
   },
   {
     "fa": "ریه",
     "en": "lung",
-    "cat": "anatomy"
+    "cat": "anatomy",
+    "src": "curated"
   },
   {
     "fa": "زانو",
     "en": "knee",
-    "cat": "anatomy"
+    "cat": "anatomy",
+    "src": "curated"
   },
   {
     "fa": "ستون فقرات",
     "en": "spine",
-    "cat": "anatomy"
+    "cat": "anatomy",
+    "src": "curated"
   },
   {
     "fa": "سر",
     "en": "head",
-    "cat": "anatomy"
+    "cat": "anatomy",
+    "src": "curated"
   },
   {
     "fa": "سلول",
     "en": "cell",
-    "cat": "anatomy"
+    "cat": "anatomy",
+    "src": "curated"
   },
   {
     "fa": "شانه",
     "en": "shoulder",
-    "cat": "anatomy"
+    "cat": "anatomy",
+    "src": "curated"
   },
   {
     "fa": "شریان",
     "en": "artery",
-    "cat": "anatomy"
+    "cat": "anatomy",
+    "src": "curated"
   },
   {
     "fa": "شریان کرونر",
     "en": "coronary artery",
-    "cat": "anatomy"
+    "cat": "anatomy",
+    "src": "curated"
   },
   {
     "fa": "شکم",
     "en": "abdomen",
-    "cat": "anatomy"
+    "cat": "anatomy",
+    "src": "curated"
   },
   {
     "fa": "صورت",
     "en": "face",
-    "cat": "anatomy"
+    "cat": "anatomy",
+    "src": "curated"
   },
   {
     "fa": "طحال",
     "en": "spleen",
-    "cat": "anatomy"
+    "cat": "anatomy",
+    "src": "curated"
   },
   {
     "fa": "عصب",
     "en": "nerve",
-    "cat": "anatomy"
+    "cat": "anatomy",
+    "src": "curated"
   },
   {
     "fa": "عضله",
     "en": "muscle",
-    "cat": "anatomy"
+    "cat": "anatomy",
+    "src": "curated"
   },
   {
     "fa": "غدد لنفاوی",
     "en": "lymph node",
-    "cat": "anatomy"
+    "cat": "anatomy",
+    "src": "curated"
   },
   {
     "fa": "غدد پاراتیروئید",
     "en": "parathyroid gland",
-    "cat": "anatomy"
+    "cat": "anatomy",
+    "src": "curated"
   },
   {
     "fa": "غده تیروئید",
     "en": "thyroid gland",
-    "cat": "anatomy"
+    "cat": "anatomy",
+    "src": "curated"
   },
   {
     "fa": "قفسه سینه",
     "en": "chest",
-    "cat": "anatomy"
+    "cat": "anatomy",
+    "src": "curated"
   },
   {
     "fa": "قلب",
     "en": "heart",
-    "cat": "anatomy"
+    "cat": "anatomy",
+    "src": "curated"
   },
   {
     "fa": "لنفاوی",
     "en": "lymphatic",
-    "cat": "anatomy"
+    "cat": "anatomy",
+    "src": "curated"
   },
   {
     "fa": "لوزالمعده",
     "en": "pancreas",
-    "cat": "anatomy"
+    "cat": "anatomy",
+    "src": "curated"
   },
   {
     "fa": "مثانه",
     "en": "bladder",
-    "cat": "anatomy"
+    "cat": "anatomy",
+    "src": "curated"
   },
   {
     "fa": "مری",
     "en": "esophagus",
-    "cat": "anatomy"
+    "cat": "anatomy",
+    "src": "curated"
   },
   {
     "fa": "معده",
     "en": "stomach",
-    "cat": "anatomy"
+    "cat": "anatomy",
+    "src": "curated"
   },
   {
     "fa": "مغز",
     "en": "brain",
-    "cat": "anatomy"
+    "cat": "anatomy",
+    "src": "curated"
   },
   {
     "fa": "مغز استخوان",
     "en": "bone marrow",
-    "cat": "anatomy"
+    "cat": "anatomy",
+    "src": "curated"
   },
   {
     "fa": "مفصل",
     "en": "joint",
-    "cat": "anatomy"
+    "cat": "anatomy",
+    "src": "curated"
   },
   {
     "fa": "مچ دست",
     "en": "wrist",
-    "cat": "anatomy"
+    "cat": "anatomy",
+    "src": "curated"
   },
   {
     "fa": "نخاع",
     "en": "spinal cord",
-    "cat": "anatomy"
+    "cat": "anatomy",
+    "src": "curated"
   },
   {
     "fa": "ورید",
     "en": "vein",
-    "cat": "anatomy"
+    "cat": "anatomy",
+    "src": "curated"
   },
   {
     "fa": "پا",
     "en": "foot",
-    "cat": "anatomy"
+    "cat": "anatomy",
+    "src": "curated"
   },
   {
     "fa": "پروستات",
     "en": "prostate",
-    "cat": "anatomy"
+    "cat": "anatomy",
+    "src": "curated"
   },
   {
     "fa": "پوست",
     "en": "skin",
-    "cat": "anatomy"
+    "cat": "anatomy",
+    "src": "curated"
   },
   {
     "fa": "کبد",
     "en": "liver",
-    "cat": "anatomy"
+    "cat": "anatomy",
+    "src": "curated"
   },
   {
     "fa": "کلیه",
     "en": "kidney",
-    "cat": "anatomy"
+    "cat": "anatomy",
+    "src": "curated"
   },
   {
     "fa": "کمر",
     "en": "lumbar region",
-    "cat": "anatomy"
+    "cat": "anatomy",
+    "src": "curated"
   },
   {
     "fa": "کیسه صفرا",
     "en": "gallbladder",
-    "cat": "anatomy"
+    "cat": "anatomy",
+    "src": "curated"
   },
   {
     "fa": "گردن",
     "en": "neck",
-    "cat": "anatomy"
+    "cat": "anatomy",
+    "src": "curated"
   },
   {
     "fa": "گلو",
     "en": "throat",
-    "cat": "anatomy"
+    "cat": "anatomy",
+    "src": "curated"
   },
   {
     "fa": "گوش",
     "en": "ear",
-    "cat": "anatomy"
+    "cat": "anatomy",
+    "src": "curated"
   }
 ]

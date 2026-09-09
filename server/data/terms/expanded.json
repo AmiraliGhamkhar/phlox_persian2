@@ -2,2156 +2,2587 @@
   {
     "fa": "آب‌سیاه زاویه بسته",
     "en": "angle-closure glaucoma",
-    "cat": "conditions"
+    "cat": "conditions",
+    "src": "generated"
   },
   {
     "fa": "آتروفی بینایی",
     "en": "optic atrophy",
-    "cat": "conditions"
+    "cat": "conditions",
+    "src": "generated"
   },
   {
     "fa": "آدنومیوز",
     "en": "adenomyosis",
-    "cat": "conditions"
+    "cat": "conditions",
+    "src": "generated"
   },
   {
     "fa": "آرتریت عفونی",
     "en": "septic arthritis",
-    "cat": "conditions"
+    "cat": "conditions",
+    "src": "generated"
   },
   {
     "fa": "آسپیراسیون ریوی",
     "en": "pulmonary aspiration",
-    "cat": "conditions"
+    "cat": "conditions",
+    "src": "generated"
   },
   {
     "fa": "آمفیزم",
     "en": "emphysema",
-    "cat": "conditions"
+    "cat": "conditions",
+    "src": "generated"
   },
   {
     "fa": "آنوریسم مغز",
     "en": "cerebral aneurysm",
-    "cat": "conditions"
+    "cat": "conditions",
+    "src": "generated"
   },
   {
     "fa": "اختلال بیش‌فعالی",
     "en": "attention deficit hyperactivity disorder",
-    "cat": "conditions"
+    "cat": "conditions",
+    "src": "generated"
   },
   {
     "fa": "اختلال شخصیت مرزی",
     "en": "borderline personality disorder",
-    "cat": "conditions"
+    "cat": "conditions",
+    "src": "generated"
   },
   {
     "fa": "اختلال طیف اوتیسم",
     "en": "autism spectrum disorder",
-    "cat": "conditions"
+    "cat": "conditions",
+    "src": "generated"
   },
   {
     "fa": "استئاتوهپاتیت غیرالکلی",
     "en": "nonalcoholic steatohepatitis",
-    "cat": "conditions"
+    "cat": "conditions",
+    "src": "generated"
   },
   {
     "fa": "استئوپنی",
     "en": "osteopenia",
-    "cat": "conditions"
+    "cat": "conditions",
+    "src": "generated"
   },
   {
     "fa": "اسپوندیلوآرتروپاتی",
     "en": "spondyloarthropathy",
-    "cat": "conditions"
+    "cat": "conditions",
+    "src": "generated"
   },
   {
     "fa": "افزایش کلسترول خون",
     "en": "hypercholesterolemia",
-    "cat": "conditions"
+    "cat": "conditions",
+    "src": "generated"
   },
   {
     "fa": "افزایش چربی خون",
     "en": "hyperlipidemia",
-    "cat": "conditions"
+    "cat": "conditions",
+    "src": "generated"
   },
   {
     "fa": "اکلامپسی",
     "en": "eclampsia",
-    "cat": "conditions"
+    "cat": "conditions",
+    "src": "generated"
   },
   {
     "fa": "انسداد روده",
     "en": "bowel obstruction",
-    "cat": "conditions"
+    "cat": "conditions",
+    "src": "generated"
   },
   {
     "fa": "انسداد مجرای اشک",
     "en": "nasolacrimal duct obstruction",
-    "cat": "conditions"
+    "cat": "conditions",
+    "src": "generated"
   },
   {
     "fa": "ایسکمی اندام",
     "en": "limb ischemia",
-    "cat": "conditions"
+    "cat": "conditions",
+    "src": "generated"
   },
   {
     "fa": "برونکوپنومونی",
     "en": "bronchopneumonia",
-    "cat": "conditions"
+    "cat": "conditions",
+    "src": "generated"
   },
   {
     "fa": "بیماری بهجت",
     "en": "Behcet disease",
-    "cat": "conditions"
+    "cat": "conditions",
+    "src": "generated"
   },
   {
     "fa": "بیماری التهابی لگن",
     "en": "pelvic inflammatory disease",
-    "cat": "conditions"
+    "cat": "conditions",
+    "src": "generated"
   },
   {
     "fa": "بیماری بافت همبند مختلط",
     "en": "mixed connective tissue disease",
-    "cat": "conditions"
+    "cat": "conditions",
+    "src": "generated"
   },
   {
     "fa": "بیماری کلیه پلی‌کیستیک غالب",
     "en": "autosomal dominant polycystic kidney disease",
-    "cat": "conditions"
+    "cat": "conditions",
+    "src": "generated"
   },
   {
     "fa": "بیماری ویپل",
     "en": "Whipple disease",
-    "cat": "conditions"
+    "cat": "conditions",
+    "src": "generated"
   },
   {
     "fa": "تاکی‌آرریتمی",
     "en": "tachyarrhythmia",
-    "cat": "conditions"
+    "cat": "conditions",
+    "src": "generated"
   },
   {
     "fa": "ترومبوآمبولی وریدی",
     "en": "venous thromboembolism",
-    "cat": "conditions"
+    "cat": "conditions",
+    "src": "generated"
   },
   {
     "fa": "تنگی کانال نخاع",
     "en": "spinal stenosis",
-    "cat": "conditions"
+    "cat": "conditions",
+    "src": "generated"
   },
   {
     "fa": "تنگی مجرای ادرار",
     "en": "urethral stricture",
-    "cat": "conditions"
+    "cat": "conditions",
+    "src": "generated"
   },
   {
     "fa": "توراسیک اوت‌لت",
     "en": "thoracic outlet syndrome",
-    "cat": "conditions"
+    "cat": "conditions",
+    "src": "generated"
   },
   {
     "fa": "تیروتوکسیکوز",
     "en": "thyrotoxicosis",
-    "cat": "conditions"
+    "cat": "conditions",
+    "src": "generated"
   },
   {
     "fa": "حساسیت به لاتکس",
     "en": "latex allergy",
-    "cat": "conditions"
+    "cat": "conditions",
+    "src": "generated"
   },
   {
     "fa": "خونریزی گوارشی فوقانی",
     "en": "upper gastrointestinal bleeding",
-    "cat": "conditions"
+    "cat": "conditions",
+    "src": "generated"
   },
   {
     "fa": "خونریزی گوارشی تحتانی",
     "en": "lower gastrointestinal bleeding",
-    "cat": "conditions"
+    "cat": "conditions",
+    "src": "generated"
   },
   {
     "fa": "دررفتگی شانه",
     "en": "shoulder dislocation",
-    "cat": "conditions"
+    "cat": "conditions",
+    "src": "generated"
   },
   {
     "fa": "دیسفاژی",
     "en": "dysphagia",
-    "cat": "conditions"
+    "cat": "conditions",
+    "src": "generated"
   },
   {
     "fa": "دیسپلازی هیپ تکاملی",
     "en": "developmental dysplasia of the hip",
-    "cat": "conditions"
+    "cat": "conditions",
+    "src": "generated"
   },
   {
     "fa": "رتینوپاتی نوزاد نارس",
     "en": "retinopathy of prematurity",
-    "cat": "conditions"
+    "cat": "conditions",
+    "src": "generated"
   },
   {
     "fa": "سندرم آنتی‌فسفولیپید",
     "en": "antiphospholipid syndrome",
-    "cat": "conditions"
+    "cat": "conditions",
+    "src": "generated"
   },
   {
     "fa": "سندرم برادا",
     "en": "Brugada syndrome",
-    "cat": "conditions"
+    "cat": "conditions",
+    "src": "generated"
   },
   {
     "fa": "سندرم تخمدان مقاوم",
     "en": "resistant ovary syndrome",
-    "cat": "conditions"
+    "cat": "conditions",
+    "src": "generated"
   },
   {
     "fa": "سندرم حاد کرونری بدون بالا رفتن قطعه",
     "en": "NSTEMI",
-    "cat": "conditions"
+    "cat": "conditions",
+    "src": "generated"
   },
   {
     "fa": "سندرم روده کوتاه",
     "en": "short bowel syndrome",
-    "cat": "conditions"
+    "cat": "conditions",
+    "src": "generated"
   },
   {
     "fa": "سندرم فشاری عصب اولنار",
     "en": "ulnar nerve entrapment",
-    "cat": "conditions"
+    "cat": "conditions",
+    "src": "generated"
   },
   {
     "fa": "سندرم نفروتیک مادرزادی",
     "en": "congenital nephrotic syndrome",
-    "cat": "conditions"
+    "cat": "conditions",
+    "src": "generated"
   },
   {
     "fa": "سندرم همولیتیک اورمیک",
     "en": "hemolytic uremic syndrome",
-    "cat": "conditions"
+    "cat": "conditions",
+    "src": "generated"
   },
   {
     "fa": "سندرم کاوازاکی",
     "en": "Kawasaki disease",
-    "cat": "conditions"
+    "cat": "conditions",
+    "src": "generated"
   },
   {
     "fa": "سنگ مثانه",
     "en": "bladder stone",
-    "cat": "conditions"
+    "cat": "conditions",
+    "src": "generated"
   },
   {
     "fa": "سیروز صفراوی اولیه",
     "en": "primary biliary cholangitis",
-    "cat": "conditions"
+    "cat": "conditions",
+    "src": "generated"
   },
   {
     "fa": "شوک کاردیوژنیک",
     "en": "cardiogenic shock",
-    "cat": "conditions"
+    "cat": "conditions",
+    "src": "generated"
   },
   {
     "fa": "شوک هیپوولمیک",
     "en": "hypovolemic shock",
-    "cat": "conditions"
+    "cat": "conditions",
+    "src": "generated"
   },
   {
     "fa": "عفونت زخم جراحی",
     "en": "surgical site infection",
-    "cat": "conditions"
+    "cat": "conditions",
+    "src": "generated"
   },
   {
     "fa": "عفونت کلستریدیوم دیفیسیل",
     "en": "Clostridioides difficile infection",
-    "cat": "conditions"
+    "cat": "conditions",
+    "src": "generated"
   },
   {
     "fa": "فتق اینگوینال",
     "en": "inguinal hernia",
-    "cat": "conditions"
+    "cat": "conditions",
+    "src": "generated"
   },
   {
     "fa": "فتق نافی",
     "en": "umbilical hernia",
-    "cat": "conditions"
+    "cat": "conditions",
+    "src": "generated"
   },
   {
     "fa": "فیبریلاسیون بطنی",
     "en": "ventricular fibrillation",
-    "cat": "conditions"
+    "cat": "conditions",
+    "src": "generated"
   },
   {
     "fa": "کارسینوم کلیه",
     "en": "renal cell carcinoma",
-    "cat": "conditions"
+    "cat": "conditions",
+    "src": "generated"
   },
   {
     "fa": "کوله سیستیت مزمن",
     "en": "chronic cholecystitis",
-    "cat": "conditions"
+    "cat": "conditions",
+    "src": "generated"
   },
   {
     "fa": "کم‌خونی فقر ب۱۲",
     "en": "vitamin B12 deficiency anemia",
-    "cat": "conditions"
+    "cat": "conditions",
+    "src": "generated"
   },
   {
     "fa": "گلومرولونفریت",
     "en": "glomerulonephritis",
-    "cat": "conditions"
+    "cat": "conditions",
+    "src": "generated"
   },
   {
     "fa": "میوکاردیت ویروسی",
     "en": "viral myocarditis",
-    "cat": "conditions"
+    "cat": "conditions",
+    "src": "generated"
   },
   {
     "fa": "نارسایی کبد حاد",
     "en": "acute liver failure",
-    "cat": "conditions"
+    "cat": "conditions",
+    "src": "generated"
   },
   {
     "fa": "نوریت بینایی",
     "en": "optic neuritis",
-    "cat": "conditions"
+    "cat": "conditions",
+    "src": "generated"
   },
   {
     "fa": "هموتوراکس",
     "en": "hemothorax",
-    "cat": "conditions"
+    "cat": "conditions",
+    "src": "generated"
   },
   {
     "fa": "هیپوناترمی شدید",
     "en": "severe hyponatremia",
-    "cat": "conditions"
+    "cat": "conditions",
+    "src": "generated"
   },
   {
     "fa": "پارگی طحال",
     "en": "splenic rupture",
-    "cat": "conditions"
+    "cat": "conditions",
+    "src": "generated"
   },
   {
     "fa": "پره اکلامپسی",
     "en": "preeclampsia",
-    "cat": "conditions"
+    "cat": "conditions",
+    "src": "generated"
   },
   {
     "fa": "پلورال افیوژن",
     "en": "pleural effusion",
-    "cat": "conditions"
+    "cat": "conditions",
+    "src": "generated"
   },
   {
     "fa": "پنومونی آسپیراسیون",
     "en": "aspiration pneumonia",
-    "cat": "conditions"
+    "cat": "conditions",
+    "src": "generated"
   },
   {
     "fa": "کاردیومیوپاتی محدودکننده",
     "en": "restrictive cardiomyopathy",
-    "cat": "conditions"
+    "cat": "conditions",
+    "src": "generated"
   },
   {
     "fa": "کیست تخمدان",
     "en": "ovarian cyst",
-    "cat": "conditions"
+    "cat": "conditions",
+    "src": "generated"
   },
   {
     "fa": "گاستروپارزی",
     "en": "gastroparesis",
-    "cat": "conditions"
+    "cat": "conditions",
+    "src": "generated"
   },
   {
     "fa": "یرقان انسدادی",
     "en": "obstructive jaundice",
-    "cat": "conditions"
+    "cat": "conditions",
+    "src": "generated"
   },
   {
     "fa": "احساس طپش در گوش",
     "en": "pulsatile tinnitus",
-    "cat": "symptoms"
+    "cat": "symptoms",
+    "src": "generated"
   },
   {
     "fa": "افت شنوایی ناگهانی",
     "en": "sudden hearing loss",
-    "cat": "symptoms"
+    "cat": "symptoms",
+    "src": "generated"
   },
   {
     "fa": "اورتوپنه",
     "en": "orthopnea",
-    "cat": "symptoms"
+    "cat": "symptoms",
+    "src": "generated"
   },
   {
     "fa": "پارستزی انگشتان",
     "en": "finger paresthesia",
-    "cat": "symptoms"
+    "cat": "symptoms",
+    "src": "generated"
   },
   {
     "fa": "تنگی نفس حمله‌ای شبانه",
     "en": "paroxysmal nocturnal dyspnea",
-    "cat": "symptoms"
+    "cat": "symptoms",
+    "src": "generated"
   },
   {
     "fa": "تهوع صبحگاهی",
     "en": "morning nausea",
-    "cat": "symptoms"
+    "cat": "symptoms",
+    "src": "generated"
   },
   {
     "fa": "خستگی مفرط",
     "en": "extreme fatigue",
-    "cat": "symptoms"
+    "cat": "symptoms",
+    "src": "generated"
   },
   {
     "fa": "خون در مدفوع تیره",
     "en": "melena",
-    "cat": "symptoms"
+    "cat": "symptoms",
+    "src": "generated"
   },
   {
     "fa": "درد تیرکشنده پا",
     "en": "shooting leg pain",
-    "cat": "symptoms"
+    "cat": "symptoms",
+    "src": "generated"
   },
   {
     "fa": "درد پشت جناغ",
     "en": "retrosternal pain",
-    "cat": "symptoms"
+    "cat": "symptoms",
+    "src": "generated"
   },
   {
     "fa": "درد حین ادرار",
     "en": "dysuria",
-    "cat": "symptoms"
+    "cat": "symptoms",
+    "src": "generated"
   },
   {
     "fa": "درد زایمان",
     "en": "labor pain",
-    "cat": "symptoms"
+    "cat": "symptoms",
+    "src": "generated"
   },
   {
     "fa": "درد کولیکی",
     "en": "colicky pain",
-    "cat": "symptoms"
+    "cat": "symptoms",
+    "src": "generated"
   },
   {
     "fa": "درد مبهم شکم",
     "en": "dull abdominal pain",
-    "cat": "symptoms"
+    "cat": "symptoms",
+    "src": "generated"
   },
   {
     "fa": "درد مفصل فک",
     "en": "temporomandibular pain",
-    "cat": "symptoms"
+    "cat": "symptoms",
+    "src": "generated"
   },
   {
     "fa": "دوبینی",
     "en": "diplopia",
-    "cat": "symptoms"
+    "cat": "symptoms",
+    "src": "generated"
   },
   {
     "fa": "سرگیجه وضعیتی",
     "en": "positional vertigo",
-    "cat": "symptoms"
+    "cat": "symptoms",
+    "src": "generated"
   },
   {
     "fa": "سرفه خلط‌دار",
     "en": "productive cough",
-    "cat": "symptoms"
+    "cat": "symptoms",
+    "src": "generated"
   },
   {
     "fa": "سرفه خشک شبانه",
     "en": "nocturnal dry cough",
-    "cat": "symptoms"
+    "cat": "symptoms",
+    "src": "generated"
   },
   {
     "fa": "سیانوز لب",
     "en": "lip cyanosis",
-    "cat": "symptoms"
+    "cat": "symptoms",
+    "src": "generated"
   },
   {
     "fa": "شب‌ادراری",
     "en": "nocturnal enuresis",
-    "cat": "symptoms"
+    "cat": "symptoms",
+    "src": "generated"
   },
   {
     "fa": "صدا کردن مفصل",
     "en": "joint clicking",
-    "cat": "symptoms"
+    "cat": "symptoms",
+    "src": "generated"
   },
   {
     "fa": "عطش شدید",
     "en": "polydipsia",
-    "cat": "symptoms"
+    "cat": "symptoms",
+    "src": "generated"
   },
   {
     "fa": "غش کردن",
     "en": "syncope",
-    "cat": "symptoms"
+    "cat": "symptoms",
+    "src": "generated"
   },
   {
     "fa": "کاهش اشتها",
     "en": "anorexia",
-    "cat": "symptoms"
+    "cat": "symptoms",
+    "src": "generated"
   },
   {
     "fa": "کاهش وزن ناخواسته",
     "en": "unintentional weight loss",
-    "cat": "symptoms"
+    "cat": "symptoms",
+    "src": "generated"
   },
   {
     "fa": "گزگز دور دهان",
     "en": "perioral tingling",
-    "cat": "symptoms"
+    "cat": "symptoms",
+    "src": "generated"
   },
   {
     "fa": "لرز شدید",
     "en": "rigors",
-    "cat": "symptoms"
+    "cat": "symptoms",
+    "src": "generated"
   },
   {
     "fa": "مدفوع چرب",
     "en": "steatorrhea",
-    "cat": "symptoms"
+    "cat": "symptoms",
+    "src": "generated"
   },
   {
     "fa": "نوسان خلق",
     "en": "mood swings",
-    "cat": "symptoms"
+    "cat": "symptoms",
+    "src": "generated"
   },
   {
     "fa": "هماتوم زیر ناخن",
     "en": "subungual hematoma",
-    "cat": "symptoms"
+    "cat": "symptoms",
+    "src": "generated"
   },
   {
     "fa": "هیپوستزی",
     "en": "hypesthesia",
-    "cat": "symptoms"
+    "cat": "symptoms",
+    "src": "generated"
   },
   {
     "fa": "پلی‌اوری",
     "en": "polyuria",
-    "cat": "symptoms"
+    "cat": "symptoms",
+    "src": "generated"
   },
   {
     "fa": "چشم‌درد با نور",
     "en": "photophobia",
-    "cat": "symptoms"
+    "cat": "symptoms",
+    "src": "generated"
   },
   {
     "fa": "کاهش بویایی",
     "en": "anosmia",
-    "cat": "symptoms"
+    "cat": "symptoms",
+    "src": "generated"
   },
   {
     "fa": "کاهش چشایی",
     "en": "ageusia",
-    "cat": "symptoms"
+    "cat": "symptoms",
+    "src": "generated"
   },
   {
     "fa": "یبوست مقاوم",
     "en": "refractory constipation",
-    "cat": "symptoms"
+    "cat": "symptoms",
+    "src": "generated"
   },
   {
     "fa": "سوزش سر دل شبانه",
     "en": "nocturnal heartburn",
-    "cat": "symptoms"
+    "cat": "symptoms",
+    "src": "generated"
   },
   {
     "fa": "تنگی نفس فعالیتی",
     "en": "exertional dyspnea",
-    "cat": "symptoms"
+    "cat": "symptoms",
+    "src": "generated"
   },
   {
     "fa": "تپش قلب نامنظم",
     "en": "irregular palpitations",
-    "cat": "symptoms"
+    "cat": "symptoms",
+    "src": "generated"
   },
   {
     "fa": "خواب‌آلودگی روزانه",
     "en": "daytime somnolence",
-    "cat": "symptoms"
+    "cat": "symptoms",
+    "src": "generated"
   },
   {
     "fa": "خارش شبانه",
     "en": "nocturnal pruritus",
-    "cat": "symptoms"
+    "cat": "symptoms",
+    "src": "generated"
   },
   {
     "fa": "خون دماغ مکرر",
     "en": "recurrent epistaxis",
-    "cat": "symptoms"
+    "cat": "symptoms",
+    "src": "generated"
   },
   {
     "fa": "درد لگن مزمن",
     "en": "chronic pelvic pain",
-    "cat": "symptoms"
+    "cat": "symptoms",
+    "src": "generated"
   },
   {
     "fa": "ضعف یک‌طرفه",
     "en": "unilateral weakness",
-    "cat": "symptoms"
+    "cat": "symptoms",
+    "src": "generated"
   },
   {
     "fa": "گرفتگی صدا",
     "en": "hoarseness",
-    "cat": "symptoms"
+    "cat": "symptoms",
+    "src": "generated"
   },
   {
     "fa": "آملودیپین",
     "en": "amlodipine",
-    "cat": "medications"
+    "cat": "medications",
+    "src": "generated"
   },
   {
     "fa": "آتورواستاتین",
     "en": "atorvastatin",
-    "cat": "medications"
+    "cat": "medications",
+    "src": "generated"
   },
   {
     "fa": "اسپیرونولاکتون",
     "en": "spironolactone",
-    "cat": "medications"
+    "cat": "medications",
+    "src": "generated"
   },
   {
     "fa": "اسپیرین کودکان",
     "en": "pediatric aspirin",
-    "cat": "medications"
+    "cat": "medications",
+    "src": "generated"
   },
   {
     "fa": "اسومپرازول",
     "en": "esomeprazole",
-    "cat": "medications"
+    "cat": "medications",
+    "src": "generated"
   },
   {
     "fa": "افدرین",
     "en": "ephedrine",
-    "cat": "medications"
+    "cat": "medications",
+    "src": "generated"
   },
   {
     "fa": "الانزاپین",
     "en": "olanzapine",
-    "cat": "medications"
+    "cat": "medications",
+    "src": "generated"
   },
   {
     "fa": "انالاپریل",
     "en": "enalapril",
-    "cat": "medications"
+    "cat": "medications",
+    "src": "generated"
   },
   {
     "fa": "ایزونیازید",
     "en": "isoniazid",
-    "cat": "medications"
+    "cat": "medications",
+    "src": "generated"
   },
   {
     "fa": "اینسولین گلارژین",
     "en": "insulin glargine",
-    "cat": "medications"
+    "cat": "medications",
+    "src": "generated"
   },
   {
     "fa": "اینسولین آسپارت",
     "en": "insulin aspart",
-    "cat": "medications"
+    "cat": "medications",
+    "src": "generated"
   },
   {
     "fa": "پرامیپکسول",
     "en": "pramipexole",
-    "cat": "medications"
+    "cat": "medications",
+    "src": "generated"
   },
   {
     "fa": "تامسولوسین",
     "en": "tamsulosin",
-    "cat": "medications"
+    "cat": "medications",
+    "src": "generated"
   },
   {
     "fa": "ترانگزامیک اسید",
     "en": "tranexamic acid",
-    "cat": "medications"
+    "cat": "medications",
+    "src": "generated"
   },
   {
     "fa": "ریواروکسابان",
     "en": "rivaroxaban",
-    "cat": "medications"
+    "cat": "medications",
+    "src": "generated"
   },
   {
     "fa": "سفتریاکسون",
     "en": "ceftriaxone",
-    "cat": "medications"
+    "cat": "medications",
+    "src": "generated"
   },
   {
     "fa": "فوروزماید",
     "en": "furosemide",
-    "cat": "medications"
+    "cat": "medications",
+    "src": "generated"
   },
   {
     "fa": "فنی‌توئین",
     "en": "phenytoin",
-    "cat": "medications"
+    "cat": "medications",
+    "src": "generated"
   },
   {
     "fa": "نایتروگلیسیرین",
     "en": "nitroglycerin",
-    "cat": "medications"
+    "cat": "medications",
+    "src": "generated"
   },
   {
     "fa": "لیسینوپریل",
     "en": "lisinopril",
-    "cat": "medications"
+    "cat": "medications",
+    "src": "generated"
   },
   {
     "fa": "امپرازول",
     "en": "omeprazole",
-    "cat": "medications"
+    "cat": "medications",
+    "src": "generated"
   },
   {
     "fa": "کوئتیاپین",
     "en": "quetiapine",
-    "cat": "medications"
+    "cat": "medications",
+    "src": "generated"
   },
   {
     "fa": "تاموکسیفن",
     "en": "tamoxifen",
-    "cat": "medications"
+    "cat": "medications",
+    "src": "generated"
   },
   {
     "fa": "آناستروزول",
     "en": "anastrozole",
-    "cat": "medications"
+    "cat": "medications",
+    "src": "generated"
   },
   {
     "fa": "پاکلیتاکسل",
     "en": "paclitaxel",
-    "cat": "medications"
+    "cat": "medications",
+    "src": "generated"
   },
   {
     "fa": "دوکسوروبیسین",
     "en": "doxorubicin",
-    "cat": "medications"
+    "cat": "medications",
+    "src": "generated"
   },
   {
     "fa": "نیفیدیپین",
     "en": "nifedipine",
-    "cat": "medications"
+    "cat": "medications",
+    "src": "generated"
   },
   {
     "fa": "لابتالول",
     "en": "labetalol",
-    "cat": "medications"
+    "cat": "medications",
+    "src": "generated"
   },
   {
     "fa": "منیزیم سولفات",
     "en": "magnesium sulfate",
-    "cat": "medications"
+    "cat": "medications",
+    "src": "generated"
   },
   {
     "fa": "اکسی‌توسین",
     "en": "oxytocin",
-    "cat": "medications"
+    "cat": "medications",
+    "src": "generated"
   },
   {
     "fa": "میزوپروستول",
     "en": "misoprostol",
-    "cat": "medications"
+    "cat": "medications",
+    "src": "generated"
   },
   {
     "fa": "سولفات آهن",
     "en": "ferrous sulfate",
-    "cat": "medications"
+    "cat": "medications",
+    "src": "generated"
   },
   {
     "fa": "ویتامین د",
     "en": "vitamin D",
-    "cat": "medications"
+    "cat": "medications",
+    "src": "generated"
   },
   {
     "fa": "کلسیم کربنات",
     "en": "calcium carbonate",
-    "cat": "medications"
+    "cat": "medications",
+    "src": "generated"
   },
   {
     "fa": "پتاسیم کلراید",
     "en": "potassium chloride",
-    "cat": "medications"
+    "cat": "medications",
+    "src": "generated"
   },
   {
     "fa": "آلبوترول",
     "en": "albuterol",
-    "cat": "medications"
+    "cat": "medications",
+    "src": "generated"
   },
   {
     "fa": "بودزونید",
     "en": "budesonide",
-    "cat": "medications"
+    "cat": "medications",
+    "src": "generated"
   },
   {
     "fa": "مونته‌لوکاست",
     "en": "montelukast",
-    "cat": "medications"
+    "cat": "medications",
+    "src": "generated"
   },
   {
     "fa": "اکوکاردیوگرافی از مری",
     "en": "transesophageal echocardiography",
-    "cat": "procedures"
+    "cat": "procedures",
+    "src": "generated"
   },
   {
     "fa": "آنژیوگرافی کرونر",
     "en": "coronary angiography",
-    "cat": "procedures"
+    "cat": "procedures",
+    "src": "generated"
   },
   {
     "fa": "بیوپسی مغز استخوان",
     "en": "bone marrow biopsy",
-    "cat": "procedures"
+    "cat": "procedures",
+    "src": "generated"
   },
   {
     "fa": "بیوپسی کلیه",
     "en": "kidney biopsy",
-    "cat": "procedures"
+    "cat": "procedures",
+    "src": "generated"
   },
   {
     "fa": "پاراسنتز شکم",
     "en": "abdominal paracentesis",
-    "cat": "procedures"
+    "cat": "procedures",
+    "src": "generated"
   },
   {
     "fa": "تراکئوستومی",
     "en": "tracheostomy",
-    "cat": "procedures"
+    "cat": "procedures",
+    "src": "generated"
   },
   {
     "fa": "توراکوسنتز",
     "en": "thoracentesis",
-    "cat": "procedures"
+    "cat": "procedures",
+    "src": "generated"
   },
   {
     "fa": "جراحی آپاندکتومی",
     "en": "appendectomy",
-    "cat": "procedures"
+    "cat": "procedures",
+    "src": "generated"
   },
   {
     "fa": "جراحی کوله سیستکتومی",
     "en": "cholecystectomy",
-    "cat": "procedures"
+    "cat": "procedures",
+    "src": "generated"
   },
   {
     "fa": "دیالیز صفاقی",
     "en": "peritoneal dialysis",
-    "cat": "procedures"
+    "cat": "procedures",
+    "src": "generated"
   },
   {
     "fa": "کاتتریزاسیون مثانه",
     "en": "bladder catheterization",
-    "cat": "procedures"
+    "cat": "procedures",
+    "src": "generated"
   },
   {
     "fa": "کولونوسکوپی غربالگری",
     "en": "screening colonoscopy",
-    "cat": "procedures"
+    "cat": "procedures",
+    "src": "generated"
   },
   {
     "fa": "لاپاراسکوپی تشخیصی",
     "en": "diagnostic laparoscopy",
-    "cat": "procedures"
+    "cat": "procedures",
+    "src": "generated"
   },
   {
     "fa": "لوله قفسه سینه",
     "en": "chest tube insertion",
-    "cat": "procedures"
+    "cat": "procedures",
+    "src": "generated"
   },
   {
     "fa": "نوار عصب و عضله",
     "en": "electromyography",
-    "cat": "procedures"
+    "cat": "procedures",
+    "src": "generated"
   },
   {
     "fa": "هیستروسکوپی",
     "en": "hysteroscopy",
-    "cat": "procedures"
+    "cat": "procedures",
+    "src": "generated"
   },
   {
     "fa": "سزارین اورژانس",
     "en": "emergency cesarean section",
-    "cat": "procedures"
+    "cat": "procedures",
+    "src": "generated"
   },
   {
     "fa": "زایمان طبیعی",
     "en": "vaginal delivery",
-    "cat": "procedures"
+    "cat": "procedures",
+    "src": "generated"
   },
   {
     "fa": "برداشت پولیپ بینی",
     "en": "nasal polypectomy",
-    "cat": "procedures"
+    "cat": "procedures",
+    "src": "generated"
   },
   {
     "fa": "جراحی دیسک کمر",
     "en": "lumbar discectomy",
-    "cat": "procedures"
+    "cat": "procedures",
+    "src": "generated"
   },
   {
     "fa": "تعویض مفصل زانو",
     "en": "total knee arthroplasty",
-    "cat": "procedures"
+    "cat": "procedures",
+    "src": "generated"
   },
   {
     "fa": "تعویض مفصل ران",
     "en": "total hip arthroplasty",
-    "cat": "procedures"
+    "cat": "procedures",
+    "src": "generated"
   },
   {
     "fa": "فیکساسیون شکستگی",
     "en": "fracture fixation",
-    "cat": "procedures"
+    "cat": "procedures",
+    "src": "generated"
   },
   {
     "fa": "گچ‌گیری اندام",
     "en": "limb casting",
-    "cat": "procedures"
+    "cat": "procedures",
+    "src": "generated"
   },
   {
     "fa": "کاردیوورژن الکتریکی",
     "en": "electrical cardioversion",
-    "cat": "procedures"
+    "cat": "procedures",
+    "src": "generated"
   },
   {
     "fa": "ابلیشن آریتمی",
     "en": "arrhythmia ablation",
-    "cat": "procedures"
+    "cat": "procedures",
+    "src": "generated"
   },
   {
     "fa": "نصب پیس‌میکر",
     "en": "pacemaker implantation",
-    "cat": "procedures"
+    "cat": "procedures",
+    "src": "generated"
   },
   {
     "fa": "استنت کرونر",
     "en": "coronary stenting",
-    "cat": "procedures"
+    "cat": "procedures",
+    "src": "generated"
   },
   {
     "fa": "بیوپسی ریه",
     "en": "lung biopsy",
-    "cat": "procedures"
+    "cat": "procedures",
+    "src": "generated"
   },
   {
     "fa": "رزکسیون روده",
     "en": "bowel resection",
-    "cat": "procedures"
+    "cat": "procedures",
+    "src": "generated"
   },
   {
     "fa": "فتق‌ترمیمی",
     "en": "hernia repair",
-    "cat": "procedures"
+    "cat": "procedures",
+    "src": "generated"
   },
   {
     "fa": "سیستوسکوپی",
     "en": "cystoscopy",
-    "cat": "procedures"
+    "cat": "procedures",
+    "src": "generated"
   },
   {
     "fa": "سنگ‌شکنی برون‌اندامی",
     "en": "extracorporeal shock wave lithotripsy",
-    "cat": "procedures"
+    "cat": "procedures",
+    "src": "generated"
   },
   {
     "fa": "پروستاتکتومی",
     "en": "prostatectomy",
-    "cat": "procedures"
+    "cat": "procedures",
+    "src": "generated"
   },
   {
     "fa": "بیوپسی پروستات",
     "en": "prostate biopsy",
-    "cat": "procedures"
+    "cat": "procedures",
+    "src": "generated"
   },
   {
     "fa": "لاواژ گوش",
     "en": "ear irrigation",
-    "cat": "procedures"
+    "cat": "procedures",
+    "src": "generated"
   },
   {
     "fa": "درناژ آبسه",
     "en": "abscess drainage",
-    "cat": "procedures"
+    "cat": "procedures",
+    "src": "generated"
   },
   {
     "fa": "بخیه زخم",
     "en": "wound suturing",
-    "cat": "procedures"
+    "cat": "procedures",
+    "src": "generated"
   },
   {
     "fa": "دبریدمان زخم",
     "en": "wound debridement",
-    "cat": "procedures"
+    "cat": "procedures",
+    "src": "generated"
   },
   {
     "fa": "پانسمان فشاری",
     "en": "compression dressing",
-    "cat": "procedures"
+    "cat": "procedures",
+    "src": "generated"
   },
   {
     "fa": "تزریق داخل مفصل",
     "en": "intra-articular injection",
-    "cat": "procedures"
+    "cat": "procedures",
+    "src": "generated"
   },
   {
     "fa": "بلوک عصبی",
     "en": "nerve block",
-    "cat": "procedures"
+    "cat": "procedures",
+    "src": "generated"
   },
   {
     "fa": "اسپینال آنستزی",
     "en": "spinal anesthesia",
-    "cat": "procedures"
+    "cat": "procedures",
+    "src": "generated"
   },
   {
     "fa": "اپیدورال آنستزی",
     "en": "epidural anesthesia",
-    "cat": "procedures"
+    "cat": "procedures",
+    "src": "generated"
   },
   {
     "fa": "اینتوباسیون",
     "en": "endotracheal intubation",
-    "cat": "procedures"
+    "cat": "procedures",
+    "src": "generated"
   },
   {
     "fa": "ونتیلاسیون مکانیکی",
     "en": "mechanical ventilation",
-    "cat": "procedures"
+    "cat": "procedures",
+    "src": "generated"
   },
   {
     "fa": "احیای قلبی ریوی",
     "en": "cardiopulmonary resuscitation",
-    "cat": "procedures"
+    "cat": "procedures",
+    "src": "generated"
   },
   {
     "fa": "آلبومین سرم",
     "en": "serum albumin",
-    "cat": "labs"
+    "cat": "labs",
+    "src": "generated"
   },
   {
     "fa": "آمیلاز سرم",
     "en": "serum amylase",
-    "cat": "labs"
+    "cat": "labs",
+    "src": "generated"
   },
   {
     "fa": "لیپاز سرم",
     "en": "serum lipase",
-    "cat": "labs"
+    "cat": "labs",
+    "src": "generated"
   },
   {
     "fa": "بیلی‌روبین غیرمستقیم",
     "en": "indirect bilirubin",
-    "cat": "labs"
+    "cat": "labs",
+    "src": "generated"
   },
   {
     "fa": "تروپونین قلبی",
     "en": "cardiac troponin",
-    "cat": "labs"
+    "cat": "labs",
+    "src": "generated"
   },
   {
     "fa": "دی‌دایمر",
     "en": "D-dimer",
-    "cat": "labs"
+    "cat": "labs",
+    "src": "generated"
   },
   {
     "fa": "فریتین",
     "en": "ferritin",
-    "cat": "labs"
+    "cat": "labs",
+    "src": "generated"
   },
   {
     "fa": "آهن سرم",
     "en": "serum iron",
-    "cat": "labs"
+    "cat": "labs",
+    "src": "generated"
   },
   {
     "fa": "ظرفیت اتصال آهن",
     "en": "total iron binding capacity",
-    "cat": "labs"
+    "cat": "labs",
+    "src": "generated"
   },
   {
     "fa": "ویتامین ب۱۲ سرم",
     "en": "serum vitamin B12",
-    "cat": "labs"
+    "cat": "labs",
+    "src": "generated"
   },
   {
     "fa": "فولات سرم",
     "en": "serum folate",
-    "cat": "labs"
+    "cat": "labs",
+    "src": "generated"
   },
   {
     "fa": "هورمون پاراتیروئید",
     "en": "parathyroid hormone",
-    "cat": "labs"
+    "cat": "labs",
+    "src": "generated"
   },
   {
     "fa": "کورتیزول صبحگاهی",
     "en": "morning cortisol",
-    "cat": "labs"
+    "cat": "labs",
+    "src": "generated"
   },
   {
     "fa": "پرولاکتین",
     "en": "prolactin",
-    "cat": "labs"
+    "cat": "labs",
+    "src": "generated"
   },
   {
     "fa": "تستوسترون تام",
     "en": "total testosterone",
-    "cat": "labs"
+    "cat": "labs",
+    "src": "generated"
   },
   {
     "fa": "استرادیول",
     "en": "estradiol",
-    "cat": "labs"
+    "cat": "labs",
+    "src": "generated"
   },
   {
     "fa": "گنادوتروپین جفتی",
     "en": "beta hCG",
-    "cat": "labs"
+    "cat": "labs",
+    "src": "generated"
   },
   {
     "fa": "آنتی‌تی‌پی‌او",
     "en": "anti-TPO",
-    "cat": "labs"
+    "cat": "labs",
+    "src": "generated"
   },
   {
     "fa": "آنتی‌نوکلئار آنتی‌بادی",
     "en": "antinuclear antibody",
-    "cat": "labs"
+    "cat": "labs",
+    "src": "generated"
   },
   {
     "fa": "فاکتور روماتوئید",
     "en": "rheumatoid factor",
-    "cat": "labs"
+    "cat": "labs",
+    "src": "generated"
   },
   {
     "fa": "آنتی‌سی‌سی‌پی",
     "en": "anti-CCP",
-    "cat": "labs"
+    "cat": "labs",
+    "src": "generated"
   },
   {
     "fa": "کمپلمان سه",
     "en": "complement C3",
-    "cat": "labs"
+    "cat": "labs",
+    "src": "generated"
   },
   {
     "fa": "کمپلمان چهار",
     "en": "complement C4",
-    "cat": "labs"
+    "cat": "labs",
+    "src": "generated"
   },
   {
     "fa": "آنتی‌ژن اختصاصی پروستات",
     "en": "prostate specific antigen",
-    "cat": "labs"
+    "cat": "labs",
+    "src": "generated"
   },
   {
     "fa": "آنتی‌ژن کارسینوامبریونیک",
     "en": "carcinoembryonic antigen",
-    "cat": "labs"
+    "cat": "labs",
+    "src": "generated"
   },
   {
     "fa": "آلفا فتوپروتئین",
     "en": "alpha-fetoprotein",
-    "cat": "labs"
+    "cat": "labs",
+    "src": "generated"
   },
   {
     "fa": "سی‌ای نوزده نه",
     "en": "CA 19-9",
-    "cat": "labs"
+    "cat": "labs",
+    "src": "generated"
   },
   {
     "fa": "سی‌ای یکصد و بیست و پنج",
     "en": "CA 125",
-    "cat": "labs"
+    "cat": "labs",
+    "src": "generated"
   },
   {
     "fa": "گاز خون شریانی",
     "en": "arterial blood gas",
-    "cat": "labs"
+    "cat": "labs",
+    "src": "generated"
   },
   {
     "fa": "لاکتات سرم",
     "en": "serum lactate",
-    "cat": "labs"
+    "cat": "labs",
+    "src": "generated"
   },
   {
     "fa": "پروکلسیتونین",
     "en": "procalcitonin",
-    "cat": "labs"
+    "cat": "labs",
+    "src": "generated"
   },
   {
     "fa": "کشت خلط",
     "en": "sputum culture",
-    "cat": "labs"
+    "cat": "labs",
+    "src": "generated"
   },
   {
     "fa": "اسمیر خلط اسیدفست",
     "en": "acid-fast sputum smear",
-    "cat": "labs"
+    "cat": "labs",
+    "src": "generated"
   },
   {
     "fa": "آزمایش مدفوع خون مخفی",
     "en": "fecal occult blood test",
-    "cat": "labs"
+    "cat": "labs",
+    "src": "generated"
   },
   {
     "fa": "کالپروتکتین مدفوع",
     "en": "fecal calprotectin",
-    "cat": "labs"
+    "cat": "labs",
+    "src": "generated"
   },
   {
     "fa": "آزمایش هلیکوباکتر تنفسی",
     "en": "urea breath test",
-    "cat": "labs"
+    "cat": "labs",
+    "src": "generated"
   },
   {
     "fa": "آنتی‌ژن هلیکوباکتر مدفوع",
     "en": "stool H pylori antigen",
-    "cat": "labs"
+    "cat": "labs",
+    "src": "generated"
   },
   {
     "fa": "آزمایش تحمل گلوکز",
     "en": "oral glucose tolerance test",
-    "cat": "labs"
+    "cat": "labs",
+    "src": "generated"
   },
   {
     "fa": "پپتید ناتریورتیک مغزی",
     "en": "BNP",
-    "cat": "labs"
+    "cat": "labs",
+    "src": "generated"
   },
   {
     "fa": "هموسیستئین",
     "en": "homocysteine",
-    "cat": "labs"
+    "cat": "labs",
+    "src": "generated"
   },
   {
     "fa": "اسید اوریک سرم",
     "en": "serum uric acid",
-    "cat": "labs"
+    "cat": "labs",
+    "src": "generated"
   },
   {
     "fa": "فسفر سرم",
     "en": "serum phosphorus",
-    "cat": "labs"
+    "cat": "labs",
+    "src": "generated"
   },
   {
     "fa": "منیزیم سرم",
     "en": "serum magnesium",
-    "cat": "labs"
+    "cat": "labs",
+    "src": "generated"
   },
   {
     "fa": "کلسیم یونیزه",
     "en": "ionized calcium",
-    "cat": "labs"
+    "cat": "labs",
+    "src": "generated"
   },
   {
     "fa": "اسمولالیته سرم",
     "en": "serum osmolality",
-    "cat": "labs"
+    "cat": "labs",
+    "src": "generated"
   },
   {
     "fa": "پروتئین ادرار بیست و چهار ساعته",
     "en": "24-hour urine protein",
-    "cat": "labs"
+    "cat": "labs",
+    "src": "generated"
   },
   {
     "fa": "نسبت آلبومین به کراتینین ادرار",
     "en": "urine albumin-creatinine ratio",
-    "cat": "labs"
+    "cat": "labs",
+    "src": "generated"
   },
   {
     "fa": "آئورت صعودی",
     "en": "ascending aorta",
-    "cat": "anatomy"
+    "cat": "anatomy",
+    "src": "generated"
   },
   {
     "fa": "بطن چپ",
     "en": "left ventricle",
-    "cat": "anatomy"
+    "cat": "anatomy",
+    "src": "generated"
   },
   {
     "fa": "بطن راست",
     "en": "right ventricle",
-    "cat": "anatomy"
+    "cat": "anatomy",
+    "src": "generated"
   },
   {
     "fa": "دهلیز چپ",
     "en": "left atrium",
-    "cat": "anatomy"
+    "cat": "anatomy",
+    "src": "generated"
   },
   {
     "fa": "دهلیز راست",
     "en": "right atrium",
-    "cat": "anatomy"
+    "cat": "anatomy",
+    "src": "generated"
   },
   {
     "fa": "دریچه میترال",
     "en": "mitral valve",
-    "cat": "anatomy"
+    "cat": "anatomy",
+    "src": "generated"
   },
   {
     "fa": "دریچه سه‌لتی",
     "en": "tricuspid valve",
-    "cat": "anatomy"
+    "cat": "anatomy",
+    "src": "generated"
   },
   {
     "fa": "شریان کرونر چپ",
     "en": "left coronary artery",
-    "cat": "anatomy"
+    "cat": "anatomy",
+    "src": "generated"
   },
   {
     "fa": "شریان پولمونر",
     "en": "pulmonary artery",
-    "cat": "anatomy"
+    "cat": "anatomy",
+    "src": "generated"
   },
   {
     "fa": "سیاهرگ اجوف فوقانی",
     "en": "superior vena cava",
-    "cat": "anatomy"
+    "cat": "anatomy",
+    "src": "generated"
   },
   {
     "fa": "لوب فوقانی ریه راست",
     "en": "right upper lung lobe",
-    "cat": "anatomy"
+    "cat": "anatomy",
+    "src": "generated"
   },
   {
     "fa": "لوب تحتانی ریه چپ",
     "en": "left lower lung lobe",
-    "cat": "anatomy"
+    "cat": "anatomy",
+    "src": "generated"
   },
   {
     "fa": "نایژه اصلی",
     "en": "main bronchus",
-    "cat": "anatomy"
+    "cat": "anatomy",
+    "src": "generated"
   },
   {
     "fa": "پرده‌ جنب",
     "en": "pleura",
-    "cat": "anatomy"
+    "cat": "anatomy",
+    "src": "generated"
   },
   {
     "fa": "مری تحتانی",
     "en": "distal esophagus",
-    "cat": "anatomy"
+    "cat": "anatomy",
+    "src": "generated"
   },
   {
     "fa": "معده آنتر",
     "en": "gastric antrum",
-    "cat": "anatomy"
+    "cat": "anatomy",
+    "src": "generated"
   },
   {
     "fa": "ژژونوم",
     "en": "jejunum",
-    "cat": "anatomy"
+    "cat": "anatomy",
+    "src": "generated"
   },
   {
     "fa": "ایلئوم",
     "en": "ileum",
-    "cat": "anatomy"
+    "cat": "anatomy",
+    "src": "generated"
   },
   {
     "fa": "سکوم",
     "en": "cecum",
-    "cat": "anatomy"
+    "cat": "anatomy",
+    "src": "generated"
   },
   {
     "fa": "کولون صعودی",
     "en": "ascending colon",
-    "cat": "anatomy"
+    "cat": "anatomy",
+    "src": "generated"
   },
   {
     "fa": "کولون سیگموئید",
     "en": "sigmoid colon",
-    "cat": "anatomy"
+    "cat": "anatomy",
+    "src": "generated"
   },
   {
     "fa": "راست‌روده",
     "en": "rectum",
-    "cat": "anatomy"
+    "cat": "anatomy",
+    "src": "generated"
   },
   {
     "fa": "مجرای صفراوی مشترک",
     "en": "common bile duct",
-    "cat": "anatomy"
+    "cat": "anatomy",
+    "src": "generated"
   },
   {
     "fa": "قشر کلیه",
     "en": "renal cortex",
-    "cat": "anatomy"
+    "cat": "anatomy",
+    "src": "generated"
   },
   {
     "fa": "لگنچه کلیه",
     "en": "renal pelvis",
-    "cat": "anatomy"
+    "cat": "anatomy",
+    "src": "generated"
   },
   {
     "fa": "بیضه",
     "en": "testis",
-    "cat": "anatomy"
+    "cat": "anatomy",
+    "src": "generated"
   },
   {
     "fa": "سرویکس",
     "en": "cervix",
-    "cat": "anatomy"
+    "cat": "anatomy",
+    "src": "generated"
   },
   {
     "fa": "جفت",
     "en": "placenta",
-    "cat": "anatomy"
+    "cat": "anatomy",
+    "src": "generated"
   },
   {
     "fa": "غده هیپوفیز",
     "en": "pituitary gland",
-    "cat": "anatomy"
+    "cat": "anatomy",
+    "src": "generated"
   },
   {
     "fa": "غده فوق کلیه",
     "en": "adrenal gland",
-    "cat": "anatomy"
+    "cat": "anatomy",
+    "src": "generated"
   },
   {
     "fa": "غده پاراتیروئید",
     "en": "parathyroid gland",
-    "cat": "anatomy"
+    "cat": "anatomy",
+    "src": "generated"
   },
   {
     "fa": "مخچه",
     "en": "cerebellum",
-    "cat": "anatomy"
+    "cat": "anatomy",
+    "src": "generated"
   },
   {
     "fa": "ساقه مغز",
     "en": "brainstem",
-    "cat": "anatomy"
+    "cat": "anatomy",
+    "src": "generated"
   },
   {
     "fa": "نخاع گردنی",
     "en": "cervical spinal cord",
-    "cat": "anatomy"
+    "cat": "anatomy",
+    "src": "generated"
   },
   {
     "fa": "دیسک بین‌مهره‌ای",
     "en": "intervertebral disc",
-    "cat": "anatomy"
+    "cat": "anatomy",
+    "src": "generated"
   },
   {
     "fa": "منیسک زانو",
     "en": "knee meniscus",
-    "cat": "anatomy"
+    "cat": "anatomy",
+    "src": "generated"
   },
   {
     "fa": "رباط صلیبی قدامی",
     "en": "anterior cruciate ligament",
-    "cat": "anatomy"
+    "cat": "anatomy",
+    "src": "generated"
   },
   {
     "fa": "تاندون آشیل",
     "en": "Achilles tendon",
-    "cat": "anatomy"
+    "cat": "anatomy",
+    "src": "generated"
   },
   {
     "fa": "عصب سیاتیک",
     "en": "sciatic nerve",
-    "cat": "anatomy"
+    "cat": "anatomy",
+    "src": "generated"
   },
   {
     "fa": "شبکیه",
     "en": "retina",
-    "cat": "anatomy"
+    "cat": "anatomy",
+    "src": "generated"
   },
   {
     "fa": "قرنیه",
     "en": "cornea",
-    "cat": "anatomy"
+    "cat": "anatomy",
+    "src": "generated"
   },
   {
     "fa": "عدسی چشم",
     "en": "eye lens",
-    "cat": "anatomy"
+    "cat": "anatomy",
+    "src": "generated"
   },
   {
     "fa": "پرده صماخ",
     "en": "tympanic membrane",
-    "cat": "anatomy"
+    "cat": "anatomy",
+    "src": "generated"
   },
   {
     "fa": "حلق",
     "en": "pharynx",
-    "cat": "anatomy"
+    "cat": "anatomy",
+    "src": "generated"
   },
   {
     "fa": "حنجره",
     "en": "larynx",
-    "cat": "anatomy"
+    "cat": "anatomy",
+    "src": "generated"
   },
   {
     "fa": "لوزه",
     "en": "tonsil",
-    "cat": "anatomy"
+    "cat": "anatomy",
+    "src": "generated"
   },
   {
     "fa": "فشار خون دیاستولیک",
     "en": "diastolic blood pressure",
-    "cat": "vitals"
+    "cat": "vitals",
+    "src": "generated"
   },
   {
     "fa": "فشار خون متوسط",
     "en": "mean arterial pressure",
-    "cat": "vitals"
+    "cat": "vitals",
+    "src": "generated"
   },
   {
     "fa": "ضربان قلب در حال استراحت",
     "en": "resting heart rate",
-    "cat": "vitals"
+    "cat": "vitals",
+    "src": "generated"
   },
   {
     "fa": "تعداد تنفس",
     "en": "respiratory rate",
-    "cat": "vitals"
+    "cat": "vitals",
+    "src": "generated"
   },
   {
     "fa": "دمای زیرزبانی",
     "en": "oral temperature",
-    "cat": "vitals"
+    "cat": "vitals",
+    "src": "generated"
   },
   {
     "fa": "دمای مقعدی",
     "en": "rectal temperature",
-    "cat": "vitals"
+    "cat": "vitals",
+    "src": "generated"
   },
   {
     "fa": "اشباع اکسیژن نبض",
     "en": "pulse oximetry",
-    "cat": "vitals"
+    "cat": "vitals",
+    "src": "generated"
   },
   {
     "fa": "شاخص توده بدنی",
     "en": "body mass index",
-    "cat": "vitals"
+    "cat": "vitals",
+    "src": "generated"
   },
   {
     "fa": "محیط دور کمر",
     "en": "waist circumference",
-    "cat": "vitals"
+    "cat": "vitals",
+    "src": "generated"
   },
   {
     "fa": "قد ایستاده",
     "en": "standing height",
-    "cat": "vitals"
+    "cat": "vitals",
+    "src": "generated"
   },
   {
     "fa": "وزن خشک",
     "en": "dry weight",
-    "cat": "vitals"
+    "cat": "vitals",
+    "src": "generated"
   },
   {
     "fa": "دبی ادرار ساعتی",
     "en": "hourly urine output",
-    "cat": "vitals"
+    "cat": "vitals",
+    "src": "generated"
   },
   {
     "fa": "مقیاس درد عددی",
     "en": "numeric pain score",
-    "cat": "vitals"
+    "cat": "vitals",
+    "src": "generated"
   },
   {
     "fa": "مقیاس کما گلاسکو",
     "en": "Glasgow coma scale",
-    "cat": "vitals"
+    "cat": "vitals",
+    "src": "generated"
   },
   {
     "fa": "فشار ورید مرکزی",
     "en": "central venous pressure",
-    "cat": "vitals"
+    "cat": "vitals",
+    "src": "generated"
   },
   {
     "fa": "قند خون ناشتا کنار بستر",
     "en": "bedside fasting glucose",
-    "cat": "vitals"
+    "cat": "vitals",
+    "src": "generated"
   },
   {
     "fa": "قند خون تصادفی",
     "en": "random blood glucose",
-    "cat": "vitals"
+    "cat": "vitals",
+    "src": "generated"
   },
   {
     "fa": "سابقه سکته قلبی",
     "en": "history of myocardial infarction",
-    "cat": "history"
+    "cat": "history",
+    "src": "generated"
   },
   {
     "fa": "سابقه سکته مغزی",
     "en": "history of stroke",
-    "cat": "history"
+    "cat": "history",
+    "src": "generated"
   },
   {
     "fa": "سابقه جراحی قلب باز",
     "en": "history of open heart surgery",
-    "cat": "history"
+    "cat": "history",
+    "src": "generated"
   },
   {
     "fa": "سابقه پیوند کلیه",
     "en": "history of kidney transplant",
-    "cat": "history"
+    "cat": "history",
+    "src": "generated"
   },
   {
     "fa": "سابقه شیمی‌درمانی",
     "en": "history of chemotherapy",
-    "cat": "history"
+    "cat": "history",
+    "src": "generated"
   },
   {
     "fa": "سابقه پرتودرمانی",
     "en": "history of radiotherapy",
-    "cat": "history"
+    "cat": "history",
+    "src": "generated"
   },
   {
     "fa": "سابقه حساسیت دارویی",
     "en": "history of drug allergy",
-    "cat": "history"
+    "cat": "history",
+    "src": "generated"
   },
   {
     "fa": "سابقه بستری در آی‌سی‌یو",
     "en": "history of ICU admission",
-    "cat": "history"
+    "cat": "history",
+    "src": "generated"
   },
   {
     "fa": "سابقه مصرف سیگار",
     "en": "smoking history",
-    "cat": "history"
+    "cat": "history",
+    "src": "generated"
   },
   {
     "fa": "سابقه مصرف الکل",
     "en": "alcohol history",
-    "cat": "history"
+    "cat": "history",
+    "src": "generated"
   },
   {
     "fa": "سابقه خانوادگی سرطان",
     "en": "family history of cancer",
-    "cat": "history"
+    "cat": "history",
+    "src": "generated"
   },
   {
     "fa": "سابقه خانوادگی دیابت",
     "en": "family history of diabetes",
-    "cat": "history"
+    "cat": "history",
+    "src": "generated"
   },
   {
     "fa": "سابقه سقط",
     "en": "history of miscarriage",
-    "cat": "history"
+    "cat": "history",
+    "src": "generated"
   },
   {
     "fa": "سابقه سزارین",
     "en": "history of cesarean section",
-    "cat": "history"
+    "cat": "history",
+    "src": "generated"
   },
   {
     "fa": "سابقه زایمان زودرس",
     "en": "history of preterm birth",
-    "cat": "history"
+    "cat": "history",
+    "src": "generated"
   },
   {
     "fa": "سابقه ترومبوز",
     "en": "history of thrombosis",
-    "cat": "history"
+    "cat": "history",
+    "src": "generated"
   },
   {
     "fa": "سابقه صرع",
     "en": "history of epilepsy",
-    "cat": "history"
+    "cat": "history",
+    "src": "generated"
   },
   {
     "fa": "سابقه آسم کودکی",
     "en": "childhood asthma history",
-    "cat": "history"
+    "cat": "history",
+    "src": "generated"
   },
   {
     "fa": "سابقه سل درمان‌شده",
     "en": "treated tuberculosis history",
-    "cat": "history"
+    "cat": "history",
+    "src": "generated"
   },
   {
     "fa": "سابقه تزریق خون",
     "en": "history of blood transfusion",
-    "cat": "history"
+    "cat": "history",
+    "src": "generated"
   },
   {
     "fa": "درخواست نوار قلب",
     "en": "order electrocardiogram",
-    "cat": "plan"
+    "cat": "plan",
+    "src": "generated"
   },
   {
     "fa": "درخواست اکوکاردیوگرافی",
     "en": "order echocardiography",
-    "cat": "plan"
+    "cat": "plan",
+    "src": "generated"
   },
   {
     "fa": "درخواست سی‌تی آنژیو ریه",
     "en": "order CT pulmonary angiogram",
-    "cat": "plan"
+    "cat": "plan",
+    "src": "generated"
   },
   {
     "fa": "درخواست ام‌آر‌آی مغز",
     "en": "order brain MRI",
-    "cat": "plan"
+    "cat": "plan",
+    "src": "generated"
   },
   {
     "fa": "درخواست سونوگرافی شکم",
     "en": "order abdominal ultrasound",
-    "cat": "plan"
+    "cat": "plan",
+    "src": "generated"
   },
   {
     "fa": "شروع آنتی‌بیوتیک وریدی",
     "en": "start intravenous antibiotics",
-    "cat": "plan"
+    "cat": "plan",
+    "src": "generated"
   },
   {
     "fa": "قطع داروی ضدالتهاب",
     "en": "stop NSAID",
-    "cat": "plan"
+    "cat": "plan",
+    "src": "generated"
   },
   {
     "fa": "تنظیم دوز انسولین",
     "en": "adjust insulin dose",
-    "cat": "plan"
+    "cat": "plan",
+    "src": "generated"
   },
   {
     "fa": "ارجاع به قلب",
     "en": "refer to cardiology",
-    "cat": "plan"
+    "cat": "plan",
+    "src": "generated"
   },
   {
     "fa": "ارجاع به غدد",
     "en": "refer to endocrinology",
-    "cat": "plan"
+    "cat": "plan",
+    "src": "generated"
   },
   {
     "fa": "ارجاع به گوارش",
     "en": "refer to gastroenterology",
-    "cat": "plan"
+    "cat": "plan",
+    "src": "generated"
   },
   {
     "fa": "ارجاع به مغز و اعصاب",
     "en": "refer to neurology",
-    "cat": "plan"
+    "cat": "plan",
+    "src": "generated"
   },
   {
     "fa": "پیگیری یک هفته بعد",
     "en": "follow up in one week",
-    "cat": "plan"
+    "cat": "plan",
+    "src": "generated"
   },
   {
     "fa": "آموزش بیمار درباره دارو",
     "en": "counsel patient about medication",
-    "cat": "plan"
+    "cat": "plan",
+    "src": "generated"
   },
   {
     "fa": "توصیه ترک سیگار",
     "en": "advise smoking cessation",
-    "cat": "plan"
+    "cat": "plan",
+    "src": "generated"
   },
   {
     "fa": "توصیه محدودیت نمک",
     "en": "advise salt restriction",
-    "cat": "plan"
+    "cat": "plan",
+    "src": "generated"
   },
   {
     "fa": "توصیه افزایش مایعات",
     "en": "advise increased fluids",
-    "cat": "plan"
+    "cat": "plan",
+    "src": "generated"
   },
   {
     "fa": "رزرو اتاق عمل",
     "en": "book operating room",
-    "cat": "plan"
+    "cat": "plan",
+    "src": "generated"
   },
   {
     "fa": "اخذ رضایت آگاهانه",
     "en": "obtain informed consent",
-    "cat": "plan"
+    "cat": "plan",
+    "src": "generated"
   },
   {
     "fa": "پایش علائم حیاتی ساعتی",
     "en": "hourly vital sign monitoring",
-    "cat": "plan"
+    "cat": "plan",
+    "src": "generated"
   },
   {
     "fa": "اکسیژن‌درمانی",
     "en": "oxygen therapy",
-    "cat": "plan"
+    "cat": "plan",
+    "src": "generated"
   },
   {
     "fa": "فیزیوتراپی تنفسی",
     "en": "chest physiotherapy",
-    "cat": "plan"
+    "cat": "plan",
+    "src": "generated"
   },
   {
     "fa": "مشاوره تغذیه",
     "en": "nutrition consult",
-    "cat": "plan"
+    "cat": "plan",
+    "src": "generated"
   },
   {
     "fa": "مشاوره روان‌پزشکی",
     "en": "psychiatry consult",
-    "cat": "plan"
+    "cat": "plan",
+    "src": "generated"
   },
   {
     "fa": "طب اورژانس",
     "en": "emergency medicine",
-    "cat": "specialty"
+    "cat": "specialty",
+    "src": "generated"
   },
   {
     "fa": "طب سالمندی",
     "en": "geriatrics",
-    "cat": "specialty"
+    "cat": "specialty",
+    "src": "generated"
   },
   {
     "fa": "طب فیزیکی",
     "en": "physical medicine",
-    "cat": "specialty"
+    "cat": "specialty",
+    "src": "generated"
   },
   {
     "fa": "بیماری‌های عفونی",
     "en": "infectious diseases",
-    "cat": "specialty"
+    "cat": "specialty",
+    "src": "generated"
   },
   {
     "fa": "نفرولوژی",
     "en": "nephrology",
-    "cat": "specialty"
+    "cat": "specialty",
+    "src": "generated"
   },
   {
     "fa": "غدد درون‌ریز",
     "en": "endocrinology",
-    "cat": "specialty"
+    "cat": "specialty",
+    "src": "generated"
   },
   {
     "fa": "روان‌پزشکی",
     "en": "psychiatry",
-    "cat": "specialty"
+    "cat": "specialty",
+    "src": "generated"
   },
   {
     "fa": "جراحی عمومی",
     "en": "general surgery",
-    "cat": "specialty"
+    "cat": "specialty",
+    "src": "generated"
   },
   {
     "fa": "جراحی مغز و اعصاب",
     "en": "neurosurgery",
-    "cat": "specialty"
+    "cat": "specialty",
+    "src": "generated"
   },
   {
     "fa": "جراحی قلب",
     "en": "cardiac surgery",
-    "cat": "specialty"
+    "cat": "specialty",
+    "src": "generated"
   },
   {
     "fa": "بیهوشی",
     "en": "anesthesiology",
-    "cat": "specialty"
+    "cat": "specialty",
+    "src": "generated"
   },
   {
     "fa": "پزشکی هسته‌ای",
     "en": "nuclear medicine",
-    "cat": "specialty"
+    "cat": "specialty",
+    "src": "generated"
   },
   {
     "fa": "پاتولوژی",
     "en": "pathology",
-    "cat": "specialty"
+    "cat": "specialty",
+    "src": "generated"
   },
   {
     "fa": "ایمونولوژی",
     "en": "immunology",
-    "cat": "specialty"
+    "cat": "specialty",
+    "src": "generated"
   },
   {
     "fa": "سرطان پستان",
     "en": "breast cancer",
-    "cat": "oncology"
+    "cat": "oncology",
+    "src": "generated"
   },
   {
     "fa": "سرطان ریه سلول کوچک",
     "en": "small cell lung cancer",
-    "cat": "oncology"
+    "cat": "oncology",
+    "src": "generated"
   },
   {
     "fa": "سرطان ریه غیرسلول کوچک",
     "en": "non-small cell lung cancer",
-    "cat": "oncology"
+    "cat": "oncology",
+    "src": "generated"
   },
   {
     "fa": "سرطان کولون",
     "en": "colon cancer",
-    "cat": "oncology"
+    "cat": "oncology",
+    "src": "generated"
   },
   {
     "fa": "سرطان راست‌روده",
     "en": "rectal cancer",
-    "cat": "oncology"
+    "cat": "oncology",
+    "src": "generated"
   },
   {
     "fa": "سرطان معده",
     "en": "gastric cancer",
-    "cat": "oncology"
+    "cat": "oncology",
+    "src": "generated"
   },
   {
     "fa": "سرطان لوزالمعده",
     "en": "pancreatic cancer",
-    "cat": "oncology"
+    "cat": "oncology",
+    "src": "generated"
   },
   {
     "fa": "سرطان کبد",
     "en": "hepatocellular carcinoma",
-    "cat": "oncology"
+    "cat": "oncology",
+    "src": "generated"
   },
   {
     "fa": "سرطان مثانه",
     "en": "bladder cancer",
-    "cat": "oncology"
+    "cat": "oncology",
+    "src": "generated"
   },
   {
     "fa": "سرطان تخمدان",
     "en": "ovarian cancer",
-    "cat": "oncology"
+    "cat": "oncology",
+    "src": "generated"
   },
   {
     "fa": "سرطان دهانه رحم",
     "en": "cervical cancer",
-    "cat": "oncology"
+    "cat": "oncology",
+    "src": "generated"
   },
   {
     "fa": "سرطان رحم",
     "en": "endometrial cancer",
-    "cat": "oncology"
+    "cat": "oncology",
+    "src": "generated"
   },
   {
     "fa": "سرطان تیروئید",
     "en": "thyroid cancer",
-    "cat": "oncology"
+    "cat": "oncology",
+    "src": "generated"
   },
   {
     "fa": "ملانوم بدخیم",
     "en": "malignant melanoma",
-    "cat": "oncology"
+    "cat": "oncology",
+    "src": "generated"
   },
   {
     "fa": "لنفوم هوچکین",
     "en": "Hodgkin lymphoma",
-    "cat": "oncology"
+    "cat": "oncology",
+    "src": "generated"
   },
   {
     "fa": "لنفوم غیرهوچکین",
     "en": "non-Hodgkin lymphoma",
-    "cat": "oncology"
+    "cat": "oncology",
+    "src": "generated"
   },
   {
     "fa": "میلوما متعدد",
     "en": "multiple myeloma",
-    "cat": "oncology"
+    "cat": "oncology",
+    "src": "generated"
   },
   {
     "fa": "لوسمی حاد میلوئید",
     "en": "acute myeloid leukemia",
-    "cat": "oncology"
+    "cat": "oncology",
+    "src": "generated"
   },
   {
     "fa": "لوسمی حاد لنفوبلاستیک",
     "en": "acute lymphoblastic leukemia",
-    "cat": "oncology"
+    "cat": "oncology",
+    "src": "generated"
   },
   {
     "fa": "لوسمی مزمن میلوئید",
     "en": "chronic myeloid leukemia",
-    "cat": "oncology"
+    "cat": "oncology",
+    "src": "generated"
   },
   {
     "fa": "متاستاز استخوان",
     "en": "bone metastasis",
-    "cat": "oncology"
+    "cat": "oncology",
+    "src": "generated"
   },
   {
     "fa": "متاستاز کبد",
     "en": "liver metastasis",
-    "cat": "oncology"
+    "cat": "oncology",
+    "src": "generated"
   },
   {
     "fa": "متاستاز مغز",
     "en": "brain metastasis",
-    "cat": "oncology"
+    "cat": "oncology",
+    "src": "generated"
   },
   {
     "fa": "مرحله‌بندی تومور",
     "en": "tumor staging",
-    "cat": "oncology"
+    "cat": "oncology",
+    "src": "generated"
   },
   {
     "fa": "پاسخ کامل درمانی",
     "en": "complete response",
-    "cat": "oncology"
+    "cat": "oncology",
+    "src": "generated"
   },
   {
     "fa": "عود بیماری",
     "en": "disease relapse",
-    "cat": "oncology"
+    "cat": "oncology",
+    "src": "generated"
   },
   {
     "fa": "درمان نگهدارنده",
     "en": "maintenance therapy",
-    "cat": "oncology"
+    "cat": "oncology",
+    "src": "generated"
   },
   {
     "fa": "ایمنی‌درمانی",
     "en": "immunotherapy",
-    "cat": "oncology"
+    "cat": "oncology",
+    "src": "generated"
   },
   {
     "fa": "هورمون‌درمانی سرطان",
     "en": "cancer hormone therapy",
-    "cat": "oncology"
+    "cat": "oncology",
+    "src": "generated"
   },
   {
     "fa": "مراقبت تسکینی",
     "en": "palliative care",
-    "cat": "oncology"
+    "cat": "oncology",
+    "src": "generated"
   },
   {
     "fa": "نوتروپنی ناشی از شیمی‌درمانی",
     "en": "chemotherapy-induced neutropenia",
-    "cat": "oncology"
+    "cat": "oncology",
+    "src": "generated"
   },
   {
     "fa": "تهوع ناشی از شیمی‌درمانی",
     "en": "chemotherapy-induced nausea",
-    "cat": "oncology"
+    "cat": "oncology",
+    "src": "generated"
   },
   {
     "fa": "موکوزیت دهان",
     "en": "oral mucositis",
-    "cat": "oncology"
+    "cat": "oncology",
+    "src": "generated"
   },
   {
     "fa": "سندرم لیز تومور",
     "en": "tumor lysis syndrome",
-    "cat": "oncology"
+    "cat": "oncology",
+    "src": "generated"
   },
   {
     "fa": "سن حاملگی",
     "en": "gestational age",
-    "cat": "obstetric"
+    "cat": "obstetric",
+    "src": "generated"
   },
   {
     "fa": "حاملگی دوقلو",
     "en": "twin pregnancy",
-    "cat": "obstetric"
+    "cat": "obstetric",
+    "src": "generated"
   },
   {
     "fa": "حاملگی خارج رحم",
     "en": "ectopic pregnancy",
-    "cat": "obstetric"
+    "cat": "obstetric",
+    "src": "generated"
   },
   {
     "fa": "تهدید به سقط",
     "en": "threatened miscarriage",
-    "cat": "obstetric"
+    "cat": "obstetric",
+    "src": "generated"
   },
   {
     "fa": "جفت سرراهی",
     "en": "placenta previa",
-    "cat": "obstetric"
+    "cat": "obstetric",
+    "src": "generated"
   },
   {
     "fa": "کنده شدن جفت",
     "en": "placental abruption",
-    "cat": "obstetric"
+    "cat": "obstetric",
+    "src": "generated"
   },
   {
     "fa": "پارگی زودرس کیسه آب",
     "en": "preterm premature rupture of membranes",
-    "cat": "obstetric"
+    "cat": "obstetric",
+    "src": "generated"
   },
   {
     "fa": "زایمان زودرس",
     "en": "preterm labor",
-    "cat": "obstetric"
+    "cat": "obstetric",
+    "src": "generated"
   },
   {
     "fa": "دیابت بارداری کنترل‌نشده",
     "en": "uncontrolled gestational diabetes",
-    "cat": "obstetric"
+    "cat": "obstetric",
+    "src": "generated"
   },
   {
     "fa": "فشار خون بارداری",
     "en": "gestational hypertension",
-    "cat": "obstetric"
+    "cat": "obstetric",
+    "src": "generated"
   },
   {
     "fa": "تهوع استفراغ شدید بارداری",
     "en": "hyperemesis gravidarum",
-    "cat": "obstetric"
+    "cat": "obstetric",
+    "src": "generated"
   },
   {
     "fa": "کاهش حرکت جنین",
     "en": "reduced fetal movements",
-    "cat": "obstetric"
+    "cat": "obstetric",
+    "src": "generated"
   },
   {
     "fa": "نوار قلب جنین",
     "en": "fetal heart tracing",
-    "cat": "obstetric"
+    "cat": "obstetric",
+    "src": "generated"
   },
   {
     "fa": "سونوگرافی رشد جنین",
     "en": "fetal growth ultrasound",
-    "cat": "obstetric"
+    "cat": "obstetric",
+    "src": "generated"
   },
   {
     "fa": "مایع آمنیوتیک کم",
     "en": "oligohydramnios",
-    "cat": "obstetric"
+    "cat": "obstetric",
+    "src": "generated"
   },
   {
     "fa": "مایع آمنیوتیک زیاد",
     "en": "polyhydramnios",
-    "cat": "obstetric"
+    "cat": "obstetric",
+    "src": "generated"
   },
   {
     "fa": "نمایش بریچ",
     "en": "breech presentation",
-    "cat": "obstetric"
+    "cat": "obstetric",
+    "src": "generated"
   },
   {
     "fa": "خونریزی پس از زایمان",
     "en": "postpartum hemorrhage",
-    "cat": "obstetric"
+    "cat": "obstetric",
+    "src": "generated"
   },
   {
     "fa": "عفونت پس از زایمان",
     "en": "postpartum infection",
-    "cat": "obstetric"
+    "cat": "obstetric",
+    "src": "generated"
   },
   {
     "fa": "شیردهی انحصاری",
     "en": "exclusive breastfeeding",
-    "cat": "obstetric"
+    "cat": "obstetric",
+    "src": "generated"
   },
   {
     "fa": "افسردگی پس از زایمان",
     "en": "postpartum depression",
-    "cat": "obstetric"
+    "cat": "obstetric",
+    "src": "generated"
   },
   {
     "fa": "سقط ناقص",
     "en": "incomplete miscarriage",
-    "cat": "obstetric"
+    "cat": "obstetric",
+    "src": "generated"
   },
   {
     "fa": "مول هیداتیفورم",
     "en": "hydatidiform mole",
-    "cat": "obstetric"
+    "cat": "obstetric",
+    "src": "generated"
   },
   {
     "fa": "ناهنجاری مادرزادی جنین",
     "en": "congenital fetal anomaly",
-    "cat": "obstetric"
+    "cat": "obstetric",
+    "src": "generated"
   },
   {
     "fa": "غربالگری سه‌ماهه اول",
     "en": "first-trimester screening",
-    "cat": "obstetric"
+    "cat": "obstetric",
+    "src": "generated"
   }
 ]

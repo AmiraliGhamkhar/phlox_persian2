@@ -110,6 +110,11 @@ _LATIN_RUN = re.compile(r"[A-Za-z]{1,}")
 _WS = re.compile(r"\s{2,}")
 _BAD_EN_PREFIX = re.compile(r"^(post- |the |a |an )")
 
+# Optional provenance fields (W2.4). Missing fields stay valid forever —
+# these checks only apply when a field is present.
+ALLOWED_SOURCES = frozenset({"inn", "fda", "curated", "generated"})
+_ICD10_RE = re.compile(r"^[A-Z][A-Z0-9]*(\.[A-Z0-9]+)?$")
+
 
 class TermValidationError(ValueError):
     """A term file or entry failed quality validation."""
@@ -188,6 +193,29 @@ def validate_terms(entries: list[dict] | None = None) -> list[dict]:
 
         if cat not in REQUIRED_CATEGORIES:
             raise TermValidationError(f"{loc}: unknown category {cat!r}")
+
+        # Optional provenance fields — validated only when present.
+        if "src" in e:
+            src = e["src"]
+            if not isinstance(src, str) or src not in ALLOWED_SOURCES:
+                raise TermValidationError(
+                    f"{loc}: field 'src' must be one of {sorted(ALLOWED_SOURCES)}: {src!r}"
+                )
+        if "icd10" in e:
+            icd10 = e["icd10"]
+            if not isinstance(icd10, str) or not icd10.strip() or not _ICD10_RE.match(icd10):
+                raise TermValidationError(
+                    f"{loc}: field 'icd10' must be a code like 'E11.9': {icd10!r}"
+                )
+        if "variants" in e:
+            variants = e["variants"]
+            if not isinstance(variants, list) or not variants:
+                raise TermValidationError(f"{loc}: field 'variants' must be a non-empty list")
+            for v in variants:
+                if not isinstance(v, str) or not v.strip() or v != v.strip():
+                    raise TermValidationError(f"{loc}: variant must be a non-empty string: {v!r}")
+                if not _PERSIAN_CHAR.search(v):
+                    raise TermValidationError(f"{loc}: variant has no Persian characters: {v!r}")
 
         key = (fa.casefold(), en.casefold())
         if key in seen_pairs:

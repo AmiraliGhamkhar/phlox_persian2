@@ -1037,7 +1037,8 @@ def main() -> None:
         used_pairs.add(key)
         used_fa.add(fa)
         used_en.add(en.casefold())
-        accepted.append({"fa": fa, "en": en, "cat": cat})
+        # W2.4 provenance: machine-generated entries are marked as such.
+        accepted.append({"fa": fa, "en": en, "cat": cat, "src": "generated"})
 
     OUT_FILE.write_text(
         "[" + ",\n".join(json.dumps(t, ensure_ascii=False) for t in accepted) + "]",

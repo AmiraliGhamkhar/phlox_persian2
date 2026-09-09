@@ -2,86 +2,103 @@
   {
     "fa": "ارتوپدی",
     "en": "orthopedics",
-    "cat": "specialty"
+    "cat": "specialty",
+    "src": "curated"
   },
   {
     "fa": "انکولوژی",
     "en": "oncology",
-    "cat": "specialty"
+    "cat": "specialty",
+    "src": "curated"
   },
   {
     "fa": "اورولوژی",
     "en": "urology",
-    "cat": "specialty"
+    "cat": "specialty",
+    "src": "curated"
   },
   {
     "fa": "خون",
     "en": "hematology",
-    "cat": "specialty"
+    "cat": "specialty",
+    "src": "curated"
   },
   {
     "fa": "داخلی",
     "en": "internal medicine",
-    "cat": "specialty"
+    "cat": "specialty",
+    "src": "curated"
   },
   {
     "fa": "رادیولوژی",
     "en": "radiology",
-    "cat": "specialty"
+    "cat": "specialty",
+    "src": "curated"
   },
   {
     "fa": "ریه و سینه",
     "en": "pulmonology",
-    "cat": "specialty"
+    "cat": "specialty",
+    "src": "curated"
   },
   {
     "fa": "زنان و زایمان",
     "en": "obstetrics and gynecology",
-    "cat": "specialty"
+    "cat": "specialty",
+    "src": "curated"
   },
   {
     "fa": "سرطان‌شناسی",
     "en": "oncology",
-    "cat": "specialty"
+    "cat": "specialty",
+    "src": "curated"
   },
   {
     "fa": "قلب",
     "en": "cardiology",
-    "cat": "specialty"
+    "cat": "specialty",
+    "src": "curated"
   },
   {
     "fa": "متخصص پوست",
     "en": "dermatology",
-    "cat": "specialty"
+    "cat": "specialty",
+    "src": "curated"
   },
   {
     "fa": "مغز و اعصاب",
     "en": "neurology",
-    "cat": "specialty"
+    "cat": "specialty",
+    "src": "curated"
   },
   {
     "fa": "چشم",
     "en": "ophthalmology",
-    "cat": "specialty"
+    "cat": "specialty",
+    "src": "curated"
   },
   {
     "fa": "چشم‌پزشکی",
     "en": "ophthalmology",
-    "cat": "specialty"
+    "cat": "specialty",
+    "src": "curated"
   },
   {
     "fa": "کودکان",
     "en": "pediatrics",
-    "cat": "specialty"
+    "cat": "specialty",
+    "src": "curated"
   },
   {
     "fa": "گوارش",
     "en": "gastroenterology",
-    "cat": "specialty"
+    "cat": "specialty",
+    "src": "curated"
   },
   {
     "fa": "گوش و حلق و بینی",
     "en": "ENT",
-    "cat": "specialty"
+    "cat": "specialty",
+    "src": "curated"
   }
 ]

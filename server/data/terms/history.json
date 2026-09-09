@@ -2,81 +2,97 @@
   {
     "fa": "الکل",
     "en": "alcohol use",
-    "cat": "history"
+    "cat": "history",
+    "src": "curated"
   },
   {
     "fa": "بیماری فعلی",
     "en": "present illness",
-    "cat": "history"
+    "cat": "history",
+    "src": "curated"
   },
   {
     "fa": "بیماری قبلی",
     "en": "previous illness",
-    "cat": "history"
+    "cat": "history",
+    "src": "curated"
   },
   {
     "fa": "سابقه",
     "en": "history",
-    "cat": "history"
+    "cat": "history",
+    "src": "curated"
   },
   {
     "fa": "سابقه بارداری",
     "en": "obstetric history",
-    "cat": "history"
+    "cat": "history",
+    "src": "curated"
   },
   {
     "fa": "سابقه بیماری",
     "en": "medical history",
-    "cat": "history"
+    "cat": "history",
+    "src": "curated"
   },
   {
     "fa": "سابقه بیماری قبلی",
     "en": "past medical history",
-    "cat": "history"
+    "cat": "history",
+    "src": "curated"
   },
   {
     "fa": "سابقه جراحی",
     "en": "surgical history",
-    "cat": "history"
+    "cat": "history",
+    "src": "curated"
   },
   {
     "fa": "سابقه خانوادگی",
     "en": "family history",
-    "cat": "history"
+    "cat": "history",
+    "src": "curated"
   },
   {
     "fa": "سابقه زایمان",
     "en": "delivery history",
-    "cat": "history"
+    "cat": "history",
+    "src": "curated"
   },
   {
     "fa": "سابقه سفر",
     "en": "travel history",
-    "cat": "history"
+    "cat": "history",
+    "src": "curated"
   },
   {
     "fa": "سابقه سقط",
     "en": "miscarriage history",
-    "cat": "history"
+    "cat": "history",
+    "src": "curated"
   },
   {
     "fa": "سابقه قاعدگی",
     "en": "menstrual history",
-    "cat": "history"
+    "cat": "history",
+    "src": "curated"
   },
   {
     "fa": "سابقه مصرف دارو",
     "en": "medication history",
-    "cat": "history"
+    "cat": "history",
+    "src": "curated"
   },
   {
     "fa": "سابقه واکسیناسیون",
     "en": "vaccination history",
-    "cat": "history"
+    "cat": "history",
+    "src": "curated"
   },
   {
     "fa": "سیگار",
     "en": "smoking",
-    "cat": "history"
+    "cat": "history",
+    "src": "curated"
   }
 ]

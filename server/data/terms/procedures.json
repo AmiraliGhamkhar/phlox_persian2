@@ -2,536 +2,643 @@
   {
     "fa": "PET اسکن",
     "en": "PET scan",
-    "cat": "procedures"
+    "cat": "procedures",
+    "src": "curated"
   },
   {
     "fa": "آزمایش ادرار",
     "en": "urinalysis",
-    "cat": "procedures"
+    "cat": "procedures",
+    "src": "curated"
   },
   {
     "fa": "آزمایش ادرار",
     "en": "urine test",
-    "cat": "procedures"
+    "cat": "procedures",
+    "src": "curated"
   },
   {
     "fa": "آزمایش خون",
     "en": "blood test",
-    "cat": "procedures"
+    "cat": "procedures",
+    "src": "curated"
   },
   {
     "fa": "آسون مغز استخوان",
     "en": "bone marrow aspiration",
-    "cat": "procedures"
+    "cat": "procedures",
+    "src": "curated"
   },
   {
     "fa": "آندوسکوپی",
     "en": "endoscopy",
-    "cat": "procedures"
+    "cat": "procedures",
+    "src": "curated"
   },
   {
     "fa": "آندوسکوپی فوقانی",
     "en": "upper endoscopy",
-    "cat": "procedures"
+    "cat": "procedures",
+    "src": "curated"
   },
   {
     "fa": "آنژیوپلاستی",
     "en": "angioplasty",
-    "cat": "procedures"
+    "cat": "procedures",
+    "src": "curated"
   },
   {
     "fa": "آپاندیکتومی",
     "en": "appendectomy",
-    "cat": "procedures"
+    "cat": "procedures",
+    "src": "curated"
   },
   {
     "fa": "آژیوگرافی",
     "en": "angiography",
-    "cat": "procedures"
+    "cat": "procedures",
+    "src": "curated"
   },
   {
     "fa": "استنت‌گذاری",
     "en": "stent placement",
-    "cat": "procedures"
+    "cat": "procedures",
+    "src": "curated"
   },
   {
     "fa": "اسپلنکتومی",
     "en": "splenectomy",
-    "cat": "procedures"
+    "cat": "procedures",
+    "src": "curated"
   },
   {
     "fa": "اسکن استخوان",
     "en": "bone scan",
-    "cat": "procedures"
+    "cat": "procedures",
+    "src": "curated"
   },
   {
     "fa": "اسکن قلب",
     "en": "cardiac scan",
-    "cat": "procedures"
+    "cat": "procedures",
+    "src": "curated"
   },
   {
     "fa": "الکتروکاردیوگرافی",
     "en": "electrocardiography",
-    "cat": "procedures"
+    "cat": "procedures",
+    "src": "curated"
   },
   {
     "fa": "الکتروکاردیوگرام",
     "en": "electrocardiogram",
-    "cat": "procedures"
+    "cat": "procedures",
+    "src": "curated"
   },
   {
     "fa": "ام‌آرآی",
     "en": "magnetic resonance imaging",
-    "cat": "procedures"
+    "cat": "procedures",
+    "src": "curated"
   },
   {
     "fa": "ام‌آرآی ستون فقرات",
     "en": "spine MRI",
-    "cat": "procedures"
+    "cat": "procedures",
+    "src": "curated"
   },
   {
     "fa": "ام‌آرآی قفسه سینه",
     "en": "chest MRI",
-    "cat": "procedures"
+    "cat": "procedures",
+    "src": "curated"
   },
   {
     "fa": "ام‌آرآی مغز",
     "en": "brain MRI",
-    "cat": "procedures"
+    "cat": "procedures",
+    "src": "curated"
   },
   {
     "fa": "انژیوگرافی عروق کرونر",
     "en": "coronary angiography",
-    "cat": "procedures"
+    "cat": "procedures",
+    "src": "curated"
   },
   {
     "fa": "اکسیژن‌دهی",
     "en": "oxygen therapy",
-    "cat": "procedures"
+    "cat": "procedures",
+    "src": "curated"
   },
   {
     "fa": "اکوکاردیوگرافی",
     "en": "echocardiography",
-    "cat": "procedures"
+    "cat": "procedures",
+    "src": "curated"
   },
   {
     "fa": "اکوکاردیوگرافی دوپلر",
     "en": "doppler echocardiography",
-    "cat": "procedures"
+    "cat": "procedures",
+    "src": "curated"
   },
   {
     "fa": "اینتوباسیون",
     "en": "intubation",
-    "cat": "procedures"
+    "cat": "procedures",
+    "src": "curated"
   },
   {
     "fa": "بازبینی",
     "en": "review",
-    "cat": "procedures"
+    "cat": "procedures",
+    "src": "curated"
   },
   {
     "fa": "بازبینی بستری",
     "en": "inpatient review",
-    "cat": "procedures"
+    "cat": "procedures",
+    "src": "curated"
   },
   {
     "fa": "بازبینی سرپایی",
     "en": "outpatient review",
-    "cat": "procedures"
+    "cat": "procedures",
+    "src": "curated"
   },
   {
     "fa": "بازبینی پس از عمل",
     "en": "postoperative review",
-    "cat": "procedures"
+    "cat": "procedures",
+    "src": "curated"
   },
   {
     "fa": "بازدید",
     "en": "follow-up",
-    "cat": "procedures"
+    "cat": "procedures",
+    "src": "curated"
   },
   {
     "fa": "بازگشت",
     "en": "return",
-    "cat": "procedures"
+    "cat": "procedures",
+    "src": "curated"
   },
   {
     "fa": "بخیه",
     "en": "suture",
-    "cat": "procedures"
+    "cat": "procedures",
+    "src": "curated"
   },
   {
     "fa": "برش جراحی",
     "en": "surgical incision",
-    "cat": "procedures"
+    "cat": "procedures",
+    "src": "curated"
   },
   {
     "fa": "برونکوسکوپی",
     "en": "bronchoscopy",
-    "cat": "procedures"
+    "cat": "procedures",
+    "src": "curated"
   },
   {
     "fa": "بیهوشی",
     "en": "anesthesia",
-    "cat": "procedures"
+    "cat": "procedures",
+    "src": "curated"
   },
   {
     "fa": "بیهوشی عمومی",
     "en": "general anesthesia",
-    "cat": "procedures"
+    "cat": "procedures",
+    "src": "curated"
   },
   {
     "fa": "بیهوشی موضعی",
     "en": "local anesthesia",
-    "cat": "procedures"
+    "cat": "procedures",
+    "src": "curated"
   },
   {
     "fa": "بیوپسی",
     "en": "biopsy",
-    "cat": "procedures"
+    "cat": "procedures",
+    "src": "curated"
   },
   {
     "fa": "بیوپسی پوست",
     "en": "skin biopsy",
-    "cat": "procedures"
+    "cat": "procedures",
+    "src": "curated"
   },
   {
     "fa": "ترانسفوژن",
     "en": "transfusion",
-    "cat": "procedures"
+    "cat": "procedures",
+    "src": "curated"
   },
   {
     "fa": "ترانسپلنت",
     "en": "transplantation",
-    "cat": "procedures"
+    "cat": "procedures",
+    "src": "curated"
   },
   {
     "fa": "ترومبکتومی",
     "en": "thrombectomy",
-    "cat": "procedures"
+    "cat": "procedures",
+    "src": "curated"
   },
   {
     "fa": "تزریق",
     "en": "injection",
-    "cat": "procedures"
+    "cat": "procedures",
+    "src": "curated"
   },
   {
     "fa": "تزریق زیرجلدی",
     "en": "subcutaneous injection",
-    "cat": "procedures"
+    "cat": "procedures",
+    "src": "curated"
   },
   {
     "fa": "تزریق عضلانی",
     "en": "intramuscular injection",
-    "cat": "procedures"
+    "cat": "procedures",
+    "src": "curated"
   },
   {
     "fa": "تزریق وریدی",
     "en": "intravenous injection",
-    "cat": "procedures"
+    "cat": "procedures",
+    "src": "curated"
   },
   {
     "fa": "تصویربرداری تشدید مغناطیسی",
     "en": "MRI",
-    "cat": "procedures"
+    "cat": "procedures",
+    "src": "curated"
   },
   {
     "fa": "تنفس مصنوعی",
     "en": "mechanical ventilation",
-    "cat": "procedures"
+    "cat": "procedures",
+    "src": "curated"
   },
   {
     "fa": "توموگرافی کامپیوتری",
     "en": "computed tomography",
-    "cat": "procedures"
+    "cat": "procedures",
+    "src": "curated"
   },
   {
     "fa": "جراحی",
     "en": "surgery",
-    "cat": "procedures"
+    "cat": "procedures",
+    "src": "curated"
   },
   {
     "fa": "جراحی لاپاراسکوپی",
     "en": "laparoscopic surgery",
-    "cat": "procedures"
+    "cat": "procedures",
+    "src": "curated"
   },
   {
     "fa": "خون‌شناسی",
     "en": "hematology",
-    "cat": "procedures"
+    "cat": "procedures",
+    "src": "curated"
   },
   {
     "fa": "دیالیز",
     "en": "dialysis",
-    "cat": "procedures"
+    "cat": "procedures",
+    "src": "curated"
   },
   {
     "fa": "دیالیز کمری",
     "en": "peritoneal dialysis",
-    "cat": "procedures"
+    "cat": "procedures",
+    "src": "curated"
   },
   {
     "fa": "رادیوتراپی",
     "en": "radiotherapy",
-    "cat": "procedures"
+    "cat": "procedures",
+    "src": "curated"
   },
   {
     "fa": "سوند محیطی",
     "en": "peripheral line",
-    "cat": "procedures"
+    "cat": "procedures",
+    "src": "curated"
   },
   {
     "fa": "سوند مرکزی",
     "en": "central line",
-    "cat": "procedures"
+    "cat": "procedures",
+    "src": "curated"
   },
   {
     "fa": "سونوگرافی",
     "en": "ultrasound",
-    "cat": "procedures"
+    "cat": "procedures",
+    "src": "curated"
   },
   {
     "fa": "سونوگرافی دوپلر",
     "en": "Doppler ultrasound",
-    "cat": "procedures"
+    "cat": "procedures",
+    "src": "curated"
   },
   {
     "fa": "سونوگرافی شکم",
     "en": "abdominal ultrasound",
-    "cat": "procedures"
+    "cat": "procedures",
+    "src": "curated"
   },
   {
     "fa": "سونوگرافی قلب",
     "en": "echocardiography",
-    "cat": "procedures"
+    "cat": "procedures",
+    "src": "curated"
   },
   {
     "fa": "سی‌تی اسکن",
     "en": "CT scan",
-    "cat": "procedures"
+    "cat": "procedures",
+    "src": "curated"
   },
   {
     "fa": "سی‌تی اسکن",
     "en": "computed tomography",
-    "cat": "procedures"
+    "cat": "procedures",
+    "src": "curated"
   },
   {
     "fa": "سی‌تی اسکن مغز",
     "en": "brain CT",
-    "cat": "procedures"
+    "cat": "procedures",
+    "src": "curated"
   },
   {
     "fa": "شیمی‌درمانی",
     "en": "chemotherapy",
-    "cat": "procedures"
+    "cat": "procedures",
+    "src": "curated"
   },
   {
     "fa": "شیمی‌درمانی سیستمیک",
     "en": "systemic chemotherapy",
-    "cat": "procedures"
+    "cat": "procedures",
+    "src": "curated"
   },
   {
     "fa": "عکس قفسه سینه",
     "en": "chest X-ray",
-    "cat": "procedures"
+    "cat": "procedures",
+    "src": "curated"
   },
   {
     "fa": "لاپاروتومی",
     "en": "laparotomy",
-    "cat": "procedures"
+    "cat": "procedures",
+    "src": "curated"
   },
   {
     "fa": "لوبکتومی",
     "en": "lobectomy",
-    "cat": "procedures"
+    "cat": "procedures",
+    "src": "curated"
   },
   {
     "fa": "مراجعه",
     "en": "visit",
-    "cat": "procedures"
+    "cat": "procedures",
+    "src": "curated"
   },
   {
     "fa": "مراجعه مجدد",
     "en": "return visit",
-    "cat": "procedures"
+    "cat": "procedures",
+    "src": "curated"
   },
   {
     "fa": "مراقبت‌های ویژه",
     "en": "intensive care",
-    "cat": "procedures"
+    "cat": "procedures",
+    "src": "curated"
   },
   {
     "fa": "موی‌توگرافی",
     "en": "mammography",
-    "cat": "procedures"
+    "cat": "procedures",
+    "src": "curated"
   },
   {
     "fa": "نصب سوند",
     "en": "catheterization",
-    "cat": "procedures"
+    "cat": "procedures",
+    "src": "curated"
   },
   {
     "fa": "نفروکتومی",
     "en": "nephrectomy",
-    "cat": "procedures"
+    "cat": "procedures",
+    "src": "curated"
   },
   {
     "fa": "همودیالیز",
     "en": "hemodialysis",
-    "cat": "procedures"
+    "cat": "procedures",
+    "src": "curated"
   },
   {
     "fa": "هیسترکتومی",
     "en": "hysterectomy",
-    "cat": "procedures"
+    "cat": "procedures",
+    "src": "curated"
   },
   {
     "fa": "پانسمان",
     "en": "dressing",
-    "cat": "procedures"
+    "cat": "procedures",
+    "src": "curated"
   },
   {
     "fa": "پایش",
     "en": "monitoring",
-    "cat": "procedures"
+    "cat": "procedures",
+    "src": "curated"
   },
   {
     "fa": "پایش تنفس",
     "en": "respiratory monitoring",
-    "cat": "procedures"
+    "cat": "procedures",
+    "src": "curated"
   },
   {
     "fa": "پایش فشار خون",
     "en": "blood pressure monitoring",
-    "cat": "procedures"
+    "cat": "procedures",
+    "src": "curated"
   },
   {
     "fa": "پایش قلب",
     "en": "cardiac monitoring",
-    "cat": "procedures"
+    "cat": "procedures",
+    "src": "curated"
   },
   {
     "fa": "پایش قند خون",
     "en": "blood glucose monitoring",
-    "cat": "procedures"
+    "cat": "procedures",
+    "src": "curated"
   },
   {
     "fa": "پایش همودینامیک",
     "en": "hemodynamic monitoring",
-    "cat": "procedures"
+    "cat": "procedures",
+    "src": "curated"
   },
   {
     "fa": "پایش پلاکت",
     "en": "platelet monitoring",
-    "cat": "procedures"
+    "cat": "procedures",
+    "src": "curated"
   },
   {
     "fa": "پروستاتهکتومی",
     "en": "prostatectomy",
-    "cat": "procedures"
+    "cat": "procedures",
+    "src": "curated"
   },
   {
     "fa": "پلاسمافرزز",
     "en": "plasmapheresis",
-    "cat": "procedures"
+    "cat": "procedures",
+    "src": "curated"
   },
   {
     "fa": "پنومونکتومی",
     "en": "pneumonectomy",
-    "cat": "procedures"
+    "cat": "procedures",
+    "src": "curated"
   },
   {
     "fa": "پورت وریدی",
     "en": "port-a-cath",
-    "cat": "procedures"
+    "cat": "procedures",
+    "src": "curated"
   },
   {
     "fa": "پونکسیون استخوانی",
     "en": "bone marrow puncture",
-    "cat": "procedures"
+    "cat": "procedures",
+    "src": "curated"
   },
   {
     "fa": "پونکسیون کمری",
     "en": "lumbar puncture",
-    "cat": "procedures"
+    "cat": "procedures",
+    "src": "curated"
   },
   {
     "fa": "پیاز قلب",
     "en": "heart transplant",
-    "cat": "procedures"
+    "cat": "procedures",
+    "src": "curated"
   },
   {
     "fa": "پیاز مغز استخوان",
     "en": "bone marrow transplant",
-    "cat": "procedures"
+    "cat": "procedures",
+    "src": "curated"
   },
   {
     "fa": "پیاز کبد",
     "en": "liver transplant",
-    "cat": "procedures"
+    "cat": "procedures",
+    "src": "curated"
   },
   {
     "fa": "پیاز کلیه",
     "en": "kidney transplant",
-    "cat": "procedures"
+    "cat": "procedures",
+    "src": "curated"
   },
   {
     "fa": "پیوند اتولوژنیک سلول بنیادی",
     "en": "autologous stem cell transplant",
-    "cat": "procedures"
+    "cat": "procedures",
+    "src": "curated"
   },
   {
     "fa": "پیوند الوالوژنیک سلول بنیادی",
     "en": "allogeneic stem cell transplant",
-    "cat": "procedures"
+    "cat": "procedures",
+    "src": "curated"
   },
   {
     "fa": "پیوند سلول بنیادی",
     "en": "stem cell transplantation",
-    "cat": "procedures"
+    "cat": "procedures",
+    "src": "curated"
   },
   {
     "fa": "کاتتر وریدی مرکزی",
     "en": "central venous catheter",
-    "cat": "procedures"
+    "cat": "procedures",
+    "src": "curated"
   },
   {
     "fa": "کشت",
     "en": "culture",
-    "cat": "procedures"
+    "cat": "procedures",
+    "src": "curated"
   },
   {
     "fa": "کشت ادرار",
     "en": "urine culture",
-    "cat": "procedures"
+    "cat": "procedures",
+    "src": "curated"
   },
   {
     "fa": "کشت خون",
     "en": "blood culture",
-    "cat": "procedures"
+    "cat": "procedures",
+    "src": "curated"
   },
   {
     "fa": "کشت زخم",
     "en": "wound culture",
-    "cat": "procedures"
+    "cat": "procedures",
+    "src": "curated"
   },
   {
     "fa": "کشت مخاط",
     "en": "sputum culture",
-    "cat": "procedures"
+    "cat": "procedures",
+    "src": "curated"
   },
   {
     "fa": "کوله‌سیستکتومی",
     "en": "cholecystectomy",
-    "cat": "procedures"
+    "cat": "procedures",
+    "src": "curated"
   },
   {
     "fa": "کولونوسکوپی",
     "en": "colonoscopy",
-    "cat": "procedures"
+    "cat": "procedures",
+    "src": "curated"
   },
   {
     "fa": "گاستروسکوپی",
     "en": "gastroscopy",
-    "cat": "procedures"
+    "cat": "procedures",
+    "src": "curated"
   }
 ]

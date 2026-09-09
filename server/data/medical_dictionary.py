@@ -93,7 +93,21 @@ def load_terms() -> tuple[dict[str, str], dict[str, str], list[dict[str, Any]]]:
                 continue
             norm_fa = _normalise(fa)
             norm_en = _normalise(en).lower()
-            entries.append({"fa": fa, "en": en, "cat": cat})
+            record: dict[str, Any] = {"fa": fa, "en": en, "cat": cat}
+            # Optional provenance fields (W2.4); older JSON without them is
+            # fully backward-compatible.
+            src = entry.get("src")
+            if isinstance(src, str) and src.strip():
+                record["src"] = src.strip()
+            icd10 = entry.get("icd10")
+            if isinstance(icd10, str) and icd10.strip():
+                record["icd10"] = icd10.strip()
+            variants = entry.get("variants")
+            if isinstance(variants, list):
+                clean = [v.strip() for v in variants if isinstance(v, str) and v.strip()]
+                if clean:
+                    record["variants"] = clean
+            entries.append(record)
             fa_to_en.setdefault(norm_fa, en)
             en_to_fa.setdefault(norm_en, fa)
     logger.info("Loaded %d medical terms from %s", len(entries), TERMS_DIR.name)
@@ -188,11 +202,37 @@ def search(query: str, limit: int = 10, threshold: int = 55) -> list[dict[str, A
     return [{k: v for k, v in s.items() if k != "_len"} for s in scored[: max(1, int(limit))]]
 
 
+@lru_cache(maxsize=8192)
+def _word_re(term_norm: str) -> re.Pattern:
+    """Whole-word pattern on ZWNJ-stripped, casefolded text.
+
+    Persian letters are ``\\w``, so ``(?<!\\w)…(?!\\w)`` gives Persian-aware
+    word boundaries: a 2-char term never matches inside a longer word.
+    """
+    return re.compile(r"(?<!\w)" + re.escape(term_norm) + r"(?!\w)")
+
+
+def _count_word_occurrences(term_norm: str, text_norm: str) -> int:
+    """Whole-word occurrence count (substring test first as a fast path)."""
+    if len(term_norm) < 2 or term_norm not in text_norm:
+        return 0
+    return len(_word_re(term_norm).findall(text_norm))
+
+
+def _provenance_rank(entry: dict[str, Any]) -> int:
+    """Curated-tier entries (inn/fda/curated/unset) outrank generated ones."""
+    return 0 if entry.get("src") == "generated" else 1
+
+
 def terms_for_context(text: str, max_terms: int = MAX_CONTEXT_TERMS) -> list[dict[str, Any]]:
     """Find dictionary terms that occur in ``text`` (either language).
 
-    Prefers longer (more specific) matches and, on ties, more frequent ones.
-    Returns ``[{"fa", "en", "cat", "occurrences"}]`` capped at ``max_terms``.
+    Matching is whole-word on ZWNJ-normalized, casefolded text with a
+    minimum term length of 2 — mirroring ``search()``'s short-term guards,
+    so 2-3 char terms no longer light up inside longer words. Ordering:
+    curated-tier provenance first, then longer (more specific) matches,
+    then frequency. Returns ``[{"fa", "en", "cat", "occurrences"}]`` capped
+    at ``max_terms``.
     """
     if not text:
         return []
@@ -204,23 +244,21 @@ def terms_for_context(text: str, max_terms: int = MAX_CONTEXT_TERMS) -> list[dic
     for e in entries:
         fa_n = _normalise(e["fa"]).lower()
         en_n = _normalise(e["en"]).lower()
-        occ = 0
-        if fa_n and fa_n in t_norm:
-            occ += t_norm.count(fa_n)
-        if en_n and en_n in t_norm:
-            occ += t_norm.count(en_n)
+        occ = _count_word_occurrences(fa_n, t_norm) + _count_word_occurrences(en_n, t_norm)
         if occ > 0:
-            matches.append(
-                {
-                    "fa": e["fa"],
-                    "en": e["en"],
-                    "cat": e["cat"],
-                    "occurrences": occ,
-                    "_len": max(len(fa_n), len(en_n)),
-                }
-            )
-    # More specific (longer) terms first; then by frequency; then alphabetical.
-    matches.sort(key=lambda m: (m["_len"], m["occurrences"], m["en"]), reverse=True)
+            item: dict[str, Any] = {
+                "fa": e["fa"],
+                "en": e["en"],
+                "cat": e["cat"],
+                "occurrences": occ,
+                "_len": max(len(fa_n), len(en_n)),
+                "_src_rank": _provenance_rank(e),
+            }
+            if e.get("src"):
+                item["src"] = e["src"]
+            matches.append(item)
+    # Curated before generated; then more specific (longer); then frequency.
+    matches.sort(key=lambda m: (m["_src_rank"], m["_len"], m["occurrences"], m["en"]), reverse=True)
     out = []
     seen: set[tuple[str, str]] = set()
     for m in matches:
@@ -228,7 +266,7 @@ def terms_for_context(text: str, max_terms: int = MAX_CONTEXT_TERMS) -> list[dic
         if key in seen:
             continue
         seen.add(key)
-        out.append({k: v for k, v in m.items() if k != "_len"})
+        out.append({k: v for k, v in m.items() if not k.startswith("_")})
         if len(out) >= max_terms:
             break
     return out

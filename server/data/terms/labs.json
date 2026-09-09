@@ -2,431 +2,517 @@
   {
     "fa": "آزاد زنجیره‌های سبک",
     "en": "free light chains",
-    "cat": "labs"
+    "cat": "labs",
+    "src": "curated"
   },
   {
     "fa": "آزمایش HIV",
     "en": "HIV test",
-    "cat": "labs"
+    "cat": "labs",
+    "src": "curated"
   },
   {
     "fa": "آسپارتات آمینوترانسفراز",
     "en": "AST",
-    "cat": "labs"
+    "cat": "labs",
+    "src": "curated"
   },
   {
     "fa": "آلانین آمینوترانسفراز",
     "en": "ALT",
-    "cat": "labs"
+    "cat": "labs",
+    "src": "curated"
   },
   {
     "fa": "آلبومین",
     "en": "albumin",
-    "cat": "labs"
+    "cat": "labs",
+    "src": "curated"
   },
   {
     "fa": "آلبومین به گلوبولین",
     "en": "A/G ratio",
-    "cat": "labs"
+    "cat": "labs",
+    "src": "curated"
   },
   {
     "fa": "آلبومین سرمی",
     "en": "serum albumin",
-    "cat": "labs"
+    "cat": "labs",
+    "src": "curated"
   },
   {
     "fa": "آلکالین فوسفاتاز",
     "en": "alkaline phosphatase",
-    "cat": "labs"
+    "cat": "labs",
+    "src": "curated"
   },
   {
     "fa": "آمیلاز",
     "en": "amylase",
-    "cat": "labs"
+    "cat": "labs",
+    "src": "curated"
   },
   {
     "fa": "آنتیترومبین",
     "en": "antithrombin",
-    "cat": "labs"
+    "cat": "labs",
+    "src": "curated"
   },
   {
     "fa": "آنتی‌ژن اختصاصی پروستات",
     "en": "PSA",
-    "cat": "labs"
+    "cat": "labs",
+    "src": "curated"
   },
   {
     "fa": "اسید اوریک",
     "en": "uric acid",
-    "cat": "labs"
+    "cat": "labs",
+    "src": "curated"
   },
   {
     "fa": "اسیدوفیل",
     "en": "eosinophil",
-    "cat": "labs"
+    "cat": "labs",
+    "src": "curated"
   },
   {
     "fa": "الکتروفورز پروتئین ادرار",
     "en": "urine protein electrophoresis",
-    "cat": "labs"
+    "cat": "labs",
+    "src": "curated"
   },
   {
     "fa": "الکتروفورز پروتئین سرم",
     "en": "serum protein electrophoresis",
-    "cat": "labs"
+    "cat": "labs",
+    "src": "curated"
   },
   {
     "fa": "اوره",
     "en": "urea",
-    "cat": "labs"
+    "cat": "labs",
+    "src": "curated"
   },
   {
     "fa": "ایمونوفیکس",
     "en": "immunofixation",
-    "cat": "labs"
+    "cat": "labs",
+    "src": "curated"
   },
   {
     "fa": "بازوفیل",
     "en": "basophil",
-    "cat": "labs"
+    "cat": "labs",
+    "src": "curated"
   },
   {
     "fa": "بافت پهنای توزیع گلبول قرمز",
     "en": "RDW",
-    "cat": "labs"
+    "cat": "labs",
+    "src": "curated"
   },
   {
     "fa": "بتا ۲ میکروگلوبولین",
     "en": "beta-2 microglobulin",
-    "cat": "labs"
+    "cat": "labs",
+    "src": "curated"
   },
   {
     "fa": "بررسی خون محیطی",
     "en": "peripheral blood smear",
-    "cat": "labs"
+    "cat": "labs",
+    "src": "curated"
   },
   {
     "fa": "بیلی‌روبین مستقیم",
     "en": "direct bilirubin",
-    "cat": "labs"
+    "cat": "labs",
+    "src": "curated"
   },
   {
     "fa": "بیلی‌روبین کل",
     "en": "total bilirubin",
-    "cat": "labs"
+    "cat": "labs",
+    "src": "curated"
   },
   {
     "fa": "تری‌گلیسیرید",
     "en": "triglycerides",
-    "cat": "labs"
+    "cat": "labs",
+    "src": "curated"
   },
   {
     "fa": "تری‌یودوتیرونین آزاد",
     "en": "free T3",
-    "cat": "labs"
+    "cat": "labs",
+    "src": "curated"
   },
   {
     "fa": "تیروکسین آزاد",
     "en": "free T4",
-    "cat": "labs"
+    "cat": "labs",
+    "src": "curated"
   },
   {
     "fa": "حجم میانگین گلبول قرمز",
     "en": "MCV",
-    "cat": "labs"
+    "cat": "labs",
+    "src": "curated"
   },
   {
     "fa": "دی‌دیمر",
     "en": "D-dimer",
-    "cat": "labs"
+    "cat": "labs",
+    "src": "curated"
   },
   {
     "fa": "ریتیکولوسیت",
     "en": "reticulocyte",
-    "cat": "labs"
+    "cat": "labs",
+    "src": "curated"
   },
   {
     "fa": "ریتیکولوسیت‌شمار",
     "en": "reticulocyte count",
-    "cat": "labs"
+    "cat": "labs",
+    "src": "curated"
   },
   {
     "fa": "زمان انعقاد",
     "en": "prothrombin time",
-    "cat": "labs"
+    "cat": "labs",
+    "src": "curated"
   },
   {
     "fa": "زمان ترومبوپلاستین",
     "en": "thromboplastin time",
-    "cat": "labs"
+    "cat": "labs",
+    "src": "curated"
   },
   {
     "fa": "زمان ترومبوپلاستین فعال‌شده",
     "en": "aPTT",
-    "cat": "labs"
+    "cat": "labs",
+    "src": "curated"
   },
   {
     "fa": "زنجیره‌های سبک",
     "en": "light chains",
-    "cat": "labs"
+    "cat": "labs",
+    "src": "curated"
   },
   {
     "fa": "سدیم",
     "en": "sodium",
-    "cat": "labs"
+    "cat": "labs",
+    "src": "curated"
   },
   {
     "fa": "سرعت ته‌نشست گلبول قرمز",
     "en": "erythrocyte sedimentation rate",
-    "cat": "labs"
+    "cat": "labs",
+    "src": "curated"
   },
   {
     "fa": "شمردن گلبول سفید",
     "en": "white blood cell count",
-    "cat": "labs"
+    "cat": "labs",
+    "src": "curated"
   },
   {
     "fa": "شمردن گلبول قرمز",
     "en": "red blood cell count",
-    "cat": "labs"
+    "cat": "labs",
+    "src": "curated"
   },
   {
     "fa": "غلظت میانگین هموگلوبین",
     "en": "MCHC",
-    "cat": "labs"
+    "cat": "labs",
+    "src": "curated"
   },
   {
     "fa": "فاکتور Rh",
     "en": "Rh factor",
-    "cat": "labs"
+    "cat": "labs",
+    "src": "curated"
   },
   {
     "fa": "فرمول‌خوانی",
     "en": "differential count",
-    "cat": "labs"
+    "cat": "labs",
+    "src": "curated"
   },
   {
     "fa": "فرمول‌خوانی گلبول سفید",
     "en": "white blood cell differential",
-    "cat": "labs"
+    "cat": "labs",
+    "src": "curated"
   },
   {
     "fa": "فسفاتاز اسیدی",
     "en": "acid phosphatase",
-    "cat": "labs"
+    "cat": "labs",
+    "src": "curated"
   },
   {
     "fa": "فسفر",
     "en": "phosphorus",
-    "cat": "labs"
+    "cat": "labs",
+    "src": "curated"
   },
   {
     "fa": "فیبرینوژن",
     "en": "fibrinogen",
-    "cat": "labs"
+    "cat": "labs",
+    "src": "curated"
   },
   {
     "fa": "قند ادرار",
     "en": "glycosuria",
-    "cat": "labs"
+    "cat": "labs",
+    "src": "curated"
   },
   {
     "fa": "قند خون",
     "en": "blood glucose",
-    "cat": "labs"
+    "cat": "labs",
+    "src": "curated"
   },
   {
     "fa": "قند خون ناشتا",
     "en": "fasting blood glucose",
-    "cat": "labs"
+    "cat": "labs",
+    "src": "curated"
   },
   {
     "fa": "لاکتات دهیدروژناز",
     "en": "lactate dehydrogenase",
-    "cat": "labs"
+    "cat": "labs",
+    "src": "curated"
   },
   {
     "fa": "لاکتات دی‌هیدروژناز",
     "en": "LDH (lactate dehydrogenase)",
-    "cat": "labs"
+    "cat": "labs",
+    "src": "curated"
   },
   {
     "fa": "لنفوسیت",
     "en": "lymphocyte",
-    "cat": "labs"
+    "cat": "labs",
+    "src": "curated"
   },
   {
     "fa": "لکوسیت",
     "en": "leukocyte",
-    "cat": "labs"
+    "cat": "labs",
+    "src": "curated"
   },
   {
     "fa": "لیپاز",
     "en": "lipase",
-    "cat": "labs"
+    "cat": "labs",
+    "src": "curated"
   },
   {
     "fa": "لیپوپروتئین چگالی بالا",
     "en": "HDL",
-    "cat": "labs"
+    "cat": "labs",
+    "src": "curated"
   },
   {
     "fa": "لیپوپروتئین چگالی کم",
     "en": "LDL",
-    "cat": "labs"
+    "cat": "labs",
+    "src": "curated"
   },
   {
     "fa": "مقدار میانگین هموگلوبین",
     "en": "MCH",
-    "cat": "labs"
+    "cat": "labs",
+    "src": "curated"
   },
   {
     "fa": "مونوسیت",
     "en": "monocyte",
-    "cat": "labs"
+    "cat": "labs",
+    "src": "curated"
   },
   {
     "fa": "نسبت نرمال‌شده بین‌المللی",
     "en": "INR",
-    "cat": "labs"
+    "cat": "labs",
+    "src": "curated"
   },
   {
     "fa": "نوتروفیل",
     "en": "neutrophil",
-    "cat": "labs"
+    "cat": "labs",
+    "src": "curated"
   },
   {
     "fa": "هماتوکریت",
     "en": "hematocrit",
-    "cat": "labs"
+    "cat": "labs",
+    "src": "curated"
   },
   {
     "fa": "هموگلوبین",
     "en": "hemoglobin",
-    "cat": "labs"
+    "cat": "labs",
+    "src": "curated"
   },
   {
     "fa": "هموگلوبین میانگین گلبولی",
     "en": "MCH (mean corpuscular hemoglobin)",
-    "cat": "labs"
+    "cat": "labs",
+    "src": "curated"
   },
   {
     "fa": "هموگلوبین گلیکوزیله",
     "en": "HbA1c",
-    "cat": "labs"
+    "cat": "labs",
+    "src": "curated"
   },
   {
     "fa": "هورمون تحریک‌کننده تیروئید",
     "en": "TSH",
-    "cat": "labs"
+    "cat": "labs",
+    "src": "curated"
   },
   {
     "fa": "پتاسیم",
     "en": "potassium",
-    "cat": "labs"
+    "cat": "labs",
+    "src": "curated"
   },
   {
     "fa": "پروتئین C",
     "en": "protein C",
-    "cat": "labs"
+    "cat": "labs",
+    "src": "curated"
   },
   {
     "fa": "پروتئین C-واکنشی",
     "en": "C-reactive protein",
-    "cat": "labs"
+    "cat": "labs",
+    "src": "curated"
   },
   {
     "fa": "پروتئین S",
     "en": "protein S",
-    "cat": "labs"
+    "cat": "labs",
+    "src": "curated"
   },
   {
     "fa": "پروتئین ادرار",
     "en": "proteinuria",
-    "cat": "labs"
+    "cat": "labs",
+    "src": "curated"
   },
   {
     "fa": "پروتئین بنس‌جونز",
     "en": "Bence Jones protein",
-    "cat": "labs"
+    "cat": "labs",
+    "src": "curated"
   },
   {
     "fa": "پروتئین واکنشی سریع",
     "en": "CRP",
-    "cat": "labs"
+    "cat": "labs",
+    "src": "curated"
   },
   {
     "fa": "پروتئین کل",
     "en": "total protein",
-    "cat": "labs"
+    "cat": "labs",
+    "src": "curated"
   },
   {
     "fa": "پلاکت",
     "en": "platelet",
-    "cat": "labs"
+    "cat": "labs",
+    "src": "curated"
   },
   {
     "fa": "پلاکت‌شمار",
     "en": "platelet count",
-    "cat": "labs"
+    "cat": "labs",
+    "src": "curated"
   },
   {
     "fa": "کراتینین",
     "en": "creatinine",
-    "cat": "labs"
+    "cat": "labs",
+    "src": "curated"
   },
   {
     "fa": "کلسترول کل",
     "en": "total cholesterol",
-    "cat": "labs"
+    "cat": "labs",
+    "src": "curated"
   },
   {
     "fa": "کلسیم",
     "en": "calcium",
-    "cat": "labs"
+    "cat": "labs",
+    "src": "curated"
   },
   {
     "fa": "کلسیم اصلاح‌شده",
     "en": "corrected calcium",
-    "cat": "labs"
+    "cat": "labs",
+    "src": "curated"
   },
   {
     "fa": "کورتیزول",
     "en": "cortisol",
-    "cat": "labs"
+    "cat": "labs",
+    "src": "curated"
   },
   {
     "fa": "کومپلمان",
     "en": "complement",
-    "cat": "labs"
+    "cat": "labs",
+    "src": "curated"
   },
   {
     "fa": "کومپلمان C3",
     "en": "C3",
-    "cat": "labs"
+    "cat": "labs",
+    "src": "curated"
   },
   {
     "fa": "کومپلمان C4",
     "en": "C4",
-    "cat": "labs"
+    "cat": "labs",
+    "src": "curated"
   },
   {
     "fa": "گاما گلوتامیل ترانسفراز",
     "en": "GGT",
-    "cat": "labs"
+    "cat": "labs",
+    "src": "curated"
   },
   {
     "fa": "گروه خونی",
     "en": "blood group",
-    "cat": "labs"
+    "cat": "labs",
+    "src": "curated"
   },
   {
     "fa": "گلوبولین",
     "en": "globulin",
-    "cat": "labs"
+    "cat": "labs",
+    "src": "curated"
   },
   {
     "fa": "گلوکز",
     "en": "glucose",
-    "cat": "labs"
+    "cat": "labs",
+    "src": "curated"
   }
 ]

@@ -2,471 +2,565 @@
   {
     "fa": "آزمایش زنجیره سبک آزاد",
     "en": "free light chain assay",
-    "cat": "oncology"
+    "cat": "oncology",
+    "src": "curated"
   },
   {
     "fa": "آسیب استخوانی",
     "en": "bone lesion",
-    "cat": "oncology"
+    "cat": "oncology",
+    "src": "curated"
   },
   {
     "fa": "آسیب اسکلروتیک",
     "en": "sclerotic lesion",
-    "cat": "oncology"
+    "cat": "oncology",
+    "src": "curated"
   },
   {
     "fa": "آسیب لیتیک",
     "en": "lytic lesion",
-    "cat": "oncology"
+    "cat": "oncology",
+    "src": "curated"
   },
   {
     "fa": "آمیلودوز",
     "en": "amyloidosis",
-    "cat": "oncology"
+    "cat": "oncology",
+    "src": "curated"
   },
   {
     "fa": "آمیلودوز آل",
     "en": "AL amyloidosis",
-    "cat": "oncology"
+    "cat": "oncology",
+    "src": "curated"
   },
   {
     "fa": "آنمی آپلاستیک",
     "en": "aplastic anemia",
-    "cat": "oncology"
+    "cat": "oncology",
+    "src": "curated"
   },
   {
     "fa": "اسپیک M",
     "en": "M-spike",
-    "cat": "oncology"
+    "cat": "oncology",
+    "src": "curated"
   },
   {
     "fa": "الکتروفورز پروتئین",
     "en": "protein electrophoresis",
-    "cat": "oncology"
+    "cat": "oncology",
+    "src": "curated"
   },
   {
     "fa": "ایزوالکتریک فوکوسینگ",
     "en": "isoelectric focusing",
-    "cat": "oncology"
+    "cat": "oncology",
+    "src": "curated"
   },
   {
     "fa": "ایمونوتراپی",
     "en": "immunotherapy",
-    "cat": "oncology"
+    "cat": "oncology",
+    "src": "curated"
   },
   {
     "fa": "ایمونوگلبولین G",
     "en": "immunoglobulin G",
-    "cat": "oncology"
+    "cat": "oncology",
+    "src": "curated"
   },
   {
     "fa": "بازگشت",
     "en": "relapse",
-    "cat": "oncology"
+    "cat": "oncology",
+    "src": "curated"
   },
   {
     "fa": "بازگشت بیماری",
     "en": "disease relapse",
-    "cat": "oncology"
+    "cat": "oncology",
+    "src": "curated"
   },
   {
     "fa": "بهبودی",
     "en": "recovery",
-    "cat": "oncology"
+    "cat": "oncology",
+    "src": "curated"
   },
   {
     "fa": "بهبودی جزئی",
     "en": "partial response",
-    "cat": "oncology"
+    "cat": "oncology",
+    "src": "curated"
   },
   {
     "fa": "بهبودی کامل",
     "en": "complete response",
-    "cat": "oncology"
+    "cat": "oncology",
+    "src": "curated"
   },
   {
     "fa": "بیماری باقی‌مانده حداقل",
     "en": "minimal residual disease (MRD)",
-    "cat": "oncology"
+    "cat": "oncology",
+    "src": "curated"
   },
   {
     "fa": "بیماری مقاوم",
     "en": "refractory disease",
-    "cat": "oncology"
+    "cat": "oncology",
+    "src": "curated"
   },
   {
     "fa": "بیماری منتشرشده",
     "en": "disseminated disease",
-    "cat": "oncology"
+    "cat": "oncology",
+    "src": "curated"
   },
   {
     "fa": "بیماری پلاسماسیتی",
     "en": "plasma cell disease",
-    "cat": "oncology"
+    "cat": "oncology",
+    "src": "curated"
   },
   {
     "fa": "بیماری پیشرفته",
     "en": "advanced disease",
-    "cat": "oncology"
+    "cat": "oncology",
+    "src": "curated"
   },
   {
     "fa": "بیماری کنترل‌شده",
     "en": "stable disease",
-    "cat": "oncology"
+    "cat": "oncology",
+    "src": "curated"
   },
   {
     "fa": "بیوپسی استخوانی",
     "en": "bone marrow biopsy",
-    "cat": "oncology"
+    "cat": "oncology",
+    "src": "curated"
   },
   {
     "fa": "ترانسفوژن پلاکت",
     "en": "platelet transfusion",
-    "cat": "oncology"
+    "cat": "oncology",
+    "src": "curated"
   },
   {
     "fa": "ترانسفوژن گلبول قرمز",
     "en": "red blood cell transfusion",
-    "cat": "oncology"
+    "cat": "oncology",
+    "src": "curated"
   },
   {
     "fa": "ترانسپلنت سلول بنیادی",
     "en": "stem cell transplant",
-    "cat": "oncology"
+    "cat": "oncology",
+    "src": "curated"
   },
   {
     "fa": "ترمیم بافتی",
     "en": "tissue repair",
-    "cat": "oncology"
+    "cat": "oncology",
+    "src": "curated"
   },
   {
     "fa": "ترومبوسیتوز بنیادین",
     "en": "essential thrombocythemia",
-    "cat": "oncology"
+    "cat": "oncology",
+    "src": "curated"
   },
   {
     "fa": "تومور بدخیم",
     "en": "malignant tumor",
-    "cat": "oncology"
+    "cat": "oncology",
+    "src": "curated"
   },
   {
     "fa": "تومور خوش‌خیم",
     "en": "benign tumor",
-    "cat": "oncology"
+    "cat": "oncology",
+    "src": "curated"
   },
   {
     "fa": "خط درمان",
     "en": "line of therapy",
-    "cat": "oncology"
+    "cat": "oncology",
+    "src": "curated"
   },
   {
     "fa": "خودپیازی",
     "en": "autologous transplant",
-    "cat": "oncology"
+    "cat": "oncology",
+    "src": "curated"
   },
   {
     "fa": "درمان ترکیبی",
     "en": "combination therapy",
-    "cat": "oncology"
+    "cat": "oncology",
+    "src": "curated"
   },
   {
     "fa": "درمان تک‌دارویی",
     "en": "monotherapy",
-    "cat": "oncology"
+    "cat": "oncology",
+    "src": "curated"
   },
   {
     "fa": "درمان هدفمند",
     "en": "targeted therapy",
-    "cat": "oncology"
+    "cat": "oncology",
+    "src": "curated"
   },
   {
     "fa": "درگیری",
     "en": "disease involvement",
-    "cat": "oncology"
+    "cat": "oncology",
+    "src": "curated"
   },
   {
     "fa": "دستگاه ISS",
     "en": "ISS staging",
-    "cat": "oncology"
+    "cat": "oncology",
+    "src": "curated"
   },
   {
     "fa": "دستگاه R-ISS",
     "en": "R-ISS staging",
-    "cat": "oncology"
+    "cat": "oncology",
+    "src": "curated"
   },
   {
     "fa": "رشد",
     "en": "growth",
-    "cat": "oncology"
+    "cat": "oncology",
+    "src": "curated"
   },
   {
     "fa": "رمیسیون جزئی",
     "en": "partial remission",
-    "cat": "oncology"
+    "cat": "oncology",
+    "src": "curated"
   },
   {
     "fa": "رمیسیون کامل",
     "en": "complete remission",
-    "cat": "oncology"
+    "cat": "oncology",
+    "src": "curated"
   },
   {
     "fa": "رویدادهای تعریف‌کننده میلوما",
     "en": "myeloma defining events",
-    "cat": "oncology"
+    "cat": "oncology",
+    "src": "curated"
   },
   {
     "fa": "زنجیره سبک آزاد",
     "en": "free light chain",
-    "cat": "oncology"
+    "cat": "oncology",
+    "src": "curated"
   },
   {
     "fa": "سارکوم",
     "en": "sarcoma",
-    "cat": "oncology"
+    "cat": "oncology",
+    "src": "curated"
   },
   {
     "fa": "سرطان روده بزرگ",
     "en": "colorectal cancer",
-    "cat": "oncology"
+    "cat": "oncology",
+    "src": "curated"
   },
   {
     "fa": "سرطان ریه",
     "en": "lung cancer",
-    "cat": "oncology"
+    "cat": "oncology",
+    "src": "curated"
   },
   {
     "fa": "سرطان سینه",
     "en": "breast cancer",
-    "cat": "oncology"
+    "cat": "oncology",
+    "src": "curated"
   },
   {
     "fa": "سرطان معده",
     "en": "stomach cancer",
-    "cat": "oncology"
+    "cat": "oncology",
+    "src": "curated"
   },
   {
     "fa": "سرطان پروستات",
     "en": "prostate cancer",
-    "cat": "oncology"
+    "cat": "oncology",
+    "src": "curated"
   },
   {
     "fa": "سرطان کبد",
     "en": "liver cancer",
-    "cat": "oncology"
+    "cat": "oncology",
+    "src": "curated"
   },
   {
     "fa": "سندرم دیس‌پلاستیک",
     "en": "myelodysplastic syndrome",
-    "cat": "oncology"
+    "cat": "oncology",
+    "src": "curated"
   },
   {
     "fa": "سندرم دیس‌پلاستیک میلوئید",
     "en": "myelodysplastic syndrome",
-    "cat": "oncology"
+    "cat": "oncology",
+    "src": "curated"
   },
   {
     "fa": "سیتومتری جریان",
     "en": "flow cytometry",
-    "cat": "oncology"
+    "cat": "oncology",
+    "src": "curated"
   },
   {
     "fa": "سیتوژنتیک",
     "en": "cytogenetics",
-    "cat": "oncology"
+    "cat": "oncology",
+    "src": "curated"
   },
   {
     "fa": "طبقه‌بندی ریسک",
     "en": "risk stratification",
-    "cat": "oncology"
+    "cat": "oncology",
+    "src": "curated"
   },
   {
     "fa": "فاز",
     "en": "phase",
-    "cat": "oncology"
+    "cat": "oncology",
+    "src": "curated"
   },
   {
     "fa": "فیبروز میلوئید اولیه",
     "en": "primary myelofibrosis",
-    "cat": "oncology"
+    "cat": "oncology",
+    "src": "curated"
   },
   {
     "fa": "لنفوپنی",
     "en": "lymphopenia",
-    "cat": "oncology"
+    "cat": "oncology",
+    "src": "curated"
   },
   {
     "fa": "لنفوپی",
     "en": "lymphocytosis",
-    "cat": "oncology"
+    "cat": "oncology",
+    "src": "curated"
   },
   {
     "fa": "لوسمی",
     "en": "leukemia",
-    "cat": "oncology"
+    "cat": "oncology",
+    "src": "curated"
   },
   {
     "fa": "لوسمی حاد",
     "en": "acute leukemia",
-    "cat": "oncology"
+    "cat": "oncology",
+    "src": "curated"
   },
   {
     "fa": "لوسمی لنفوبلاستیک حاد",
     "en": "acute lymphoblastic leukemia",
-    "cat": "oncology"
+    "cat": "oncology",
+    "src": "curated"
   },
   {
     "fa": "لوسمی لنفوسیتیک مزمن",
     "en": "chronic lymphocytic leukemia",
-    "cat": "oncology"
+    "cat": "oncology",
+    "src": "curated"
   },
   {
     "fa": "لوسمی مزمن",
     "en": "chronic leukemia",
-    "cat": "oncology"
+    "cat": "oncology",
+    "src": "curated"
   },
   {
     "fa": "لوسمی میلوئید حاد",
     "en": "acute myeloid leukemia",
-    "cat": "oncology"
+    "cat": "oncology",
+    "src": "curated"
   },
   {
     "fa": "لوسمی میلوئید مزمن",
     "en": "chronic myeloid leukemia",
-    "cat": "oncology"
+    "cat": "oncology",
+    "src": "curated"
   },
   {
     "fa": "لینفوم",
     "en": "lymphoma",
-    "cat": "oncology"
+    "cat": "oncology",
+    "src": "curated"
   },
   {
     "fa": "لینفوم غیر هوچکین",
     "en": "non-Hodgkin lymphoma",
-    "cat": "oncology"
+    "cat": "oncology",
+    "src": "curated"
   },
   {
     "fa": "لینفوم هوچکین",
     "en": "Hodgkin lymphoma",
-    "cat": "oncology"
+    "cat": "oncology",
+    "src": "curated"
   },
   {
     "fa": "ماکرولوگوبولینمی والدن‌استروم",
     "en": "Waldenstrom macroglobulinemia",
-    "cat": "oncology"
+    "cat": "oncology",
+    "src": "curated"
   },
   {
     "fa": "متاستاز",
     "en": "metastasis",
-    "cat": "oncology"
+    "cat": "oncology",
+    "src": "curated"
   },
   {
     "fa": "مرحله‌بندی",
     "en": "staging",
-    "cat": "oncology"
+    "cat": "oncology",
+    "src": "curated"
   },
   {
     "fa": "معیارهای CRAB",
     "en": "CRAB criteria",
-    "cat": "oncology"
+    "cat": "oncology",
+    "src": "curated"
   },
   {
     "fa": "میالوفیبروز",
     "en": "myelofibrosis",
-    "cat": "oncology"
+    "cat": "oncology",
+    "src": "curated"
   },
   {
     "fa": "میالوپرولیفراتیو",
     "en": "myeloproliferative",
-    "cat": "oncology"
+    "cat": "oncology",
+    "src": "curated"
   },
   {
     "fa": "میالوگرام",
     "en": "bone marrow biopsy",
-    "cat": "oncology"
+    "cat": "oncology",
+    "src": "curated"
   },
   {
     "fa": "میلموم",
     "en": "myeloma",
-    "cat": "oncology"
+    "cat": "oncology",
+    "src": "curated"
   },
   {
     "fa": "میلموم چندگانه",
     "en": "multiple myeloma",
-    "cat": "oncology"
+    "cat": "oncology",
+    "src": "curated"
   },
   {
     "fa": "نوتروپنی",
     "en": "neutropenia",
-    "cat": "oncology"
+    "cat": "oncology",
+    "src": "curated"
   },
   {
     "fa": "هایپرکلسیمی",
     "en": "hypercalcemia",
-    "cat": "oncology"
+    "cat": "oncology",
+    "src": "curated"
   },
   {
     "fa": "پایداری",
     "en": "stability",
-    "cat": "oncology"
+    "cat": "oncology",
+    "src": "curated"
   },
   {
     "fa": "پروتئین بنس جونز",
     "en": "Bence Jones protein",
-    "cat": "oncology"
+    "cat": "oncology",
+    "src": "curated"
   },
   {
     "fa": "پروتئین مونوکلونال",
     "en": "monoclonal protein",
-    "cat": "oncology"
+    "cat": "oncology",
+    "src": "curated"
   },
   {
     "fa": "پلاسمابلاستیک",
     "en": "plasmablastic",
-    "cat": "oncology"
+    "cat": "oncology",
+    "src": "curated"
   },
   {
     "fa": "پلاسماسیت",
     "en": "plasma cell",
-    "cat": "oncology"
+    "cat": "oncology",
+    "src": "curated"
   },
   {
     "fa": "پلاسماسیتوم",
     "en": "plasmacytoma",
-    "cat": "oncology"
+    "cat": "oncology",
+    "src": "curated"
   },
   {
     "fa": "پلی‌سیتمی ورا",
     "en": "polycythemia vera",
-    "cat": "oncology"
+    "cat": "oncology",
+    "src": "curated"
   },
   {
     "fa": "پیشرفت",
     "en": "progression",
-    "cat": "oncology"
+    "cat": "oncology",
+    "src": "curated"
   },
   {
     "fa": "کارسینوم",
     "en": "carcinoma",
-    "cat": "oncology"
+    "cat": "oncology",
+    "src": "curated"
   },
   {
     "fa": "کاهش عملکرد کلیه",
     "en": "renal impairment",
-    "cat": "oncology"
+    "cat": "oncology",
+    "src": "curated"
   },
   {
     "fa": "کنترل بیماری",
     "en": "disease control",
-    "cat": "oncology"
+    "cat": "oncology",
+    "src": "curated"
   },
   {
     "fa": "گاماگلوبولینوپاتی مونوکلونال",
     "en": "monoclonal gammopathy",
-    "cat": "oncology"
+    "cat": "oncology",
+    "src": "curated"
   },
   {
     "fa": "گاماگلوبولینوپاتی مونوکلونال معنادارناشناخته",
     "en": "MGUS",
-    "cat": "oncology"
+    "cat": "oncology",
+    "src": "curated"
   }
 ]
