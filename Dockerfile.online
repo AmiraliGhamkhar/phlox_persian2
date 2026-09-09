@@ -1,19 +1,27 @@
 # syntax=docker/dockerfile:1
 #
-# Phlox - production image (FastAPI backend + prebuilt React frontend).
+# Phlox - online-only image (FastAPI backend + prebuilt React frontend).
 #
-# Build:  docker build -t localhost/phlox:latest .
-# Run:    docker compose up -d            (see docker-compose.yml, reads .env)
+# Build:  docker build -f Dockerfile.online -t localhost/phlox-online:latest .
+# Run:    docker run --rm -p 127.0.0.1:5000:5000 \
+#             -e DB_ENCRYPTION_KEY=$(openssl rand -hex 32) \
+#             -v phlox_data:/usr/src/app/data \
+#             localhost/phlox-online:latest
 #
-# The image listens on :5000 and serves both the API and the built SPA, so a
-# single published port is all that is needed.
+# This variant bundles NO local inference engines (llama.cpp / whisper.cpp)
+# and NO ONNX ASR adapters (Shenava / Parakeet). It is for deployments that
+# only use online providers (OpenAI, Anthropic, Fireworks, Groq, OpenRouter,
+# Speechmatics, AssemblyAI, ...) or a model server running on the host
+# (Ollama, LM Studio, llama.cpp, vLLM) reachable through
+# http://host.docker.internal:PORT. Compared with the full image (Dockerfile),
+# it builds far faster and ships a much smaller image.
 #
-# BuildKit cache mounts (--mount=type=cache) keep the npm, apt and uv download
-# caches warm across rebuilds even when a layer is invalidated; they never end
-# up in the shipped image. Requires BuildKit (default in Docker 23+ / buildx).
+# Selecting a "local" model in the settings UI will simply report the local
+# runtime as unavailable (see server/utils/local_servers.py, which no-ops
+# safely when the binaries are missing).
 
 ###############################################################################
-# Stage 1 - build the React app
+# Stage 1 - build the React app (identical to the full image)
 ###############################################################################
 FROM node:24-slim AS build
 
@@ -35,61 +43,12 @@ COPY public/ ./public/
 RUN npm run build
 
 ###############################################################################
-# Stage 2 - local inference servers (llama.cpp / whisper.cpp, CPU-only)
-###############################################################################
-# These are the same binaries the desktop app builds from source; Docker has
-# no Rust sidecar manager, so the API server supervises them itself (see
-# server/utils/local_servers.py). The pinned SHAs must match
-# src-tauri/build-llama.sh (LLAMA_PINNED_SHA) and src-tauri/build-whisper.sh
-# (WHISPER_CPP_REF default).
-FROM debian:bookworm-slim AS local-runtime
-
-ARG LLAMA_CPP_SHA=aa46bda89b9a8378ae76bb15fc2ce2f571f0983c
-ARG WHISPER_CPP_REF=978113305b2ead22249b881deafa131dc8884911
-
-RUN apt-get update \
-    && apt-get install -y --no-install-recommends git cmake build-essential \
-    && rm -rf /var/lib/apt/lists/*
-
-WORKDIR /opt/local-runtime
-
-RUN git clone https://github.com/ggml-org/llama.cpp.git llama.cpp \
-    && git -C llama.cpp checkout --detach "$LLAMA_CPP_SHA" \
-    && cmake -S llama.cpp -B llama.cpp/build \
-        -DCMAKE_BUILD_TYPE=Release \
-        -DGGML_NATIVE=OFF \
-        -DLLAMA_ALL_WARNINGS=OFF \
-        -DBUILD_SHARED_LIBS=OFF \
-        -DLLAMA_CURL=OFF \
-        -DLLAMA_OPENSSL=OFF \
-        -DLLAMA_BUILD_SERVER=ON \
-        -DLLAMA_BUILD_UI=OFF \
-        -DLLAMA_BUILD_APP=OFF \
-        -DLLAMA_BUILD_EXAMPLES=OFF \
-        -DLLAMA_BUILD_TESTS=OFF \
-    && cmake --build llama.cpp/build --target llama-server -j"$(nproc)"
-
-RUN git clone --depth 1 https://github.com/ggml-org/whisper.cpp.git whisper.cpp \
-    && git -C whisper.cpp fetch --depth 1 origin "$WHISPER_CPP_REF" \
-    && git -C whisper.cpp checkout --detach FETCH_HEAD \
-    && cmake -S whisper.cpp -B whisper.cpp/build \
-        -DCMAKE_BUILD_TYPE=Release \
-        -DGGML_NATIVE=OFF \
-        -DBUILD_SHARED_LIBS=OFF \
-        -DWHISPER_BUILD_SERVER=ON \
-        -DWHISPER_BUILD_EXAMPLES=ON \
-        -DWHISPER_BUILD_TESTS=OFF \
-        -DWHISPER_BUILD_BENCHMARKS=OFF \
-        -DWHISPER_USE_COREML=OFF \
-    && cmake --build whisper.cpp/build --target whisper-server -j"$(nproc)"
-
-###############################################################################
-# Stage 3 - run the FastAPI app
+# Stage 2 - run the FastAPI app (no local inference engines, no ONNX extras)
 ###############################################################################
 FROM python:3.12-slim
 
-LABEL org.opencontainers.image.title="Phlox" \
-      org.opencontainers.image.description="Persian medical transcription and clinical reports - FastAPI backend plus prebuilt React frontend (Persian/RTL build)" \
+LABEL org.opencontainers.image.title="Phlox (online providers)" \
+      org.opencontainers.image.description="Persian medical transcription and clinical reports - FastAPI backend plus prebuilt React frontend, online providers only (no bundled local inference engines)" \
       org.opencontainers.image.licenses="MIT" \
       org.opencontainers.image.source="https://github.com/AmiraliGhamkhar/phlox_persian2"
 
@@ -124,9 +83,7 @@ ENV DOCKER_CONTAINER=true \
     UV_LINK_MODE=copy
 
 # tzdata: makes the TZ environment variable actually resolve to a local zone
-# ca-certificates: TLS trust for outbound LLM / ASR requests and model downloads
-# The apt cache mounts keep package lists/debs warm across builds (and out of
-# the final image); the explicit removal keeps the committed layer minimal.
+# ca-certificates: TLS trust for outbound LLM / ASR requests
 RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
     --mount=type=cache,target=/var/lib/apt,sharing=locked \
     apt-get update \
@@ -134,11 +91,6 @@ RUN --mount=type=cache,target=/var/cache/apt,sharing=locked \
         ca-certificates \
         tzdata \
     && rm -rf /var/lib/apt/lists/*
-
-# Local inference servers from the local-runtime stage. /usr/local/bin is on
-# PATH, where server/utils/local_servers.py looks for them first.
-COPY --from=local-runtime /opt/local-runtime/llama.cpp/build/bin/llama-server /usr/local/bin/phlox-llama-server
-COPY --from=local-runtime /opt/local-runtime/whisper.cpp/build/bin/whisper-server /usr/local/bin/phlox-whisper-server
 
 # Create phlox user (uid:gid 1000:1000 - see the bind-mount note in docker-compose.yml)
 RUN groupadd -g 1000 phlox \
@@ -148,18 +100,17 @@ RUN groupadd -g 1000 phlox \
 COPY --from=build /usr/src/app/build ./build
 COPY server/pyproject.toml server/uv.lock server/.python-version ./server/
 
-# Writable paths: data (encrypted DB + downloaded local models + logs) and
-# temp uploads.
+# Writable paths: data (encrypted DB + logs) and temp uploads.
 RUN mkdir -p /usr/src/app/data /usr/src/app/temp \
     && chown -R phlox:phlox /usr/src/app
 
-# Install Python dependencies from the lockfile (asr extra for the
-# Shenava/Parakeet ONNX adapters, dev extras excluded) into
-# /usr/src/app/server/.venv. The BuildKit cache mount keeps downloaded
-# wheels warm across builds without bloating the image. The venv itself is
-# committed to the layer so the runtime image needs no cache.
+# Install Python dependencies from the lockfile. Unlike the full image, the
+# `asr` extra is intentionally omitted: it only provides numpy/onnxruntime for
+# the in-process Shenava/Parakeet ONNX adapters (their imports are
+# function-lazy, so the server imports fine without them), and online-only
+# deployments never use those adapters.
 RUN --mount=type=cache,target=/root/.cache/uv,sharing=locked \
-    uv sync --directory server --locked --no-dev --extra asr
+    uv sync --directory server --locked --no-dev
 
 # Copy remaining server code (the venv above is not part of the build context).
 COPY server/ ./server/

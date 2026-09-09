@@ -31,6 +31,7 @@ The web/Docker build is a **single container** that serves both the compiled Rea
 | `tsconfig.json`, `eslint.config.js` | TS check + ESLint config. |
 | `Makefile` | Helper targets incl. `docker-up`, `docker-build`, `rebuild-prod/dev/test`, `docker-dev-up`. |
 | `Dockerfile` | **Production image** (3 stages, analyzed in §3.1). |
+| `Dockerfile.online` | **Online-only image**: same as `Dockerfile` but skips the llama.cpp/whisper.cpp compile and the ONNX `asr` extra — for cloud providers / host-side model servers only. Builds fast, smaller image. |
 | `Dockerfile.dev` | **Development image** with hot reload (analyzed in §3.2). |
 | `Dockerfile.test` | Runs the pytest suite inside an image (used by CI). |
 | `docker-compose.yml` | **Production stack** (analyzed in §3.3). |
@@ -66,7 +67,7 @@ The web/Docker build is a **single container** that serves both the compiled Rea
 - `src/components/settings/` — `LocalModelManager.jsx`, `LlmTab.jsx`, `ModelSettingsPanel.jsx`, `WhisperTab.jsx` (one-click local model download & engine start).
 - `src/components/setup/` — first-run encryption/passphrase setup (desktop flow).
 - `src/utils/` — API clients (`api/`: `transcriptionApi.ts`, `workspaceApi.ts`, `settingsApi.ts`, `localModelApi.ts`, `encryptionApi.ts`, `sseStream.ts`), **`helpers/apiConfig`**: in a browser/Docker it calls **relative same-origin `/api` URLs** (no token); in Tauri it targets `localhost:5000` with a request token. `audioRecorder.js`, hooks, services (`localModelService.ts`).
-- `public/` — Vazirmatn fonts (Persian woff2), icons, SFX (tick/complete/reset), `site.webmanifest`.
+- `public/` — Vazirmatn fonts (Persian woff2), icons, `site.webmanifest`.
 
 ### 2.4 `src-tauri/` — desktop shell (Tauri 2 + Rust)
 
@@ -103,7 +104,7 @@ Node toolchain + Python in one dev image; `start-phlox-dev.sh` runs `vite` (:300
 ### 3.3 `docker-compose.yml` (production)
 
 - Service `app`, container `phlox`, project `phlox`.
-- `image: ${PHLOX_IMAGE:-ghcr.io/amiralighamkhar/phlox_persian:latest}` **and** a `build:` block — `docker compose up -d --build` builds locally from this repo; with plain `docker compose up -d` it pulls the published image (if it exists for the given tag; the fallback that always works is the local build).
+- `image: ${PHLOX_IMAGE:-ghcr.io/amiralighamkhar/phlox_persian2:latest}` **and** a `build:` block — `docker compose up -d --build` builds locally from this repo; with plain `docker compose up -d` it pulls the published image (if it exists for the given tag; the fallback that always works is the local build).
 - Ports: **`127.0.0.1:${PHLOX_PORT:-5000}:5000`** — loopback only (good for local Windows use; no proxy auth needed).
 - `extra_hosts: host.docker.internal:host-gateway` → inside the container you can reach an LLM/ASR server running **on your Windows host** (Ollama, LM Studio…) at `http://host.docker.internal:11434`.
 - Environment from `.env`: **`DB_ENCRYPTION_KEY` is mandatory** (compose refuses to start without it), plus optional `ALLOWED_ORIGINS`, `ALLOWED_HOSTS`, `TRUSTED_PROXY_CIDRS`, `TZ`, `RATE_LIMIT_ENABLED`, `LLM_EXTRA_BODY`, proxy-auth vars, ASR live tuning vars.

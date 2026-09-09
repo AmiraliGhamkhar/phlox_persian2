@@ -49,7 +49,6 @@
         ]
     },
     "description": "Open-source patient management with AI-powered transcription and clinical notes.",
-    "main": "index.js",
     "keywords": [],
     "author": "",
     "license": "MIT",

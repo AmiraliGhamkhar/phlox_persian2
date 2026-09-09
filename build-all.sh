@@ -133,7 +133,7 @@ echo "=========================================="
 if [ "$SKIP_WHISPER" = true ]; then
     echo "⏭️  Skipping whisper.cpp build (--skip-whisper)"
     WHISPER_BIN="src-tauri/phlox-whisper-server"
-    if [[ "$PLATFORM" == "windows-"* ]]; then
+    if [[ "$PLATFORM" == *"windows"* ]]; then
         WHISPER_BIN="src-tauri/phlox-whisper-server.exe"
     fi
     if [ ! -f "$WHISPER_BIN" ]; then
@@ -147,7 +147,7 @@ else
     fi
 
     # Check if whisper-server was built
-    if [[ "$PLATFORM" == "windows-"* ]]; then
+    if [[ "$PLATFORM" == *"windows"* ]]; then
         WHISPER_BIN="src-tauri/phlox-whisper-server.exe"
     else
         WHISPER_BIN="src-tauri/phlox-whisper-server"
@@ -172,7 +172,7 @@ echo "=========================================="
 if [ "$SKIP_LLAMA" = true ]; then
     echo "⏭️  Skipping llama.cpp build (--skip-llama)"
     LLAMA_BIN="src-tauri/phlox-llama-server"
-    if [[ "$PLATFORM" == "windows-"* ]]; then
+    if [[ "$PLATFORM" == *"windows"* ]]; then
         LLAMA_BIN="src-tauri/phlox-llama-server.exe"
     fi
     if [ ! -f "$LLAMA_BIN" ]; then
@@ -186,7 +186,7 @@ else
     fi
 
     # Check if llama-server was built
-    if [[ "$PLATFORM" == "windows-"* ]]; then
+    if [[ "$PLATFORM" == *"windows"* ]]; then
         LLAMA_BIN="src-tauri/phlox-llama-server.exe"
     else
         LLAMA_BIN="src-tauri/phlox-llama-server"
@@ -242,7 +242,7 @@ if [ "$DEBUG_MODE" = true ]; then
 
     if [ -f "$WHISPER_BIN" ]; then
         WHISPER_DEBUG_NAME="phlox-whisper-server"
-        if [[ "$PLATFORM" == "windows-"* ]]; then
+        if [[ "$PLATFORM" == *"windows"* ]]; then
             WHISPER_DEBUG_NAME="phlox-whisper-server.exe"
         fi
         cp "$WHISPER_BIN" "src-tauri/target/debug/$WHISPER_DEBUG_NAME"
