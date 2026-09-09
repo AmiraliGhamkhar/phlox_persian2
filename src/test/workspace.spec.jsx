@@ -1,6 +1,6 @@
-import { describe, it, expect, vi, beforeEach } from "vitest";
+import { describe, it, expect, vi, beforeEach, afterEach } from "vitest";
 import { MemoryRouter } from "react-router";
-import { screen, waitFor } from "@testing-library/react";
+import { screen, waitFor, fireEvent, cleanup } from "@testing-library/react";
 import { renderWithProviders } from "./utils";
 import AppRoutes from "../components/layout/AppRoutes";
 import TopNav from "../components/layout/TopNav";
@@ -89,6 +89,12 @@ describe("three-page clinician workspace", () => {
         localStorage.clear();
     });
 
+    afterEach(() => {
+        // No vitest globals -> no automatic unmount; drop each render so
+        // queries never see elements from a previous test.
+        cleanup();
+    });
+
     it("shows specialty first and the three top-nav pages", async () => {
         renderApp("/");
         expect(screen.getByText("تخصص")).toBeInTheDocument();
@@ -111,5 +117,79 @@ describe("three-page clinician workspace", () => {
         expect(screen.getByText("واژه‌نامه فارسی–انگلیسی")).toBeInTheDocument();
         expect(screen.queryByText("شماره پرونده")).not.toBeInTheDocument();
         expect(screen.queryByText("Chat dashboard")).not.toBeInTheDocument();
+    });
+
+    it("shows the amber review banner when the generated note has faithfulness warnings", async () => {
+        const { workspaceApi } = await import("../utils/api/workspaceApi");
+        workspaceApi.generateReport.mockResolvedValueOnce({
+            report: {
+                chief_complaint: "پیگیری دیابت",
+                history: "",
+                examination: "",
+                assessment: "",
+                plan: "",
+                full_note: "",
+            },
+            full_note: "شکایت اصلی: پیگیری دیابت.\nتست‌ها: HbA1c 8.1 درصد.",
+            dictionary: [],
+            process_duration: 0.1,
+            warnings: [
+                {
+                    kind: "number_drift",
+                    detail: "عدد 8.1 در یادداشت هست ولی در متن ورودی نیامده است",
+                    span: "8.1",
+                },
+            ],
+        });
+
+        renderApp("/workspace");
+        const textarea = await screen.findByPlaceholderText(
+            "اینجا صحبت کنید یا متن را بنویسید...",
+        );
+        fireEvent.change(textarea, {
+            target: { value: "بیمار دیابت دارد. HbA1c در حد 7.2 درصد بود." },
+        });
+        fireEvent.click(screen.getByText("تولید گزارش"));
+
+        const banner = await screen.findByTestId("verification-warnings");
+        expect(banner.textContent).toContain("تغییر عدد");
+        expect(banner.textContent).toContain("8.1");
+        // The (drifted) note is still shown — warnings never block.
+        expect(screen.getByText(/HbA1c 8\.1 درصد/)).toBeInTheDocument();
+        expect(workspaceApi.generateReport).toHaveBeenCalledTimes(1);
+    });
+
+    it("does not show the review banner for a clean report", async () => {
+        const { workspaceApi } = await import("../utils/api/workspaceApi");
+        workspaceApi.generateReport.mockResolvedValueOnce({
+            report: {
+                chief_complaint: "درد قفسه سینه",
+                history: "",
+                examination: "",
+                assessment: "",
+                plan: "",
+                full_note: "",
+            },
+            full_note: "شکایت اصلی: درد قفسه سینه از دیروز.",
+            dictionary: [],
+            process_duration: 0.1,
+            warnings: [],
+        });
+
+        renderApp("/workspace");
+        const textarea = await screen.findByPlaceholderText(
+            "اینجا صحبت کنید یا متن را بنویسید...",
+        );
+        fireEvent.change(textarea, {
+            target: { value: "بیمار از دیروز درد قفسه سینه دارد." },
+        });
+        fireEvent.click(screen.getByText("تولید گزارش"));
+
+        await waitFor(() => {
+            expect(screen.getByText(/درد قفسه سینه از دیروز/)).toBeInTheDocument();
+        });
+        expect(
+            screen.queryByTestId("verification-warnings"),
+        ).not.toBeInTheDocument();
     });
 });

@@ -22,6 +22,11 @@ jobs:
               uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
             - name: Offline precision gate (benchmark fixtures)
               run: python3 -m server.bench.run_bench --mode offline --verbose
+            - name: Gold/planted note-faithfulness scorer
+              # Acceptance contract: faithful gold notes must produce ZERO
+              # findings and every planted error must be caught with its
+              # expected kind. Same stdlib-only runner (no Docker/LLM/DB).
+              run: python3 -m server.bench.score_notes --verbose
 
     # --- JOB 1: Check if there are new commits ---
     check_changes:

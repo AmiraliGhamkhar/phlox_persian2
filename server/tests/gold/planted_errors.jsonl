@@ -1,0 +1,10 @@
+{"id": "p01-number-drift-hba1c", "expect_kind": "number_drift", "source": "بیمار مرد ۵۸ ساله. HbA1c در حد 7.2 درصد بود. ویزیت پیگیری است.", "note": "شکایت اصلی: ویزیت پیگیری.\nتست‌ها: HbA1c 8.1 درصد."}
+{"id": "p02-unit-mismatch-mcg", "expect_kind": "unit_mismatch", "source": "بیمار دیابت دارد. متفورمین ۱۰۰ میلی‌گرم دو بار در روز مصرف می‌کند.", "note": "سابقه: دیابت.\nداروها: متفورمین ۱۰۰ میکروگرم دو بار در روز."}
+{"id": "p03-negation-flip-stroke", "expect_kind": "negation_flip", "source": "بیمار مرد ۶۷ ساله. سابقه سکته مغزی ندارد. ویزیت پیگیری است.", "note": "سابقه: سکته مغزی دارد.\nمبتنی بر: شرح بیمار"}
+{"id": "p04-ungrounded-warfarin", "expect_kind": "ungrounded_term", "source": "بیمار مرد ۷۲ ساله با آریتمی. ویزیت تنظیم دوز است.", "note": "سابقه: آریتمی.\nداروها: وارفارین."}
+{"id": "p05-ungrounded-stroke", "expect_kind": "ungrounded_term", "source": "بیمار با سردرد مراجعه کرد. سردرد یک روز است.", "note": "شکایت اصلی: سردرد یک روز.\nسابقه: سکته مغزی."}
+{"id": "p06-fabricated-sentence", "expect_kind": "low_overlap_sentence", "source": "بیمار با شکستگی مچ دست به اورژانس مراجعه کرد. درد مچ دست چپ دارد.", "note": "بیمار مراجعه کرد. معاینه چشم: لیزر لنس انجام شده است و عینک تجویز شد."}
+{"id": "p07-spoken-to-digit-drift", "expect_kind": "number_drift", "source": "بیمار مرد است. فشار خون صد و سی و پنج بر هشتاد است.", "note": "معاینه: فشار خون 135 بر 80 است."}
+{"id": "p08-dose-drift-250-500", "expect_kind": "number_drift", "source": "استامینوفن 250 میلی‌گرم تجویز شد.", "note": "نسخه: استامینوفن 500 میلی‌گرم."}
+{"id": "p09-inr-drift", "expect_kind": "number_drift", "source": "بیمار وارفارین مصرف می‌کند. INR 2.5 است.", "note": "داروها: وارفارین.\nتست‌ها: INR 3.8 است."}
+{"id": "p10-drug-swap-cipro", "expect_kind": "ungrounded_term", "source": "بیمار آموکسی‌سیلین ۵۰ میلی‌گرم مصرف می‌کند.", "note": "داروها: سیپروفلوکساسین ۵۰ میلی‌گرم."}

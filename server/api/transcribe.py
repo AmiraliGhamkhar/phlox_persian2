@@ -176,6 +176,13 @@ async def dictate(file: UploadFile = File(...)):
         return {
             "transcription": transcript_text,
             "transcriptionDuration": transcription_duration,
+            # ASR hygiene metadata (plan refs A4/A5): segment confidence
+            # classes and artifact flags so the UI can amber-flag weak spans,
+            # and the report prompt can be told which spans are uncertain.
+            # ``.get`` defaults: providers without per-segment stats still work.
+            "segments": transcription_result.get("segments") or [],
+            "flags": transcription_result.get("flags") or [],
+            "vad": transcription_result.get("vad") or {},
         }
     except ValueError as error:
         logging.warning("Dictation rejected: %s", error)

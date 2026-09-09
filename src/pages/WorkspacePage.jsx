@@ -37,12 +37,33 @@ const SECTION_LABELS = [
     ["plan", "برنامه"],
 ];
 
+// Persian labels for ASR flag reasons (server: server/transcription/hygiene.py).
+const FLAG_LABELS = {
+    low_confidence: "کم‌اعتمادی",
+    suspect: "شک‌دار",
+    known_hallucination_artifact: "توهم شناخته‌شده موتور صوت",
+    repetition_loop: "تکرار حلقه‌ای",
+    duplicated_line: "تکرار خط",
+};
+
+// Persian labels for deterministic verification findings
+// (server: server/nlp_tools/verification.py).
+const WARNING_KIND_LABELS = {
+    number_drift: "تغییر عدد",
+    unit_mismatch: "تغییر واحد",
+    negation_flip: "جابه‌جایی نفی",
+    ungrounded_term: "اصطلاح بدون پایه در متن",
+    low_overlap_sentence: "جمله با پیوند کم به متن",
+};
+
 const WorkspacePage = () => {
     const { specialty, clinicianName, status, refreshStatus } = useWorkspace();
     const [mode, setMode] = useState("ambient");
     const [transcript, setTranscript] = useState("");
     const [report, setReport] = useState(null);
     const [fullNote, setFullNote] = useState("");
+    // Deterministic faithfulness warnings for the last generated report.
+    const [warnings, setWarnings] = useState([]);
     const [dictionaryHits, setDictionaryHits] = useState([]);
     const [dictQuery, setDictQuery] = useState("");
     const [dictResults, setDictResults] = useState([]);
@@ -94,15 +115,25 @@ const WorkspacePage = () => {
         }
         setGenerating(true);
         try {
+            const meta = recorder.transcriptMeta || {};
+            const flags = Array.isArray(meta.flags) ? meta.flags : [];
             const data = await workspaceApi.generateReport({
                 transcript: text,
                 specialty,
                 mode,
                 clinician_name: clinicianName,
+                // Forward ASR hygiene metadata so the model is told which
+                // spans are uncertain (W1.5) and the server can check the
+                // note against the transcript (W1.1/W1.2).
+                transcript_flags: flags,
+                low_confidence_spans: flags
+                    .map((flag) => (flag && flag.text ? String(flag.text) : ""))
+                    .filter(Boolean),
             });
             setReport(data?.report || null);
             setFullNote(data?.full_note || data?.report?.full_note || "");
             setDictionaryHits(data?.dictionary || []);
+            setWarnings(Array.isArray(data?.warnings) ? data.warnings : []);
         } catch (error) {
             toaster.create({
                 title: "تولید گزارش ناموفق بود",
@@ -280,6 +311,22 @@ const WorkspacePage = () => {
                                     : recorder.liveWarning}
                             </Text>
                         )}
+                        {Array.isArray(recorder.transcriptMeta?.flags) &&
+                            recorder.transcriptMeta.flags.length > 0 && (
+                                <Box mt={3} p={3} borderRadius="md" bg="warning.50" border="1px solid" borderColor="warning.300" dir="rtl">
+                                    <Text fontSize="sm" color="warning.900" fontWeight="700" mb={2}>
+                                        بخش‌هایی از پیاده‌سازی نامطمئن هستند و به یادداشت ارسال‌شده علامت‌گذاری می‌شوند:
+                                    </Text>
+                                    <HStack gap={2} wrap="wrap">
+                                        {recorder.transcriptMeta.flags.map((flag, index) => (
+                                            <Badge key={`${index}-${flag.reason}`} colorPalette="orange" variant="solid">
+                                                {FLAG_LABELS[flag.reason] || flag.reason}
+                                                {flag.text ? `: ${flag.text}` : ""}
+                                            </Badge>
+                                        ))}
+                                    </HStack>
+                                </Box>
+                            )}
                     </Box>
 
                     <Box className="panels-bg" p={4}>
@@ -295,6 +342,31 @@ const WorkspacePage = () => {
                                 کپی یادداشت
                             </Button>
                         </Flex>
+                        {warnings.length > 0 && (
+                            <Box
+                                p={3}
+                                borderRadius="md"
+                                bg="warning.50"
+                                border="1px solid"
+                                borderColor="warning.300"
+                                dir="rtl"
+                                data-testid="verification-warnings"
+                            >
+                                <Text fontSize="sm" color="warning.900" fontWeight="800" mb={2}>
+                                    ⚠ نیازمند بازبینی — {warnings.length} مورد ناسازگاری با متن پیاده‌سازی یافت شد:
+                                </Text>
+                                <VStack align="stretch" gap={1}>
+                                    {warnings.map((warning, index) => (
+                                        <Text key={`${index}-${warning.kind}`} fontSize="sm" color="warning.900">
+                                            • {WARNING_KIND_LABELS[warning.kind] || warning.kind}: {warning.detail}
+                                        </Text>
+                                    ))}
+                                </VStack>
+                                <Text fontSize="xs" color="warning.800" mt={2}>
+                                    یادداشت ویرایش‌نشده باقی مانده است؛ بخش‌های علامت‌گذاری‌شده را پیش از ثبت در پرونده بررسی کنید.
+                                </Text>
+                            </Box>
+                        )}
                         {generating ? (
                             <Flex py={16} justify="center">
                                 <Spinner size="lg" color="teal.500" />

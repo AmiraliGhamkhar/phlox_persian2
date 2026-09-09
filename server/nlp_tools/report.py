@@ -58,6 +58,7 @@ REPORT_SYSTEM_PROMPT = """تو منشی مستندسازی بالینی برای
 - اگر بخشی در متن نیست، همان بخش را خالی بگذار؛ حدس نزن.
 - تشخیص قطعی یا توصیه درمانی خارج از متن ارائه نده.
 - اصطلاحات پزشکی انگلیسی رایج و نام داروها را ترجمه یا آوانویسی نکن.
+- اگر بخشی از متن مبهم، نامفهم یا ناقص است (احتمال خطای پیاده‌سازی صوتی)، همان عبارت را دقیقاً عیناً بنویس و با «نامشخص» نشانه‌گذاری کن؛ هرگز عدد، دوز، واحد یا یافته مبهم را حدس نزن، اصلاح نکن یا کامل مکن. اگر آن بخش قابل اعتماد نیست، بهتر است حذف شود تا اشتباه ثبت شود.
 - خروجی فقط JSON معتبر با کلیدهای chief_complaint، history، examination، assessment، plan، full_note باشد.
 - full_note باید یادداشت کامل فارسی آماده کپی باشد و بخش‌های خالی را حذف کند.
 
@@ -85,12 +86,40 @@ def specialty_label(specialty: str | None) -> str:
     return specialty or "پزشکی عمومی"
 
 
+_MAX_SPANS_IN_PROMPT = 8
+_MAX_SPAN_CHARS = 160
+
+
+def _low_confidence_block(spans: list[str] | None) -> str:
+    """Persian instruction block for ASR-flagged spans (empty when none)."""
+    cleaned: list[str] = []
+    seen: set[str] = set()
+    for raw in spans or []:
+        span = str(raw or "").strip()[:_MAX_SPAN_CHARS]
+        if not span or span in seen:
+            continue
+        seen.add(span)
+        cleaned.append(span)
+        if len(cleaned) >= _MAX_SPANS_IN_PROMPT:
+            break
+    if not cleaned:
+        return ""
+    lines = "\n".join(f"- «{span}»" for span in cleaned)
+    return (
+        "\nقطعات کم‌اعتمادی پیاده‌سازی (موتور ASR این بخش‌ها را نامطمئن یا آلوده به خطا علامت‌گذاری کرد):\n"
+        f"{lines}\n"
+        "محتوای این قطعات را به‌عنوان حقیقت برقرارشده در یادداشت بیان نکن. "
+        "اگر لازم است، دقیقاً عیناً (و با نشانه «نامشخص») بنویس؛ در غیر این صورت حذف کن.\n"
+    )
+
+
 def build_report_system_prompt(
     *,
     specialty: str | None,
     mode: str,
     transcript: str,
     clinician_name: str | None = None,
+    low_confidence_spans: list[str] | None = None,
 ) -> str:
     key = _specialty_key(specialty)
     focus = SPECIALTY_FOCUS.get(key, "روی شکایت اصلی، شرح‌حال، یافته‌ها و برنامه ذکرشده تمرکز کن.")
@@ -110,6 +139,7 @@ def build_report_system_prompt(
     )
     if clinician_name:
         prompt += f"\nنام پزشک: {clinician_name}\n"
+    prompt += _low_confidence_block(low_confidence_spans)
     return prompt
 
 
@@ -137,8 +167,16 @@ async def generate_clinical_report(
     specialty: str | None = None,
     mode: str = "ambient",
     clinician_name: str | None = None,
+    transcript_flags: list[dict] | None = None,
+    low_confidence_spans: list[str] | None = None,
 ) -> dict[str, Any]:
-    """Generate a structured clinical report from a transcript."""
+    """Generate a structured clinical report from a transcript.
+
+    After generation, the note is checked against the source transcript with
+    deterministic faithfulness guards (see ``server.nlp_tools.verification``).
+    Findings are returned as ``warnings`` — review items for the clinician,
+    never blocking: the note is always returned.
+    """
     started = time.perf_counter()
     transcript_text = (transcript or "").strip()
     if not transcript_text:
@@ -148,6 +186,7 @@ async def generate_clinical_report(
             "full_note": "",
             "dictionary": [],
             "process_duration": 0.0,
+            "warnings": [],
         }
 
     config = config_manager.get_config()
@@ -164,11 +203,13 @@ async def generate_clinical_report(
     options = deterministic_options(
         config_manager.get_prompts_and_options()["options"].get("general", {})
     )
+    spans = _spans_from_flags(low_confidence_spans, transcript_flags)
     system_content = build_report_system_prompt(
         specialty=specialty,
         mode=mode,
         transcript=transcript_text,
         clinician_name=clinician_name,
+        low_confidence_spans=spans,
     )
     client = get_llm_client()
     response_format = ClinicalReport.model_json_schema()
@@ -204,4 +245,35 @@ async def generate_clinical_report(
         "full_note": full_note,
         "dictionary": dictionary,
         "process_duration": float(f"{time.perf_counter() - started:.2f}"),
+        "warnings": _verify_full_note(transcript_text, full_note),
     }
+
+
+def _spans_from_flags(
+    explicit_spans: list[str] | None,
+    transcript_flags: list[dict] | None,
+) -> list[str]:
+    """Prefer caller-provided spans; otherwise derive them from ASR flags."""
+    spans = [str(s).strip() for s in (explicit_spans or []) if str(s or "").strip()]
+    if spans:
+        return spans
+    for flag in transcript_flags or []:
+        if not isinstance(flag, dict):
+            continue
+        text = str(flag.get("text") or "").strip()
+        if text:
+            spans.append(text)
+    return spans
+
+
+def _verify_full_note(transcript_text: str, full_note: str) -> list[dict[str, str]]:
+    """Deterministic faithfulness check; any failure degrades to no warnings."""
+    if not full_note:
+        return []
+    try:
+        from server.nlp_tools.verification import verify_note
+
+        return verify_note(transcript_text, full_note).warnings()
+    except Exception:  # noqa: BLE001 — verification must never break the report
+        logger.warning("Note verification failed; returning report without warnings", exc_info=True)
+        return []

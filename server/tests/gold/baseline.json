@@ -1,0 +1,7 @@
+{
+  "gold_pairs": 32,
+  "gold_findings": 0,
+  "planted_errors": 10,
+  "planted_caught": 10,
+  "catch_rate": 1.0
+}

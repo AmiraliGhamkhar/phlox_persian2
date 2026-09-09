@@ -11,6 +11,10 @@ export const useWorkspaceRecorder = ({ onTranscript }) => {
     const [liveTranscript, setLiveTranscript] = useState("");
     const [liveError, setLiveError] = useState(null);
     const [liveWarning, setLiveWarning] = useState(null);
+    // ASR hygiene metadata from the batch transcription (flags/segments/vad)
+    // for the last completed dictation, so the page can amber-flag weak
+    // spans and forward them to the report prompt.
+    const [transcriptMeta, setTranscriptMeta] = useState(null);
 
     const audioRecorderRef = useRef(null);
     const liveSessionRef = useRef(null);
@@ -70,6 +74,15 @@ export const useWorkspaceRecorder = ({ onTranscript }) => {
                 formData.append("file", blob, "recording.wav");
                 const data = await transcriptionApi.transcribeDictation(formData);
                 const text = data?.transcription || data?.rawTranscription || "";
+                setTranscriptMeta(
+                    data
+                        ? {
+                              flags: data.flags || [],
+                              segments: data.segments || [],
+                              vad: data.vad || {},
+                          }
+                        : null,
+                );
                 if (text) onTranscript?.(text);
                 return text;
             } finally {
@@ -85,6 +98,7 @@ export const useWorkspaceRecorder = ({ onTranscript }) => {
             setLiveTranscript("");
             setLiveError(null);
             setLiveWarning(null);
+            setTranscriptMeta(null);
             seenLiveNoticesRef.current = new Set();
             try {
                 const session = await transcriptionApi.openLiveTranscription({
@@ -190,6 +204,7 @@ export const useWorkspaceRecorder = ({ onTranscript }) => {
         setLiveTranscript("");
         setLiveError(null);
         setLiveWarning(null);
+        setTranscriptMeta(null);
     }, [isRecording, closeLiveSession]);
 
     return {
@@ -200,6 +215,7 @@ export const useWorkspaceRecorder = ({ onTranscript }) => {
         liveTranscript,
         liveError,
         liveWarning,
+        transcriptMeta,
         startRecording,
         pauseRecording,
         resumeRecording,

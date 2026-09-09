@@ -126,6 +126,188 @@ async def test_generate_report_uses_specialty_and_dictionary():
     assert isinstance(data["dictionary"], list)
 
 
+@pytest.mark.asyncio
+async def test_generate_report_returns_verification_warnings():
+    """A faithful-looking note with a drifted number comes back WITH the
+    report intact and a number_drift warning (flag-only, never blocking)."""
+    fake_report = ClinicalReport(
+        chief_complaint="پیگیری دیابت",
+        history="",
+        examination="",
+        assessment="کنترل دیابت",
+        plan="",
+        full_note="شکایت اصلی: پیگیری دیابت.\nتست‌ها: HbA1c 8.1 درصد.",
+    )
+
+    async def fake_chat(**_kwargs):
+        return {"message": {"content": fake_report.model_dump_json()}}
+
+    mock_client = AsyncMock()
+    mock_client.chat = fake_chat
+
+    with (
+        patch("server.nlp_tools.report.get_llm_client", return_value=mock_client),
+        patch(
+            "server.nlp_tools.report.config_manager.get_config",
+            return_value={"PRIMARY_MODEL": "gpt-4o", "LLM_PROVIDER": "openai"},
+        ),
+        patch(
+            "server.nlp_tools.report.config_manager.get_user_settings",
+            return_value={},
+        ),
+        patch(
+            "server.nlp_tools.report.config_manager.get_prompts_and_options",
+            return_value={"options": {"general": {"temperature": 0.0}}},
+        ),
+    ):
+        response = client.post(
+            "/api/workspace/report",
+            json={
+                "transcript": "بیمار دیابت دارد. HbA1c در حد 7.2 درصد بود.",
+                "specialty": "Endocrinology",
+                "mode": "ambient",
+            },
+        )
+    assert response.status_code == 200
+    data = response.json()
+    # The report is always returned...
+    assert "HbA1c 8.1" in data["full_note"]
+    # ...and the deterministic guard flags the number drift.
+    kinds = {w["kind"] for w in data["warnings"]}
+    assert "number_drift" in kinds
+    for warning in data["warnings"]:
+        assert set(warning) == {"kind", "detail", "span"}
+
+
+@pytest.mark.asyncio
+async def test_generate_report_faithful_note_has_no_warnings():
+    full_note = "شکایت اصلی: درد قفسه سینه از دیروز.\nتست‌ها: نوار قلب بدون تغییر خاص."
+    fake_report = ClinicalReport(
+        chief_complaint="درد قفسه سینه",
+        full_note=full_note,
+    )
+
+    async def fake_chat(**_kwargs):
+        return {"message": {"content": fake_report.model_dump_json()}}
+
+    mock_client = AsyncMock()
+    mock_client.chat = fake_chat
+
+    with (
+        patch("server.nlp_tools.report.get_llm_client", return_value=mock_client),
+        patch(
+            "server.nlp_tools.report.config_manager.get_config",
+            return_value={"PRIMARY_MODEL": "gpt-4o", "LLM_PROVIDER": "openai"},
+        ),
+        patch(
+            "server.nlp_tools.report.config_manager.get_user_settings",
+            return_value={},
+        ),
+        patch(
+            "server.nlp_tools.report.config_manager.get_prompts_and_options",
+            return_value={"options": {"general": {"temperature": 0.0}}},
+        ),
+    ):
+        response = client.post(
+            "/api/workspace/report",
+            json={
+                "transcript": "بیمار از دیروز درد قفسه سینه دارد. نوار قلب انجام شد و تغییر خاصی ندیدم.",
+                "specialty": "Cardiology",
+                "mode": "ambient",
+            },
+        )
+    assert response.status_code == 200
+    assert response.json()["warnings"] == []
+
+
+@pytest.mark.asyncio
+async def test_generate_report_injects_low_confidence_spans_into_prompt():
+    captured: dict = {}
+
+    fake_report = ClinicalReport(chief_complaint="پیگیری", full_note="شکایت اصلی: پیگیری.")
+
+    async def fake_chat(**kwargs):
+        captured["system"] = kwargs["messages"][0]["content"]
+        return {"message": {"content": fake_report.model_dump_json()}}
+
+    mock_client = AsyncMock()
+    mock_client.chat = fake_chat
+
+    with (
+        patch("server.nlp_tools.report.get_llm_client", return_value=mock_client),
+        patch(
+            "server.nlp_tools.report.config_manager.get_config",
+            return_value={"PRIMARY_MODEL": "gpt-4o", "LLM_PROVIDER": "openai"},
+        ),
+        patch(
+            "server.nlp_tools.report.config_manager.get_user_settings",
+            return_value={},
+        ),
+        patch(
+            "server.nlp_tools.report.config_manager.get_prompts_and_options",
+            return_value={"options": {"general": {"temperature": 0.0}}},
+        ),
+    ):
+        response = client.post(
+            "/api/workspace/report",
+            json={
+                "transcript": "بیمار مراجعه کرد. فشار خون صد و سی و پنج بود.",
+                "specialty": "General Practice",
+                "mode": "dictate",
+                "low_confidence_spans": ["فشار خون صد و سی و پنج"],
+            },
+        )
+    assert response.status_code == 200
+    assert "فشار خون صد و سی و پنج" in captured["system"]
+    assert "قطعات کم‌اعتمادی" in captured["system"]
+
+
+@pytest.mark.asyncio
+async def test_generate_report_derives_spans_from_flags():
+    """When only transcript_flags arrive (no explicit spans), the flag texts
+    become the low-confidence spans in the prompt."""
+    captured: dict = {}
+
+    fake_report = ClinicalReport(chief_complaint="تب", full_note="شکایت اصلی: تب یک روز.")
+
+    async def fake_chat(**kwargs):
+        captured["system"] = kwargs["messages"][0]["content"]
+        return {"message": {"content": fake_report.model_dump_json()}}
+
+    mock_client = AsyncMock()
+    mock_client.chat = fake_chat
+
+    with (
+        patch("server.nlp_tools.report.get_llm_client", return_value=mock_client),
+        patch(
+            "server.nlp_tools.report.config_manager.get_config",
+            return_value={"PRIMARY_MODEL": "gpt-4o", "LLM_PROVIDER": "openai"},
+        ),
+        patch(
+            "server.nlp_tools.report.config_manager.get_user_settings",
+            return_value={},
+        ),
+        patch(
+            "server.nlp_tools.report.config_manager.get_prompts_and_options",
+            return_value={"options": {"general": {"temperature": 0.0}}},
+        ),
+    ):
+        response = client.post(
+            "/api/workspace/report",
+            json={
+                "transcript": "بیمار با تب یک روز مراجعه کرد.",
+                "specialty": "General Practice",
+                "mode": "ambient",
+                "transcript_flags": [
+                    {"segment": 0, "reason": "low_confidence", "text": "تب یک روز"}
+                ],
+            },
+        )
+    assert response.status_code == 200
+    assert "تب یک روز" in captured["system"]
+    assert "قطعات کم‌اعتمادی" in captured["system"]
+
+
 def test_compose_full_note_skips_empty_sections():
     report = ClinicalReport(chief_complaint="سرفه", plan="۱. عکس قفسه سینه")
     note = compose_full_note(report)
