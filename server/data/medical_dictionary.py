@@ -273,21 +273,32 @@ def terms_for_context(text: str, max_terms: int = MAX_CONTEXT_TERMS) -> list[dic
 
 
 def asr_bias_terms(max_terms: int = MAX_ASR_BIAS_TERMS) -> list[str]:
-    """High-value Persian terms for ASR biasing, in category priority order."""
+    """High-value Persian terms for ASR biasing, in category priority order.
+
+    W2.5: curated spelling ``variants`` of each selected term are emitted
+    right after their parent (deduped, ZWNJ-insensitive) and count against
+    the same cap — the caller's 60-term budget covers them.
+    """
     _fa, _en, entries = load_terms()
     if not entries:
         return []
-    by_cat: dict[str, list[str]] = {}
+    by_cat: dict[str, list[dict[str, Any]]] = {}
     for e in entries:
-        by_cat.setdefault(e["cat"], []).append(e["fa"])
+        by_cat.setdefault(e["cat"], []).append(e)
     terms: list[str] = []
     seen: set[str] = set()
     for cat in _BIAS_PRIORITY:
-        for term in by_cat.get(cat, []):
+        for entry in by_cat.get(cat, []):
+            term = entry["fa"]
             key = _normalise(term).casefold()
             if term and key not in seen:
                 seen.add(key)
                 terms.append(term)
+                for variant in entry.get("variants", []):
+                    vkey = _normalise(variant).casefold()
+                    if variant and vkey not in seen:
+                        seen.add(vkey)
+                        terms.append(variant)
         if len(terms) >= max_terms:
             break
     return terms[:max_terms]
