@@ -203,6 +203,123 @@ WHISPER_MODELS = ASR_MODELS
 DEFAULT_MODEL_ID = DEFAULT_ASR_MODEL_ID
 
 
+# ---------------------------------------------------------------------------
+# Auxiliary (non-ASR) model artifacts — same download pattern, no selection
+# marker: these support the audio pipeline (W2.2 VAD, W2.3 denoise) and are
+# always best-effort: a missing artifact means "feature unavailable", and
+# callers must fail open to the previous behavior.
+# ---------------------------------------------------------------------------
+
+
+class AuxModelInfo(TypedDict, total=False):
+    """Metadata for a small auxiliary model artifact."""
+
+    url: str
+    filename: str
+    files: list[ModelFile]
+    size_mb: int
+    description: str
+
+
+AUX_MODELS: dict[str, AuxModelInfo] = {
+    # Silero VAD v5 ONNX (~2 MB) used by the neural silence-trim strategy.
+    "silero-vad": {
+        "url": "https://github.com/snakers4/silero-vad/raw/master/src/silero_vad/data/silero_vad.onnx",
+        "filename": "silero-vad-v5.onnx",
+        "size_mb": 2,
+        "description": "Silero VAD v5 — تشخیص مرزهای گفتار برای حذف سکوت ابتدا/انتهاي فایل.",
+    },
+    # DeepFilterNet3 ONNX bundle (~10 MB) used by optional file denoising.
+    "deepfilternet3": {
+        "url": "https://huggingface.co/ResembleAI/deepfilternet3-onnx/resolve/main/enc.onnx",
+        "filename": "deepfilternet3-enc.onnx",
+        "files": [
+            {
+                "url": "https://huggingface.co/ResembleAI/deepfilternet3-onnx/resolve/main/erb_dec.onnx",
+                "filename": "deepfilternet3-erb_dec.onnx",
+            },
+            {
+                "url": "https://huggingface.co/ResembleAI/deepfilternet3-onnx/resolve/main/df_dec.onnx",
+                "filename": "deepfilternet3-df_dec.onnx",
+            },
+        ],
+        "size_mb": 10,
+        "description": "DeepFilterNet3 — حذف نویز فایل‌های صوتی پیش از پیاده‌سازی.",
+    },
+}
+
+
+class AuxModelManager:
+    """Download and locate auxiliary model artifacts (VAD / denoise).
+
+    Shares the ASR manager's download pattern but never keeps a selection
+    marker: artifacts are either present or not, and every consumer treats a
+    missing artifact as "use the previous behavior" (fail open).
+    """
+
+    def __init__(self) -> None:
+        self.models_dir = DATA_DIR / "aux_models"
+        self.models_dir.mkdir(parents=True, exist_ok=True)
+
+    def get_path(self, artifact_id: str) -> Path | None:
+        """Return the primary artifact path when the whole bundle exists."""
+        info = AUX_MODELS.get(artifact_id)
+        if not info:
+            return None
+        primary = self.models_dir / info["filename"]
+        if not primary.is_file():
+            return None
+        for extra in info.get("files", []):
+            if not (self.models_dir / extra["filename"]).is_file():
+                return None
+        return primary
+
+    def get_file(self, artifact_id: str, filename: str) -> Path | None:
+        """Return a companion file path of a known bundle when present."""
+        info = AUX_MODELS.get(artifact_id)
+        if not info:
+            return None
+        known = {info["filename"], *(file["filename"] for file in info.get("files", []))}
+        if filename not in known:
+            return None
+        path = self.models_dir / filename
+        return path if path.is_file() else None
+
+    async def ensure_downloaded(self, artifact_id: str) -> Path | None:
+        """Download the bundle once (best-effort) and return its path."""
+        info = AUX_MODELS.get(artifact_id)
+        if not info:
+            return None
+        existing = self.get_path(artifact_id)
+        if existing:
+            return existing
+        artifacts = [{"url": info["url"], "filename": info["filename"]}, *info.get("files", [])]
+        paths = [self.models_dir / artifact["filename"] for artifact in artifacts]
+        try:
+            async with httpx.AsyncClient(
+                timeout=httpx.Timeout(120.0),
+                follow_redirects=True,
+                headers={"User-Agent": "phlox"},
+            ) as client:
+                for artifact, path in zip(artifacts, paths, strict=True):
+                    with suppress(OSError):
+                        path.unlink()
+                    response = await client.get(artifact["url"])
+                    response.raise_for_status()
+                    path.write_bytes(response.content)
+            logger.info("Downloaded auxiliary model %s", artifact_id)
+        except Exception:  # noqa: BLE001 — auxiliary models are best-effort
+            for path in paths:
+                with suppress(OSError):
+                    path.unlink()
+            logger.debug("Auxiliary model %s unavailable", artifact_id, exc_info=True)
+            return None
+        return self.get_path(artifact_id)
+
+
+aux_model_manager = AuxModelManager()
+
+
 class ASRModelManager:
     """Download, list, select, and remove local ASR model bundles."""
 

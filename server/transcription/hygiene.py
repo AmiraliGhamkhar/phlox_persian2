@@ -228,20 +228,55 @@ def maybe_transcode_to_wav(audio_bytes: bytes) -> bytes | None:
 
 
 def prepare_audio(audio_bytes: bytes) -> tuple[bytes, dict]:
-    """Best-effort decode + silence trim. Fail-open: any problem returns input."""
-    meta: dict = {"vad_applied": False, "trimmed_ms": 0}
+    """Best-effort decode + silence trim. Fail-open: any problem returns input.
+
+    Strategy selection (``PHLOX_VAD=auto|silero|energy|off``):
+
+    * ``auto`` — Silero VAD when its extra + weights are available, else the
+      energy VAD (the pre-W2.2 behavior).
+    * ``silero`` — force Silero; a missing extra/weights still fails open to
+      the energy path so trimming is never lost.
+    * ``energy`` — the exact pre-W2.2 energy VAD behavior.
+    * ``off`` — no trimming (returns the input buffer untouched).
+    """
+    # Lazy import: this module is loaded standalone by the stdlib-only
+    # nightly bench runner, so no package imports at module level.
+    from server.transcription.vad import silero_available, trim_with_silero, vad_strategy
+
+    strategy = vad_strategy()
+    meta: dict = {"vad_applied": False, "trimmed_ms": 0, "strategy": None}
+    if strategy == "off":
+        return audio_bytes, meta
     try:
         decoded = maybe_transcode_to_wav(audio_bytes)
         if decoded is None:
             return audio_bytes, meta
-        trimmed, info = trim_silence_wav(decoded)
+        use_silero = strategy == "silero" or (strategy == "auto" and silero_available())
+        strategy_used = "energy"
+        trimmed, info = b"", {"trimmed_ms": 0}
+        if use_silero:
+            trimmed, info = trim_with_silero(decoded)
+            if info.get("silero_ran"):
+                strategy_used = "silero"
+            else:
+                # Weights/runtime unavailable at runtime: fail open to the
+                # energy path so trimming is never silently lost.
+                use_silero = False
+        if not use_silero:
+            trimmed, info = trim_silence_wav(decoded)
+            strategy_used = "energy"
         if info["trimmed_ms"]:
-            meta = {"vad_applied": True, "trimmed_ms": int(info["trimmed_ms"])}
+            meta = {
+                "vad_applied": True,
+                "trimmed_ms": int(info["trimmed_ms"]),
+                "strategy": strategy_used,
+            }
             return trimmed, meta
         # Still send clean 16k mono wav when we managed to decode it.
         if _is_wav(decoded) and not _is_wav(audio_bytes):
-            meta = {"vad_applied": True, "trimmed_ms": 0}
+            meta = {"vad_applied": True, "trimmed_ms": 0, "strategy": strategy_used}
             return decoded, meta
+        meta["strategy"] = strategy_used
     except Exception:  # noqa: BLE001
         logger.debug("ASR audio pre-pass failed; sending original buffer", exc_info=True)
     return audio_bytes, meta
