@@ -51,10 +51,10 @@ _BIAS_PRIORITY = [
 
 # Maximum Persian terms handed to ASR biasing (kept well under the whisper
 # prompt window; asr_context enforces the hard caps).
-MAX_ASR_BIAS_TERMS = 40
+MAX_ASR_BIAS_TERMS = 80
 
 # Hard cap on how many terms the refinement reference table will list.
-MAX_CONTEXT_TERMS = 30
+MAX_CONTEXT_TERMS = 50
 
 _WS = re.compile(r"\s+")
 

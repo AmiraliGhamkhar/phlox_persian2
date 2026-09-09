@@ -1,11 +1,10 @@
 import { isTauri } from "./apiConfig";
 
 /**
- * Check if chat features are enabled.
- * Chat works without chromadb — always enabled.
+ * Chat and patient-list UI are removed from the simplified three-page app.
  */
 export const isChatEnabled = () => {
-  return true;
+  return false;
 };
 
 // Embedding model status — cached in localStorage for synchronous access.
@@ -45,6 +44,5 @@ export const isPdfFormsEnabled = () => {
 
 //Turn off forced splash screen for normal dev work with `VITE_FORCE_SPLASH=false tauri dev`.
 export const isForceSplashEnabled = () => {
-  if (!isTauri() || !import.meta.env.DEV) return false;
-  return import.meta.env.VITE_FORCE_SPLASH !== "false";
+  return false;
 };

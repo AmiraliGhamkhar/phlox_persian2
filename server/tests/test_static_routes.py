@@ -29,8 +29,9 @@ def auth_headers():
 
 SPA_PATHS = [
     "/",
-    "/new-note",
+    "/workspace",
     "/settings",
+    "/new-note",
     "/rag",
     "/clinic-summary",
     "/outstanding-jobs",

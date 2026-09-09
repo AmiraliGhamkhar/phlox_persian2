@@ -1,72 +1,29 @@
-import { Box, Flex, IconButton } from "@chakra-ui/react";
-import Sidebar from "../sidebar/Sidebar";
-import CollapseIcon from "../common/icons/CollapseIcon";
+import { Box, Flex } from "@chakra-ui/react";
+import TopNav from "./TopNav";
 import { isTauri } from "../../utils/helpers/apiConfig";
-import { sidebarOffset } from "../../theme/dimensions";
 
-const AppLayout = ({
-    isSmallScreen,
-    isCollapsed,
-    toggleSidebar,
-    sidebarProps,
-    children,
-}) => {
+const AppLayout = ({ children }) => {
     return (
-        <Flex position="relative">
-            {/* Floating hamburger button for small screens */}
-            {isSmallScreen && isCollapsed && (
-                <IconButton
-                    onClick={toggleSidebar}
+        <Flex direction="column" minH="100dvh" position="relative" bg={isTauri() ? "base" : "transparent"}>
+            {isTauri() && (
+                <Box
+                    data-tauri-drag-region
+                    height="25px"
                     position="fixed"
-                    top="6"
-                    right="6"
-                    zIndex="101"
-                    aria-label="تغییر وضعیت نوار کناری"
-                    className="dark-toggle"
-                >
-                    <CollapseIcon />
-                </IconButton>
+                    top="0"
+                    left="0"
+                    right="0"
+                    zIndex="1000"
+                />
             )}
-            <Sidebar {...sidebarProps} />
+            <TopNav />
             <Box
                 flex="1"
-                mr={isSmallScreen ? "0" : sidebarOffset(isCollapsed, isTauri())}
-                minH="100dvh"
-                transition="margin-right 0.3s ease"
-                bg={isTauri() ? "base" : "transparent"}
-                display="flex"
-                flexDirection="column"
+                className="main-bg"
+                overflowY="auto"
+                position="relative"
             >
-                {/* Tauri titlebar drag region for macOS */}
-                {isTauri() && (
-                    <Box
-                        data-tauri-drag-region
-                        height="25px"
-                        position="fixed"
-                        top="0"
-                        left="0"
-                        right={isSmallScreen ? "0" : sidebarOffset(isCollapsed, true)}
-                        zIndex="1000"
-                        transition="right 0.3s ease"
-                    />
-                )}
-
-                <Box
-                    m="0px"
-                    borderRadius="0px"
-                    p="0"
-                    pt={
-                        isSmallScreen && isTauri()
-                            ? "50px"
-                            : "0"
-                    }
-                    className="main-bg"
-                    height="100dvh"
-                    overflowY="auto"
-                    position="relative"
-                >
-                    {children}
-                </Box>
+                {children}
             </Box>
         </Flex>
     );

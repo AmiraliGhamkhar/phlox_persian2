@@ -22,6 +22,8 @@ PROVIDER_ALIASES = {
     "openai-compatible": "openai_compatible",
     "openai_official": "openai",
     "external": "openai_compatible",
+    "open-router": "openrouter",
+    "open_router": "openrouter",
 }
 
 # Historical default: an empty OpenAI-compatible URL talks to local Ollama.
@@ -187,6 +189,50 @@ LLM_PROVIDERS: dict[str, dict[str, Any]] = {
         "help": "Fireworks OpenAI-compatible LLM endpoint.",
         "help_fa": "نقطه پایانی سازگار با OpenAI در Fireworks.",
         "default_api_key": "",
+    },
+    "groq": {
+        "id": "groq",
+        "name": "Groq",
+        "name_fa": "Groq",
+        "category": "cloud",
+        "protocol": "openai_compatible",
+        "default_base_url": "https://api.groq.com/openai",
+        "placeholder_url": "https://api.groq.com/openai",
+        "requires_api_key": True,
+        "supports_streaming": True,
+        "supports_model_list": True,
+        "supports_tools": True,
+        "help": "Groq OpenAI-compatible API. Paste your Groq key; the URL is filled automatically.",
+        "help_fa": "API سازگار با OpenAI در Groq. کلید را وارد کنید؛ نشانی به‌صورت خودکار پر می‌شود.",
+        "default_api_key": "",
+        "default_models": [
+            "llama-3.3-70b-versatile",
+            "llama-3.1-8b-instant",
+            "openai/gpt-oss-120b",
+            "moonshotai/kimi-k2-instruct",
+        ],
+    },
+    "openrouter": {
+        "id": "openrouter",
+        "name": "OpenRouter",
+        "name_fa": "OpenRouter",
+        "category": "cloud",
+        "protocol": "openai_compatible",
+        "default_base_url": "https://openrouter.ai/api",
+        "placeholder_url": "https://openrouter.ai/api",
+        "requires_api_key": True,
+        "supports_streaming": True,
+        "supports_model_list": True,
+        "supports_tools": True,
+        "help": "OpenRouter OpenAI-compatible API. Paste your OpenRouter key; the URL is filled automatically.",
+        "help_fa": "API سازگار با OpenAI در OpenRouter. کلید را وارد کنید؛ نشانی به‌صورت خودکار پر می‌شود.",
+        "default_api_key": "",
+        "default_models": [
+            "openai/gpt-4o-mini",
+            "openai/gpt-4o",
+            "anthropic/claude-sonnet-4",
+            "google/gemini-2.0-flash-001",
+        ],
     },
     "openai_compatible": {
         "id": "openai_compatible",
@@ -518,6 +564,10 @@ def detect_llm_provider(config: dict[str, Any]) -> str:
         return "openai"
     if "api.anthropic.com" in url:
         return "anthropic"
+    if "api.groq.com" in url:
+        return "groq"
+    if "openrouter.ai" in url:
+        return "openrouter"
     if "fireworks.ai" in url:
         return "fireworks"
     if ":1234" in url or url.rstrip("/").endswith("1234"):

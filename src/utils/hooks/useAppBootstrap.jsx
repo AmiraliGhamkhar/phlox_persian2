@@ -2,16 +2,12 @@ import { useState, useEffect, useCallback } from "react";
 import { Box } from "@chakra-ui/react";
 import { toaster } from "@/components/ui/toaster";
 import { invoke } from "@tauri-apps/api/core";
-import SplashScreen from "../../components/common/SplashScreen";
 import EncryptionSetup from "../../components/setup/EncryptionSetup";
 import EncryptionUnlock from "../../components/setup/EncryptionUnlock";
 import ServerStartupLoader from "../../components/setup/ServerStartupLoader";
 import { settingsApi } from "../api/settingsApi";
 import { isTauri } from "../../utils/helpers/apiConfig";
-import {
-    isForceSplashEnabled,
-    setEmbeddingReady,
-} from "../../utils/helpers/featureFlags";
+import { setEmbeddingReady } from "../../utils/helpers/featureFlags";
 import { encryptionApi } from "../../utils/api/encryptionApi";
 import { localModelApi } from "../../utils/api/localModelApi";
 
@@ -35,60 +31,18 @@ export const useAppBootstrap = () => {
         showServerStartupLoader ||
         isInGracePeriod;
 
-    const checkSplashStatus = useCallback(async (options = {}) => {
-        const { maxRetries = 5, retryDelay = 500 } = options;
-
-        if (isForceSplashEnabled()) {
-            setShowSplashScreen(true);
-            setIsLoadingSplashCheck(false);
-            return;
-        }
-
-        let lastError;
-        let success = false;
-
-        for (let attempt = 0; attempt < maxRetries; attempt++) {
-            try {
-                const userData = await settingsApi.fetchUserSettings();
-                if (
-                    userData &&
-                    typeof userData.has_completed_splash_screen ===
-                        "boolean"
-                ) {
-                    setShowSplashScreen(
-                        !userData.has_completed_splash_screen,
-                    );
-                } else {
-                    setShowSplashScreen(true); // Default to showing splash if flag is missing/invalid
-                }
-                // Success - exit the retry loop
-                success = true;
-                break;
-            } catch (error) {
-                console.warn(
-                    `Error checking splash screen status (attempt ${attempt + 1}/${maxRetries}):`,
-                    error,
-                );
-                lastError = error;
-                // Wait before retrying (except on the last attempt)
-                if (attempt < maxRetries - 1) {
-                    await new Promise((resolve) =>
-                        setTimeout(resolve, retryDelay),
-                    );
-                }
-            }
-        }
-
-        if (!success) {
-            // All retries failed
-            console.error(
-                "Error checking splash screen status after retries:",
-                lastError,
-            );
-            setShowSplashScreen(true); // Default to showing splash on error
-        }
-
+    const checkSplashStatus = useCallback(async () => {
+        // The simplified three-page product skips first-run splash/chat setup.
+        setShowSplashScreen(false);
         setIsLoadingSplashCheck(false);
+        try {
+            const userData = await settingsApi.fetchUserSettings();
+            if (userData && userData.has_completed_splash_screen === false) {
+                await settingsApi.markSplashCompleted();
+            }
+        } catch (error) {
+            console.warn("Could not mark splash complete:", error);
+        }
     }, []);
 
     // Only check splash status on mount if NOT in Tauri
@@ -98,10 +52,6 @@ export const useAppBootstrap = () => {
             checkSplashStatus();
         }
     }, [checkSplashStatus]);
-
-    const handleSplashComplete = () => {
-        setShowSplashScreen(false);
-    };
 
     useEffect(() => {
         if (!isTauri()) {
@@ -125,6 +75,9 @@ export const useAppBootstrap = () => {
                         console.warn("Failed to warm start server:", e);
                     }
                     setShowEncryptionUnlock(true);
+                } else {
+                    checkSplashStatus();
+                    setIsInGracePeriod(false);
                 }
             } catch (error) {
                 console.error("Error checking encryption status:", error);
@@ -149,7 +102,7 @@ export const useAppBootstrap = () => {
 
     const handleServerReady = () => {
         setShowServerStartupLoader(false);
-        checkSplashStatus({ maxRetries: 3, retryDelay: 300 });
+        checkSplashStatus();
 
         // Sync embedding model status for RAG feature flag (Tauri only)
         if (isTauri()) {
@@ -195,7 +148,7 @@ export const useAppBootstrap = () => {
             />
         );
     } else if (showSplashScreen) {
-        gate = <SplashScreen onComplete={handleSplashComplete} />;
+        gate = null;
     }
 
     return { isInitializing, gate };

@@ -94,12 +94,17 @@ async def download_llm_model(
         file_size_mb = round(file_size / (1024 * 1024), 2)
         actual_filename = Path(downloaded_path).name
 
+        from server.utils.local_autoconfig import activate_downloaded_llm
+
+        activate_downloaded_llm(model_id)
+
         return {
             "message": "Model downloaded successfully",
             "model_id": model_id,
             "filename": actual_filename,
             "path": downloaded_path,
             "size_mb": file_size_mb,
+            "auto_configured": True,
         }
 
     except ValueError as e:
@@ -166,7 +171,11 @@ async def download_llm_model_stream(model_id: str):
             file_size_mb = round(file_size / (1024 * 1024), 2)
             actual_filename = Path(downloaded_path).name
 
-            yield f"data: {json.dumps({'type': 'complete', 'path': downloaded_path, 'filename': actual_filename, 'size_mb': file_size_mb})}\n\n"
+            from server.utils.local_autoconfig import activate_downloaded_llm
+
+            activate_downloaded_llm(model_id)
+
+            yield f"data: {json.dumps({'type': 'complete', 'path': downloaded_path, 'filename': actual_filename, 'size_mb': file_size_mb, 'auto_configured': True})}\n\n"
 
         except ValueError as e:
             yield f"data: {json.dumps({'type': 'error', 'message': str(e)})}\n\n"
