@@ -64,6 +64,15 @@ services:
             PROXY_AUTH_USER_HEADER: "${PROXY_AUTH_USER_HEADER:-X-Forwarded-User}"
             PROXY_AUTH_ALLOWED_USERS: "${PROXY_AUTH_ALLOWED_USERS:-}"
             PHLOX_EXPOSE_PUBLIC: "${PHLOX_EXPOSE_PUBLIC:-0}"
+            # Optional live (realtime) ASR tuning; the server clamps each value
+            # to the documented range. Empty = the adapter's defaults.
+            ASR_LIVE_MAX_DELAY: "${ASR_LIVE_MAX_DELAY:-}"
+            ASR_LIVE_MAX_DELAY_MODE: "${ASR_LIVE_MAX_DELAY_MODE:-}"
+            ASR_LIVE_END_OF_UTTERANCE_TRIGGER: "${ASR_LIVE_END_OF_UTTERANCE_TRIGGER:-}"
+            ASR_LIVE_REMOVE_DISFLUENCIES: "${ASR_LIVE_REMOVE_DISFLUENCIES:-}"
+            ASR_LIVE_PUNCTUATION_SENSITIVITY: "${ASR_LIVE_PUNCTUATION_SENSITIVITY:-}"
+            ASR_LIVE_DIARIZATION: "${ASR_LIVE_DIARIZATION:-}"
+            ASR_LIVE_MAX_SPEAKERS: "${ASR_LIVE_MAX_SPEAKERS:-}"
         volumes:
             # Named volume: Docker seeds it with the image's ownership, so the
             # unprivileged container user can always write the encrypted DB.

@@ -10,10 +10,21 @@ export const useWorkspaceRecorder = ({ onTranscript }) => {
     const [isTranscribing, setIsTranscribing] = useState(false);
     const [liveTranscript, setLiveTranscript] = useState("");
     const [liveError, setLiveError] = useState(null);
+    const [liveWarning, setLiveWarning] = useState(null);
 
     const audioRecorderRef = useRef(null);
     const liveSessionRef = useRef(null);
     const timerIntervalRef = useRef(null);
+    // The ASR service repeats its timeout warnings (15/10/5 minutes out); one
+    // toast per distinct message is enough.
+    const seenLiveNoticesRef = useRef(new Set());
+
+    const notifyLive = useCallback((title, description, type = "warning") => {
+        const key = `${title}::${description}`;
+        if (seenLiveNoticesRef.current.has(key)) return;
+        seenLiveNoticesRef.current.add(key);
+        toaster.create({ title, description, type, duration: 6000 });
+    }, []);
 
     const closeLiveSession = useCallback(() => {
         if (liveSessionRef.current) {
@@ -73,12 +84,21 @@ export const useWorkspaceRecorder = ({ onTranscript }) => {
             const recorder = new AudioRecorder();
             setLiveTranscript("");
             setLiveError(null);
+            setLiveWarning(null);
+            seenLiveNoticesRef.current = new Set();
             try {
                 const session = await transcriptionApi.openLiveTranscription({
                     onPartial: (text) => setLiveTranscript(text || ""),
                     onFinal: (text) => setLiveTranscript(text || ""),
                     onError: (message) => {
+                        // The recording itself continues; only the live preview
+                        // is gone, and the full audio is transcribed on stop.
                         setLiveError(message);
+                        notifyLive("پیاده‌سازی زنده متوقف شد", message, "error");
+                    },
+                    onWarning: (message) => {
+                        setLiveWarning(message);
+                        notifyLive("هشدار سرویس پیاده‌سازی", message);
                     },
                 });
                 liveSessionRef.current = session;
@@ -101,10 +121,13 @@ export const useWorkspaceRecorder = ({ onTranscript }) => {
                 duration: 6000,
             });
         }
-    }, [closeLiveSession]);
+    }, [closeLiveSession, notifyLive]);
 
     const pauseRecording = useCallback(() => {
         audioRecorderRef.current?.pause();
+        // Finalize the pending utterance so the transcript is not left
+        // mid-sentence for the whole pause.
+        liveSessionRef.current?.flush?.();
         setIsPaused(true);
     }, []);
 
@@ -166,6 +189,7 @@ export const useWorkspaceRecorder = ({ onTranscript }) => {
         setTimer(0);
         setLiveTranscript("");
         setLiveError(null);
+        setLiveWarning(null);
     }, [isRecording, closeLiveSession]);
 
     return {
@@ -175,6 +199,7 @@ export const useWorkspaceRecorder = ({ onTranscript }) => {
         isTranscribing,
         liveTranscript,
         liveError,
+        liveWarning,
         startRecording,
         pauseRecording,
         resumeRecording,

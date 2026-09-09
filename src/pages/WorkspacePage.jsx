@@ -273,9 +273,11 @@ const WorkspacePage = () => {
                                 </HStack>
                             )}
                         </HStack>
-                        {recorder.liveError && !recording && (
+                        {(recorder.liveError || recorder.liveWarning) && (
                             <Text fontSize="xs" color="textSecondary" mt={2}>
-                                پیش‌نمایش زنده در دسترس نبود؛ پس از توقف، فایل کامل پیاده می‌شود.
+                                {recorder.liveError
+                                    ? `پیش‌نمایش زنده در دسترس نبود؛ پس از توقف، فایل کامل پیاده می‌شود. ${recorder.liveError}`
+                                    : recorder.liveWarning}
                             </Text>
                         )}
                     </Box>
