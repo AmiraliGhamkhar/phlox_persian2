@@ -77,3 +77,6 @@ package-lock.old
 !server/data/terms/*.json
 !server/data/validate_terms.py
 !server/data/__init__.py
+
+# Local sandbox/development virtualenv (never committed)
+/.venv

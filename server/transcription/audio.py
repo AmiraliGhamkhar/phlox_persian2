@@ -25,6 +25,7 @@ from server.transcription.assemblyai import (
     assemblyai_rest_url,
 )
 from server.transcription.hygiene import build_hygiene_result, prepare_audio
+from server.transcription.itn import maybe_apply_itn
 from server.transcription.language import (
     normalize_persian_text,
     resolve_asr_language,
@@ -164,6 +165,13 @@ async def transcribe_audio(
             logger.info("Using external OpenAI-compatible ASR API for transcription")
             result = await _transcribe_external_api(audio_buffer, config, bias_terms)
 
+        # ITN metadata on every path: Shenava applies it itself (PHLOX_ITN
+        # default ``auto``); other engines only when explicitly ``on``.
+        if "itn_applied" not in result:
+            text, itn_applied = maybe_apply_itn(str(result.get("text") or ""), engine="other")
+            if itn_applied:
+                result["text"] = text
+            result["itn_applied"] = itn_applied
         result["vad"] = vad_meta
         return result
     except Exception as error:
@@ -706,14 +714,21 @@ def _run_shenava_inference(audio_buffer: bytes, config: dict) -> str:
 
 
 async def _transcribe_local_shenava(audio_buffer: bytes, config: dict) -> dict[str, Any]:
-    """Transcribe with Shenava without requiring a running C++ sidecar."""
+    """Transcribe with Shenava without requiring a running C++ sidecar.
+
+    Shenava's model card documents spoken-form numbers, so this is the
+    default engine for deterministic inverse text normalization
+    (``PHLOX_ITN=auto``); ``off`` restores the raw output byte-exact.
+    """
     started = time.perf_counter()
     text = await asyncio.to_thread(_run_shenava_inference, audio_buffer, config)
     if not text:
         raise ValueError("Shenava returned no transcript")
+    text, itn_applied = maybe_apply_itn(text, engine="shenava")
     return {
         "text": text,
         "transcriptionDuration": float(f"{time.perf_counter() - started:.2f}"),
+        "itn_applied": itn_applied,
     }
 
 
