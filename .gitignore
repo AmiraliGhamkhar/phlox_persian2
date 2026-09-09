@@ -27,6 +27,8 @@ server/.venv
 .env.local
 !.env.example
 !.env.test
+# Backup of the DB encryption key written by run-on-windows.ps1
+.phlox-encryption-key.txt
 .vscode/
 .idea/
 .zed/
