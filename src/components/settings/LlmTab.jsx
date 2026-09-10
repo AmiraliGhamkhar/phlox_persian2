@@ -54,6 +54,7 @@ const LlmTab = ({
                                 applyLlmProviderDefaults(
                                     event.target.value,
                                     handleConfigChange,
+                                    config?.LLM_BASE_URL,
                                 )
                             }
                             className="input-style"

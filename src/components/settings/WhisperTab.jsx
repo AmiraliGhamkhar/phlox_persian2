@@ -63,6 +63,8 @@ const WhisperTab = ({
                                 applyAsrProviderDefaults(
                                     event.target.value,
                                     handleConfigChange,
+                                    config?.ASR_BASE_URL || config?.WHISPER_BASE_URL,
+                                    config?.ASR_BATCH_URL,
                                 )
                             }
                             className="input-style"

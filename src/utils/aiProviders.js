@@ -81,10 +81,28 @@ export const ASR_PROVIDER_DEFAULTS = {
   },
 };
 
-export const applyLlmProviderDefaults = (providerId, handleConfigChange) => {
+// URLs the catalog itself would fill in. Anything else in the field is a
+// deliberate user customization (self-hosted gateway, corporate proxy, ...)
+// and must survive a provider switch.
+const KNOWN_LLM_DEFAULT_URLS = new Set(
+  Object.values(LLM_PROVIDER_DEFAULTS).map((entry) => entry.url).filter(Boolean),
+);
+const KNOWN_ASR_DEFAULT_URLS = new Set(
+  Object.values(ASR_PROVIDER_DEFAULTS)
+    .flatMap((entry) => [entry.url, entry.batchUrl])
+    .filter(Boolean),
+);
+
+export const applyLlmProviderDefaults = (
+  providerId,
+  handleConfigChange,
+  currentBaseUrl = "",
+) => {
   const defaults = LLM_PROVIDER_DEFAULTS[providerId] || LLM_PROVIDER_DEFAULTS.openai_compatible;
   handleConfigChange("LLM_PROVIDER", providerId);
-  if (providerId !== "openai_compatible") {
+  const current = (currentBaseUrl || "").trim();
+  const customized = current !== "" && !KNOWN_LLM_DEFAULT_URLS.has(current);
+  if (providerId !== "openai_compatible" && !customized) {
     handleConfigChange("LLM_BASE_URL", defaults.url);
   }
   const model = defaults.models?.[0] || "";
@@ -95,13 +113,26 @@ export const applyLlmProviderDefaults = (providerId, handleConfigChange) => {
   }
 };
 
-export const applyAsrProviderDefaults = (providerId, handleConfigChange) => {
+export const applyAsrProviderDefaults = (
+  providerId,
+  handleConfigChange,
+  currentBaseUrl = "",
+  currentBatchUrl = "",
+) => {
   const defaults = ASR_PROVIDER_DEFAULTS[providerId] || ASR_PROVIDER_DEFAULTS.openai_compatible;
   handleConfigChange("ASR_PROVIDER", providerId);
-  handleConfigChange("ASR_BASE_URL", defaults.url);
-  handleConfigChange("WHISPER_BASE_URL", defaults.url);
+  const current = (currentBaseUrl || "").trim();
+  const customized = current !== "" && !KNOWN_ASR_DEFAULT_URLS.has(current);
+  if (!customized) {
+    handleConfigChange("ASR_BASE_URL", defaults.url);
+    handleConfigChange("WHISPER_BASE_URL", defaults.url);
+  }
   if (defaults.batchUrl) {
-    handleConfigChange("ASR_BATCH_URL", defaults.batchUrl);
+    const batch = (currentBatchUrl || "").trim();
+    const batchCustomized = batch !== "" && !KNOWN_ASR_DEFAULT_URLS.has(batch);
+    if (!batchCustomized) {
+      handleConfigChange("ASR_BATCH_URL", defaults.batchUrl);
+    }
   }
   const model = defaults.models[0] || "";
   handleConfigChange("ASR_MODEL", model);
