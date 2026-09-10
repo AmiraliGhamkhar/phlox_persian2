@@ -97,6 +97,13 @@ const WorkspacePage = () => {
         };
     }, [debouncedQuery]);
 
+    // Dictionary hits describe the transcript that the last report was
+    // generated from; as soon as the text changes they are stale and must
+    // not keep being displayed for different content.
+    useEffect(() => {
+        setDictionaryHits((previous) => (previous.length ? [] : previous));
+    }, [transcript]);
+
     const specialtyLabel = useMemo(() => {
         if (!specialty) return "";
         return specialty;
