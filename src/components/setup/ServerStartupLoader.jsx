@@ -33,8 +33,9 @@ const ServerStartupLoader = ({ onReady, onError }) => {
   const [elapsed, setElapsed] = useState(0);
   const [shouldPoll, setShouldPoll] = useState(true);
   // Wall-clock baseline so the displayed wait time is real, not a count of
-  // poll ticks.
-  const startTimeRef = useRef(Date.now());
+  // poll ticks. Lazily initialised in the polling effect (Date.now is impure
+  // and must not run during render).
+  const startTimeRef = useRef(null);
 
   // Store callbacks and state in refs to avoid dependency issues
   const onReadyRef = useRef(onReady);
@@ -55,6 +56,8 @@ const ServerStartupLoader = ({ onReady, onError }) => {
   // rather than as dependencies to prevent interval recreation
   useEffect(() => {
     if (!shouldPoll) return;
+
+    startTimeRef.current ??= Date.now();
 
     let elapsedInterval, pollInterval, messageInterval, timeoutId;
 
