@@ -47,10 +47,10 @@ const EncryptionSetup = ({ onComplete }) => {
         title: "عبارت عبور نامعتبر است",
         description:
           passphrase.length < 12
-            ? "Passphrase must be at least 12 characters"
+            ? "عبارت عبور باید حداقل ۱۲ نویسه باشد"
             : passphrase !== confirmPassphrase
-              ? "Passphrases do not match"
-              : "Please use a stronger passphrase",
+              ? "عبارت عبور و تأیید آن یکسان نیستند"
+              : "لطفاً عبارت عبور قوی‌تری انتخاب کنید",
         type: "warning",
         duration: 3000,
       });
@@ -309,7 +309,7 @@ const EncryptionSetup = ({ onComplete }) => {
               {confirmPassphrase.length > 0 &&
                 passphrase !== confirmPassphrase && (
                   <Text mt={1} fontSize="xs" color="dangerButton">
-                    Passphrases do not match
+                    عبارت عبور و تأیید آن یکسان نیستند
                   </Text>
                 )}
             </Box>
