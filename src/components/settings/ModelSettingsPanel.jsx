@@ -72,7 +72,7 @@ const ModelSettingsPanel = ({
                             <ChevronDownIcon />
                         )}
                     </IconButton>
-                    <FaCog size="1.2em" style={{ marginRight: "5px" }} />
+                    <FaCog size="1.2em" style={{ marginInlineEnd: "5px" }} />
                     <Text as="h3">تنظیمات مدل</Text>
                 </Flex>
             </Flex>

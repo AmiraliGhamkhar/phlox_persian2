@@ -149,7 +149,7 @@ const SupportingModelRow = ({ icon, iconColor, label, required, isReady, isDownl
   <Box
     flex={1}
     p={2}
-    pl={3}
+    ps={3}
     borderRadius="md"
     position="relative"
     overflow="hidden"
@@ -160,7 +160,8 @@ const SupportingModelRow = ({ icon, iconColor, label, required, isReady, isDownl
     display="flex"
     alignItems="center"
   >
-    <Box position="absolute" left={0} top={0} bottom={0} width="3px" bg={isReady ? "successButton" : iconColor} opacity={0.6} />
+    {/* Status strip on the inline-start edge (right side in RTL). */}
+    <Box position="absolute" insetInlineStart={0} top={0} bottom={0} width="3px" bg={isReady ? "successButton" : iconColor} opacity={0.6} />
     <HStack justify="space-between" w="full">
       <HStack>
         <Box color={iconColor} display="flex" alignItems="center">{icon}</Box>
@@ -487,7 +488,7 @@ const LocalModelManager = ({ className }) => {
               <Dialog.Body>
                 <VStack gap={3} align="stretch">
                   <Text fontSize="sm">موارد زیر برای همیشه حذف می‌شوند:</Text>
-                  <VStack gap={1} align="start" pl={4}>
+                  <VStack gap={1} align="start" ps={4}>
                     {models.length > 0 && (
                       <Text fontSize="sm" className="pill-box-icons">• مدل زبانی — تولید گزارش بالینی کار نخواهد کرد</Text>
                     )}
@@ -503,7 +504,7 @@ const LocalModelManager = ({ className }) => {
               </Dialog.Body>
               <Dialog.Footer>
                 <HStack justify="flex-end" width="100%">
-                  <Button className="red-button" mr={3} onClick={() => setIsResetOpen(false)}>
+                  <Button className="red-button" me={3} onClick={() => setIsResetOpen(false)}>
                     انصراف
                   </Button>
                   <Button className="green-button" onClick={handleResetAll} loading={isResetting} loadingText="در حال حذف...">
