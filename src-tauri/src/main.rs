@@ -222,12 +222,26 @@ fn grant_webview_permissions(app_handle: &tauri::AppHandle) {
     };
 
     let result = window.with_webview(|webview| {
-        use webkit2gtk::{PermissionRequestExt, WebViewExt};
+        use webkit2gtk::prelude::*;
+        use webkit2gtk::MediaCapturePermissionRequest;
 
         let wk = webview.inner();
         wk.connect_permission_request(|_webview, request| {
-            log::info!("Granting WebKit permission request");
-            request.allow();
+            // Grant only the microphone (audio-only) capture needed for
+            // dictation; camera, geolocation, notifications and everything
+            // else are denied instead of being auto-allowed.
+            if let Some(media) = request.downcast_ref::<MediaCapturePermissionRequest>() {
+                if media.is_for_audio_data() && !media.is_for_video_data() {
+                    log::info!("Granting WebKit microphone permission request");
+                    request.allow();
+                    return true;
+                }
+            }
+            log::warn!(
+                "Denying WebKit permission request of type {:?}",
+                request.type_()
+            );
+            request.deny();
             true
         });
     });
