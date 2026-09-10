@@ -16,9 +16,9 @@
 #     system toolchain is used unchanged.
 #
 # Why this is a sourced env tweak and not a committed .cargo/config.toml flag:
-#   the Flatpak release build and macOS CI run without mold/lld, and a forced
+#   release and CI builds run without mold/lld, and a forced
 #   `-fuse-ld=mold` there would fail the build. Keeping the linker choice
-#   detected at dev-shell time means release/CI/Flatpak never see it.
+#   detected at dev-shell time means release/CI never see it.
 
 # Don't override an RUSTFLAGS the developer already set, and only act when cargo
 # is actually in use (harmless otherwise).

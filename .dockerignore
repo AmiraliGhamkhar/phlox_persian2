@@ -15,7 +15,6 @@ secrets/
 .vscode/
 .idea/
 .zed/
-.flatpak-builder/
 build-dir/
 opencode.*
 AGENTS.md
@@ -37,7 +36,6 @@ pnpm-debug.log*
 # Tauri / desktop packaging artifacts (not needed by the web or server build)
 src-tauri/
 assets/
-packaging/
 build-all.sh
 
 # Node

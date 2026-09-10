@@ -12,14 +12,12 @@ Grounded in the current pipeline state as of v2.2.4.
 
 | Area | Current state | Gap |
 |---|---|---|
-| Release builds | `.github/workflows/build.yml` — macOS **aarch64 DMG only** (signed + notarized), Flatpak via flathub-infra container, Docker image | No Windows build, no Linux AppImage/deb, no macOS x86_64 |
+| Release builds | `.github/workflows/build.yml` — **Docker image only** (→ `ghcr.io`). macOS DMG and Linux Flatpak jobs removed; Windows desktop installer is built locally (`npm run tauri-build`) | No CI desktop build job, no published desktop installer |
 | Python backend | Nuitka `--mode=standalone` (`src-tauri/build-server.sh`), ccache + Nuitka cache in CI | Size not measured/optimized; no stripping audit |
 | Sidecars | llama.cpp / whisper.cpp / parakeet.cpp compiled from **pinned commits**, bundled per target-triple as `externalBin` | Good — keep |
 | Models | Downloaded at first run from Hugging Face (`server/utils/{llama_models,whisper_models}.py`), progress via SSE, cleanup on cancel/disconnect (F-11) | No resume after interruption; no offline option |
 | Updates | **None** — no `plugins::updater` config, no signing keys | Users re-download full installers manually |
 | Windows signing | `certificateThumbprint: null` — unsigned | SmartScreen warnings; easy to tamper/imersonate |
-| macOS signing | Hardened runtime + entitlements + notarization in CI | Verify stapling; x86_64 missing |
-| Linux signing | Flatpak (store-signed); raw artifacts unsigned | Publish checksums; AppImage signing if we ship it |
 | Supply chain | Actions pinned by SHA, `persist-credentials: false`, locked deps (uv.lock, package-lock, Cargo.lock), Dependabot | Dependency-audit CI job is informational, not gating |
 | User data | Lives in OS data dir (`<data_dir>/Phlox/phlox_database.sqlite`, SQLCipher) — separate from install dir | Good — reinstalls/updates never touch PHI |
 | Runtime hardening | Local request token, host validation, rate limiter, body limits, audit log | `PHLOX_DEV_BOOT` env bypass should be impossible in packaged builds |
@@ -65,7 +63,7 @@ Acceptance: a table of numbers committed to this file; a repeatable measurement 
 
 ### 1.5 Provenance + checksums (S)
 - Add `actions/attest-build-provenance` for every release artifact.
-- Publish `SHA256SUMS` (and minisign for AppImage, if shipped) alongside each release.
+- Publish `SHA256SUMS` alongside each release asset (desktop installers are no longer published; the container image in `ghcr.io` is the only shipped artifact).
 - Acceptance: every release asset has an attestation + a checksum line.
 
 ---
@@ -76,13 +74,13 @@ Acceptance: a table of numbers committed to this file; a repeatable measurement 
 - The Nuitka standalone dir is the biggest lever. Audit and trim:
   - `--nofollow-import-to` for modules the simplified app no longer needs (already done for `server.tests` — extend to anything importable-but-dead).
   - Exclude unused heavy optional deps from the `asr`/provider extras where the desktop path doesn't need them (e.g., unused SDK transports).
-  - Strip native libraries where platform policy allows (never on macOS signed binaries — strip **before** signing or not at all).
+  - Strip native libraries where platform policy allows (never after signing — Windows Authenticode signs the final bytes, so strip **before** signing or not at all).
 - Budget proposal: installer ≤ **350 MB** today is typical for llama.cpp-class apps; set an explicit target (e.g., ≤ 300 MB) and fail CI if exceeded (upload step compares to budget).
 - Acceptance: measured size delta committed to this doc; CI size-gate.
 
 ### 2.2 Installer compression & channel selection (S)
 - Windows: Tauri NSIS default uses LZMA — verify `bundle.windows.nsis.compression: "lzma"` explicitly.
-- Offer the smallest sane default per platform (DMG bz2/ULFO, AppImage zstd).
+- Windows is the only installer channel left: verify `bundle.windows.nsis.compression: "lzma"` explicitly.
 - Acceptance: no regression in install time; sizes in baseline table.
 
 ### 2.3 Faster first run (M)
@@ -100,18 +98,16 @@ Acceptance: a table of numbers committed to this file; a repeatable measurement 
 
 ## 5. Phase 3 — Make installs full (platform coverage)
 
-### 3.1 Complete the build matrix (L)
-Extend `build.yml` matrix:
+### 3.1 Ship the Windows installer in CI (L)
+macOS and Linux installers are no longer built or published, so the desktop target is Windows only:
 
 | Platform | Artifact | Signing |
 |---|---|---|
-| macOS aarch64 | DMG (+ zip for updater) | Developer ID + notarize (exists) |
-| macOS x86_64 | DMG (+ zip) | same |
 | Windows x86_64 | NSIS (+ zip for updater) | Phase 1.1 |
-| Linux x86_64 | AppImage + deb (+ Flatpak as today) | checksums + attestation |
+| Linux / macOS | none — Docker image only | n/a |
 
-- Cross-compiling C++ sidecars: build each target on its native runner (no cross-compile pain); cache compiled sidecars by `(repo, commit, triple)` so PR builds stay fast.
-- Acceptance: a tagged release produces **all** artifacts, each attested; updater `latest.json` lists every platform.
+- Add a `windows-latest` job that runs `build-all.sh` + `tauri build` on a native runner; cache compiled sidecars by `(repo, commit, triple)` so PR builds stay fast.
+- Acceptance: a tagged release produces the Windows installer, attested; updater `latest.json` lists it. Distribution on macOS/Linux stays the Docker image.
 
 ### 3.2 First-run completeness checklist (S)
 - Keep the current gate flow (encryption → server startup → readiness panels). Add a single "آماده‌سازی" checklist card on the workspace when engines are missing, with one button per missing piece (download model / open settings). Mostly present today — make it explicit and track completion.
@@ -127,7 +123,7 @@ Extend `build.yml` matrix:
 
 ## 6. Phase 4 — Keep it full over time
 
-- **Auto-update rollout** (Phase 1.2) is the long-term mechanism: release notes in Persian, staged rollout via GitHub release (draft → publish).
+- **Auto-update rollout** (Phase 1.2) is the long-term mechanism for the Windows desktop build: release notes in Persian, staged rollout via GitHub release (draft → publish).
 - **Nightly channel already exists** (`nightly.yml`) — point power users there; keep stable channel for clinics.
 - **Repair story**: uninstall/reinstall never touches `<data_dir>/Phlox` (already true by construction) — document it in README + in-app FAQ so users trust reinstalls.
 - **Diagnostics**: "کپی اطلاعات تشخیص" button (versions, sidecar status, last audit-line count, redacted log tail) to make support fast without leaking PHI.
@@ -160,9 +156,9 @@ Recommended sequence: **0 → 1.3/1.4/1.5 (same week) → 1.2 → 2.1/2.3 → 1.
 ## 8. Risks & guardrails (patient-data context)
 
 1. **Never bundle PHI-adjacent material** into installers or update packages; model packs contain weights + manifest only.
-2. **UPX is a no-go**: it breaks macOS notarization, triggers AV false positives on Windows, and gives little on already-compressed installers.
+2. **UPX is a no-go**: it triggers AV false positives on Windows and gives little on already-compressed installers.
 3. **Signing identity handling**: certificates only in CI secret stores; never in repo or logs.
 4. **Updater key loss = update channel death** — back up the private key offline (sealed), and document recovery (new key requires shipping the new public key in a manual release first).
 5. **Don't change DB key handling or encryption flows** as part of packaging work (invariant 3) — packaging touches only binaries, resources, and installers.
 6. **Size gates must not silently drop files**: fail the build loudly if the budget is exceeded, rather than auto-excluding something the server imports at runtime.
-7. Flatpak sandbox already restricts the runtime; when adding the AppImage/deb channels, keep the same runtime assumptions (no setuid, no system-wide writes).
+7. **Desktop distribution is Windows-only** now that the macOS/Flatpak installers are gone; keep the Docker image at feature parity so macOS/Linux users are not second-class (no setuid, no system-wide writes).

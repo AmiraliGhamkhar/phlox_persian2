@@ -60,7 +60,6 @@ if [[ "$OSTYPE" == "darwin"* ]]; then
     BACKEND_DESC="Metal"
 else
     # Linux local dev: CPU-only.
-    # Production Flatpak build re-enables Vulkan via CMake flags
     CMAKE_BACKEND_FLAGS=(
         -DGGML_NATIVE=OFF
     )
@@ -129,7 +128,7 @@ if [ -f "bin/llama-server" ]; then
         ldd "$SCRIPT_DIR/phlox-llama-server" || echo "(static build, no dynamic libs)"
 
         if ldd "$SCRIPT_DIR/phlox-llama-server" 2>/dev/null | grep -qE "/usr/local/|/opt/"; then
-            echo "❌ ERROR: Binary links against non-system paths (would break AppImage portability)!"
+            echo "❌ ERROR: Binary links against non-system paths (would break portability)!"
             ldd "$SCRIPT_DIR/phlox-llama-server" | grep -E "/usr/local/|/opt/"
             exit 1
         fi

@@ -70,34 +70,8 @@ elif [[ "$OSTYPE" == "msys" ]] || [[ "$OSTYPE" == "win32" ]]; then
     PLATFORM="x86_64-pc-windows-msvc"
     echo "Platform: Windows x86_64"
 else
-    PLATFORM="aarch64-apple-darwin"
-    echo "Platform: Unknown, defaulting to macOS ARM64"
-fi
-
-# ========================================
-# Preflight: Verify signing credentials (macOS release only)
-# ========================================
-if [[ "$OSTYPE" == "darwin"* ]] && [ "$DEBUG_MODE" != true ]; then
-    echo ""
-    echo "=========================================="
-    echo "Preflight: Checking signing credentials..."
-    echo "=========================================="
-
-    SIGNING_IDENTITY="${APPLE_SIGNING_IDENTITY:-${SIGNING_IDENTITY:-}}"
-
-    if [ -z "$SIGNING_IDENTITY" ]; then
-        echo "❌ No signing identity set. Export APPLE_SIGNING_IDENTITY or SIGNING_IDENTITY before building."
-        exit 1
-    fi
-
-    if ! security find-identity -v -p codesigning | grep -q "$SIGNING_IDENTITY"; then
-        echo "❌ Signing identity '$SIGNING_IDENTITY' not found in keychain."
-        echo "   Available identities:"
-        security find-identity -v -p codesigning
-        exit 1
-    fi
-
-    echo "✅ Signing identity verified: $SIGNING_IDENTITY"
+    PLATFORM="x86_64-pc-windows-msvc"
+    echo "Platform: Unknown ($OSTYPE), defaulting to Windows x86_64"
 fi
 
 # ========================================
@@ -311,10 +285,6 @@ echo ""
 echo "Next steps:"
 echo "  1. Build the Tauri application:"
 echo "     npm run tauri-build"
-echo ""
-echo "  2. Notarize the app for distribution (macOS):"
-echo "     cd src-tauri"
-echo "     ./notarize.sh notarize target/release/bundle/macos/Phlox.app"
 echo ""
 echo "To skip C++ builds next time:"
 echo "  ./build-all.sh --skip-cpp"
