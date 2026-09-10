@@ -100,7 +100,11 @@ const ModelSettingsPanel = ({
                             >
                                 <Box
                                     className="mode-selector-indicator"
-                                    left={
+                                    // Logical property: in this RTL app the
+                                    // first option renders on the right, so a
+                                    // physical `left` would highlight the
+                                    // opposite mode.
+                                    insetInlineStart={
                                         isLocalInference
                                             ? "2px"
                                             : "calc(50% - 2px)"
