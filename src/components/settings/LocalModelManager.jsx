@@ -182,7 +182,7 @@ const SupportingModelRow = ({ icon, iconColor, label, required, isReady, isDownl
           <Text fontSize="2xs" className="pill-box-icons" whiteSpace="nowrap">{progress.toFixed(0)}%</Text>
         </HStack>
       ) : (
-        <Button size="xs" variant="ghost" aria-label={`Download ${label}`} onClick={onDownload}>
+        <Button size="xs" variant="ghost" aria-label={`دانلود ${label}`} onClick={onDownload}>
           <DownloadIcon boxSize={3.5} />
         </Button>
       )}
@@ -504,7 +504,7 @@ const LocalModelManager = ({ className }) => {
               <Dialog.Footer>
                 <HStack justify="flex-end" width="100%">
                   <Button className="red-button" mr={3} onClick={() => setIsResetOpen(false)}>
-                    Cancel
+                    انصراف
                   </Button>
                   <Button className="green-button" onClick={handleResetAll} loading={isResetting} loadingText="در حال حذف...">
                     حذف همه مدل‌ها

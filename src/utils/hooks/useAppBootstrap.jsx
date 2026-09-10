@@ -112,8 +112,8 @@ export const useAppBootstrap = () => {
         setShowServerStartupLoader(false);
         // Show error toast
         toaster.create({
-            title: "Server Error",
-            description: error.message || "Failed to start the server",
+            title: "خطای سرور",
+            description: error.message || "راه‌اندازی سرور ناموفق بود",
             type: "error",
             duration: 5000,
         });

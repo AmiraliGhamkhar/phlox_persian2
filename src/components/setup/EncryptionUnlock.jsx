@@ -19,7 +19,7 @@ const EncryptionUnlock = ({ onComplete }) => {
     if (passphrase.length < 1) {
       toaster.create({
         title: "عبارت عبور الزامی است",
-        description: "Please enter your passphrase to unlock.",
+        description: "برای باز کردن قفل، عبارت عبور خود را وارد کنید.",
         type: "warning",
         duration: 3000,
       });
@@ -75,8 +75,8 @@ const EncryptionUnlock = ({ onComplete }) => {
       }
 
       toaster.create({
-        title: "Unlocked",
-        description: "Your database has been unlocked successfully.",
+        title: "قفل داده‌ها باز شد",
+        description: "پایگاه داده شما با موفقیت رمزگشایی شد.",
         type: "success",
         duration: 3000,
       });
@@ -95,8 +95,8 @@ const EncryptionUnlock = ({ onComplete }) => {
           ? "عبارت عبور نادرست است"
           : "راه‌اندازی سرور ناموفق بود",
         description: isPassphraseError
-          ? "The passphrase you entered is incorrect. Please try again."
-          : "The server couldn't start (this isn't a passphrase problem). Click Unlock to retry — it will re-launch the server.",
+          ? "عبارت عبور واردشده نادرست است. لطفاً دوباره تلاش کنید."
+          : "سرور راه‌اندازی نشد (مشکل از عبارت عبور نیست). برای تلاش دوباره روی «باز کردن قفل» بزنید؛ سرور مجدداً راه‌اندازی می‌شود.",
         type: "error",
         duration: 6000,
       });
@@ -183,7 +183,7 @@ const EncryptionUnlock = ({ onComplete }) => {
                 marginBottom: "0.5rem"
               }}
             >
-              Unlock Your Data
+              قفل داده‌های خود را باز کنید
             </Heading>
             <Text
               textAlign="center"
@@ -192,7 +192,7 @@ const EncryptionUnlock = ({ onComplete }) => {
               maxW="350px"
               lineHeight="1.6"
             >
-              Enter your passphrase to decrypt and access your patient data.
+              برای رمزگشایی و دسترسی به داده‌ها، عبارت عبور خود را وارد کنید.
             </Text>
           </Flex>
 
@@ -200,8 +200,7 @@ const EncryptionUnlock = ({ onComplete }) => {
             <Alert.Root status="warning" borderRadius="md" fontSize="sm">
               <Alert.Indicator />
               <Text fontSize="xs">
-                Incorrect passphrase. Please try again. ({attempts} attempt
-                {attempts > 1 ? "s" : ""})
+                عبارت عبور نادرست است؛ لطفاً دوباره تلاش کنید. ({attempts} تلاش ناموفق)
               </Text>
             </Alert.Root>
           )}
@@ -214,7 +213,7 @@ const EncryptionUnlock = ({ onComplete }) => {
                 fontWeight="500"
                 color={"textPrimary"}
               >
-                Passphrase
+                عبارت عبور
               </Text>
               <HStack>
                 <Input
@@ -262,7 +261,7 @@ const EncryptionUnlock = ({ onComplete }) => {
             }}
             mt={2}
           >
-            Unlock
+            باز کردن قفل
           </Button>
         </VStack>
       </Box>

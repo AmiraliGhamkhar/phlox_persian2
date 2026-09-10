@@ -59,7 +59,7 @@ const Settings = () => {
         } catch (error) {
             console.error("Error loading settings:", error);
             toaster.create({
-                title: "Error loading settings",
+                title: "خطا در بارگذاری تنظیمات",
                 description: error.message,
                 type: "error",
                 duration: 3000,

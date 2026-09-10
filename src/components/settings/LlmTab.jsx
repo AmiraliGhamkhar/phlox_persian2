@@ -33,11 +33,11 @@ const LlmTab = ({
         <VStack gap={4} align="stretch">
             <Box>
                 <Text fontSize="md" fontWeight="bold">
-                    Large Language Model (LLM)
+                    مدل زبانی بزرگ (LLM)
                 </Text>
                 <Text fontSize="sm" color="overlay0">
-                    Configure the language model provider for generating
-                    clinical reports
+                    ارائه‌دهنده مدل زبانی برای تولید گزارش‌های بالینی را
+                    پیکربندی کنید.
                 </Text>
             </Box>
 
@@ -96,7 +96,7 @@ const LlmTab = ({
                 <Box>
                     <Tooltip content="نشانی پایه نقطه پایانی API مدل زبانی سازگار با OpenAI/Ollama">
                         <Text fontSize="sm" mb="1" fontWeight={"bold"}>
-                            OpenAI/Ollama API Base URL
+                            نشانی پایه API (سازگار با OpenAI/Ollama)
                         </Text>
                     </Tooltip>
                     <InputGroup
@@ -144,14 +144,14 @@ const LlmTab = ({
                 <Box>
                     <Tooltip content="مدل اصلی برای تولید پاسخ‌ها و یادداشت‌های بالینی">
                         <Text fontSize="sm" mb="1" fontWeight={"bold"}>
-                            Primary Model
+                            مدل اصلی
                         </Text>
                     </Tooltip>
                     {llmModelsLoading ? (
                         <HStack gap="2">
                             <Spinner size="sm" />
                             <Text fontSize="sm" color="overlay0">
-                                Loading models...
+                                در حال دریافت فهرست مدل‌ها...
                             </Text>
                         </HStack>
                     ) : (
@@ -185,14 +185,14 @@ const LlmTab = ({
                 <Box>
                     <Tooltip content="مدل ثانویه برای کارهای با قابلیت متفاوت یا مقایسه">
                         <Text fontSize="sm" mb="1" fontWeight={"bold"}>
-                            Secondary Model
+                            مدل ثانویه
                         </Text>
                     </Tooltip>
                     {llmModelsLoading ? (
                         <HStack gap="2">
                             <Spinner size="sm" />
                             <Text fontSize="sm" color="overlay0">
-                                Loading models...
+                                در حال دریافت فهرست مدل‌ها...
                             </Text>
                         </HStack>
                     ) : (

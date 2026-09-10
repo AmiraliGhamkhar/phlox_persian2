@@ -45,8 +45,8 @@ export const useLocalModels = () => {
     } catch (error) {
       console.error("Error getting system specs:", error);
       toaster.create({
-        title: "Warning",
-        description: "Could not retrieve system specifications",
+        title: "هشدار",
+        description: "مشخصات سیستم قابل دریافت نیست",
         type: "warning",
         duration: 3000,
       });
@@ -141,16 +141,16 @@ export const useLocalModels = () => {
         await localModelApi.deleteLlmModel(filename);
         await fetchLocalModels();
         toaster.create({
-          title: "Success",
-          description: `Model deleted successfully`,
+          title: "انجام شد",
+          description: `مدل با موفقیت حذف شد`,
           type: "success",
           duration: 3000,
         });
       } catch (error) {
         console.error("Error deleting model:", error);
         toaster.create({
-          title: "Error",
-          description: `Failed to delete model: ${error.message}`,
+          title: "خطا",
+          description: `حذف مدل ناموفق بود: ${error.message}`,
           type: "error",
           duration: 5000,
         });
@@ -266,16 +266,16 @@ export const useLocalModels = () => {
         await localModelApi.deleteWhisperModel(modelId);
         await fetchWhisperModels();
         toaster.create({
-          title: "Success",
-          description: `Whisper model ${modelId} deleted successfully`,
+          title: "انجام شد",
+          description: `مدل گفتار ${modelId} با موفقیت حذف شد`,
           type: "success",
           duration: 3000,
         });
       } catch (error) {
         console.error("Error deleting Whisper model:", error);
         toaster.create({
-          title: "Error",
-          description: `Failed to delete Whisper model: ${error.message}`,
+          title: "خطا",
+          description: `حذف مدل گفتار ناموفق بود: ${error.message}`,
           type: "error",
           duration: 5000,
         });

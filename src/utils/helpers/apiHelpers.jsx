@@ -63,7 +63,7 @@ export const handleApiRequest = async ({
       } catch {
         // Response had no JSON body; fall back to status text
       }
-      const err = new Error(detail || `HTTP error! status: ${response.status}`);
+      const err = new Error(detail || `خطای درخواست (وضعیت ${response.status})`);
       err.status = response.status;
       throw err;
     }
@@ -93,7 +93,7 @@ export const handleApiRequest = async ({
 
     if (successMessage && toast) {
       toaster.create({
-        title: "Success",
+        title: "انجام شد",
         description: successMessage,
         type: "success",
         duration: 3000,
@@ -107,7 +107,7 @@ export const handleApiRequest = async ({
     // Handle timeout-specific errors
     if (error.name === "AbortError") {
       const timeoutError = new Error(
-        `Request timed out after ${timeout / 1000} seconds`,
+        `پاسخ درخواست پس از ${timeout / 1000} ثانیه دریافت نشد`,
       );
       timeoutError.name = "TimeoutError";
 
@@ -119,8 +119,8 @@ export const handleApiRequest = async ({
 
       if (toast) {
         toaster.create({
-          title: "Request Timeout",
-          description: `The request took too long to complete (${timeout / 1000}s timeout)`,
+          title: "زمان درخواست به پایان رسید",
+          description: `پاسخ درخواست بیش از حد مجز طول کشید (محدودیت ${timeout / 1000} ثانیه)`,
           type: "error",
           duration: 5000,
         });
@@ -137,7 +137,7 @@ export const handleApiRequest = async ({
 
     if (toast) {
       toaster.create({
-        title: "Error",
+        title: "خطا",
         description: errorMessage || error.message,
         type: "error",
         duration: 5000,

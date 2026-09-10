@@ -102,17 +102,16 @@ const EncryptionSetup = ({ onComplete }) => {
       }
 
       toaster.create({
-        title: "Encryption Setup Complete",
-        description:
-          "Your encryption key has been created. Your data is now secure.",
+        title: "رمزگذاری با موفقیت راه‌اندازی شد",
+        description: "کلید رمزگذاری شما ساخته شد و داده‌هایتان محافظت می‌شود.",
         type: "success",
         duration: 5000,
       });
       onComplete();
     } catch (error) {
       toaster.create({
-        title: "Setup Failed",
-        description: error.toString() || "An error occurred during setup",
+        title: "راه‌اندازی رمزگذاری ناموفق بود",
+        description: error.toString() || "هنگام راه‌اندازی خطایی رخ داد",
         type: "error",
         duration: 5000,
       });
@@ -219,7 +218,7 @@ const EncryptionSetup = ({ onComplete }) => {
             <Alert.Indicator />
             <Box>
               <Alert.Description>
-                If you forget your passphrase, your data cannot be recovered.
+                اگر عبارت عبور خود را فراموش کنید، داده‌هایتان قابل بازیابی نخواهد بود.
               </Alert.Description>
             </Box>
           </Alert.Root>
@@ -227,7 +226,7 @@ const EncryptionSetup = ({ onComplete }) => {
           <VStack gap={4} align="stretch" mt={4}>
             <Box>
               <Text mb={1} fontSize="sm" fontWeight="500" color="textPrimary">
-                Passphrase
+                عبارت عبور
               </Text>
               <HStack>
                 <Input
@@ -252,7 +251,7 @@ const EncryptionSetup = ({ onComplete }) => {
                 <Box mt={2}>
                   <HStack justify="space-between" mb={1}>
                     <Text fontSize="xs" color="textSecondary">
-                      Strength
+                      قدرت عبارت عبور
                     </Text>
                     <Text
                       fontSize="xs"
@@ -278,7 +277,7 @@ const EncryptionSetup = ({ onComplete }) => {
 
             <Box>
               <Text mb={1} fontSize="sm" fontWeight="500" color="textPrimary">
-                Confirm Passphrase
+                تأیید عبارت عبور
               </Text>
               <HStack>
                 <Input
