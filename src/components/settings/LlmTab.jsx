@@ -1,6 +1,7 @@
 import { Box, Text, InputGroup, Input, NativeSelect, VStack, HStack, Spinner } from "@chakra-ui/react";
 import { Tooltip } from "@/components/ui/tooltip";
 import { CheckCircleIcon } from "../common/icons";
+import SecretField from "../common/SecretField";
 import { applyLlmProviderDefaults } from "../../utils/aiProviders";
 
 const modelSelectOptions = (current, options) => {
@@ -128,18 +129,15 @@ const LlmTab = ({
                 <Box>
                     <Tooltip content="کلید API برای احراز هویت سرویس سازگار با OpenAI/Ollama">
                         <Text fontSize="sm" mb="1" fontWeight={"bold"}>
-                            API Key
+                            کلید API
                         </Text>
                     </Tooltip>
-                    <Input
-                        size="sm"
-                        type="password"
-                        value={config?.LLM_API_KEY || ""}
-                        onChange={(e) =>
-                            handleConfigChange("LLM_API_KEY", e.target.value)
+                    <SecretField
+                        storedValue={config?.LLM_API_KEY || ""}
+                        onChange={(value) =>
+                            handleConfigChange("LLM_API_KEY", value)
                         }
                         placeholder="sk-..."
-                        className="input-style"
                     />
                 </Box>
 
