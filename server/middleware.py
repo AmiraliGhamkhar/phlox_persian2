@@ -427,8 +427,8 @@ class ProxyAuthMiddleware(BaseHTTPMiddleware):
             return JSONResponse(status_code=403, content={"detail": "Access denied"})
 
         # Store user for downstream use and bind it to the request context so
-        # background tasks (pending-action confirmations, patient access)
-        # can enforce object-level authorization (API1:2023).
+        # handlers and audit logging can attribute the request to an
+        # authenticated actor (object-level authorization hook, API1:2023).
         request.state.user = user
         from server.utils.request_context import (
             reset_request_actor,
