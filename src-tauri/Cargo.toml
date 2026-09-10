@@ -63,7 +63,7 @@ name = "phlox"
 path = "src/main.rs"
 
 # Dev/iteration tuning. These only affect `cargo build` / `tauri dev`
-# (debug builds); release builds (CI, Flatpak, `tauri build`) use the default
+# (debug builds); release builds (CI, `tauri build`) use the default
 # release profile and are unaffected.
 [profile.dev]
 incremental = true

@@ -41,7 +41,7 @@ The web/Docker build is a **single container** that serves both the compiled Rea
 | `.gitattributes` | **Important for Windows**: forces `LF` line endings for `Dockerfile*`, `*.sh`, `.env.example`, `docker-compose*.yml` — CRLF would break the shell entrypoints and the encryption key parsing. |
 | `build-all.sh` | Desktop build orchestration (not used in Docker). |
 | `assets/` | Icon + README screenshot. |
-| `.github/workflows/` | CI (lint, tests incl. Docker test), build/release (macOS + Flatpak + **docker image → `ghcr.io`**), nightly image build, codeql, dependabot. |
+| `.github/workflows/` | CI (lint, tests incl. Docker test), build/release (**docker image → `ghcr.io`**), nightly image build, codeql, dependabot. |
 
 ### 2.2 `server/` — Python backend (FastAPI, Python ≥3.12, uv-locked)
 
@@ -75,7 +75,6 @@ Not needed for Docker (and explicitly excluded by `.dockerignore`). It holds the
 
 ### 2.5 Other
 
-- `packaging/` — Linux Flatpak metadata (com.phlox.app.*).
 - `scripts/` — `expand_dictionary.py` (term dictionary generator) and `live_asr_smoke_test.py` (tests a Speechmatics realtime session with a real key).
 
 ---

@@ -67,7 +67,6 @@ if [[ "$OSTYPE" == "darwin"* ]]; then
     BACKEND_DESC="Metal"
 else
     # Linux local dev: CPU-only.
-    # Production Flatpak build re-enables Vulkan via CMake flags
     CMAKE_BACKEND_FLAGS=(
         -DGGML_NATIVE=OFF
     )
@@ -127,14 +126,14 @@ if [ -f "$SERVER_BIN" ]; then
         fi
         echo "✓ No Homebrew dependencies found"
     else
-        # Linux: strip build-tree rpath entries so the AppImage bundles clean deps
+        # Linux: strip build-tree rpath entries so the shipped binary resolves system libs
         patchelf --remove-rpath "$SCRIPT_DIR/phlox-whisper-server" 2>/dev/null || true
         echo "phlox-whisper-server binary built successfully at: $SCRIPT_DIR/phlox-whisper-server"
         echo "Linked libraries:"
         ldd "$SCRIPT_DIR/phlox-whisper-server" || echo "(static build, no dynamic libs)"
 
         if ldd "$SCRIPT_DIR/phlox-whisper-server" 2>/dev/null | grep -qE "/usr/local/|/opt/"; then
-            echo "❌ ERROR: Binary links against non-system paths (would break AppImage portability)!"
+            echo "❌ ERROR: Binary links against non-system paths (would break portability)!"
             ldd "$SCRIPT_DIR/phlox-whisper-server" | grep -E "/usr/local/|/opt/"
             exit 1
         fi

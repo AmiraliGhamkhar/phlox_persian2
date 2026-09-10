@@ -38,9 +38,9 @@
 
 ### برنامه دسکتاپ
 
-نسخه‌های آماده برای Apple Silicon در macOS و Flatpak برای Linux با پشتیبانی Vulkan از [صفحه انتشارهای GitHub](https://github.com/AmiraliGhamkhar/phlox_persian2/releases) در دسترس هستند.
+بسته‌های نصبی macOS (Apple Silicon) و Flatpak برای Linux از این مخزن **حذف شده‌اند** و دیگر منتشر نمی‌شوند. برای اجرا روی macOS و Linux از [Docker و Podman](#docker-و-podman) استفاده کنید. نسخه دسکتاپ برای ویندوز است و از منبع ساخته می‌شود: پیش‌نیازهای Tauri، Rust و CMake را نصب کنید و `npm run tauri-build` را اجرا کنید.
 
-برنامه دسکتاپ موتورهای `llama.cpp` و `whisper.cpp` را همراه دارد. مدل‌ها را از داخل برنامه (**تنظیمات ← مدل ← Local**) دانلود کنید؛ پس از دانلود، فعال‌سازی و راه‌اندازی موتور خودکار انجام می‌شود. برای ASR محلی، Whisper large-v3-turbo در این نسخه‌ها در دسترس است:
+برنامه دسکتاپ موتورهای `llama.cpp` و `whisper.cpp` را همراه دارد. مدل‌ها را از داخل برنامه (**تنظیمات ← مدل ← Local**) دانلود کنید؛ پس از دانلود، فعال‌سازی و راه‌اندازی موتور خودکار انجام می‌شود. برای ASR محلی، Whisper large-v3-turbo در نسخه دسکتاپ و Docker در دسترس است:
 
 1. نسخه `Q6_K` GGUF سازگار با whisper.cpp از [Xviers](https://huggingface.co/Xviers/whisper-large-v3-turbo-GGUF) (پیشنهاد پیش‌فرض)
 2. نسخه دقیق `F16`

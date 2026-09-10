@@ -14,8 +14,6 @@ export default tseslint.config(
             "server/**",
             "src/components/ui/**",
             "build-dir/**",
-            ".flatpak-builder/**",
-            "packaging/**",
             "main.dist/**",
             "main.build/**",
             "main.onefile-build/**",

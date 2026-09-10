@@ -91,7 +91,6 @@ export default defineConfig({
     watch: {
       ignored: [
         "**/build-dir/**",
-        "**/.flatpak-builder/**",
         "**/src-tauri/llama.cpp/**",
         "**/src-tauri/whisper.cpp/**",
         "**/src-tauri/target/**",
