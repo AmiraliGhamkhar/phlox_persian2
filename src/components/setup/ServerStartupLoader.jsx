@@ -1,6 +1,7 @@
 import { useState, useEffect, useRef } from "react";
 import { Box, Button, Heading, VStack, Text, Flex, Spinner, Icon } from "@chakra-ui/react";
 import { FaServer } from "react-icons/fa";
+import { invoke } from "@tauri-apps/api/core";
 import { settingsApi } from "../../utils/api/settingsApi";
 import { isTauri } from "../../utils/helpers/apiConfig";
 
@@ -31,6 +32,9 @@ const ServerStartupLoader = ({ onReady, onError }) => {
   const [isTimedOut, setIsTimedOut] = useState(false);
   const [elapsed, setElapsed] = useState(0);
   const [shouldPoll, setShouldPoll] = useState(true);
+  // Wall-clock baseline so the displayed wait time is real, not a count of
+  // poll ticks.
+  const startTimeRef = useRef(Date.now());
 
   // Store callbacks and state in refs to avoid dependency issues
   const onReadyRef = useRef(onReady);
@@ -54,9 +58,9 @@ const ServerStartupLoader = ({ onReady, onError }) => {
 
     let elapsedInterval, pollInterval, messageInterval, timeoutId;
 
-    // Update elapsed time
+    // Update elapsed time from the wall clock
     elapsedInterval = setInterval(() => {
-      setElapsed((prev) => prev + POLL_INTERVAL);
+      setElapsed(Date.now() - startTimeRef.current);
     }, POLL_INTERVAL);
 
     // Poll server status - inline to avoid dependency issues
@@ -85,7 +89,7 @@ const ServerStartupLoader = ({ onReady, onError }) => {
       setMessageIndex((prev) => (prev + 1) % LOADING_MESSAGES.length);
     }, 2000);
 
-    // Timeout after 30 seconds
+    // Timeout after TIMEOUT ms (60 s)
     timeoutId = setTimeout(() => {
       shouldPollRef.current = false;
       setShouldPoll(false);
@@ -104,6 +108,15 @@ const ServerStartupLoader = ({ onReady, onError }) => {
   }, [shouldPoll]);
 
   const handleRetry = () => {
+    // A genuine retry restarts the server process in desktop mode (the
+    // process manager is idempotent) instead of only re-polling a server
+    // that may have died. Best-effort: failures surface via the poll loop.
+    if (isTauri()) {
+      invoke("start_server_command").catch((error) => {
+        console.warn("Server restart on retry failed:", error);
+      });
+    }
+    startTimeRef.current = Date.now();
     setIsTimedOut(false);
     setElapsed(0);
     setShouldPoll(true);
