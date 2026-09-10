@@ -9,6 +9,7 @@ terminology; the old module name is retained only because released
 clients still import it.
 """
 
+import asyncio
 import logging
 from contextlib import suppress
 from dataclasses import dataclass
@@ -510,7 +511,9 @@ class ASRModelManager:
                         )
             self.select_model(model_id)
             logger.info("Successfully downloaded ASR model %s to %s", model_id, primary_path)
-        except Exception:
+        except (Exception, asyncio.CancelledError):
+            # CancelledError included: an SSE client disconnect cancels the
+            # download task, and the partial bundle must still be removed.
             for path in paths:
                 with suppress(OSError):
                     path.unlink()

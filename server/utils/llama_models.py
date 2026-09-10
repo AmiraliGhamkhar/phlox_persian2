@@ -5,6 +5,7 @@ Handles downloading, listing, and managing LLM GGUF models
 from HuggingFace. Follows the Whisper pattern: 1 model at a time.
 """
 
+import asyncio
 import logging
 import time
 from contextlib import suppress
@@ -295,8 +296,10 @@ class LlamaModelManager:
 
             logger.info(f"Successfully downloaded {filename} to {dest}")
 
-        except Exception:
-            # Clean up partial downloads on failure
+        except (Exception, asyncio.CancelledError):
+            # Clean up partial downloads on failure. CancelledError included:
+            # an SSE client disconnect cancels the download task and the
+            # partial file must still be removed.
             if dest.exists():
                 with suppress(Exception):
                     dest.unlink()
