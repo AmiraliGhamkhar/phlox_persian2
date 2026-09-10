@@ -31,6 +31,7 @@ from server.constants import (
     RATE_LIMIT_ENABLED,
 )
 from server.middleware import (
+    AuditLogMiddleware,
     HostValidationMiddleware,
     LocalTokenMiddleware,
     ProxyAuthMiddleware,
@@ -72,7 +73,7 @@ else:
 # Start the scheduler when the app starts
 @asynccontextmanager
 async def lifespan(_app: FastAPI):
-    from server.middleware import RateLimitMiddleware
+    from server.middleware import AuditLogMiddleware, RateLimitMiddleware
 
     # Startup
     scheduler.start()
@@ -81,6 +82,12 @@ async def lifespan(_app: FastAPI):
         RateLimitMiddleware.cleanup_all_zombie_ips,
         "interval",
         minutes=5,
+    )
+    # Enforce audit-log retention (AUDIT_RETENTION_DAYS, default 90)
+    scheduler.add_job(
+        AuditLogMiddleware.purge_expired_rows,
+        "interval",
+        hours=6,
     )
 
     # Docker has no Rust sidecar: start whichever bundled local servers the
@@ -204,10 +211,11 @@ def initialize_and_get_app():
     app.add_middleware(SecurityHeadersMiddleware)
     # Cheap early rejection of oversized bodies (runs before auth/rate limits)
     app.add_middleware(RequestBodyLimitMiddleware)
-    # Correlation id for every request (X-Request-Id echo/generation). Added
-    # last so it executes first and downstream middleware/handlers can include
-    # the id in their logs.
+    # Correlation id for every request (X-Request-Id echo/generation).
     app.add_middleware(RequestIdMiddleware)
+    # Audit trail outermost: it sees the final status of every request,
+    # including 4xx/5xx produced by the middleware stack itself.
+    app.add_middleware(AuditLogMiddleware)
 
     # Then load API submodules (the simplified app serves transcription,
     # workspace/report, settings, and health only)
