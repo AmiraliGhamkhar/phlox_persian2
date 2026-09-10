@@ -24,10 +24,11 @@ const EncryptionSetup = ({ onComplete }) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [strength, setStrength] = useState(calculatePassphraseStrength(""));
 
-  // Encryption + 3 splash steps (About You, Templates, AI Models)
-  const totalSteps = 4;
+  // The simplified app has a single setup gate (encryption); the old
+  // About You / Templates / AI Models splash steps were removed.
+  const totalSteps = 1;
 
-  const currentStepIndex = 0; // Encryption is always step 1 (index 0)
+  const currentStepIndex = 0; // Encryption is the only step
 
   useEffect(() => {
     setStrength(calculatePassphraseStrength(passphrase));
@@ -187,22 +188,20 @@ const EncryptionSetup = ({ onComplete }) => {
           <Text fontSize="sm" color="textSecondary" textAlign="center" maxW="420px" lineHeight="1.5">
             {STEP_DESCRIPTIONS[SPLASH_STEPS.ENCRYPTION]}
           </Text>
-          <HStack w="100%" justify="space-between" mt={1}>
-            <Progress.Root
-              value={((currentStepIndex + 1) / totalSteps) * 100}
-              colorPalette="blue"
-              borderRadius="full"
-              size="sm"
-              flex="1"
-            >
-              <Progress.Track>
-                <Progress.Range />
-              </Progress.Track>
-            </Progress.Root>
-            <Text fontSize="xs" color="textSecondary" whiteSpace="nowrap" ml={3}>
-              {currentStepIndex + 1} of {totalSteps}
-            </Text>
-          </HStack>
+          {/* Single-step setup: show a full bar without a misleading
+              "step X of Y" counter (the old 4-step flow was removed). */}
+          <Progress.Root
+            value={((currentStepIndex + 1) / totalSteps) * 100}
+            colorPalette="blue"
+            borderRadius="full"
+            size="sm"
+            w="100%"
+            mt={1}
+          >
+            <Progress.Track>
+              <Progress.Range />
+            </Progress.Track>
+          </Progress.Root>
         </VStack>
 
         {/* Content area — scrolls independently */}
