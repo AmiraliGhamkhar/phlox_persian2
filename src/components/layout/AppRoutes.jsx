@@ -23,11 +23,10 @@ const AppRoutes = () => (
             <Route path="/" element={<SpecialtyPage />} />
             <Route path="/workspace" element={<WorkspacePage />} />
             <Route path="/settings" element={<Settings />} />
-            <Route path="/new-note" element={<Navigate to="/" replace />} />
+            {/* Legacy deep link: notes live in the workspace now. */}
             <Route path="/note/:id" element={<Navigate to="/workspace" replace />} />
-            <Route path="/rag" element={<Navigate to="/" replace />} />
-            <Route path="/clinic-summary" element={<Navigate to="/" replace />} />
-            <Route path="/outstanding-jobs" element={<Navigate to="/" replace />} />
+            {/* Removed features (new-note, rag, clinic-summary, outstanding-jobs)
+                are covered by the catch-all redirect below. */}
             <Route path="*" element={<Navigate to="/" replace />} />
         </Routes>
     </Suspense>
