@@ -24,10 +24,11 @@ const EncryptionSetup = ({ onComplete }) => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [strength, setStrength] = useState(calculatePassphraseStrength(""));
 
-  // Encryption + 3 splash steps (About You, Templates, AI Models)
-  const totalSteps = 4;
+  // The simplified app has a single setup gate (encryption); the old
+  // About You / Templates / AI Models splash steps were removed.
+  const totalSteps = 1;
 
-  const currentStepIndex = 0; // Encryption is always step 1 (index 0)
+  const currentStepIndex = 0; // Encryption is the only step
 
   useEffect(() => {
     setStrength(calculatePassphraseStrength(passphrase));
@@ -47,10 +48,10 @@ const EncryptionSetup = ({ onComplete }) => {
         title: "عبارت عبور نامعتبر است",
         description:
           passphrase.length < 12
-            ? "Passphrase must be at least 12 characters"
+            ? "عبارت عبور باید حداقل ۱۲ نویسه باشد"
             : passphrase !== confirmPassphrase
-              ? "Passphrases do not match"
-              : "Please use a stronger passphrase",
+              ? "عبارت عبور و تأیید آن یکسان نیستند"
+              : "لطفاً عبارت عبور قوی‌تری انتخاب کنید",
         type: "warning",
         duration: 3000,
       });
@@ -102,17 +103,16 @@ const EncryptionSetup = ({ onComplete }) => {
       }
 
       toaster.create({
-        title: "Encryption Setup Complete",
-        description:
-          "Your encryption key has been created. Your data is now secure.",
+        title: "رمزگذاری با موفقیت راه‌اندازی شد",
+        description: "کلید رمزگذاری شما ساخته شد و داده‌هایتان محافظت می‌شود.",
         type: "success",
         duration: 5000,
       });
       onComplete();
     } catch (error) {
       toaster.create({
-        title: "Setup Failed",
-        description: error.toString() || "An error occurred during setup",
+        title: "راه‌اندازی رمزگذاری ناموفق بود",
+        description: error.toString() || "هنگام راه‌اندازی خطایی رخ داد",
         type: "error",
         duration: 5000,
       });
@@ -188,22 +188,20 @@ const EncryptionSetup = ({ onComplete }) => {
           <Text fontSize="sm" color="textSecondary" textAlign="center" maxW="420px" lineHeight="1.5">
             {STEP_DESCRIPTIONS[SPLASH_STEPS.ENCRYPTION]}
           </Text>
-          <HStack w="100%" justify="space-between" mt={1}>
-            <Progress.Root
-              value={((currentStepIndex + 1) / totalSteps) * 100}
-              colorPalette="blue"
-              borderRadius="full"
-              size="sm"
-              flex="1"
-            >
-              <Progress.Track>
-                <Progress.Range />
-              </Progress.Track>
-            </Progress.Root>
-            <Text fontSize="xs" color="textSecondary" whiteSpace="nowrap" ml={3}>
-              {currentStepIndex + 1} of {totalSteps}
-            </Text>
-          </HStack>
+          {/* Single-step setup: show a full bar without a misleading
+              "step X of Y" counter (the old 4-step flow was removed). */}
+          <Progress.Root
+            value={((currentStepIndex + 1) / totalSteps) * 100}
+            colorPalette="blue"
+            borderRadius="full"
+            size="sm"
+            w="100%"
+            mt={1}
+          >
+            <Progress.Track>
+              <Progress.Range />
+            </Progress.Track>
+          </Progress.Root>
         </VStack>
 
         {/* Content area — scrolls independently */}
@@ -219,7 +217,7 @@ const EncryptionSetup = ({ onComplete }) => {
             <Alert.Indicator />
             <Box>
               <Alert.Description>
-                If you forget your passphrase, your data cannot be recovered.
+                اگر عبارت عبور خود را فراموش کنید، داده‌هایتان قابل بازیابی نخواهد بود.
               </Alert.Description>
             </Box>
           </Alert.Root>
@@ -227,7 +225,7 @@ const EncryptionSetup = ({ onComplete }) => {
           <VStack gap={4} align="stretch" mt={4}>
             <Box>
               <Text mb={1} fontSize="sm" fontWeight="500" color="textPrimary">
-                Passphrase
+                عبارت عبور
               </Text>
               <HStack>
                 <Input
@@ -252,7 +250,7 @@ const EncryptionSetup = ({ onComplete }) => {
                 <Box mt={2}>
                   <HStack justify="space-between" mb={1}>
                     <Text fontSize="xs" color="textSecondary">
-                      Strength
+                      قدرت عبارت عبور
                     </Text>
                     <Text
                       fontSize="xs"
@@ -278,7 +276,7 @@ const EncryptionSetup = ({ onComplete }) => {
 
             <Box>
               <Text mb={1} fontSize="sm" fontWeight="500" color="textPrimary">
-                Confirm Passphrase
+                تأیید عبارت عبور
               </Text>
               <HStack>
                 <Input
@@ -309,7 +307,7 @@ const EncryptionSetup = ({ onComplete }) => {
               {confirmPassphrase.length > 0 &&
                 passphrase !== confirmPassphrase && (
                   <Text mt={1} fontSize="xs" color="dangerButton">
-                    Passphrases do not match
+                    عبارت عبور و تأیید آن یکسان نیستند
                   </Text>
                 )}
             </Box>

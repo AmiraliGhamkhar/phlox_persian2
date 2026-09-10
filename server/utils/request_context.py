@@ -38,9 +38,12 @@ def normalize_request_id(incoming: str | None) -> str | None:
 
 
 # --- Authenticated actor ---------------------------------------------------
-# Set from request.state.user when PROXY_AUTH_ENABLED (desktop: "local").
-# Pending-agent actions capture it so a confirm request from another user is
-# rejected (API1:2023) instead of running an action someone else queued.
+# Bound from request.state.user by ProxyAuthMiddleware when
+# PROXY_AUTH_ENABLED (desktop mode has no proxy user, so it stays None).
+# The original consumer — the pending-action confirmation queue — was removed
+# with the product simplification; the actor is still captured per request so
+# audit trails and any future per-user authorization (API1:2023) can rely on
+# it without API changes.
 _actor: ContextVar[str | None] = ContextVar("request_actor", default=None)
 
 

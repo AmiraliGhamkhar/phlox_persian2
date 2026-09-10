@@ -1,6 +1,7 @@
 import { Box, Text, InputGroup, Input, NativeSelect, VStack, HStack, Spinner } from "@chakra-ui/react";
 import { Tooltip } from "@/components/ui/tooltip";
 import { CheckCircleIcon } from "../common/icons";
+import SecretField from "../common/SecretField";
 import { applyLlmProviderDefaults } from "../../utils/aiProviders";
 
 const modelSelectOptions = (current, options) => {
@@ -32,11 +33,11 @@ const LlmTab = ({
         <VStack gap={4} align="stretch">
             <Box>
                 <Text fontSize="md" fontWeight="bold">
-                    Large Language Model (LLM)
+                    مدل زبانی بزرگ (LLM)
                 </Text>
                 <Text fontSize="sm" color="overlay0">
-                    Configure the language model provider for generating
-                    clinical reports
+                    ارائه‌دهنده مدل زبانی برای تولید گزارش‌های بالینی را
+                    پیکربندی کنید.
                 </Text>
             </Box>
 
@@ -53,6 +54,7 @@ const LlmTab = ({
                                 applyLlmProviderDefaults(
                                     event.target.value,
                                     handleConfigChange,
+                                    config?.LLM_BASE_URL,
                                 )
                             }
                             className="input-style"
@@ -95,7 +97,7 @@ const LlmTab = ({
                 <Box>
                     <Tooltip content="نشانی پایه نقطه پایانی API مدل زبانی سازگار با OpenAI/Ollama">
                         <Text fontSize="sm" mb="1" fontWeight={"bold"}>
-                            OpenAI/Ollama API Base URL
+                            نشانی پایه API (سازگار با OpenAI/Ollama)
                         </Text>
                     </Tooltip>
                     <InputGroup
@@ -128,32 +130,29 @@ const LlmTab = ({
                 <Box>
                     <Tooltip content="کلید API برای احراز هویت سرویس سازگار با OpenAI/Ollama">
                         <Text fontSize="sm" mb="1" fontWeight={"bold"}>
-                            API Key
+                            کلید API
                         </Text>
                     </Tooltip>
-                    <Input
-                        size="sm"
-                        type="password"
-                        value={config?.LLM_API_KEY || ""}
-                        onChange={(e) =>
-                            handleConfigChange("LLM_API_KEY", e.target.value)
+                    <SecretField
+                        storedValue={config?.LLM_API_KEY || ""}
+                        onChange={(value) =>
+                            handleConfigChange("LLM_API_KEY", value)
                         }
                         placeholder="sk-..."
-                        className="input-style"
                     />
                 </Box>
 
                 <Box>
                     <Tooltip content="مدل اصلی برای تولید پاسخ‌ها و یادداشت‌های بالینی">
                         <Text fontSize="sm" mb="1" fontWeight={"bold"}>
-                            Primary Model
+                            مدل اصلی
                         </Text>
                     </Tooltip>
                     {llmModelsLoading ? (
                         <HStack gap="2">
                             <Spinner size="sm" />
                             <Text fontSize="sm" color="overlay0">
-                                Loading models...
+                                در حال دریافت فهرست مدل‌ها...
                             </Text>
                         </HStack>
                     ) : (
@@ -187,14 +186,14 @@ const LlmTab = ({
                 <Box>
                     <Tooltip content="مدل ثانویه برای کارهای با قابلیت متفاوت یا مقایسه">
                         <Text fontSize="sm" mb="1" fontWeight={"bold"}>
-                            Secondary Model
+                            مدل ثانویه
                         </Text>
                     </Tooltip>
                     {llmModelsLoading ? (
                         <HStack gap="2">
                             <Spinner size="sm" />
                             <Text fontSize="sm" color="overlay0">
-                                Loading models...
+                                در حال دریافت فهرست مدل‌ها...
                             </Text>
                         </HStack>
                     ) : (

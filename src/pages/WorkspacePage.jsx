@@ -97,6 +97,13 @@ const WorkspacePage = () => {
         };
     }, [debouncedQuery]);
 
+    // Dictionary hits describe the transcript that the last report was
+    // generated from; as soon as the text changes they are stale and must
+    // not keep being displayed for different content.
+    useEffect(() => {
+        setDictionaryHits((previous) => (previous.length ? [] : previous));
+    }, [transcript]);
+
     const specialtyLabel = useMemo(() => {
         if (!specialty) return "";
         return specialty;
@@ -313,8 +320,8 @@ const WorkspacePage = () => {
                         )}
                         {Array.isArray(recorder.transcriptMeta?.flags) &&
                             recorder.transcriptMeta.flags.length > 0 && (
-                                <Box mt={3} p={3} borderRadius="md" bg="warning.50" border="1px solid" borderColor="warning.300" dir="rtl">
-                                    <Text fontSize="sm" color="warning.900" fontWeight="700" mb={2}>
+                                <Box mt={3} p={3} borderRadius="md" bg="bg.warning" border="1px solid" borderColor="border.warning" dir="rtl">
+                                    <Text fontSize="sm" color="fg.warning" fontWeight="700" mb={2}>
                                         بخش‌هایی از پیاده‌سازی نامطمئن هستند و به یادداشت ارسال‌شده علامت‌گذاری می‌شوند:
                                     </Text>
                                     <HStack gap={2} wrap="wrap">
@@ -346,23 +353,23 @@ const WorkspacePage = () => {
                             <Box
                                 p={3}
                                 borderRadius="md"
-                                bg="warning.50"
+                                bg="bg.warning"
                                 border="1px solid"
-                                borderColor="warning.300"
+                                borderColor="border.warning"
                                 dir="rtl"
                                 data-testid="verification-warnings"
                             >
-                                <Text fontSize="sm" color="warning.900" fontWeight="800" mb={2}>
+                                <Text fontSize="sm" color="fg.warning" fontWeight="800" mb={2}>
                                     ⚠ نیازمند بازبینی — {warnings.length} مورد ناسازگاری با متن پیاده‌سازی یافت شد:
                                 </Text>
                                 <VStack align="stretch" gap={1}>
                                     {warnings.map((warning, index) => (
-                                        <Text key={`${index}-${warning.kind}`} fontSize="sm" color="warning.900">
+                                        <Text key={`${index}-${warning.kind}`} fontSize="sm" color="fg.warning">
                                             • {WARNING_KIND_LABELS[warning.kind] || warning.kind}: {warning.detail}
                                         </Text>
                                     ))}
                                 </VStack>
-                                <Text fontSize="xs" color="warning.800" mt={2}>
+                                <Text fontSize="xs" color="fg.warning" opacity={0.85} mt={2}>
                                     یادداشت ویرایش‌نشده باقی مانده است؛ بخش‌های علامت‌گذاری‌شده را پیش از ثبت در پرونده بررسی کنید.
                                 </Text>
                             </Box>

@@ -5,6 +5,7 @@ Provides backwards-compatible Whisper routes and canonical ASR routes for downlo
 """
 
 import asyncio
+import contextlib
 import json
 import logging
 
@@ -128,6 +129,14 @@ async def download_whisper_model_stream(model_id: str):
         except Exception as e:
             logger.error(f"Download error: {e}")
             yield f"data: {json.dumps({'type': 'error', 'message': 'An error occurred during download'})}\n\n"
+        finally:
+            # Client disconnect (generator close) must stop the download.
+            # Cancellation also runs the model manager's partial-file cleanup
+            # and prevents a silent background activation nobody asked for.
+            if not download_task.done():
+                download_task.cancel()
+                with contextlib.suppress(BaseException):
+                    await download_task
 
     return StreamingResponse(generate(), media_type="text/event-stream")
 

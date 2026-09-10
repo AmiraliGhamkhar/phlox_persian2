@@ -49,10 +49,10 @@ const DisclaimerModal = ({ isOpen, onClose }) => {
                         {/* Warning alert */}
                         <Box
                             bg="surfaceMuted"
-                            borderLeft="4px solid"
+                            borderInlineStart="4px solid"
                             borderColor="secondaryButton"
                             width="90%"
-                            marginLeft="5%"
+                            marginInlineStart="5%"
                             p={3}
                             borderRadius="md"
                             mb={4}

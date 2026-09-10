@@ -519,7 +519,7 @@ fn wait_for_server_signal(child: &mut Child) -> Result<ServerSignal, String> {
             log::warn!("Timeout waiting for server signal");
             log::warn!(
                 "Stdout content: {}",
-                String::from_utf8_lossy(&stdout_buffer)
+                redact_ports_line(String::from_utf8_lossy(&stdout_buffer).as_ref())
             );
             log::warn!(
                 "Stderr content: {}",
@@ -569,7 +569,7 @@ fn wait_for_server_signal(child: &mut Child) -> Result<ServerSignal, String> {
                 log::warn!("EOF reached while waiting for server signal");
                 log::warn!(
                     "Stdout content: {}",
-                    String::from_utf8_lossy(&stdout_buffer)
+                    redact_ports_line(String::from_utf8_lossy(&stdout_buffer).as_ref())
                 );
                 let _ = stderr_reader.read_to_end(&mut stderr_buffer);
                 log::warn!(
@@ -587,7 +587,7 @@ fn wait_for_server_signal(child: &mut Child) -> Result<ServerSignal, String> {
 
                 if let Some(newline_pos) = content.find('\n') {
                     let line = &content[..newline_pos];
-                    log::debug!("Read line from stdout: {}", line);
+                    log::debug!("Read line from stdout: {}", redact_ports_line(line));
 
                     if line.trim() == "WAITING_FOR_PASSPHRASE" {
                         log::info!("Server is waiting for passphrase");
@@ -618,6 +618,18 @@ fn wait_for_server_signal(child: &mut Child) -> Result<ServerSignal, String> {
                 return Err(format!("Error reading from server stdout: {}", e));
             }
         }
+    }
+}
+
+/// Mask the request token in a server stdout line before it reaches the logs.
+///
+/// The handshake line is `PORTS:s,ll,w,e|TOKEN:xyz`; the token is a live API
+/// credential, so nothing beyond the prefix may be written to phlox-app.log
+/// (A09:2025 — security Logging & Monitoring Failures).
+fn redact_ports_line(line: &str) -> String {
+    match line.split_once("|TOKEN:") {
+        Some((prefix, _token)) => format!("{prefix}|TOKEN:<redacted>"),
+        None => line.to_string(),
     }
 }
 
@@ -667,13 +679,14 @@ fn parse_ports_line(line: &str) -> Result<AllocatedPorts, String> {
         return Err("Empty token received".to_string());
     }
 
+    // Never log the token — not even a prefix; every prefix logged to disk
+    // narrows the search space for an attacker who reads phlox-app.log.
     log::info!(
-        "Parsed allocated ports: server={}, llama={}, whisper={}, embedding={}, token={}...",
+        "Parsed allocated ports: server={}, llama={}, whisper={}, embedding={}, token=<redacted>",
         server,
         llama,
         whisper,
-        embedding,
-        &token[..8.min(token.len())]
+        embedding
     );
 
     Ok(AllocatedPorts {
@@ -724,7 +737,7 @@ fn spawn_drain_threads(child: &mut Child) -> (JoinHandle<()>, JoinHandle<()>, Ar
                 if shutdown_stdout.load(Ordering::Relaxed) {
                     break;
                 }
-                log::info!("[server stdout] {}", line);
+                log::info!("[server stdout] {}", redact_ports_line(&line));
             }
         }
         log::debug!("Stdout drain thread exiting");

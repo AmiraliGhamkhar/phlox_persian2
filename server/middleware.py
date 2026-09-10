@@ -427,8 +427,8 @@ class ProxyAuthMiddleware(BaseHTTPMiddleware):
             return JSONResponse(status_code=403, content={"detail": "Access denied"})
 
         # Store user for downstream use and bind it to the request context so
-        # background tasks (pending-action confirmations, patient access)
-        # can enforce object-level authorization (API1:2023).
+        # handlers and audit logging can attribute the request to an
+        # authenticated actor (object-level authorization hook, API1:2023).
         request.state.user = user
         from server.utils.request_context import (
             reset_request_actor,
@@ -441,6 +441,94 @@ class ProxyAuthMiddleware(BaseHTTPMiddleware):
         finally:
             reset_request_actor(actor_token)
         return response
+
+
+class AuditLogMiddleware(BaseHTTPMiddleware):
+    """Append one row per API request to the encrypted ``audit_log`` table.
+
+    Records only method, path, status, actor, client IP and duration. Bodies,
+    headers and query strings are deliberately never written, so the audit
+    trail cannot capture PHI or credentials. Writes are best-effort: any
+    failure is logged at debug level and never breaks the request itself.
+
+    WebSocket upgrades (live transcription) do not pass through ASGI HTTP
+    middleware; those sessions are covered by token auth + rate limiting
+    instead of row-level auditing.
+    """
+
+    DEFAULT_RETENTION_DAYS = 90
+
+    async def dispatch(self, request, call_next):
+        path = request.url.path
+        if not path.startswith("/api/"):
+            return await call_next(request)
+
+        started = time.perf_counter()
+        status_code = 500  # used when the handler raises (client sees a 500)
+        try:
+            response = await call_next(request)
+            status_code = response.status_code
+            return response
+        finally:
+            duration_ms = int((time.perf_counter() - started) * 1000)
+            try:
+                await asyncio.to_thread(
+                    self._write_audit_row,
+                    getattr(request.state, "user", None) or "local",
+                    request.method,
+                    path,
+                    status_code,
+                    getattr(request.state, "client_ip", None),
+                    duration_ms,
+                )
+            except Exception:
+                logger.debug("Audit log write skipped", exc_info=True)
+
+    @staticmethod
+    def _write_audit_row(actor, method, path, status, client_ip, duration_ms):
+        from server.database.core.connection import get_db, is_db_initialized
+
+        if not is_db_initialized():
+            return
+        with get_db().transaction() as cursor:
+            cursor.execute(
+                "INSERT INTO audit_log (actor, method, path, status, client_ip, duration_ms) "
+                "VALUES (?, ?, ?, ?, ?, ?)",
+                (actor, method, path, status, client_ip, duration_ms),
+            )
+
+    @classmethod
+    async def purge_expired_rows(cls):
+        """Delete audit rows older than AUDIT_RETENTION_DAYS (best-effort)."""
+        try:
+            await asyncio.to_thread(cls.purge_expired_rows_sync)
+        except Exception:
+            logger.debug("Audit retention purge skipped", exc_info=True)
+
+    @classmethod
+    def purge_expired_rows_sync(cls):
+        """Synchronous retention purge (runs in a worker thread / tests)."""
+        from server.database.config.manager import config_manager
+        from server.database.core.connection import get_db, is_db_initialized
+
+        if not is_db_initialized():
+            return
+
+        retention_days = cls.DEFAULT_RETENTION_DAYS
+        try:
+            configured = config_manager.get_config().get("AUDIT_RETENTION_DAYS")
+            if configured is not None:
+                retention_days = int(configured)
+        except (TypeError, ValueError):
+            logger.debug("Invalid AUDIT_RETENTION_DAYS, using default", exc_info=True)
+        if retention_days <= 0:
+            return
+
+        with get_db().transaction() as cursor:
+            cursor.execute(
+                "DELETE FROM audit_log WHERE timestamp < datetime('now', ?)",
+                (f"-{int(retention_days)} days",),
+            )
 
 
 class RateLimitMiddleware(BaseHTTPMiddleware):

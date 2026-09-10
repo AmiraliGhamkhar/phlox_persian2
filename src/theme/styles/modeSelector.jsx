@@ -54,7 +54,9 @@ const modeSelectorStyles = (props) => ({
         borderRadius: "full !important",
         height: "calc(100% - 4px) !important",
         width: "50% !important",
-        transition: "left 0.3s ease !important",
+        // Logical direction so the slide animation follows inset-inline-start
+        // (RTL-aware) instead of physical left.
+        transition: "inset-inline-start 0.3s ease !important",
     },
 
     // Template mode selector indicator (same as above but with specific class)
@@ -67,7 +69,7 @@ const modeSelectorStyles = (props) => ({
         borderRadius: "full !important",
         height: "calc(100% - 4px) !important",
         width: "50% !important",
-        transition: "left 0.3s ease !important",
+        transition: "inset-inline-start 0.3s ease !important",
     },
 
     ".mode-selector-button": {

@@ -77,7 +77,7 @@ export function CustomToast(props) {
                 as="button"
                 position="absolute"
                 top="2"
-                right="2"
+                insetInlineEnd="2"
                 onClick={onClose}
                 background="none"
                 border="none"

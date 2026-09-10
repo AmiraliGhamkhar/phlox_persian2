@@ -72,7 +72,7 @@ const ModelSettingsPanel = ({
                             <ChevronDownIcon />
                         )}
                     </IconButton>
-                    <FaCog size="1.2em" style={{ marginRight: "5px" }} />
+                    <FaCog size="1.2em" style={{ marginInlineEnd: "5px" }} />
                     <Text as="h3">تنظیمات مدل</Text>
                 </Flex>
             </Flex>
@@ -89,7 +89,7 @@ const ModelSettingsPanel = ({
                                     fontWeight="bold"
                                     mb="3"
                                 >
-                                    Inference Type
+                                    نوع اجرا
                                 </Text>
                             </Tooltip>
                             <Flex
@@ -100,7 +100,11 @@ const ModelSettingsPanel = ({
                             >
                                 <Box
                                     className="mode-selector-indicator"
-                                    left={
+                                    // Logical property: in this RTL app the
+                                    // first option renders on the right, so a
+                                    // physical `left` would highlight the
+                                    // opposite mode.
+                                    insetInlineStart={
                                         isLocalInference
                                             ? "2px"
                                             : "calc(50% - 2px)"
@@ -121,7 +125,7 @@ const ModelSettingsPanel = ({
                                             }
                                         >
                                             <FaDesktop />
-                                            Local
+                                            محلی
                                         </Button>
                                     </Tooltip>
                                     <Tooltip content="اتصال به APIهای خارجی سازگار با OpenAI/Ollama">
@@ -134,7 +138,7 @@ const ModelSettingsPanel = ({
                                             }
                                         >
                                             <FaCloud />
-                                            Remote
+                                            راه‌دور
                                         </Button>
                                     </Tooltip>
                                 </Flex>

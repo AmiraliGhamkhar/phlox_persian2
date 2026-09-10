@@ -10,6 +10,7 @@ import {
 } from "@chakra-ui/react";
 import { Tooltip } from "@/components/ui/tooltip";
 import { CheckCircleIcon } from "../common/icons";
+import SecretField from "../common/SecretField";
 import { applyAsrProviderDefaults } from "../../utils/aiProviders";
 
 const WhisperTab = ({
@@ -62,6 +63,8 @@ const WhisperTab = ({
                                 applyAsrProviderDefaults(
                                     event.target.value,
                                     handleConfigChange,
+                                    config?.ASR_BASE_URL || config?.WHISPER_BASE_URL,
+                                    config?.ASR_BATCH_URL,
                                 )
                             }
                             className="input-style"
@@ -185,17 +188,12 @@ const WhisperTab = ({
                                     کلید Batch API — اختیاری
                                 </Text>
                             </Tooltip>
-                            <Input
-                                size="sm"
-                                type="password"
-                                dir="ltr"
-                                data-ltr="true"
-                                value={config?.ASR_BATCH_KEY || ""}
-                                onChange={(event) =>
-                                    handleConfigChange("ASR_BATCH_KEY", event.target.value)
+                            <SecretField
+                                storedValue={config?.ASR_BATCH_KEY || ""}
+                                onChange={(value) =>
+                                    handleConfigChange("ASR_BATCH_KEY", value)
                                 }
                                 placeholder="کلید Batch (type=batch)"
-                                className="input-style"
                             />
                         </Box>
                     </>
@@ -298,13 +296,9 @@ const WhisperTab = ({
                                 کلید API
                             </Text>
                         </Tooltip>
-                        <Input
-                            size="sm"
-                            type="password"
-                            dir="ltr"
-                            data-ltr="true"
-                            value={config?.ASR_KEY || config?.WHISPER_KEY || ""}
-                            onChange={(event) => updateKey(event.target.value)}
+                        <SecretField
+                            storedValue={config?.ASR_KEY || config?.WHISPER_KEY || ""}
+                            onChange={updateKey}
                             placeholder={
                                 provider === "speechmatics"
                                     ? "کلید Speechmatics"
@@ -312,7 +306,6 @@ const WhisperTab = ({
                                       ? "کلید AssemblyAI"
                                       : "کلید API، در صورت نیاز"
                             }
-                            className="input-style"
                         />
                     </Box>
                 )}

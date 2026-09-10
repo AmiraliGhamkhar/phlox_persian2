@@ -96,40 +96,67 @@ export const encryptionApi = {
 };
 
 /**
- * Calculate passphrase strength
+ * Calculate passphrase strength.
+ *
+ * Unicode-aware: Persian (and other non-Latin) passphrases are scored on
+ * length, multi-word structure and script mixing instead of ASCII-only
+ * upper/lower-case rules that can never be satisfied by Persian text.
+ *
  * @param {string} passphrase
- * @returns {object} - { score: 0-4, feedback: string }
+ * @returns {object} - { score: 0-4, strength: string, feedback: string[] }
  */
 export const calculatePassphraseStrength = (passphrase) => {
   let score = 0;
   const feedback = [];
 
+  // Length is the dominant factor — a 16-character Persian phrase is a
+  // strong passphrase even without digits or symbols.
   if (passphrase.length >= 12) score += 1;
-  else feedback.push("Use at least 12 characters");
+  else feedback.push("حداقل ۱۲ نویسه وارد کنید");
 
   if (passphrase.length >= 16) score += 1;
-  else if (passphrase.length >= 12) feedback.push("16+ characters is better");
+  else if (passphrase.length >= 12)
+    feedback.push("عبارت عبور ۱۶ نویسه‌ای یا بلندتر امن‌تر است");
 
-  if (/[a-z]/.test(passphrase) && /[A-Z]/.test(passphrase)) score += 1;
-  else feedback.push("Mix uppercase and lowercase");
+  // Character diversity: mixed case (Latin scripts) or mixing two scripts
+  // (e.g. Persian + Latin) both raise guessing cost.
+  const hasLower = /\p{Ll}/u.test(passphrase);
+  const hasUpper = /\p{Lu}/u.test(passphrase);
+  const scriptPatterns = [
+    /\p{Script=Latin}/u,
+    /\p{Script=Arabic}/u,
+    /\p{Script=Cyrillic}/u,
+    /\p{Script=Greek}/u,
+  ];
+  const scriptCount = scriptPatterns.filter((pattern) =>
+    pattern.test(passphrase),
+  ).length;
+  if ((hasLower && hasUpper) || scriptCount >= 2) score += 1;
+  else
+    feedback.push("ترکیب دو زبان یا حروف کوچک و بزرگ، امنیت را بالا می‌برد");
 
-  if (/\d/.test(passphrase)) score += 1;
-  else feedback.push("Add numbers");
+  if (/\p{Nd}/u.test(passphrase)) score += 1;
+  else feedback.push("افزودن عدد توصیه می‌شود");
 
-  if (/[^a-zA-Z0-9]/.test(passphrase)) score += 1;
-  else feedback.push("Add special characters");
+  if (/[^\p{L}\p{Nd}\s]/u.test(passphrase)) score += 1;
+  else feedback.push("افزودن نشانه (مانند - یا ! یا @) توصیه می‌شود");
+
+  // Multi-word passphrases ("correct horse battery staple") get structure
+  // credit even in single-script languages.
+  if (passphrase.trim().split(/\s+/).length >= 3) score += 1;
+  else feedback.push("عبارت عبور چندکلمه‌ای انتخاب کنید");
 
   // Cap at 4
   const finalScore = Math.min(score, 4);
 
-  let strength = "Weak";
-  if (finalScore >= 4) strength = "Strong";
-  else if (finalScore >= 3) strength = "Good";
-  else if (finalScore >= 2) strength = "Fair";
+  let strength = "ضعیف";
+  if (finalScore >= 4) strength = "قوی";
+  else if (finalScore >= 3) strength = "خوب";
+  else if (finalScore >= 2) strength = "متوسط";
 
   return {
     score: finalScore,
     strength,
-    feedback: feedback.length > 0 ? feedback : ["Looks good!"],
+    feedback: feedback.length > 0 ? feedback : ["عبارت عبور مناسبی است"],
   };
 };
