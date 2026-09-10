@@ -7,7 +7,7 @@ import {
     Input,
 } from "@chakra-ui/react";
 import { toaster } from "@/components/ui/toaster";
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { settingsService } from "../utils/settings/settingsUtils";
 import { settingsApi } from "../utils/api/settingsApi";
 import ModelSettingsPanel from "../components/settings/ModelSettingsPanel";
@@ -42,11 +42,17 @@ const Settings = () => {
         if (clinicianName && !name) setName(clinicianName);
     }, [clinicianName, name]);
 
+    // Last config snapshot known to be persisted; autosave diffs against it
+    // so only changed keys are POSTed (full-config saves sent masked API
+    // keys and every unrelated field on each keystroke).
+    const lastSavedConfigRef = useRef(null);
+
     const fetchCoreSettings = useCallback(async () => {
         try {
             setCoreLoading(true);
             const configData = await settingsApi.fetchConfig();
             setConfig(configData);
+            lastSavedConfigRef.current = configData;
             try {
                 const catalog = await settingsApi.fetchProviders();
                 setLlmProviders(catalog?.llm || []);
@@ -253,10 +259,20 @@ const Settings = () => {
     }, [config?.LLM_PROVIDER]);
 
     const saveConfigFn = async (newConfig) => {
-        if (newConfig) {
-            await settingsApi.saveConfig(newConfig);
-            refreshStatus();
+        if (!newConfig) return;
+        const baseline = lastSavedConfigRef.current || {};
+        const changed = {};
+        for (const [key, value] of Object.entries(newConfig)) {
+            if (value !== baseline[key]) {
+                changed[key] = value;
+            }
         }
+        if (Object.keys(changed).length === 0) return;
+        // Baseline moves only after a successful save, so a failed request
+        // re-sends its keys on the next autosave.
+        await settingsApi.saveConfig(changed);
+        lastSavedConfigRef.current = newConfig;
+        refreshStatus();
     };
 
     const saveNameFn = async (newName) => {
