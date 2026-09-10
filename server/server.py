@@ -36,6 +36,7 @@ from server.middleware import (
     ProxyAuthMiddleware,
     RateLimitMiddleware,
     RequestBodyLimitMiddleware,
+    RequestIdMiddleware,
     SecurityHeadersMiddleware,
     TrustedProxyMiddleware,
 )
@@ -203,6 +204,10 @@ def initialize_and_get_app():
     app.add_middleware(SecurityHeadersMiddleware)
     # Cheap early rejection of oversized bodies (runs before auth/rate limits)
     app.add_middleware(RequestBodyLimitMiddleware)
+    # Correlation id for every request (X-Request-Id echo/generation). Added
+    # last so it executes first and downstream middleware/handlers can include
+    # the id in their logs.
+    app.add_middleware(RequestIdMiddleware)
 
     # Then load API submodules (the simplified app serves transcription,
     # workspace/report, settings, and health only)
